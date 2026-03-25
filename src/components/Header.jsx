@@ -6,7 +6,7 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => (
   <header className="h-16 md:h-20 bg-white border-b border-slate-200/60 shadow-sm flex items-center justify-between px-4 md:px-8 z-10 shrink-0 sticky top-0 w-full">
     {/* Mobile Hamburger & Logo text */}
     <div className="flex items-center gap-3 lg:hidden">
-      <button 
+      <button
         className="text-slate-500 hover:text-slate-700 p-1 -ml-1 rounded-md active:bg-slate-100 transition-colors"
         onClick={() => setIsMobileMenuOpen(true)}
       >
@@ -15,7 +15,7 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => (
       <span className="font-bold text-lg tracking-wide uppercase text-slate-800">MyRail<span className="text-primary-600">Pool</span></span>
     </div>
 
-    {/* Search Bar */}
+    {/* Search Bar
     <div className="hidden sm:flex flex-1 max-w-xl ml-4 lg:ml-0">
       <div className="relative group w-full">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
@@ -27,13 +27,13 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => (
           placeholder="Search bookings, trips, drivers..."
         />
       </div>
-    </div>
+    </div> */}
 
     {/* Right Actions */}
-    <div className="flex items-center gap-3 md:gap-6 ml-auto sm:ml-4">
-      <button className="sm:hidden text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-50">
+    <div className="flex items-center gap-3 md:gap-6 ml-auto">
+      {/* <button className="sm:hidden text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-50">
         <Search className="w-5 h-5" />
-      </button>
+      </button> */}
 
       <div className="relative">
         <Link to="/notifications" className="text-slate-400 hover:text-slate-600 p-1.5 md:p-2 rounded-full hover:bg-slate-50 transition-colors block relative focus:outline-none">
@@ -41,7 +41,7 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => (
           <span className="absolute top-1 right-1.5 md:top-1.5 md:right-2 block h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-red-500 ring-2 ring-white shadow-sm"></span>
         </Link>
       </div>
-      
+
       <div className="w-px h-6 md:h-8 bg-slate-200 hidden xs:block"></div>
 
       <button className="flex items-center gap-2 md:gap-3 hover:bg-slate-50 p-1 md:p-1.5 rounded-full md:pr-4 transition-colors border border-transparent hover:border-slate-200 focus:outline-none">

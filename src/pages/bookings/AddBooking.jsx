@@ -16,21 +16,21 @@ export const AddBooking = () => {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 md:p-8 space-y-8">
+        <div className="p-4 md:p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Customer Name</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder:text-slate-400" placeholder="e.g. Liam Johnson" />
+              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder:text-slate-400" placeholder="e.g. Liam Johnson" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Phone Number</label>
-              <input type="tel" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder:text-slate-400" placeholder="+91 9876543210" />
+              <input type="tel" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder:text-slate-400" placeholder="+91 9876543210" />
             </div>
           </div>
-          <div className="border-t border-slate-100 pt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="space-y-2 md:col-span-2">
+          <div className="border-t border-slate-100 pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 md:col-span-1">
               <label className="text-sm font-semibold text-slate-700">Route</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option>Airport to Downtown</option>
                 <option>Central Station to Hotel</option>
                 <option>City Tour</option>
@@ -38,24 +38,24 @@ export const AddBooking = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Schedule Date & Time</label>
-              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-slate-700" />
+              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-slate-700" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Price Quote (₹)</label>
-              <input type="number" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder:text-slate-400" placeholder="0.00" />
+              <input type="number" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder:text-slate-400" placeholder="0.00" />
             </div>
-          </div>
-          <div className="border-t border-slate-100 pt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* </div> */}
+            {/* <div className="border-t border-slate-100 pt-8 grid grid-cols-1 md:grid-cols-2 gap-6"> */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Booking Status</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="Pending">Pending</option>
                 <option value="Approved">Approved</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Assign Driver</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="">Unassigned</option>
                 <option value="James">James Miller - MH12AB3456</option>
                 <option value="Robert">Robert Taylor - MH12CD7890</option>

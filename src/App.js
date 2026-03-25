@@ -24,6 +24,9 @@ import { EditVehicle } from './pages/vehicles/EditVehicle';
 
 import { NotificationList } from './pages/notifications/NotificationList';
 import { Dashboard } from './pages/dashboard/Dashboard';
+import { AdminUserList } from './pages/AdminUsers/AdminUserList';
+import { AddAdmin } from './pages/AdminUsers/AddAdmin';
+import { AdminSettings } from './pages/Settings/AdminSettings';
 
 function App() {
   return (
@@ -70,6 +73,19 @@ function App() {
         {/* Notifications */}
         <Route path="notifications">
           <Route index element={<NotificationList />} />
+        </Route>
+
+        {/* Admin Users */}
+        <Route path="admin-users">
+          <Route index element={<AdminUserList />} />
+          <Route path="add" element={<AddAdmin />} />
+          <Route path="edit/:id" element={<AddAdmin />} />
+        </Route>
+
+        {/* Admin Settings */}
+        <Route path="admin-settings">
+          <Route index element={<AdminSettings />} />
+
         </Route>
 
       </Route>

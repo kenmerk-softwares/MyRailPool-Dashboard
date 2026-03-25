@@ -28,3 +28,15 @@ export const vehiclesData = [
   { id: '#VH-882', model: 'Honda City', type: 'Sedan', plate: 'MH-12-CD-7890', capacity: '4+1', status: 'Active' },
   { id: '#VH-883', model: 'Maruti Dzire', type: 'Sedan', plate: 'MH-14-EF-1234', capacity: '4+1', status: 'Maintenance' },
 ];
+
+export const adminUsersData = [
+  { id: '#AU-001', name: 'Admin 1', email: 'admin@gmail.com', role: 'Super Admin', status: 'Active' },
+  { id: '#AU-002', name: 'Admin 2', email: 'admin@gmail.com', role: 'Admin', status: 'Active' },
+  { id: '#AU-003', name: 'Admin 3', email: 'admin@gmail.com', role: 'Viewer', status: 'Inactive' }
+];
+
+export const designations = [
+  { id: '1', designationName: 'Super Admin' },
+  { id: '2', designationName: 'Admin' },
+  { id: '3', designationName: 'Viewer' },
+];

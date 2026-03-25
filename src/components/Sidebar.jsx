@@ -20,8 +20,8 @@ const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile }) => {
       to={path}
       onClick={isMobile ? onClick : undefined}
       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${active
-          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md shadow-primary-500/20'
-          : 'text-primary-100/70 hover:bg-primary-800 hover:text-white'
+        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md shadow-primary-500/20'
+        : 'text-primary-100/70 hover:bg-primary-800 hover:text-white'
         }`}
     >
       <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : 'text-primary-200/50 group-hover:text-white transition-colors'}`} />
@@ -39,6 +39,9 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/drivers', label: 'Drivers', icon: Users },
     { path: '/vehicles', label: 'Vehicles', icon: Car },
     { path: '/notifications', label: 'Notifications', icon: Bell },
+    { path: '/admin-users', label: 'Admin Users', icon: Users },
+    { path: '/admin-settings', label: 'Admin Settings', icon: Settings },
+
   ];
 
   return (
