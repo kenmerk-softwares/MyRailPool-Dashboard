@@ -3,8 +3,13 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { tripsData } from '../../data/mockData';
+import { FaCalendarAlt } from 'react-icons/fa';
 
-export const TripList = () => (
+export const TripList = () => {
+  const [fromDate, setFromDate] = React.useState('');
+  const [toDate, setToDate] = React.useState('');
+  const [activeFilter, setActiveFilter] = React.useState(null);
+  return (
   <>
     <SectionHeader
       title="Trip Management"
@@ -29,6 +34,23 @@ export const TripList = () => (
               />
             </div>
           </div>
+          {/* date filter */}
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+            <FaCalendarAlt className="text-gray-400 text-xs" />
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => { setFromDate(e.target.value); setActiveFilter(null); }}
+              className="bg-transparent border-none outline-none text-sm text-gray-600 w-32"
+            />
+            <span className="text-gray-300">|</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => { setToDate(e.target.value); setActiveFilter(null); }}
+              className="bg-transparent border-none outline-none text-sm text-gray-600 w-32"
+            />
+          </div>
           <div className="flex items-center gap-3">
             <select name="" id="" className="border border-slate-200 rounded-xl px-4 py-2 text-xs md:text-sm">
               <option value="">All</option>
@@ -37,7 +59,7 @@ export const TripList = () => (
               <option value="">Pending</option>
               <option value="">Cancelled</option>
             </select>
-            <button className="bg-red-400 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
+            <button className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
           </div>
 
         </div>
@@ -82,4 +104,4 @@ export const TripList = () => (
       </div>
     </div>
   </>
-);
+)};

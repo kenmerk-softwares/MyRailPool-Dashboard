@@ -6,9 +6,9 @@ import { vehiclesData } from '../../data/mockData';
 
 export const VehicleList = () => (
   <>
-    <SectionHeader 
-      title="Fleet Management" 
-      subtitle="Manage your vehicle inventory, maintenance status, and capacity." 
+    <SectionHeader
+      title="Fleet Management"
+      subtitle="Manage your vehicle inventory, maintenance status, and capacity."
       actionLabel="Add Vehicle"
       actionIcon={Plus}
       actionTo="/vehicles/add"
@@ -40,7 +40,7 @@ export const VehicleList = () => (
               <option value="">Inactive</option>
               <option value="">Maintenance</option>
             </select>
-            <button className="bg-red-400 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
+            <button className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
           </div>
 
         </div>
@@ -70,7 +70,7 @@ export const VehicleList = () => (
                 </td>
                 <td className="px-4 md:px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <Link to={`/vehicles/edit/${vehicle.id.replace('#','')}`} className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
+                    <Link to={`/vehicles/edit/${vehicle.id.replace('#', '')}`} className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
                       <Edit className="w-4 h-4" />
                     </Link>
                     <button className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">

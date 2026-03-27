@@ -57,8 +57,16 @@ export const AddBooking = () => {
               <label className="text-sm font-semibold text-slate-700">Assign Driver</label>
               <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="">Unassigned</option>
-                <option value="James">James Miller - MH12AB3456</option>
-                <option value="Robert">Robert Taylor - MH12CD7890</option>
+                <option value="James">James Miller - 9867453210</option>
+                <option value="Robert">Robert Taylor - 9867453210</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700">Assign Vehicle</label>
+              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+                <option value="">Unassigned</option>
+                <option value="James">MH12AB3456</option>
+                <option value="Robert">MH12CD7890</option>
               </select>
             </div>
           </div>

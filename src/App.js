@@ -27,6 +27,7 @@ import { Dashboard } from './pages/dashboard/Dashboard';
 import { AdminUserList } from './pages/AdminUsers/AdminUserList';
 import { AddAdmin } from './pages/AdminUsers/AddAdmin';
 import { AdminSettings } from './pages/Settings/AdminSettings';
+import ViewDriver from './pages/drivers/ViewDriver';
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
           <Route index element={<DriverList />} />
           <Route path="add" element={<AddDriver />} />
           <Route path="edit/:id" element={<EditDriver />} />
+          <Route path="view/:id" element={<ViewDriver />} />
         </Route>
 
         {/* Vehicles */}

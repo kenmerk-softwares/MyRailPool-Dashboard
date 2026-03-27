@@ -39,7 +39,7 @@ export const AdminUserList = () => (
 							<option value="">Active</option>
 							<option value="">Inactive</option>
 						</select>
-						<button className="bg-red-400 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
+						<button className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
 					</div>
 
 				</div>
