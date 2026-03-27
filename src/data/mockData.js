@@ -1,8 +1,8 @@
 export const bookingsData = [
-  { id: '#BK-8493', name: 'Liam Johnson', route: 'Airport to Downtown', date: '2026-03-24, 14:30', status: 'Pending', statusColor: 'warning', price: '₹1,200', driver: null },
-  { id: '#BK-8492', name: 'Emma Watson', route: 'Central Station to Hotel', date: '2026-03-23, 11:00', status: 'Approved', statusColor: 'success', price: '₹850', driver: 'James Miller' },
-  { id: '#BK-8491', name: 'Noah Smith', route: 'City Tour', date: '2026-03-22, 09:15', status: 'Completed', statusColor: 'slate', price: '₹2,500', driver: 'Robert Taylor' },
-  { id: '#BK-8490', name: 'Olivia Brown', route: 'Business District', date: '2026-03-21, 08:00', status: 'Declined', statusColor: 'danger', price: '₹400', driver: null },
+  { id: '#BK-8493', name: 'Liam Johnson', phone: '+91 98765 43210', route: 'Airport to Downtown', date: '2026-03-24, 14:30', status: 'Pending', statusColor: 'warning', price: '₹1,200', driver: null, driverContact: null, vehicleNo: null },
+  { id: '#BK-8492', name: 'Emma Watson', phone: '+91 87654 32109', route: 'Central Station to Hotel', date: '2026-03-23, 11:00', status: 'Approved', statusColor: 'success', price: '₹850', driver: 'James Miller', driverContact: '+91 99887 76655', vehicleNo: 'MH-12-AB-3456' },
+  { id: '#BK-8491', name: 'Noah Smith', phone: '+91 76543 21098', route: 'City Tour', date: '2026-03-22, 09:15', status: 'Completed', statusColor: 'slate', price: '₹2,500', driver: 'Robert Taylor', driverContact: '+91 88776 65544', vehicleNo: 'MH-12-CD-7890' },
+  { id: '#BK-8490', name: 'Olivia Brown', phone: '+91 65432 10987', route: 'Business District', date: '2026-03-21, 08:00', status: 'Declined', statusColor: 'danger', price: '₹400', driver: null, driverContact: null, vehicleNo: null },
 ];
 
 export const tripsData = [

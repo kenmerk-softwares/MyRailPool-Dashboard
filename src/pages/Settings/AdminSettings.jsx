@@ -21,7 +21,7 @@ export const AdminSettings = () => {
 						className="bg-white border border-slate-200 px-6 py-4 rounded-xl cursor-pointer flex items-center gap-3 font-semibold text-slate-600 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 hover:text-slate-800"
 						onClick={() => setPermissionPopup(true)}
 					>
-						<FaUserShield className="text-[1.2rem] text-indigo-500" />
+						<FaUserShield className="text-[1.2rem] text-green-800" />
 						Permission Model
 					</button>
 				</div>

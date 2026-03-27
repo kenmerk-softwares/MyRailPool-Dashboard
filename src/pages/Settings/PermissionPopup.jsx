@@ -53,7 +53,7 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 		<div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] backdrop-blur-sm animate-in fade-in duration-200">
 			<div className="bg-white p-8 rounded-[20px] w-[90%] max-w-[600px] shadow-2xl animate-in slide-in-from-bottom-5 duration-300 flex flex-col max-h-[85vh]">
 				<div className="flex justify-between items-center mb-6">
-					<h2 className="m-0 text-[#2b3674] text-xl font-bold">Permission Model</h2>
+					<h2 className="m-0 text-green-900 text-xl font-bold">Permission Model</h2>
 					<button className="bg-transparent border-none text-[1.25rem] text-slate-400 cursor-pointer p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:bg-slate-50 hover:text-slate-800" onClick={onClose}>
 						<FaTimes />
 					</button>
