@@ -58,7 +58,7 @@ export default function ViewDriver() {
 								<Phone className="w-4 h-4 text-primary-500" />
 								{selectedDriver.phone}
 							</div>
-							<div className="flex items-center gap-2 justify-center md:justify-start text-slate-400 text-xs md:text-sm uppercase font-bold tracking-wider">
+							<div className="flex items-center gap-2 justify-center md:justify-start text-slate-600 text-xs md:text-sm uppercase font-bold tracking-wider">
 								<Award className="w-4 h-4 text-primary-500" />
 								License: {selectedDriver.license}
 							</div>
@@ -134,16 +134,16 @@ export default function ViewDriver() {
 									{driverTrips.map((trip, idx) => (
 										<tr key={idx} className="group hover:bg-slate-50/30 transition-colors">
 											<td className="px-6 py-5 text-center">
-												<span className="text-sm font-bold text-slate-800 truncate block max-w-[120px]">{trip.id}</span>
+												<span className="text-sm font-bold text-slate-800 truncate block max-w-[120px] text-center">{trip.id}</span>
 											</td>
 											<td className="px-6 py-5 text-center">
 												<div className="flex items-center gap-3">
 													<MapPin className="w-4 h-4 text-slate-300" />
-													<span className="text-sm font-medium text-slate-700">{trip.route}</span>
+													<span className="text-sm font-medium text-slate-700 text-center">{trip.route}</span>
 												</div>
 											</td>
 											<td className="px-6 py-5 text-center">
-												<span className="text-sm font-medium text-slate-600">{trip.date}</span>
+												<span className="text-sm font-medium text-slate-600 text-center">{trip.date}</span>
 											</td>
 											<td className="px-6 py-5 text-center">
 												<StatusBadge status={trip.status} statusColor={trip.status === 'In Transit' ? 'primary' : 'success'} />
