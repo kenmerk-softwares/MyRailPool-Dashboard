@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/myrailpool-dashboard/static/css/main.83f0711f.css",
+    "main.js": "/myrailpool-dashboard/static/js/main.afeef7f1.js",
+    "static/js/453.2ffaa5eb.chunk.js": "/myrailpool-dashboard/static/js/453.2ffaa5eb.chunk.js",
+    "index.html": "/myrailpool-dashboard/index.html",
+    "main.83f0711f.css.map": "/myrailpool-dashboard/static/css/main.83f0711f.css.map",
+    "main.afeef7f1.js.map": "/myrailpool-dashboard/static/js/main.afeef7f1.js.map",
+    "453.2ffaa5eb.chunk.js.map": "/myrailpool-dashboard/static/js/453.2ffaa5eb.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.83f0711f.css",
+    "static/js/main.afeef7f1.js"
+  ]
+}
