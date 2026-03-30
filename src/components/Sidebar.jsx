@@ -8,7 +8,8 @@ import {
   Car,
   Settings,
   X,
-  Bell
+  Bell,
+  Logs
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile }) => {
@@ -41,6 +42,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/notifications', label: 'Notifications', icon: Bell },
     { path: '/admin-users', label: 'Admin Users', icon: Users },
     { path: '/admin-settings', label: 'Admin Settings', icon: Settings },
+    { path: '/admin-logs', label: 'Admin Logs', icon: Logs },
 
   ];
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Search, Bell, UserCircle, ChevronDown } from 'lucide-react';
+import { Menu, Search, Bell, UserCircle, ChevronDown, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
@@ -65,6 +65,13 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             <span className="text-xs text-slate-500">Superadmin</span>
           </div>
           <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-slate-400 hidden md:block" />
+        </button>
+        <button 
+          onClick={() => navigate('/login')}
+          className="text-slate-400 hover:text-red-500 p-1.5 md:p-2 rounded-full hover:bg-red-50 transition-colors focus:outline-none"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5 md:w-6 md:h-6" />
         </button>
       </div>
     </header>

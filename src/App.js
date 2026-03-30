@@ -28,6 +28,9 @@ import { AdminUserList } from './pages/AdminUsers/AdminUserList';
 import { AddAdmin } from './pages/AdminUsers/AddAdmin';
 import { AdminSettings } from './pages/Settings/AdminSettings';
 import ViewDriver from './pages/drivers/ViewDriver';
+import Login from './Login/Login';
+import NoAccess from './NoAccess/NoAccess';
+import AdminLogs from './pages/AdminLogs/AdminLogs';
 
 function App() {
   return (
@@ -90,7 +93,13 @@ function App() {
 
         </Route>
 
+        {/* Admin Logs */}
+        <Route path="admin-logs">
+          <Route index element={<AdminLogs />} />
+        </Route>
       </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/no-access" element={<NoAccess />} />
     </Routes>
   );
 }
