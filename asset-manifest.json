@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/kenmerk-softwares/MyRailPool-Dashboard.git/static/css/main.83f0711f.css",
-    "main.js": "/kenmerk-softwares/MyRailPool-Dashboard.git/static/js/main.d9b044f4.js",
-    "static/js/453.2ffaa5eb.chunk.js": "/kenmerk-softwares/MyRailPool-Dashboard.git/static/js/453.2ffaa5eb.chunk.js",
-    "index.html": "/kenmerk-softwares/MyRailPool-Dashboard.git/index.html",
-    "main.83f0711f.css.map": "/kenmerk-softwares/MyRailPool-Dashboard.git/static/css/main.83f0711f.css.map",
-    "main.d9b044f4.js.map": "/kenmerk-softwares/MyRailPool-Dashboard.git/static/js/main.d9b044f4.js.map",
-    "453.2ffaa5eb.chunk.js.map": "/kenmerk-softwares/MyRailPool-Dashboard.git/static/js/453.2ffaa5eb.chunk.js.map"
+    "main.css": "/kenmerk-softwares/MyRailPool-Dashboard/static/css/main.83f0711f.css",
+    "main.js": "/kenmerk-softwares/MyRailPool-Dashboard/static/js/main.20801a91.js",
+    "static/js/453.2ffaa5eb.chunk.js": "/kenmerk-softwares/MyRailPool-Dashboard/static/js/453.2ffaa5eb.chunk.js",
+    "index.html": "/kenmerk-softwares/MyRailPool-Dashboard/index.html",
+    "main.83f0711f.css.map": "/kenmerk-softwares/MyRailPool-Dashboard/static/css/main.83f0711f.css.map",
+    "main.20801a91.js.map": "/kenmerk-softwares/MyRailPool-Dashboard/static/js/main.20801a91.js.map",
+    "453.2ffaa5eb.chunk.js.map": "/kenmerk-softwares/MyRailPool-Dashboard/static/js/453.2ffaa5eb.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.83f0711f.css",
-    "static/js/main.d9b044f4.js"
+    "static/js/main.20801a91.js"
   ]
 }
