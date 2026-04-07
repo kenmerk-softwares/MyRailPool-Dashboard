@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { tripsData } from '../../data/mockData';
@@ -88,8 +88,11 @@ export const TripList = () => {
                   <StatusBadge status={trip.status} statusColor={trip.status === 'In Transit' ? 'primary' : trip.status === 'Pending' ? 'warning' : 'success'} />
                 </td>
                 <td className="px-4 md:px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link to={`/trips/edit/${trip.id.replace('#', '')}`} className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
+                  <div className="flex items-center justify-end gap-1">
+                    <Link to={`/trips/view/${trip.id.replace('#', '')}`} className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    <Link to={`/trips/edit/${trip.id.replace('#', '')}`} className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors">
                       <Edit className="w-4 h-4" />
                     </Link>
                     <button className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">

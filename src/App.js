@@ -5,14 +5,17 @@ import { Layout } from './components/Layout';
 import { BookingList } from './pages/bookings/BookingList';
 import { AddBooking } from './pages/bookings/AddBooking';
 import { EditBooking } from './pages/bookings/EditBooking';
+import { ViewBooking } from './pages/bookings/ViewBooking';
 
 import { TripList } from './pages/trips/TripList';
 import { AddTrip } from './pages/trips/AddTrip';
 import { EditTrip } from './pages/trips/EditTrip';
+import { ViewTrip } from './pages/trips/ViewTrip';
 
 import { RouteList } from './pages/routes/RouteList';
 import { AddRoute } from './pages/routes/AddRoute';
 import { EditRoute } from './pages/routes/EditRoute';
+import ViewRoute from './pages/routes/ViewRoute';
 
 import { DriverList } from './pages/drivers/DriverList';
 import { AddDriver } from './pages/drivers/AddDriver';
@@ -21,6 +24,7 @@ import { EditDriver } from './pages/drivers/EditDriver';
 import { VehicleList } from './pages/vehicles/VehicleList';
 import { AddVehicle } from './pages/vehicles/AddVehicle';
 import { EditVehicle } from './pages/vehicles/EditVehicle';
+import { ViewVehicle } from './pages/vehicles/ViewVehicle';
 
 import { NotificationList } from './pages/notifications/NotificationList';
 import { Dashboard } from './pages/dashboard/Dashboard';
@@ -44,6 +48,7 @@ function App() {
           <Route index element={<BookingList />} />
           <Route path="add" element={<AddBooking />} />
           <Route path="edit/:id" element={<EditBooking />} />
+          <Route path="view/:id" element={<ViewBooking />} />
         </Route>
 
         {/* Trips */}
@@ -51,6 +56,7 @@ function App() {
           <Route index element={<TripList />} />
           <Route path="add" element={<AddTrip />} />
           <Route path="edit/:id" element={<EditTrip />} />
+          <Route path="view/:id" element={<ViewTrip />} />
         </Route>
 
         {/* Routes */}
@@ -58,6 +64,7 @@ function App() {
           <Route index element={<RouteList />} />
           <Route path="add" element={<AddRoute />} />
           <Route path="edit/:id" element={<EditRoute />} />
+          <Route path="view/:id" element={<ViewRoute />} />
         </Route>
 
         {/* Drivers */}
@@ -73,6 +80,7 @@ function App() {
           <Route index element={<VehicleList />} />
           <Route path="add" element={<AddVehicle />} />
           <Route path="edit/:id" element={<EditVehicle />} />
+          <Route path="view/:id" element={<ViewVehicle />} />
         </Route>
 
         {/* Notifications */}
