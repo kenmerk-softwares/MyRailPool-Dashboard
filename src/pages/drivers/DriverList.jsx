@@ -8,9 +8,8 @@ export const DriverList = () => {
   const navigate = useNavigate();
 
   const handleView = (driver) => {
-    // Strip '#' from ID to avoid URL fragment issues
-    const cleanId = driver.id.replace('#', '');
-    navigate(`view/${cleanId}`);
+    const Id = driver.id.replace('#', '');
+    navigate(`view/${Id}`);
   }
 
   return (
@@ -57,8 +56,9 @@ export const DriverList = () => {
             <thead>
               <tr className="bg-slate-50/50">
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Name</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Phone & License</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">Experience</th>
+                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Mobile</th>
+                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">Address</th>
+                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">Training Status</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Status</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-right">Actions</th>
               </tr>
@@ -69,9 +69,10 @@ export const DriverList = () => {
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{driver.name}</td>
                   <td className="px-4 md:px-6 py-4">
                     <div className="text-xs md:text-sm text-slate-800">{driver.phone}</div>
-                    <div className="text-[10px] md:text-xs text-slate-500 mt-0.5">{driver.license}</div>
+                    {/* <div className="text-[10px] md:text-xs text-slate-500 mt-0.5">{driver.license}</div> */}
                   </td>
-                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">{driver.experience}</td>
+                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">{driver.address}</td>
+                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell">{driver.training_status}</td>
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${driver.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
                       {driver.status}

@@ -84,7 +84,7 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 								<button
 									type="button"
 									onClick={handleSelectAll}
-									className="bg-transparent border-none text-indigo-500 cursor-pointer font-semibold text-sm hover:text-indigo-700 transition-colors"
+									className="bg-transparent border-none text-emerald-500 cursor-pointer font-semibold text-sm hover:text-indigo-700 transition-colors"
 								>
 									{allRoutes.every(r => currentDesignationRoutes.includes(r.path)) ? 'Deselect All' : 'Select All'}
 								</button>
@@ -94,7 +94,7 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 									<label key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-slate-100">
 										<input
 											type="checkbox"
-											className="w-[18px] h-[18px] accent-indigo-500 cursor-pointer"
+											className="w-[18px] h-[18px] accent-emerald-600 cursor-pointer"
 											checked={currentDesignationRoutes.includes(route.path)}
 											onChange={() => handleCheckboxChange(route.path)}
 										/>
@@ -119,7 +119,7 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 					</button>
 					{selectedDesignation && (
 						<button
-							className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-indigo-700 disabled:bg-indigo-300"
+							className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-emerald-700 disabled:bg-emerald-300"
 							onClick={handleSave}
 							disabled={saving}
 						>
