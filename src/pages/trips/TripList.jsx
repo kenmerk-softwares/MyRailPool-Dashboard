@@ -74,25 +74,26 @@ export const TripList = () => {
               <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-right">Action</th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-slate-100">
             {tripsData.map((trip, idx) => (
               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{trip.id}</td>
+                <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{trip.trip_id}</td>
                 <td className="px-4 md:px-6 py-4">
                   <div className="text-xs md:text-sm font-medium text-slate-800">{trip.driver}</div>
-                  <div className="text-[10px] md:text-xs text-slate-500 mt-0.5 max-w-[140px] md:max-w-none truncate">{trip.vehicle}</div>
+                  <div className="text-[10px] md:text-xs text-slate-500 mt-0.5 max-w-[140px] md:max-w-none truncate">{trip.vehicle_reg}</div>
                 </td>
                 <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell max-w-[150px] md:max-w-none truncate">{trip.route}</td>
-                <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden md:table-cell whitespace-nowrap">{trip.date}</td>
+                <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden md:table-cell whitespace-nowrap">{trip.trip_date}</td>
                 <td className="px-4 md:px-6 py-4 text-xs md:text-sm">
-                  <StatusBadge status={trip.status} statusColor={trip.status === 'In Transit' ? 'primary' : trip.status === 'Pending' ? 'warning' : 'success'} />
+                  <StatusBadge status={trip.status} statusColor={trip.status === 'COMPLETED' ? 'success' : trip.status === 'Pending' ? 'warning' : 'danger'} />
                 </td>
                 <td className="px-4 md:px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <Link to={`/trips/view/${trip.id.replace('#', '')}`} className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
+                    <Link to={`/trips/view/${trip.trip_id}`} className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
                       <Eye className="w-4 h-4" />
                     </Link>
-                    <Link to={`/trips/edit/${trip.id.replace('#', '')}`} className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors">
+                    <Link to={`/trips/edit/${trip.trip_id}`} className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors">
                       <Edit className="w-4 h-4" />
                     </Link>
                     <button className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">

@@ -1,207 +1,197 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-	MapPin,
-	Clock,
-	Navigation,
-	TrendingUp,
-	User,
-	Car,
-	Calendar,
-	ArrowLeft,
-	ArrowRightLeft,
-	Edit,
-	Info,
-	Clock3,
-	Map,
-	Route as RouteIcon
+  MapPin,
+  Clock,
+  Navigation,
+  TrendingUp,
+  User,
+  Car,
+  ArrowRightLeft,
+  Edit,
+  Clock3,
+  Route as RouteIcon,
+  Globe,
+  Milestone,
+  ArrowRight,
+  Briefcase,
+  AlertCircle,
+  Hash
 } from 'lucide-react';
-import { SectionHeader, StatusBadge } from '../../components/Shared';
+import { StatusBadge } from '../../components/Shared';
 import { routesData } from '../../data/mockData';
 
 export default function ViewRoute() {
-	const { id } = useParams();
-	const route = routesData.find(r => r.id.replace('#', '') === id);
+  const { id } = useParams();
+  const route = routesData.find(r => r.id.replace('#', '') === id);
 
-	if (!route) {
-		return (
-			<div className="p-8 text-center bg-white rounded-2xl border border-slate-100 shadow-sm animate-in fade-in duration-500">
-				<h3 className="text-xl font-bold text-slate-800">Route not found</h3>
-				<Link
-					to="/routes"
-					className="mt-4 inline-block px-6 py-2 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors"
-				>
-					Back to Routes
-				</Link>
-			</div>
-		);
-	}
+  if (!route) {
+    return (
+      <div className="p-12 text-center bg-white rounded-2xl border border-slate-200/60 shadow-sm animate-in zoom-in duration-300">
+        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="w-8 h-8 text-slate-500" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-800">Route Not Identified</h3>
+        <p className="text-slate-500 mt-1 mb-6">The specified Route ID does not exist in the navigation database.</p>
+      </div>
+    );
+  }
 
-	const metrics = [
-		{ label: 'Total Distance', value: route.distance, icon: Map, color: 'text-blue-600', bg: 'bg-blue-50' },
-		{ label: 'Estimated Price', value: route.estPrice, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-		{ label: 'Route Type', value: route.route_type.replace('_', ' '), icon: RouteIcon, color: 'text-indigo-600', bg: 'bg-indigo-50', isCaps: true },
-		{ label: 'Active Status', value: route.status, icon: Info, color: 'text-amber-600', bg: 'bg-amber-50' },
-	];
+  return (
+    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
+        <div className="flex items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{route.name}</h2>
+              <StatusBadge status={route.status} statusColor={route.status === 'Active' ? 'success' : 'slate'} />
+            </div>
+            <p className="text-slate-500 font-medium mt-1 flex items-center gap-2">
+              <Hash className="w-3.5 h-3.5 text-indigo-500" /> Route ID: {route.id}
+            </p>
+          </div>
+        </div>
+        <Link
+          to={`/routes/edit/${id}`}
+          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
+        >
+          <Edit className="w-4.5 h-4.5" /> Edit Route
+        </Link>
+      </div>
 
-	return (
-		<div className="animate-in fade-in duration-500 pb-12">
+      <div className="space-y-8 text-sm">
+        {/* Section 1: Route Specifications */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+            <div className="p-2 bg-primary-50 rounded-lg">
+              <RouteIcon className="w-4 h-4 text-primary-600" />
+            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Route Specifications</h3>
+          </div>
 
-			<SectionHeader
-				title={route.name}
-				subtitle={`Configuration and scheduling for route ${route.id}`}
-				actionLabel="Edit Route"
-				actionIcon={Edit}
-				actionTo={`/routes/edit/${id}`}
-			/>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route ID</label>
+                <p className="px-4 py-3 rounded-xl bg-slate-50 text-slate-700 font-bold border border-slate-100">{route.id}</p>
+              </div>
 
-			{/* Metrics */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-				{metrics.map((m, i) => (
-					<div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-						<div className={`p-3 rounded-xl ${m.bg} ${m.color}`}>
-							<m.icon className="w-6 h-6" />
-						</div>
-						<div>
-							<p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{m.label}</p>
-							<p className={`text-xl font-bold text-slate-800 ${m.isCaps ? 'capitalize' : ''}`}>{m.value}</p>
-						</div>
-					</div>
-				))}
-			</div>
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Name</label>
+                <p className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm">{route.name}</p>
+              </div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				{/* Main Path Info */}
-				<div className="lg:col-span-2 space-y-6">
-					<div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-						<div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-							<Navigation className="w-5 h-5 text-primary-600" />
-							<h3 className="font-bold text-slate-800 tracking-tight">Standard Travel Path</h3>
-						</div>
-						<div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-indigo-200 transition-colors">
-								<div className="flex items-center gap-3 mb-3">
-									<div className="p-2 bg-white rounded-lg shadow-sm text-indigo-500">
-										<MapPin className="w-4 h-4" />
-									</div>
-									<span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Starting Point</span>
-								</div>
-								<h4 className="text-xl font-bold text-slate-800">{route.start}</h4>
-								<div className="mt-2 flex items-center gap-2 text-sm text-slate-500 font-medium">
-									<Clock className="w-4 h-4 text-emerald-600" />
-									Active Pickup Zone
-								</div>
-							</div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Corridor Type</label>
+                <p className="px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100 uppercase">
+                  {route.route_type.replace('_', ' ')}
+                </p>
+              </div>
+            </div>
 
-							<div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-emerald-200 transition-colors">
-								<div className="flex items-center gap-3 mb-3">
-									<div className="p-2 bg-white rounded-lg shadow-sm text-emerald-500">
-										<MapPin className="w-4 h-4" />
-									</div>
-									<span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Primary Destination</span>
-								</div>
-								<p className="text-lg font-bold text-slate-800">{route.end || 'Not Applicable'}</p>
-								<div className="mt-2 flex items-center gap-2 text-sm text-slate-500 font-medium">
-									<Navigation className="w-4 h-4 text-emerald-600" />
-									Standard Arrival Terminal
-								</div>                          
-							</div>
-						</div>
-					</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 pt-6 border-t border-slate-50">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Distance</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                  <Globe className="w-4 h-4 text-slate-500" />
+                  <span className="font-bold text-slate-800">{route.distance}</span>
+                </div>
+              </div>
 
-					{/* Operational Schedule */}
-					<div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-						<div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-							<Clock3 className="w-5 h-5 text-indigo-600" />
-							<h3 className="font-bold text-slate-800 tracking-tight">Active Schedule</h3>
-						</div>
-						<div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-indigo-200 transition-colors">
-								<div className="flex items-center gap-3 mb-3">
-									<div className="p-2 bg-white rounded-lg shadow-sm text-indigo-500">
-										<Calendar className="w-4 h-4" />
-									</div>
-									<span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Outbound Timing</span>
-								</div>
-								<p className="text-lg font-bold text-slate-800">{route.timings}</p>
-								{/* <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-widest leading-none">Monday - Sunday</p> */}
-							</div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Est. Fare</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  <span className="font-bold text-emerald-700">{route.estPrice}</span>
+                </div>
+              </div>
 
-							<div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-emerald-200 transition-colors">
-								<div className="flex items-center gap-3 mb-3">
-									<div className="p-2 bg-white rounded-lg shadow-sm text-emerald-500">
-										<ArrowRightLeft className="w-4 h-4" />
-									</div>
-									<span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Return Timing</span>
-								</div>
-								<p className="text-lg font-bold text-slate-800">{route.return_timing || 'Not Applicable'}</p>
-								{/* <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-widest leading-none">Monday - Sunday</p> */}
-							</div>
-						</div>
-					</div>
-				</div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Outbound Window</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                  <Clock className="w-4 h-4 text-slate-500" />
+                  <span className="font-bold text-slate-800">{route.timings}</span>
+                </div>
+              </div>
 
-				{/* Sidebar Details */}
-				<div className="space-y-6">
-					{/* Assignment Card */}
-					<div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-						<div className="px-6 py-4 border-b border-slate-100 bg-slate-50/30 flex items-center gap-3">
-							<User className="w-5 h-5 text-blue-600" />
-							<h3 className="font-bold text-slate-800">Primary Assignment</h3>
-						</div>
-						<div className="p-6 space-y-6">
-							{/* Driver */}
-							<div className="flex items-center gap-4">
-								<div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-900 font-bold text-lg border border-slate-200 shadow-sm">
-									{route.driver.charAt(0)}
-								</div>
-								<div>
-									<p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Assigned Driver</p>
-									<p className="text-base font-bold text-slate-800 group-hover:text-primary-600 transition-colors">{route.driver}</p>
-								</div>
-							</div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Inbound Window</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                  <ArrowRightLeft className="w-4 h-4 text-slate-500" />
+                  <span className="font-bold text-slate-800">{route.return_timing || 'Continuous'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-							{/* Vehicle */}
-							<div className="flex items-start gap-4 pt-4 border-t border-slate-50">
-								<div className="p-2 bg-slate-100/50 rounded-xl text-slate-400">
-									<Car className="w-5 h-5 text-emerald-600" />
-								</div>
-								<div className="flex-1">
-									<p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Standard Vehicle</p>
-									<p className="text-sm font-bold text-slate-800 leading-tight">{route.vehicle}</p>
-									{route.vehicle !== 'Unassigned' && (
-										<span className="inline-block mt-2 px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded uppercase tracking-wide">Primary Asset</span>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
+        {/* Section 2: Route Pathway */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <Navigation className="w-4 h-4 text-emerald-600" />
+            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Route Pathway</h3>
+          </div>
 
-					{/* Quick Stats/Summary Card */}
-					{/* <div className="bg-white rounded-3xl p-6 text-white shadow-xl shadow-slate-200">
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Execution Summary</h4>
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-slate-400">Status</span>
-                                <StatusBadge status={route.status} statusColor={route.status === 'Active' ? 'success' : 'slate'} />
-                            </div>
-                            <div className="flex justify-between items-center group">
-                                <span className="text-sm font-medium text-slate-400 group-hover:text-slate-200 transition-colors">Daily Frequency</span>
-                                <span className="text-sm font-bold">Planned</span>
-                            </div>
-                            <div className="h-[1px] bg-white/10 w-full"></div>
-                            <div className="pt-2">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-white/10 rounded-xl">
-                                        <Navigation className="w-4 h-4 text-primary-400" />
-                                    </div>
-                                    <span className="text-sm font-bold tracking-tight">Automated Dispatch</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div> */}
-				</div>
-			</div>
-		</div>
-	);
+          <div className="p-6">
+            {/* Visual Route Indicator */}
+            <div className="mb-8 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
+              <div className="flex items-center justify-between gap-8">
+                <div className="flex-1">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Primary Origin</p>
+                  <p className="text-lg font-bold text-slate-900">{route.start}</p>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="h-px w-24 sm:w-48 bg-gradient-to-r from-primary-200 via-primary-500 to-emerald-200 relative mb-2">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-1.5 bg-white border border-slate-200 rounded-full shadow-sm">
+                      <ArrowRight className="w-3.5 h-3.5 text-primary-600" />
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{route.distance}</span>
+                </div>
+                <div className="flex-1 text-right">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Termination Point</p>
+                  <p className="text-lg font-bold text-slate-900">{route.end || 'TBD'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Primary Asset Allocation */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+            <div className="p-2 bg-indigo-50 rounded-lg">
+              <User className="w-4 h-4 text-indigo-600" />
+            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Primary Asset Allocation</h3>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
+                <div className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-[10px]">
+                    {route.driver.charAt(0)}
+                  </div>
+                  <span>{route.driver}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle No.</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                  <Car className="w-4 h-4 text-slate-500" />
+                  <span className="font-bold text-slate-800">{route.vehicle}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
