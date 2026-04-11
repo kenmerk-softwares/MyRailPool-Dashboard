@@ -60,46 +60,42 @@ export const BookingTable = ({ data }) => {
         </div>
 
       </div>
-      <table className="w-full text-left border-collapse min-w-[800px]">
+      <table className="w-full text-left border-collapse min-w-[1000px]">
         <thead>
           <tr className="bg-slate-50/50">
-          <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Request ID</th>
+            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Req Ref</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Booking ID</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Customer</th>
-            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">Route</th>
-            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden md:table-cell">Request Date</th>
+            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Pickup</th>
+            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Destination</th>
+            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Req Date</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Driver</th>
-
-            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Status</th>
+            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Status</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-100 text-xs md:text-sm">
           {data.map((booking, idx) => (
             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{booking.req_id}</td>
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{booking.id}</td>
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600">
-                <div className="flex items-center">
-                  <span className="truncate max-w-[120px] md:max-w-none">{booking.name}</span>
-                </div>
-              </td>
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell truncate max-w-[150px] md:max-w-none">{booking.route}</td>
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden md:table-cell whitespace-nowrap">{booking.req_date}</td>
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden md:table-cell whitespace-nowrap">{booking.driver || 'Unassigned'}</td>
-
-              <td className="px-4 md:px-6 py-4 text-xs md:text-sm">
-                <StatusBadge status={booking.status} statusColor={booking.statusColor} />
+              <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{booking.req_ref}</td>
+              <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{booking.booking_id}</td>
+              <td className="px-4 md:px-6 py-4 text-slate-600 font-medium">{booking.name}</td>
+              <td className="px-4 md:px-6 py-4 text-slate-600 truncate max-w-[150px]">{booking.pickup}</td>
+              <td className="px-4 md:px-6 py-4 text-slate-600 truncate max-w-[150px]">{booking.destination}</td>
+              <td className="px-4 md:px-6 py-4 text-slate-600 whitespace-nowrap">{booking.req_date}</td>
+              <td className="px-4 md:px-6 py-4 text-slate-600 font-medium">{booking.driver || 'Unassigned'}</td>
+              <td className="px-4 md:px-6 py-4 text-center">
+                <StatusBadge status={booking.status} />
               </td>
               <td className="px-4 md:px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
                   <button 
                     className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors"
-                    onClick={() => handleViewBooking(booking.id)}
+                    onClick={() => handleViewBooking(booking.booking_id)}
                   >
                     <Eye className="w-4 h-4" />
                   </button>
-                  <Link to={`/bookings/edit/${booking.id.replace('#', '')}`} className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors">
+                  <Link to={`/bookings/edit/${booking.booking_id}`} className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors">
                     <Edit className="w-4 h-4" />
                   </Link>
                   <button className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">

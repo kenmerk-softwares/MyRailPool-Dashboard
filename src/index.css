@@ -1,6 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-slate-900;
+    font-feature-settings: "cv02", "cv03", "cv04", "cp01", "ss01";
+  }
+}
 
 @layer base {
 
