@@ -9,7 +9,6 @@ import { ViewBooking } from './pages/bookings/ViewBooking';
 
 import { TripList } from './pages/trips/TripList';
 import { AddTrip } from './pages/trips/AddTrip';
-import { EditTrip } from './pages/trips/EditTrip';
 import { ViewTrip } from './pages/trips/ViewTrip';
 
 import { RouteList } from './pages/routes/RouteList';
@@ -55,7 +54,7 @@ function App() {
         <Route path="trips">
           <Route index element={<TripList />} />
           <Route path="add" element={<AddTrip />} />
-          <Route path="edit/:id" element={<EditTrip />} />
+          <Route path="add/:id" element={<AddTrip />} />
           <Route path="view/:id" element={<ViewTrip />} />
         </Route>
 

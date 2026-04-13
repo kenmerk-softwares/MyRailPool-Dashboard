@@ -71,7 +71,7 @@ export const ViewTrip = () => {
           </div>
         </div>
         <Link
-          to={`/trips/edit/${id}`}
+          to={`/trips/add/${id}`}
           className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
         >
           <Edit className="w-4.5 h-4.5" /> Edit Trip
@@ -79,7 +79,7 @@ export const ViewTrip = () => {
       </div>
 
       <div className="space-y-8 text-sm">
-        {/* Section 1: Basic Information */}
+        {/*  Basic Information */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
@@ -146,7 +146,7 @@ export const ViewTrip = () => {
           </div>
         </div>
 
-        {/* Section 2: Execution & Route Details */}
+        {/* Execution & Route Details */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
@@ -156,7 +156,6 @@ export const ViewTrip = () => {
           </div>
 
           <div className="p-6">
-            {/* Visual Route Indicator */}
             <div className="mb-8 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
               <div className="flex items-center justify-between gap-8">
                 <div className="flex-1">
@@ -232,7 +231,7 @@ export const ViewTrip = () => {
           </div>
         </div>
 
-        {/* Section 3: Financial Summary */}
+        {/* Financial Summary */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
