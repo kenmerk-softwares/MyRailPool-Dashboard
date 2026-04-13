@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/MyRailPool-Dashboard/static/css/main.83f0711f.css",
-    "main.js": "/MyRailPool-Dashboard/static/js/main.84c96b80.js",
+    "main.css": "/MyRailPool-Dashboard/static/css/main.a274d89f.css",
+    "main.js": "/MyRailPool-Dashboard/static/js/main.f5978cf5.js",
     "static/js/453.2ffaa5eb.chunk.js": "/MyRailPool-Dashboard/static/js/453.2ffaa5eb.chunk.js",
+    "static/media/logo.svg": "/MyRailPool-Dashboard/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/MyRailPool-Dashboard/index.html",
-    "main.83f0711f.css.map": "/MyRailPool-Dashboard/static/css/main.83f0711f.css.map",
-    "main.84c96b80.js.map": "/MyRailPool-Dashboard/static/js/main.84c96b80.js.map",
+    "main.a274d89f.css.map": "/MyRailPool-Dashboard/static/css/main.a274d89f.css.map",
+    "main.f5978cf5.js.map": "/MyRailPool-Dashboard/static/js/main.f5978cf5.js.map",
     "453.2ffaa5eb.chunk.js.map": "/MyRailPool-Dashboard/static/js/453.2ffaa5eb.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.83f0711f.css",
-    "static/js/main.84c96b80.js"
+    "static/css/main.a274d89f.css",
+    "static/js/main.f5978cf5.js"
   ]
 }
