@@ -16,7 +16,8 @@ import {
   ArrowRight,
   Briefcase,
   AlertCircle,
-  Hash
+  Hash,
+  Calendar
 } from 'lucide-react';
 import { StatusBadge } from '../../components/Shared';
 import { routesData } from '../../data/mockData';
@@ -120,6 +121,22 @@ export default function ViewRoute() {
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
                   <ArrowRightLeft className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.return_timing || 'Continuous'}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Days Operating</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <Calendar className="w-4 h-4 text-indigo-500" />
+                  <span className="font-bold text-slate-700">{route.days_op || 'N/A'}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Time Slots</label>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <Clock3 className="w-4 h-4 text-primary-600" />
+                  <span className="font-bold text-slate-700">{route.time_slots || 'N/A'}</span>
                 </div>
               </div>
             </div>
