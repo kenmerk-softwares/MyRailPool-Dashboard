@@ -12,7 +12,9 @@ import {
   Route as RouteIcon,
   TrendingUp,
   Map,
-  Trash2
+  Trash2,
+  Calendar,
+  Clock1
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { routesData, driversData, vehiclesData } from '../../data/mockData';
@@ -146,6 +148,28 @@ export const EditRoute = () => {
                     type="text"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     defaultValue={route.return_timing}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Days Operating</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                    defaultValue={route.days_op}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block"> Time Slots</label>
+                <div className="relative">
+                  <Clock1 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                    defaultValue={route.time_slots}
                   />
                 </div>
               </div>

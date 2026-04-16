@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { FaRoad } from 'react-icons/fa';
-import { tripsData } from '../../data/mockData';
+import { tripsData, driversData, vehiclesData } from '../../data/mockData';
 
 export const AddTrip = () => {
   const { id } = useParams();
@@ -70,10 +70,28 @@ export const AddTrip = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseFloat(value) : value
-    }));
+    
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: type === 'number' ? parseFloat(value) : value
+      };
+
+      // Autocomplete logic when driver is selected
+      if (name === 'driver' && value) {
+        const vehicle = vehiclesData.find(v => v.driver === value);
+        if (vehicle) {
+          updated.vehicle_reg = vehicle.registration_no;
+        }
+        
+        const driver = driversData.find(d => d.name === value);
+        if (driver) {
+          updated.driver_lic = driver.dvla_lic || '';
+        }
+      }
+
+      return updated;
+    });
   };
 
   const handleSave = () => {
@@ -138,9 +156,11 @@ export const AddTrip = () => {
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all appearance-none cursor-pointer"
                   >
                     <option value="">Select a driver</option>
-                    <option value="Abhilash P">Abhilash Pullelil Augustine</option>
-                    <option value="James Miller">James Miller</option>
-                    <option value="Robert Taylor">Robert Taylor</option>
+                    {driversData.map(driver => (
+                      <option key={driver.driver_id} value={driver.name}>
+                        {driver.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -164,14 +184,19 @@ export const AddTrip = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Registration</label>
                 <div className="relative">
                   <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
+                  <select
                     name="vehicle_reg"
                     value={formData.vehicle_reg}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="OY71KYS"
-                  />
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">Select vehicle</option>
+                    {vehiclesData.map(vehicle => (
+                      <option key={vehicle.id} value={vehicle.registration_no}>
+                        {vehicle.registration_no} ({vehicle.make} {vehicle.model})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

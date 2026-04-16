@@ -9,9 +9,9 @@ export const tripsData = [
 ];
 
 export const routesData = [
-  { id: '#RT-001', name: 'Airport Setup', start: 'Airport Terminal 1', end: 'Downtown City Center', distance: '14 km', estPrice: '₹1,200',timings:'10:00 AM - 5:00 PM',return_timing:'10:00 AM - 5:00 PM', route_type:'one_way',status: 'Active',driver:'James Miller',vehicle:'Toyota Innova (MH-12-AB-3456)' },
-  { id: '#RT-002', name: 'Central Station', start: 'Main Railway Station', end: 'Tech Park', distance: '8 km', estPrice: '₹600',timings:'10:00 AM - 5:00 PM',return_timing:'10:00 AM - 5:00 PM', route_type:'round_trip', status: 'Active',driver:'Robert Taylor',vehicle:'Honda City (MH-12-CD-7890)' },
-  { id: '#RT-003', name: 'City Tour Route', start: 'Hotel District', end: 'Historical Monuments', distance: '22 km', estPrice: '₹2,500',timings:'10:00 AM - 5:00 PM',return_timing:'10:00 AM - 5:00 PM', route_type:'one_way', status: 'Inactive',driver:'Unassigned',vehicle:'Unassigned' },
+  { id: '#RT-001', name: 'Airport Setup', start: 'Airport Terminal 1', end: 'Downtown City Center', distance: '14 km', estPrice: '₹1,200',timings:'10:00 AM - 5:00 PM',return_timing:'10:00 AM - 5:00 PM', route_type:'one_way',status: 'Active',driver:'James Miller',vehicle:'Toyota Innova (MH-12-AB-3456)', days_op: 'Mon, Wed, Fri', time_slots: '10:00, 14:00, 16:00' },
+  { id: '#RT-002', name: 'Central Station', start: 'Main Railway Station', end: 'Tech Park', distance: '8 km', estPrice: '₹600',timings:'10:00 AM - 5:00 PM',return_timing:'10:00 AM - 5:00 PM', route_type:'round_trip', status: 'Active',driver:'Robert Taylor',vehicle:'Honda City (MH-12-CD-7890)', days_op: 'Daily', time_slots: '08:00 - 20:00' },
+  { id: '#RT-003', name: 'City Tour Route', start: 'Hotel District', end: 'Historical Monuments', distance: '22 km', estPrice: '₹2,500',timings:'10:00 AM - 5:00 PM',return_timing:'10:00 AM - 5:00 PM', route_type:'one_way', status: 'Inactive',driver:'Unassigned',vehicle:'Unassigned', days_op: 'Sat, Sun', time_slots: '09:00, 11:00, 13:00, 15:00' },
 ];
 
 export const driversData = [

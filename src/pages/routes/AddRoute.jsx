@@ -12,7 +12,9 @@ import {
   Route as RouteIcon,
   TrendingUp,
   Map,
-  Hash
+  Hash,
+  Calendar,
+  Clock1
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { driversData, vehiclesData } from '../../data/mockData';
@@ -53,9 +55,9 @@ export const AddRoute = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
                 <select className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer">
-                  <option value="one_way">One Way</option>
+                  <option value="one_way">Core route</option>
                   <option value="round_trip">Round Trip</option>
-                  <option value="circuit">Circuit</option>
+                  <option value="circuit">Flexi route</option>
                 </select>
               </div>
 
@@ -134,6 +136,26 @@ export const AddRoute = () => {
                   <ArrowRightLeft className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="datetime-local"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Days Operating</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Time Slots</label>
+                <div className="relative">
+                  <Clock1 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                   />
                 </div>
