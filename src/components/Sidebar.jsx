@@ -11,6 +11,7 @@ import {
   Bell,
   Logs
 } from 'lucide-react';
+import { FaPaypal } from 'react-icons/fa';
 
 const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile }) => {
   const location = useLocation();
@@ -39,6 +40,8 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/routes', label: 'Routes', icon: MapIcon },
     { path: '/drivers', label: 'Drivers', icon: Users },
     { path: '/vehicles', label: 'Vehicles', icon: Car },
+    { path: '/payment', label:'Payment Status', icon: FaPaypal},
+    {path : '/route-req', label: 'Route Requests ', icon: MapIcon},
     { path: '/notifications', label: 'Notifications', icon: Bell },
     { path: '/admin-users', label: 'Admin Users', icon: Users },
     { path: '/admin-settings', label: 'Admin Settings', icon: Settings },

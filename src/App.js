@@ -34,6 +34,7 @@ import ViewDriver from './pages/drivers/ViewDriver';
 import Login from './Login/Login';
 import NoAccess from './NoAccess/NoAccess';
 import AdminLogs from './pages/AdminLogs/AdminLogs';
+import Payment from './pages/Payment/Payment';
 
 function App() {
   return (
@@ -80,6 +81,10 @@ function App() {
           <Route path="add" element={<AddVehicle />} />
           <Route path="edit/:id" element={<EditVehicle />} />
           <Route path="view/:id" element={<ViewVehicle />} />
+        </Route>
+        {/* Payment */}
+        <Route path="payment">
+          <Route index element={<Payment />} />
         </Route>
 
         {/* Notifications */}
