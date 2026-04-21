@@ -34,7 +34,7 @@ const PaymentTable = ({ payments, onView, onRefund }) => {
           <thead>
             <tr className="bg-slate-50/50 border-b border-slate-100">
               <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Booking ID</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Customer / Driver</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Customer</th>
               <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Route</th>
               <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount</th>
               <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Method</th>
@@ -52,7 +52,6 @@ const PaymentTable = ({ payments, onView, onRefund }) => {
                 <td className="px-6 py-4">
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-slate-800">{payment.customer}</span>
-                    <span className="text-[10px] font-medium text-slate-400">Dr: {payment.driver}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">

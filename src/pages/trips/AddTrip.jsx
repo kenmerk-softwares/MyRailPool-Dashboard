@@ -23,29 +23,51 @@ import {
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { FaRoad } from 'react-icons/fa';
 import { tripsData, driversData, vehiclesData } from '../../data/mockData';
+import { useLocation } from 'react-router-dom';
 
 export const AddTrip = () => {
+  const location = useLocation();
+  const requestData = location.state || {};
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+
+  const formatDate = (isoStr) => {
+    if (!isoStr) return '';
+    try {
+      return new Date(isoStr).toISOString().split('T')[0];
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const formatTime = (isoStr) => {
+    if (!isoStr) return '';
+    try {
+      const date = new Date(isoStr);
+      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+    } catch (e) {
+      return '';
+    }
+  };
 
   const [formData, setFormData] = useState({
     trip_id: '',
     driver: '',
     driver_lic: '',
     vehicle_reg: '',
-    trip_date: '',
+    trip_date: formatDate(requestData.routeDates?.[0]) || '',
     status: 'PENDING',
     total_bookings: 0,
     booking_ids: '',
     notes: '',
-    start_loc: '',
-    end_loc: '',
-    route: '',
-    actual_dest: '',
-    start_time: '',
+    start_loc: requestData.origin || '',
+    end_loc: requestData.destination || '',
+    route: requestData.customerName ? `Route for ${requestData.customerName}` : '',
+    actual_dest: requestData.destination || '',
+    start_time: formatTime(requestData.routeDates?.[0]) || '',
     end_time: '',
-    total_pcount: 0,
+    total_pcount: requestData.passengerCount || 0,
     miles: 0,
     price: '',
     driver_cost: '',
@@ -77,7 +99,6 @@ export const AddTrip = () => {
         [name]: type === 'number' ? parseFloat(value) : value
       };
 
-      // Autocomplete logic when driver is selected
       if (name === 'driver' && value) {
         const vehicle = vehiclesData.find(v => v.driver === value);
         if (vehicle) {
@@ -96,19 +117,16 @@ export const AddTrip = () => {
 
   const handleSave = () => {
     console.log('Saving trip data:', formData);
-    navigate('/trips');
+    navigate(-1);
   };
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div className="flex items-center gap-4">
-          <Link to="/trips" className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
           <div>
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-              {isEdit ? `Edit Trip: ${id}` : 'Schedule New Trip'}
+              {isEdit ? `Edit Trip: ${id}` : requestData.requestId ? 'Assign Trip Request' : 'Schedule New Trip'}
             </h2>
             <p className="text-slate-500 font-medium mt-1">
               {isEdit ? 'Update operational parameters and asset allocation for this trip.' : 'Initialize a new trip, assign assets, and define operational parameters.'}

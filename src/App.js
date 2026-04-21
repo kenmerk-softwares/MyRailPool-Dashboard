@@ -35,6 +35,7 @@ import Login from './Login/Login';
 import NoAccess from './NoAccess/NoAccess';
 import AdminLogs from './pages/AdminLogs/AdminLogs';
 import Payment from './pages/Payment/Payment';
+import RouteReq from './pages/RouteReq/RouteReq';
 
 function App() {
   return (
@@ -86,7 +87,10 @@ function App() {
         <Route path="payment">
           <Route index element={<Payment />} />
         </Route>
-
+        {/* Route Requests */}
+        <Route path="route-req">
+          <Route index element={<RouteReq />} />
+        </Route>
         {/* Notifications */}
         <Route path="notifications">
           <Route index element={<NotificationList />} />

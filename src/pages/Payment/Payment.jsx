@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   DollarSign, CheckCircle, Clock, XCircle, RefreshCcw,
   Download, Calendar as CalendarIcon, Filter as FilterIcon
 } from 'lucide-react';
@@ -9,7 +9,7 @@ import PaymentTable from './components/PaymentTable';
 import PaymentCharts from './components/PaymentCharts';
 import PaymentDetailsModal from './components/PaymentDetailsModal';
 import RefundModal from './components/RefundModal';
-import { mockPayments, revenueChartData, methodDistributionData } from './data/mockPayments';
+import { mockPayments, revenueChartData, methodDistributionData } from '../../data/mockData';
 
 const Payment = () => {
   const [loading, setLoading] = useState(true);
@@ -20,18 +20,17 @@ const Payment = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isRefundOpen, setIsRefundOpen] = useState(false);
 
-  // Simulate loading
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
   const filteredPayments = mockPayments.filter(payment => {
-    const matchesSearch = 
+    const matchesSearch =
       payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payment.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'All Status' || payment.status === statusFilter;
     const matchesMethod = methodFilter === 'All Methods' || payment.method === methodFilter;
 
@@ -84,52 +83,52 @@ const Payment = () => {
       <div className="space-y-10">
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          <StatCard 
-            title="Total Revenue" 
-            value="₹45,280" 
-            icon={DollarSign} 
-            trend="up" 
-            trendValue="12.5%" 
+          <StatCard
+            title="Total Revenue"
+            value="₹45,280"
+            icon={DollarSign}
+            trend="up"
+            trendValue="12.5%"
             color="indigo"
           />
-          <StatCard 
-            title="Successful" 
-            value="128" 
-            icon={CheckCircle} 
-            trend="up" 
-            trendValue="8.2%" 
+          <StatCard
+            title="Successful"
+            value="128"
+            icon={CheckCircle}
+            trend="up"
+            trendValue="8.2%"
             color="emerald"
           />
-          <StatCard 
-            title="Pending" 
-            value="14" 
-            icon={Clock} 
-            trend="down" 
-            trendValue="3.1%" 
+          <StatCard
+            title="Pending"
+            value="14"
+            icon={Clock}
+            trend="down"
+            trendValue="3.1%"
             color="amber"
           />
-          <StatCard 
-            title="Failed" 
-            value="06" 
-            icon={XCircle} 
-            trend="up" 
-            trendValue="0.5%" 
+          <StatCard
+            title="Failed"
+            value="06"
+            icon={XCircle}
+            trend="up"
+            trendValue="0.5%"
             color="rose"
           />
-          <StatCard 
-            title="Refunds" 
-            value="₹2,400" 
-            icon={RefreshCcw} 
-            trend="down" 
-            trendValue="1.2%" 
+          <StatCard
+            title="Refunds"
+            value="₹2,400"
+            icon={RefreshCcw}
+            trend="down"
+            trendValue="1.2%"
             color="blue"
           />
         </div>
 
         {/* Charts Row */}
-        <PaymentCharts 
-          revenueData={revenueChartData} 
-          methodData={methodDistributionData} 
+        <PaymentCharts
+          revenueData={revenueChartData}
+          methodData={methodDistributionData}
         />
 
         {/* List  */}
@@ -142,7 +141,7 @@ const Payment = () => {
             </div>
           </div>
 
-          <Filters 
+          <Filters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
@@ -151,21 +150,21 @@ const Payment = () => {
             setMethodFilter={setMethodFilter}
           />
 
-          <PaymentTable 
-            payments={filteredPayments} 
+          <PaymentTable
+            payments={filteredPayments}
             onView={handleViewDetails}
             onRefund={handleInitiateRefund}
           />
         </div>
       </div>
 
-      <PaymentDetailsModal 
+      <PaymentDetailsModal
         payment={selectedPayment}
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
       />
 
-      <RefundModal 
+      <RefundModal
         payment={selectedPayment}
         isOpen={isRefundOpen}
         onClose={() => setIsRefundOpen(false)}

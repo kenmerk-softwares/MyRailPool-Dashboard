@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { FaPaypal } from 'react-icons/fa';
 
-const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile }) => {
+const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile, badge }) => {
   const location = useLocation();
   const active = location.pathname === path;
 
@@ -21,13 +21,20 @@ const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile }) => {
     <Link
       to={path}
       onClick={isMobile ? onClick : undefined}
-      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${active
+      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${active
         ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md shadow-primary-500/20'
         : 'text-primary-100/70 hover:bg-primary-800 hover:text-white'
         }`}
     >
-      <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : 'text-primary-200/50 group-hover:text-white transition-colors'}`} />
-      <span className="font-medium truncate">{label}</span>
+      <div className="flex items-center space-x-3 overflow-hidden">
+        <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : 'text-primary-200/50 group-hover:text-white transition-colors'}`} />
+        <span className="font-medium truncate">{label}</span>
+      </div>
+      {badge > 0 && (
+        <span className={`flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold ${active ? 'bg-white text-primary-600' : 'bg-primary-500 text-white animate-pulse'}`}>
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
     </Link>
   );
 };
@@ -40,8 +47,8 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/routes', label: 'Routes', icon: MapIcon },
     { path: '/drivers', label: 'Drivers', icon: Users },
     { path: '/vehicles', label: 'Vehicles', icon: Car },
-    { path: '/payment', label:'Payment Status', icon: FaPaypal},
-    {path : '/route-req', label: 'Route Requests ', icon: MapIcon},
+    { path: '/payment', label: 'Payment Status', icon: FaPaypal },
+    { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: 2 },
     { path: '/notifications', label: 'Notifications', icon: Bell },
     { path: '/admin-users', label: 'Admin Users', icon: Users },
     { path: '/admin-settings', label: 'Admin Settings', icon: Settings },
@@ -84,6 +91,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               icon={item.icon}
               label={item.label}
               path={item.path}
+              badge={item.badge}
               isMobile={true}
               onClick={() => setIsMobileMenuOpen(false)}
             />
