@@ -11,7 +11,6 @@ const RefundModal = ({ payment, isOpen, onClose }) => {
 
   const handleRefund = () => {
     setIsProcessing(true);
-    // Simulate API call
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
