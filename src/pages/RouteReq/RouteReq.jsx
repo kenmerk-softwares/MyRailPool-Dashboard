@@ -4,11 +4,11 @@ import {
   Plus, Bell, Filter as FilterIcon,
   RefreshCcw, AlertTriangle, CheckCircle, Info
 } from 'lucide-react';
-import Filters from './components/Filters';
-import NotificationCenter from './components/NotificationCenter';
-import RequestCard from './components/RequestCard';
-import DetailsDrawer from './components/DetailsDrawer';
-import RejectModal from './components/RejectModal';
+import Filters from './Filters';
+import NotificationCenter from './NotificationCenter';
+import RequestCard from './RequestCard';
+import DetailsDrawer from './DetailsDrawer';
+import RejectModal from './RejectModal';
 import { mockRequests } from '../../data/mockData';
 
 const RouteReq = () => {

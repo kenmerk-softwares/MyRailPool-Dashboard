@@ -3,12 +3,12 @@ import {
   DollarSign, CheckCircle, Clock, XCircle, RefreshCcw,
   Download, Calendar as CalendarIcon, Filter as FilterIcon
 } from 'lucide-react';
-import StatCard from './components/StatCard';
-import Filters from './components/Filters';
-import PaymentTable from './components/PaymentTable';
-import PaymentCharts from './components/PaymentCharts';
-import PaymentDetailsModal from './components/PaymentDetailsModal';
-import RefundModal from './components/RefundModal';
+import StatCard from './StatCard';
+import Filters from './Filters';
+import PaymentTable from './PaymentTable';
+import PaymentCharts from './PaymentCharts';
+import PaymentDetailsModal from './PaymentDetailsModal';
+import RefundModal from './RefundModal';
 import { mockPayments, revenueChartData, methodDistributionData } from '../../data/mockData';
 
 const Payment = () => {
