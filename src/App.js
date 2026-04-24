@@ -28,7 +28,6 @@ import { ViewVehicle } from './pages/vehicles/ViewVehicle';
 import { NotificationList } from './pages/notifications/NotificationList';
 import { Dashboard } from './pages/dashboard/Dashboard';
 import { AdminUserList } from './pages/AdminUsers/AdminUserList';
-import { AddAdmin } from './pages/AdminUsers/AddAdmin';
 import { AdminSettings } from './pages/Settings/AdminSettings';
 import ViewDriver from './pages/drivers/ViewDriver';
 import Login from './Login/Login';
@@ -36,9 +35,11 @@ import NoAccess from './NoAccess/NoAccess';
 import AdminLogs from './pages/AdminLogs/AdminLogs';
 import Payment from './pages/Payment/Payment';
 import RouteReq from './pages/RouteReq/RouteReq';
+import { ToastProvider } from './Toast/ToastContext';
 
 function App() {
   return (
+    <ToastProvider>
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Dashboard */}
@@ -97,11 +98,7 @@ function App() {
         </Route>
 
         {/* Admin Users */}
-        <Route path="admin-users">
-          <Route index element={<AdminUserList />} />
-          <Route path="add" element={<AddAdmin />} />
-          <Route path="edit/:id" element={<AddAdmin />} />
-        </Route>
+        <Route path="admin-users" element={<AdminUserList />} />
 
         {/* Admin Settings */}
         <Route path="admin-settings">
@@ -117,6 +114,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/no-access" element={<NoAccess />} />
     </Routes>
+    </ToastProvider>
   );
 }
 

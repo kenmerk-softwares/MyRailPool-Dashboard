@@ -22,7 +22,7 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendUp }) => (
   </div>
 );
 
-export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, actionTo }) => (
+export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, actionTo, onActionClick }) => (
   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 md:mb-8 gap-4 sm:gap-0">
     <div>
       <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">{title}</h2>
@@ -39,7 +39,10 @@ export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, 
             {actionLabel}
           </Link>
         ) : (
-          <button className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none">
+          <button 
+            onClick={onActionClick}
+            className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none"
+          >
             {Icon && <Icon className="w-4 h-4" />}
             {actionLabel}
           </button>
