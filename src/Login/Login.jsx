@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo.svg';
-import { auth, db } from '../Config/Config';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '../Toast/ToastContext';
+import { auth } from '../Config/Config';
 
 export default function Login() {
     const { showToast } = useToast();
@@ -22,39 +22,30 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
+        console.log(formData)
         try {
-
             const userCredential = await signInWithEmailAndPassword(
                 auth,
                 formData.email,
                 formData.password
             );
+            // const user = userCredential.user;
+            // const adminRef = doc(db, 'admin-users', user.uid);
+            // const adminSnap = await getDoc(adminRef);
 
-            const user = userCredential.user;
-
-
-            const adminRef = doc(db, 'admin-users', user.uid);
-            const adminSnap = await getDoc(adminRef);
-
-            if (!adminSnap.exists()) {
-                await signOut(auth);
-                showToast('Access denied. Admin only.', 'error');
-                return;
-            }
-
-            const adminData = adminSnap.data();
-
-            if (adminData.uid !== user.uid) {
-                await signOut(auth);
-                showToast('Account disabled. Contact admin.', 'error');
-                return;
-            }
-
-
+            // if (!adminSnap.exists()) {
+            //     await signOut(auth);
+            //     showToast('Access denied. Admin only.', 'error');
+            //     return;
+            // }
+            // const adminData = adminSnap.data();
+            // if (adminData.uid !== user.uid) {
+            //     await signOut(auth);
+            //     showToast('Account disabled. Contact admin.', 'error');
+            //     return;
+            // }
             showToast('Login successful', 'success');
             navigate('/');
-
         } catch (error) {
             console.error(error);
 

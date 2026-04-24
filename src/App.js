@@ -40,80 +40,82 @@ import { ToastProvider } from './Toast/ToastContext';
 function App() {
   return (
     <ToastProvider>
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        {/* Dashboard */}
-        <Route index element={<Dashboard />} />
+      <Routes>
+        {/* <Route path="/" element={user ? <Dashboard /> : <Login />} /> */}
 
-        {/* Bookings */}
-        <Route path="bookings">
-          <Route index element={<BookingList />} />
-          <Route path="add" element={<AddBooking />} />
-          <Route path="edit/:id" element={<EditBooking />} />
-          <Route path="view/:id" element={<ViewBooking />} />
-        </Route>
+        <Route path="/" element={<Layout />}>
+          {/* Dashboard */}
+          <Route index element={<Dashboard />} />
 
-        {/* Trips */}
-        <Route path="trips">
-          <Route index element={<TripList />} />
-          <Route path="add" element={<AddTrip />} />
-          <Route path="add/:id" element={<AddTrip />} />
-          <Route path="view/:id" element={<ViewTrip />} />
-        </Route>
+          {/* Bookings */}
+          <Route path="bookings">
+            <Route index element={<BookingList />} />
+            <Route path="add" element={<AddBooking />} />
+            <Route path="edit/:id" element={<EditBooking />} />
+            <Route path="view/:id" element={<ViewBooking />} />
+          </Route>
 
-        {/* Routes */}
-        <Route path="routes">
-          <Route index element={<RouteList />} />
-          <Route path="add" element={<AddRoute />} />
-          <Route path="edit/:id" element={<EditRoute />} />
-          <Route path="view/:id" element={<ViewRoute />} />
-        </Route>
+          {/* Trips */}
+          <Route path="trips">
+            <Route index element={<TripList />} />
+            <Route path="add" element={<AddTrip />} />
+            <Route path="add/:id" element={<AddTrip />} />
+            <Route path="view/:id" element={<ViewTrip />} />
+          </Route>
 
-        {/* Drivers */}
-        <Route path="drivers">
-          <Route index element={<DriverList />} />
-          <Route path="add" element={<AddDriver />} />
-          <Route path="edit/:id" element={<EditDriver />} />
-          <Route path="view/:id" element={<ViewDriver />} />
-        </Route>
+          {/* Routes */}
+          <Route path="routes">
+            <Route index element={<RouteList />} />
+            <Route path="add" element={<AddRoute />} />
+            <Route path="edit/:id" element={<EditRoute />} />
+            <Route path="view/:id" element={<ViewRoute />} />
+          </Route>
 
-        {/* Vehicles */}
-        <Route path="vehicles">
-          <Route index element={<VehicleList />} />
-          <Route path="add" element={<AddVehicle />} />
-          <Route path="edit/:id" element={<EditVehicle />} />
-          <Route path="view/:id" element={<ViewVehicle />} />
-        </Route>
-        {/* Payment */}
-        <Route path="payment">
-          <Route index element={<Payment />} />
-        </Route>
-        {/* Route Requests */}
-        <Route path="route-req">
-          <Route index element={<RouteReq />} />
-        </Route>
-        {/* Notifications */}
-        <Route path="notifications">
-          <Route index element={<NotificationList />} />
-        </Route>
+          {/* Drivers */}
+          <Route path="drivers">
+            <Route index element={<DriverList />} />
+            <Route path="add" element={<AddDriver />} />
+            <Route path="edit/:id" element={<EditDriver />} />
+            <Route path="view/:id" element={<ViewDriver />} />
+          </Route>
 
-        {/* Admin Users */}
-        <Route path="admin-users" element={<AdminUserList />} />
+          {/* Vehicles */}
+          <Route path="vehicles">
+            <Route index element={<VehicleList />} />
+            <Route path="add" element={<AddVehicle />} />
+            <Route path="edit/:id" element={<EditVehicle />} />
+            <Route path="view/:id" element={<ViewVehicle />} />
+          </Route>
+          {/* Payment */}
+          <Route path="payment">
+            <Route index element={<Payment />} />
+          </Route>
+          {/* Route Requests */}
+          <Route path="route-req">
+            <Route index element={<RouteReq />} />
+          </Route>
+          {/* Notifications */}
+          <Route path="notifications">
+            <Route index element={<NotificationList />} />
+          </Route>
 
-        {/* Admin Settings */}
-        <Route path="admin-settings">
-          <Route index element={<AdminSettings />} />
+          {/* Admin Users */}
+          <Route path="admin-users" element={<AdminUserList />} />
 
+          {/* Admin Settings */}
+          <Route path="admin-settings">
+            <Route index element={<AdminSettings />} />
+
+          </Route>
+
+          {/* Admin Logs */}
+          <Route path="admin-logs">
+            <Route index element={<AdminLogs />} />
+          </Route>
         </Route>
-
-        {/* Admin Logs */}
-        <Route path="admin-logs">
-          <Route index element={<AdminLogs />} />
-        </Route>
-      </Route>
-      <Route path="/login" element={<Login />} />
-      <Route path="/no-access" element={<NoAccess />} />
-    </Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/no-access" element={<NoAccess />} />
+      </Routes>
     </ToastProvider>
   );
 }
