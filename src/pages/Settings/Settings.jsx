@@ -40,7 +40,7 @@ export default function Settings() {
       title: 'Company Profile',
       description: 'Update company information, business addresses, and official contact details.',
       icon: <Building2 className="w-7 h-7" />,
-      path: '/settings/company',
+      path: '/company-settings',
       color: 'orange'
     }
   ];

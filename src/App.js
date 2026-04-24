@@ -41,6 +41,7 @@ import RouteReq from './pages/RouteReq/RouteReq';
 import { ToastProvider } from './Toast/ToastContext';
 import Settings from './pages/Settings/Settings';
 import EmployeeSettings from './pages/Settings/Employee';
+import Company from './pages/Settings/Company';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -72,7 +73,8 @@ export const routesConfig = [
   { path: '/admin-settings', element: <AdminSettings />, permission: '/admin-settings' },
   { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
   { path: '/settings', element: <Settings />, permission: '/settings'},
-  { path: '/employee-settings', element: <EmployeeSettings />, permission: '/employee-settings'}
+  { path: '/employee-settings', element: <EmployeeSettings />, permission: '/employee-settings'},
+  { path: '/company-settings', element: <Company/>, permission: '/company-settings'}
 ];
 
 function App() {
