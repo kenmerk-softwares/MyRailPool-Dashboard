@@ -2,12 +2,28 @@ import React from 'react';
 import { Menu, Search, Bell, UserCircle, ChevronDown, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import { signOut } from 'firebase/auth';
+import { auth } from '../Config/Config';
+import { useToast } from '../Toast/ToastContext';
 
 export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
   };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      showToast('Logged out successfully', 'success');
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
+      showToast('Logout failed. Try again.', 'error');
+    }
+  };
+
   return (
     <header className="h-16 md:h-20 bg-white border-b border-slate-200/60 shadow-sm flex items-center justify-between px-4 md:px-8 z-10 shrink-0 sticky top-0 w-full">
       {/* Mobile Hamburger & Logo text */}
@@ -66,8 +82,8 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           </div>
           <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-slate-400 hidden md:block" />
         </button>
-        <button 
-          onClick={() => navigate('/login')}
+        <button
+          onClick={handleLogout}
           className="text-slate-400 hover:text-red-500 p-1.5 md:p-2 rounded-full hover:bg-red-50 transition-colors focus:outline-none"
           title="Logout"
         >

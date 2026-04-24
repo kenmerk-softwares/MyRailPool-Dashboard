@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { designations } from '../../data/mockData';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from '../../Config/Config';
 
 const systemRoutes = [
 	{ name: 'Dashboard', path: '/' },
@@ -19,7 +20,23 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 	const [allRoutes, setAllRoutes] = React.useState(systemRoutes);
 	const [currentDesignationRoutes, setCurrentDesignationRoutes] = React.useState([]);
 	const [saving, setSaving] = React.useState(false);
+	const [designations, setDesignations] = React.useState([]);
+	useEffect(() => {
+		if (!isOpen) return;
 
+		const q = query(collection(db, "designations"), orderBy("designationName"));
+		const unsubscribe = onSnapshot(q, (snapshot) => {
+			const items = snapshot.docs.map(doc => ({
+				id: doc.id,
+				...doc.data()
+			}));
+			setDesignations(items);
+		}, (err) => {
+			console.error("Error fetching designations:", err);
+		});
+
+		return () => unsubscribe();
+	}, [isOpen]);
 	const handleSelectAll = () => {
 		const allPaths = allRoutes.map(r => r.path);
 		if (currentDesignationRoutes.length === allPaths.length) {

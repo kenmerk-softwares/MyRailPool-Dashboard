@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Car, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Car, Search, AlertTriangle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SectionHeader } from '../../components/Shared';
 import { adminUsersData } from '../../data/mockData';
@@ -14,6 +14,8 @@ export const AdminUserList = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState();
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -33,18 +35,20 @@ export const AdminUserList = () => {
     fetchUsers();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this admin user?")) return;
+  const handleDelete = async () => {
+    if (!userToDelete) return;
 
     setLoading(true);
     try {
       const functions = getFunctions(app, "asia-south1");
       const manageAdmin = httpsCallable(functions, "addUser");
 
-      const res = await manageAdmin({ action: "delete", id });
+      const res = await manageAdmin({ action: "delete", id: userToDelete.id });
       if (res.data?.success) {
-        setUsers(users.filter(u => u.id !== id));
+        setUsers(users.filter(u => u.id !== userToDelete.id));
         alert("User deleted successfully");
+        setIsDeleteModalOpen(false);
+        setUserToDelete(null);
       } else {
         alert("Error deleting user: " + res.data?.error);
       }
@@ -134,7 +138,10 @@ export const AdminUserList = () => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handleDelete(user.id)}
+                        onClick={() => {
+                          setUserToDelete(user);
+                          setIsDeleteModalOpen(true);
+                        }}
                         className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -157,6 +164,56 @@ export const AdminUserList = () => {
         editData={selectedUser}
         onRefresh={fetchUsers}
       />
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+            onClick={() => {
+              if (!loading) setIsDeleteModalOpen(false);
+            }}
+          />
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="bg-red-50 p-3 rounded-2xl">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
+                <button 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"
+                  disabled={loading}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Delete Admin User?</h3>
+              <p className="text-slate-500 mb-6">
+                Are you sure you want to delete <span className="font-semibold text-slate-700">{userToDelete?.name}</span>? This action cannot be undone and will permanently remove their access.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-50 transition-all text-sm disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all text-sm shadow-lg shadow-red-600/20 disabled:opacity-50"
+                >
+                  {loading ? "Deleting..." : "Confirm Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

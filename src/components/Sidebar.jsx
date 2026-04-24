@@ -50,8 +50,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/payment', label: 'Payment Status', icon: FaPaypal },
     { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: 2 },
     { path: '/notifications', label: 'Notifications', icon: Bell },
-    { path: '/admin-users', label: 'Admin Users', icon: Users },
-    { path: '/admin-settings', label: 'Admin Settings', icon: Settings },
+    { path: '/settings', label: 'Settings', icon: Settings },
     { path: '/admin-logs', label: 'Admin Logs', icon: Logs },
 
   ];

@@ -22,7 +22,6 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        console.log(formData)
         try {
             const userCredential = await signInWithEmailAndPassword(
                 auth,

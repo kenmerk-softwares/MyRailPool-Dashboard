@@ -1,5 +1,8 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './Config/Config';
 import { Layout } from './components/Layout';
 
 import { BookingList } from './pages/bookings/BookingList';
@@ -36,85 +39,170 @@ import AdminLogs from './pages/AdminLogs/AdminLogs';
 import Payment from './pages/Payment/Payment';
 import RouteReq from './pages/RouteReq/RouteReq';
 import { ToastProvider } from './Toast/ToastContext';
+import Settings from './pages/Settings/Settings';
+import EmployeeSettings from './pages/Settings/Employee';
+
+// ======================== ROUTES CONFIG ======================== //
+export const routesConfig = [
+  { path: '/', element: <Dashboard />, permission: null },
+  { path: '/bookings', element: <BookingList />, permission: '/bookings' },
+  { path: '/bookings/add', element: <AddBooking />, permission: '/bookings' },
+  { path: '/bookings/edit/:id', element: <EditBooking />, permission: '/bookings' },
+  { path: '/bookings/view/:id', element: <ViewBooking />, permission: '/bookings' },
+  { path: '/trips', element: <TripList />, permission: '/trips' },
+  { path: '/trips/add', element: <AddTrip />, permission: '/trips' },
+  { path: '/trips/add/:id', element: <AddTrip />, permission: '/trips' },
+  { path: '/trips/view/:id', element: <ViewTrip />, permission: '/trips' },
+  { path: '/routes', element: <RouteList />, permission: '/routes' },
+  { path: '/routes/add', element: <AddRoute />, permission: '/routes' },
+  { path: '/routes/edit/:id', element: <EditRoute />, permission: '/routes' },
+  { path: '/routes/view/:id', element: <ViewRoute />, permission: '/routes' },
+  { path: '/drivers', element: <DriverList />, permission: '/drivers' },
+  { path: '/drivers/add', element: <AddDriver />, permission: '/drivers' },
+  { path: '/drivers/edit/:id', element: <EditDriver />, permission: '/drivers' },
+  { path: '/drivers/view/:id', element: <ViewDriver />, permission: '/drivers' },
+  { path: '/vehicles', element: <VehicleList />, permission: '/vehicles' },
+  { path: '/vehicles/add', element: <AddVehicle />, permission: '/vehicles' },
+  { path: '/vehicles/edit/:id', element: <EditVehicle />, permission: '/vehicles' },
+  { path: '/vehicles/view/:id', element: <ViewVehicle />, permission: '/vehicles' },
+  { path: '/payment', element: <Payment />, permission: '/payment' },
+  { path: '/route-req', element: <RouteReq />, permission: '/route-req' },
+  { path: '/notifications', element: <NotificationList />, permission: '/notifications' },
+  { path: '/admin-users', element: <AdminUserList />, permission: '/admin-users' },
+  { path: '/admin-settings', element: <AdminSettings />, permission: '/admin-settings' },
+  { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
+  { path: '/settings', element: <Settings />, permission: '/settings'},
+  { path: '/employee-settings', element: <EmployeeSettings />, permission: '/employee-settings'}
+];
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [allowedRoutes, setAllowedRoutes] = useState(null); // null = loading/legacy, [] = no permissions
+
+  // Auth listener
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setCheckingAuth(false);
+    });
+    return () => unsub();
+  }, []);
+
+  // Fetch user's permissions when logged in
+  useEffect(() => {
+    if (!user) {
+      setAllowedRoutes(null);
+      return;
+    }
+
+    let unsubPermissions = null;
+
+    const fetchPermissions = async () => {
+      try {
+        const userDocRef = doc(db, 'admin-users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+          setAllowedRoutes([]);
+          return;
+        }
+
+        const userData = userDocSnap.data();
+        const designationId = userData.designationId;
+
+        if (!designationId) {
+          // No designationId → grant all access (fallback for legacy users)
+          setAllowedRoutes(null);
+          return;
+        }
+
+        // Listen to permissions doc in real-time
+        const permDocRef = doc(db, 'permissions', designationId);
+        unsubPermissions = onSnapshot(permDocRef, (permSnap) => {
+          if (permSnap.exists()) {
+            const permData = permSnap.data();
+            setAllowedRoutes(permData.allowedRoutes || []);
+          } else {
+            setAllowedRoutes([]);
+          }
+        }, (err) => {
+          console.error("Error fetching permissions:", err);
+          setAllowedRoutes(null);
+        });
+      } catch (error) {
+        console.error("Error fetching user permissions:", error);
+        setAllowedRoutes(null);
+      }
+    };
+
+    fetchPermissions();
+
+    return () => {
+      if (unsubPermissions) unsubPermissions();
+    };
+  }, [user]);
+
+  const isRouteAllowed = (permission) => {
+    if (permission === null) return true;
+    if (allowedRoutes === null) return true;
+    return allowedRoutes.includes(permission);
+  };
+
+  if (checkingAuth) return null;
+
   return (
     <ToastProvider>
       <Routes>
-        {/* <Route path="/" element={user ? <Dashboard /> : <Login />} /> */}
-
-        <Route path="/" element={<Layout />}>
-          {/* Dashboard */}
+        <Route
+          path="/"
+          element={user ? <Layout /> : <Login />}
+        >
           <Route index element={<Dashboard />} />
 
-          {/* Bookings */}
-          <Route path="bookings">
-            <Route index element={<BookingList />} />
-            <Route path="add" element={<AddBooking />} />
-            <Route path="edit/:id" element={<EditBooking />} />
-            <Route path="view/:id" element={<ViewBooking />} />
-          </Route>
-
-          {/* Trips */}
-          <Route path="trips">
-            <Route index element={<TripList />} />
-            <Route path="add" element={<AddTrip />} />
-            <Route path="add/:id" element={<AddTrip />} />
-            <Route path="view/:id" element={<ViewTrip />} />
-          </Route>
-
-          {/* Routes */}
-          <Route path="routes">
-            <Route index element={<RouteList />} />
-            <Route path="add" element={<AddRoute />} />
-            <Route path="edit/:id" element={<EditRoute />} />
-            <Route path="view/:id" element={<ViewRoute />} />
-          </Route>
-
-          {/* Drivers */}
-          <Route path="drivers">
-            <Route index element={<DriverList />} />
-            <Route path="add" element={<AddDriver />} />
-            <Route path="edit/:id" element={<EditDriver />} />
-            <Route path="view/:id" element={<ViewDriver />} />
-          </Route>
-
-          {/* Vehicles */}
-          <Route path="vehicles">
-            <Route index element={<VehicleList />} />
-            <Route path="add" element={<AddVehicle />} />
-            <Route path="edit/:id" element={<EditVehicle />} />
-            <Route path="view/:id" element={<ViewVehicle />} />
-          </Route>
-          {/* Payment */}
-          <Route path="payment">
-            <Route index element={<Payment />} />
-          </Route>
-          {/* Route Requests */}
-          <Route path="route-req">
-            <Route index element={<RouteReq />} />
-          </Route>
-          {/* Notifications */}
-          <Route path="notifications">
-            <Route index element={<NotificationList />} />
-          </Route>
-
-          {/* Admin Users */}
-          <Route path="admin-users" element={<AdminUserList />} />
-
-          {/* Admin Settings */}
-          <Route path="admin-settings">
-            <Route index element={<AdminSettings />} />
-
-          </Route>
-
-          {/* Admin Logs */}
-          <Route path="admin-logs">
-            <Route index element={<AdminLogs />} />
-          </Route>
+          {/* Logged-in routes with permission check */}
+          {user && routesConfig.map((route) => {
+            if (route.path === '/') return null;
+            return (
+              <Route
+                key={route.path}
+                path={route.path.substring(1)}
+                element={
+                  isRouteAllowed(route.permission)
+                    ? route.element
+                    : <NoAccess />
+                }
+              />
+            );
+          })}
         </Route>
-        <Route path="/login" element={<Login />} />
+
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
         <Route path="/no-access" element={<NoAccess />} />
+        {/* Logged-in routes with permission check */}
+        {user && (
+          <>
+            {routesConfig.map((route) => {
+              // Skip root — already handled above
+              if (route.path === '/') return null;
+
+              return (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    isRouteAllowed(route.permission)
+                      ? route.element
+                      : <NoAccess />
+                  }
+                />
+              );
+            })}
+          </>
+        )}
+        {!user && <Route path="*" element={<Navigate to="/" />} />}
+        <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </ToastProvider>
   );
