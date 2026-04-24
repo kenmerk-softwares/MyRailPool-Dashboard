@@ -16,11 +16,20 @@ module.exports = {
           300: '#8ED2A6',
           400: '#5FBE80',
           500: '#34A85F',
-          600: '#1FAF5B', // Vibrant green from Sign In button
+          600: '#1FAF5B', 
           700: '#168B46',
-          800: '#08694E', // Dark green from MyRailPool text
-          900: '#064F3B', // Dark sidebar background
+          800: '#08694E', 
+          900: '#064F3B', 
         }
+      },
+      keyframes: {
+        slideIn: {
+          'from': { transform: 'translateX(400px)', opacity: '0' },
+          'to': { transform: 'translateX(0)', opacity: '1' },
+        }
+      },
+      animation: {
+        slideIn: 'slideIn 0.3s ease-out',
       }
     },
   },

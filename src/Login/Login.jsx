@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo.svg';
+import { auth, db } from '../Config/Config';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { useToast } from '../Toast/ToastContext';
 
 export default function Login() {
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -14,33 +19,57 @@ export default function Login() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    //   const handleSubmit = async (e) => {
-    // 	e.preventDefault();
-    // 	setLoading(true);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
 
-    // 	try {
-    // 	  const response = await fetch('http://localhost:5000/api/auth/login', {
-    // 		method: 'POST',
-    // 		headers: { 'Content-Type': 'application/json' },
-    // 		body: JSON.stringify(formData),
-    // 	  });
+        try {
 
-    // 	  const data = await response.json();
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                formData.email,
+                formData.password
+            );
 
-    // 	  if (response.ok) {
-    // 		localStorage.setItem('token', data.token);
-    // 		localStorage.setItem('user', JSON.stringify(data.user));
-    // 		navigate('/dashboard');
-    // 	  } else {
-    // 		alert(data.message || 'Login failed');
-    // 	  }
-    // 	} catch (error) {
-    // 	  console.error('Login error:', error);
-    // 	  alert('An error occurred during login');
-    // 	} finally {
-    // 	  setLoading(false);
-    // 	}
-    //   };
+            const user = userCredential.user;
+
+
+            const adminRef = doc(db, 'admin-users', user.uid);
+            const adminSnap = await getDoc(adminRef);
+
+            if (!adminSnap.exists()) {
+                await signOut(auth);
+                showToast('Access denied. Admin only.', 'error');
+                return;
+            }
+
+            const adminData = adminSnap.data();
+
+            if (adminData.uid !== user.uid) {
+                await signOut(auth);
+                showToast('Account disabled. Contact admin.', 'error');
+                return;
+            }
+
+
+            showToast('Login successful', 'success');
+            navigate('/');
+
+        } catch (error) {
+            console.error(error);
+
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                showToast('User not found or invalid credentials', 'error');
+            } else if (error.code === 'auth/wrong-password') {
+                showToast('Incorrect password', 'error');
+            } else {
+                showToast(error.message, 'error');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-green-50 p-5">
@@ -53,9 +82,7 @@ export default function Login() {
                     <p className="text-sm text-[#64748b]">Sign in to your account to continue</p>
                 </div>
 
-                <form className="flex flex-col gap-5"
-                // onSubmit={handleSubmit}
-                >
+                <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-semibold text-[#1e293b]">Email Address</label>
                         <input
