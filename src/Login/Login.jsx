@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo.svg';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '../Toast/ToastContext';
-import { auth } from '../Config/Config';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../Config/Config';
 
 export default function Login() {
     const { showToast } = useToast();
@@ -29,21 +29,21 @@ export default function Login() {
                 formData.email,
                 formData.password
             );
-            // const user = userCredential.user;
-            // const adminRef = doc(db, 'admin-users', user.uid);
-            // const adminSnap = await getDoc(adminRef);
+            const user = userCredential.user;
+            const adminRef = doc(db, 'admin-users', user.uid);
+            const adminSnap = await getDoc(adminRef);
 
-            // if (!adminSnap.exists()) {
-            //     await signOut(auth);
-            //     showToast('Access denied. Admin only.', 'error');
-            //     return;
-            // }
-            // const adminData = adminSnap.data();
-            // if (adminData.uid !== user.uid) {
-            //     await signOut(auth);
-            //     showToast('Account disabled. Contact admin.', 'error');
-            //     return;
-            // }
+            if (!adminSnap.exists()) {
+                await signOut(auth);
+                showToast('Access denied. Admin only.', 'error');
+                return;
+            }
+            const adminData = adminSnap.data();
+            if (adminData.uid !== user.uid) {
+                await signOut(auth);
+                showToast('Account disabled. Contact admin.', 'error');
+                return;
+            }
             showToast('Login successful', 'success');
             navigate('/');
         } catch (error) {
@@ -53,6 +53,8 @@ export default function Login() {
                 showToast('User not found or invalid credentials', 'error');
             } else if (error.code === 'auth/wrong-password') {
                 showToast('Incorrect password', 'error');
+            } else if (error.code === 'auth/configuration-not-found') {
+                showToast('Firebase configuration error. Please check your project settings.', 'error');
             } else {
                 showToast(error.message, 'error');
             }
