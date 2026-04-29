@@ -2,20 +2,11 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Clock,
-  MapPin,
   Users,
-  Car,
-  DollarSign,
   Navigation,
   Leaf,
-  FileText,
-  Calendar,
   Edit,
-  ArrowLeft,
   TrendingUp,
-  CreditCard,
-  Briefcase,
-  Smartphone,
   Hash,
   Globe,
   Milestone,
@@ -53,8 +44,8 @@ export const ViewTrip = () => {
     }
   };
 
-  const revenue = trip.price ? parseFloat(trip.price.replace('₹', '').replace(',', '')) : 0;
-  const profit = trip.profit ? parseFloat(trip.profit.replace('₹', '').replace(',', '')) : 0;
+  // const revenue = trip.price ? parseFloat(trip.price.replace('₹', '').replace(',', '')) : 0;
+  // const profit = trip.profit ? parseFloat(trip.profit.replace('₹', '').replace(',', '')) : 0;
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">

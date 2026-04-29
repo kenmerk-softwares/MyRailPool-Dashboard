@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  ArrowLeft,
   Save,
   MapPin,
   Navigation,
@@ -8,18 +7,15 @@ import {
   ArrowRightLeft,
   User,
   Car,
-  Info,
   Route as RouteIcon,
   TrendingUp,
   Map,
-  Hash,
   Calendar,
   Clock1,
   X,
   Plus,
   ChevronLeft,
   ChevronRight,
-  GripHorizontal
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { driversData, vehiclesData } from '../../data/mockData';
@@ -355,14 +351,14 @@ export const AddRoute = () => {
         </div>
       </div>
 
-      <div className="mt-10 flex items-center justify-end gap-4 px-4">
+      <div className="mt-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4">
         <Link
           to="/routes"
-          className="px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
+          className="w-full sm:w-auto text-center px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
         >
           Cancel
         </Link>
-        <button className="bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
+        <button className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
           <Save className="w-4.5 h-4.5" /> Add Route
         </button>
       </div>

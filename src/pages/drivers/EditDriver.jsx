@@ -19,7 +19,6 @@ import {
   AlertCircle,
   Clock,
   Info,
-  Trash2
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { driversData } from '../../data/mockData';

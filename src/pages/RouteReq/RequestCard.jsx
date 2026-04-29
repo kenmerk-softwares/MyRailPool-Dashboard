@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   User, MapPin, Calendar, Clock, Users, 
-  ChevronRight, CheckCircle2, XCircle, Clock4, ShieldCheck 
+  ChevronRight, CheckCircle2, XCircle, Clock4 
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
@@ -103,10 +103,10 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
         </div>
 
         {/* Actions */}
-        <div className="mt-auto pt-6 border-t border-slate-50 flex items-center gap-3">
+        <div className="mt-auto pt-6 border-t border-slate-50 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
           <button 
             onClick={() => onView(request)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold transition-all active:scale-95"
+            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-bold transition-all active:scale-95 order-3 sm:order-1"
           >
             Details
             <ChevronRight className="w-4 h-4" />
@@ -116,13 +116,13 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
             <>
               <button 
                 onClick={() => onReject(request)}
-                className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all active:scale-95"
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all active:scale-95 order-1 sm:order-2"
               >
                 Reject
               </button>
               <button 
                 onClick={() => onAccept(request)}
-                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 transition-all active:scale-95 order-2 sm:order-3"
               >
                 Accept
               </button>

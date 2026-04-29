@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Car, Search, AlertTriangle, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Plus, Edit, Trash2, Search, AlertTriangle, X } from 'lucide-react';
 import { SectionHeader } from '../../components/Shared';
-import { adminUsersData } from '../../data/mockData';
 import AddAdmin from './AddAdmin';
 import { collection, getDocs } from 'firebase/firestore';
 import { app, db } from '../../Config/Config';

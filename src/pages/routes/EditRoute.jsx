@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  ArrowLeft,
   Save,
   MapPin,
   Navigation,
@@ -8,11 +7,9 @@ import {
   ArrowRightLeft,
   User,
   Car,
-  Info,
   Route as RouteIcon,
   TrendingUp,
   Map,
-  Trash2,
   Calendar,
   Clock1
 } from 'lucide-react';

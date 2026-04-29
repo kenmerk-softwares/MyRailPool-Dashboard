@@ -33,19 +33,21 @@ const PaymentTable = ({ payments, onView, onRefund }) => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-slate-100">
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Booking ID</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Customer</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Route</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Method</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date & Time</th>
-              <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+               <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sl No</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Booking ID</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Customer</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Route</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Method</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date & Time</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {payments.map((payment) => (
+            {payments.map((payment, idx) => (
               <tr key={payment.id} className="hover:bg-slate-50/50 transition-colors group">
+                 <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
                 <td className="px-6 py-4">
                   <span className="text-xs font-bold text-slate-900">{payment.id}</span>
                 </td>
@@ -76,7 +78,7 @@ const PaymentTable = ({ payments, onView, onRefund }) => {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => onView(payment)}
-                      className="p-2 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-xl transition-all"
+                      className="p-2 hover:bg-indigo-50 text-slate-500  hover:text-indigo-600 rounded-xl transition-all"
                       title="View Details"
                     >
                       <Eye className="w-4 h-4" />
@@ -84,7 +86,7 @@ const PaymentTable = ({ payments, onView, onRefund }) => {
                     {payment.status === 'Paid' && (
                       <button 
                         onClick={() => onRefund(payment)}
-                        className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all"
+                        className="p-2 hover:bg-rose-50 text-slate-500  hover:text-rose-600 rounded-xl transition-all"
                         title="Initiate Refund"
                       >
                         <RotateCcw className="w-4 h-4" />
@@ -103,12 +105,12 @@ const PaymentTable = ({ payments, onView, onRefund }) => {
       
       {payments.length === 0 && (
         <div className="py-20 text-center">
-          <p className="text-slate-400 font-medium italic">No transactions found matching your filters.</p>
+          <p className="text-slate-500  font-medium italic">No transactions found matching your filters.</p>
         </div>
       )}
 
       <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+        <p className="text-[10px] font-bold text-slate-500  uppercase tracking-widest">
           Showing {payments.length} results
         </p>
         <div className="flex gap-2">

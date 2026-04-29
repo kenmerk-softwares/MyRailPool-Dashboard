@@ -1,7 +1,7 @@
 {
   "name": "myrailpool-dashboard",
   "version": "0.1.0",
-  "homepage": "https://kenmerk-softwares.github.io/MyRailPool-Dashboard",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",

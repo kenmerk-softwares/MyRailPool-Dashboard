@@ -5,8 +5,6 @@ import {
   Shield,
   Calendar,
   User,
-  Info,
-  FileText,
   CheckCircle2,
   AlertCircle,
   Edit,
@@ -16,9 +14,6 @@ import {
   Hash,
   Activity,
   Award,
-  Zap,
-  ZapIcon,
-  InfoIcon
 } from 'lucide-react';
 import { StatusBadge } from '../../components/Shared';
 import { vehiclesData } from '../../data/mockData';

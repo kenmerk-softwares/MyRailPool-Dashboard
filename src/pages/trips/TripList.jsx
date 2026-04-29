@@ -66,6 +66,7 @@ export const TripList = () => {
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-slate-50/50">
+              <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Trip ID</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Driver & Vehicle</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">Route</th>
@@ -78,6 +79,7 @@ export const TripList = () => {
             <tbody className="divide-y divide-slate-100">
               {tripsData.map((trip, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{trip.trip_id}</td>
                   <td className="px-4 md:px-6 py-4">
                     <div className="text-xs md:text-sm font-medium text-slate-800">{trip.driver}</div>

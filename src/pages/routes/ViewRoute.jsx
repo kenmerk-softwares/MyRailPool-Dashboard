@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  MapPin,
   Clock,
   Navigation,
   TrendingUp,
@@ -12,9 +11,7 @@ import {
   Clock3,
   Route as RouteIcon,
   Globe,
-  Milestone,
   ArrowRight,
-  Briefcase,
   AlertCircle,
   Hash,
   Calendar
