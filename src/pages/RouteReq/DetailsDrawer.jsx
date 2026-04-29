@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   X, User, Mail, Phone, MapPin, 
   Calendar, Clock, Users, MessageSquare,
-  ArrowRight, ShieldCheck, CheckCircle2, XCircle
+  ArrowRight, ShieldCheck
 } from 'lucide-react';
 
 const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {

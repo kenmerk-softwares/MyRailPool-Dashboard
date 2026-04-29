@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   DollarSign, CheckCircle, Clock, XCircle, RefreshCcw,
-  Download, Calendar as CalendarIcon, Filter as FilterIcon
+  Download, Calendar as CalendarIcon
 } from 'lucide-react';
 import StatCard from './StatCard';
 import Filters from './Filters';

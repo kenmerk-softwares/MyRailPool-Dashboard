@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Edit, Trash2, Car, Search, Eye, Filter, RotateCcw, Tablet } from 'lucide-react';
+import { Plus, Edit, Trash2, Car, Search, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { vehiclesData } from '../../data/mockData';
@@ -52,6 +52,7 @@ export const VehicleList = () => {
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-slate-50/50">
+              <th className='px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100'>Sl No</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Asset Identity</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">Specifications</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden md:table-cell">Assigned Driver</th>
@@ -62,11 +63,12 @@ export const VehicleList = () => {
             <tbody className="divide-y divide-slate-100">
               {vehiclesData.map((vehicle, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-700 font-bold text-sm border border-primary-100/50 shadow-sm uppercase">
+                      {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-700 font-bold text-sm border border-primary-100/50 shadow-sm uppercase">
                         {vehicle.make.charAt(0)}
-                      </div>
+                      </div> */}
                       <div>
                         <div className="text-xs md:text-sm font-medium text-slate-900">{vehicle.make} {vehicle.model}</div>
                         <div className="flex items-center gap-1.5 mt-0.5">

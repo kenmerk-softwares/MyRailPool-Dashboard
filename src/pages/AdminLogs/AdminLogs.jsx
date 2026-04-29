@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Calendar, Filter, Clock, MoreVertical, ShieldCheck, User, ArrowRight } from 'lucide-react';
+import { Search, Clock, ArrowRight } from 'lucide-react';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 

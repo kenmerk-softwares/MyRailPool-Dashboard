@@ -1,24 +1,12 @@
 import React from 'react';
 import {
-  ArrowLeft,
   Save,
   User,
   MapPin,
-  CreditCard,
-  Calendar,
-  Smartphone,
-  Users,
   Accessibility,
-  Info,
-  Clock,
   Navigation,
-  CheckCircle,
   Hash,
-  Globe,
   Handshake,
-  XCircle,
-  ShieldCheck,
-  FileText,
   DollarSign,
   Briefcase
 } from 'lucide-react';

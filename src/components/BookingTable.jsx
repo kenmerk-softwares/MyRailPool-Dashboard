@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Search, Eye, Phone, MapPin, Calendar, CreditCard, User } from 'lucide-react';
+import { Edit, Trash2, Search, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { StatusBadge } from './Shared';
 import { FaCalendarAlt } from 'react-icons/fa';
@@ -63,6 +63,7 @@ export const BookingTable = ({ data }) => {
       <table className="w-full text-left border-collapse min-w-[1000px]">
         <thead>
           <tr className="bg-slate-50/50">
+            <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Req Ref</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Booking ID</th>
             <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Customer</th>
@@ -77,6 +78,7 @@ export const BookingTable = ({ data }) => {
         <tbody className="divide-y divide-slate-100 text-xs md:text-sm">
           {data.map((booking, idx) => (
             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+              <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{idx + 1}</td>
               <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{booking.req_ref}</td>
               <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{booking.booking_id}</td>
               <td className="px-4 md:px-6 py-4 text-slate-600 font-medium">{booking.name}</td>
@@ -89,7 +91,7 @@ export const BookingTable = ({ data }) => {
               </td>
               <td className="px-4 md:px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
-                  <button 
+                  <button
                     className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors"
                     onClick={() => handleViewBooking(booking.booking_id)}
                   >

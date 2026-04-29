@@ -6,7 +6,6 @@ import {
   Mail,
   MapPin,
   Calendar,
-  CreditCard,
   Car,
   Clock,
   Navigation,
@@ -17,17 +16,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Briefcase,
-  Layers,
-  ShieldCheck,
-  TrendingUp,
   Globe,
-  XCircle,
   Users,
   Handshake,
-  FileText,
-  PhoneCall,
   Hash,
-  Milestone,
   User2
 } from 'lucide-react';
 import { StatusBadge } from '../../components/Shared';

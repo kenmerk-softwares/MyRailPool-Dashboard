@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Edit, Trash2, UserPlus, Search, Eye, MapPin, Tablet } from 'lucide-react';
+import { Edit, Trash2, UserPlus, Search, Eye, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { driversData } from '../../data/mockData';
@@ -51,6 +51,7 @@ export const DriverList = () => {
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-slate-50/50">
+              <th className="px-1 md:px-2 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Name</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Contact</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden lg:table-cell">Address</th>
@@ -61,11 +62,13 @@ export const DriverList = () => {
             <tbody className="divide-y divide-slate-100">
               {driversData.map((driver, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-1 md:px-2 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
+
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-700 font-bold text-sm border border-primary-100/50 shadow-sm uppercase">
+                      {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-700 font-bold text-sm border border-primary-100/50 shadow-sm uppercase">
                         {driver.name.charAt(0)}
-                      </div>
+                      </div> */}
                       <div>
                         <div className="text-xs md:text-sm font-medium text-slate-900">{driver.name}</div>
                         <div className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">{driver.driver_id}</div>

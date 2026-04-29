@@ -48,6 +48,7 @@ export const RouteList = () => {
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-slate-50/50">
+              <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No </th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Route Name</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Start location</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell">End location</th>
@@ -59,6 +60,7 @@ export const RouteList = () => {
             <tbody className="divide-y divide-slate-100">
               {routesData.map((route, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{route.name}</td>
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 max-w-[150px] truncate">{route.start}</td>
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 hidden sm:table-cell max-w-[150px] truncate">{route.end}</td>

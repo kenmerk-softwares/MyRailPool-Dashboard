@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, CreditCard, Clock, MapPin, Receipt, ShieldCheck } from 'lucide-react';
+import { X, CreditCard, Receipt, ShieldCheck } from 'lucide-react';
 
 const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
   if (!isOpen || !payment) return null;

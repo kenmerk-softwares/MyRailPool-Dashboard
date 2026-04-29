@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Plus, Bell, Filter as FilterIcon,
-  RefreshCcw, AlertTriangle, CheckCircle, Info
+  Plus, Bell,RefreshCcw, AlertTriangle,
 } from 'lucide-react';
 import Filters from './Filters';
-import NotificationCenter from './NotificationCenter';
 import RequestCard from './RequestCard';
 import DetailsDrawer from './DetailsDrawer';
 import RejectModal from './RejectModal';

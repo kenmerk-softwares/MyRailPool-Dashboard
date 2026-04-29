@@ -22,12 +22,12 @@ import {
   Bell,
   UserCheck
 } from 'lucide-react';
-import { SectionHeader, StatusBadge } from '../../components/Shared';
+import { StatusBadge } from '../../components/Shared';
 import { driversData, tripsData } from '../../data/mockData';
 
 export default function ViewDriver() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const selectedDriver = driversData.find(d => d.driver_id.replace('#', '') === id);
   const driverTrips = selectedDriver ? tripsData.filter(t => t.driver === selectedDriver.name) : [];

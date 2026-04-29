@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, User, Car, Clock, CalendarCheck, CheckCircle2, XCircle } from 'lucide-react';
+import {Car, Clock, CalendarCheck, CheckCircle2, XCircle } from 'lucide-react';
 import { SectionHeader } from '../../components/Shared';
 
 const NotificationItem = ({ icon: Icon, title, message, time, type }) => {

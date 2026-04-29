@@ -13,8 +13,6 @@ import {
   FileText,
   Activity,
   Award,
-  AlertCircle,
-  Trash2
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { vehiclesData } from '../../data/mockData';
