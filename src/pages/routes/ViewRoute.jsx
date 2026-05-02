@@ -14,7 +14,8 @@ import {
   ArrowRight,
   AlertCircle,
   Hash,
-  Calendar
+  Calendar,
+  MapPin
 } from 'lucide-react';
 import { StatusBadge } from '../../components/Shared';
 import { routesData } from '../../data/mockData';
@@ -22,6 +23,21 @@ import { routesData } from '../../data/mockData';
 export default function ViewRoute() {
   const { id } = useParams();
   const route = routesData.find(r => r.id.replace('#', '') === id);
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const getSelectedDays = (daysOp) => {
+    if (!daysOp) return [];
+    if (daysOp === 'Daily') return [...daysOfWeek];
+    const selected = daysOp.split(',').map(d => d.trim());
+    return selected.map(s => {
+      const full = daysOfWeek.find(d => d.startsWith(s));
+      return full || s;
+    });
+  };
+
+  const selectedDays = getSelectedDays(route?.days_op);
+  const timeSlots = route?.time_slots?.split(',').map(t => t.trim()) || [];
+  const droppingPoints = route?.droppingPoints || []; // In case it's added later
 
   if (!route) {
     return (
@@ -51,7 +67,8 @@ export default function ViewRoute() {
           </div>
         </div>
         <Link
-          to={`/routes/edit/${id}`}
+          to="/routes/add"
+          state={{ route }}
           className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
         >
           <Edit className="w-4.5 h-4.5" /> Edit Route
@@ -106,7 +123,7 @@ export default function ViewRoute() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Outbound Window</label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Start Date & Time</label>
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
                   <Clock className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.timings}</span>
@@ -114,26 +131,47 @@ export default function ViewRoute() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Inbound Window</label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">End Date & Time</label>
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
                   <ArrowRightLeft className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.return_timing || 'Continuous'}</span>
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 col-span-1 md:col-span-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Days Operating</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <Calendar className="w-4 h-4 text-indigo-500" />
-                  <span className="font-bold text-slate-700">{route.days_op || 'N/A'}</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {daysOfWeek.map(day => {
+                    const isSelected = selectedDays.includes(day);
+                    return (
+                      <span
+                        key={day}
+                        className={`px-2 py-1 rounded-lg text-[12px] font-bold border transition-colors ${
+                          isSelected
+                            ? 'bg-primary-100 border-primary-900 text-primary-900'
+                            : 'bg-slate-50 border-slate-100 text-slate-300'
+                        }`}
+                      >
+                        {day.slice(0, 3)}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 col-span-1 md:col-span-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Time Slots</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <Clock3 className="w-4 h-4 text-primary-600" />
-                  <span className="font-bold text-slate-700">{route.time_slots || 'N/A'}</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {timeSlots.length > 0 ? (
+                    timeSlots.map(time => (
+                      <span key={time} className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 flex items-center gap-2">
+                        <Clock3 className="w-3 h-3 text-primary-500" />
+                        {time}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-slate-400 italic text-xs">No time slots defined</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -170,6 +208,28 @@ export default function ViewRoute() {
                   <p className="text-lg font-bold text-slate-900">{route.end || 'TBD'}</p>
                 </div>
               </div>
+            </div>
+
+            {/* Dropping Points List */}
+            <div className="space-y-4">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Dropping Points / Intermediate Stops</label>
+              {droppingPoints.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {droppingPoints.map((point, idx) => (
+                    <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-100 shadow-sm group hover:border-primary-200 transition-all">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-bold text-emerald-600 border border-emerald-100">
+                        {idx + 1}
+                      </div>
+                      <span className="font-medium text-slate-700">{point}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  <MapPin className="w-6 h-6 text-slate-300 mb-2" />
+                  <p className="text-slate-400 text-xs font-medium">No intermediate dropping points defined for this route.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
