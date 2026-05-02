@@ -16,7 +16,6 @@ import { ViewTrip } from './pages/trips/ViewTrip';
 
 import { RouteList } from './pages/routes/RouteList';
 import { AddRoute } from './pages/routes/AddRoute';
-import { EditRoute } from './pages/routes/EditRoute';
 import ViewRoute from './pages/routes/ViewRoute';
 
 import { DriverList } from './pages/drivers/DriverList';
@@ -56,7 +55,6 @@ export const routesConfig = [
   { path: '/trips/view/:id', element: <ViewTrip />, permission: '/trips' },
   { path: '/routes', element: <RouteList />, permission: '/routes' },
   { path: '/routes/add', element: <AddRoute />, permission: '/routes' },
-  { path: '/routes/edit/:id', element: <EditRoute />, permission: '/routes' },
   { path: '/routes/view/:id', element: <ViewRoute />, permission: '/routes' },
   { path: '/drivers', element: <DriverList />, permission: '/drivers' },
   { path: '/drivers/add', element: <AddDriver />, permission: '/drivers' },

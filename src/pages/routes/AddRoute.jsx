@@ -17,12 +17,59 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { driversData, vehiclesData } from '../../data/mockData';
 
 export const AddRoute = () => {
-  const [droppingPoints, setDroppingPoints] = useState([]);
+  const location = useLocation();
+  const initialData = location.state?.route || null;
+
+  const [droppingPoints, setDroppingPoints] = useState(initialData?.droppingPoints || []);
   const [currentPoint, setCurrentPoint] = useState('');
+
+  // Helper to parse numeric strings like "14 km" or "₹1,200"
+  const parseNumeric = (val) => {
+    if (!val) return '';
+    return val.replace(/[^0-9.]/g, '');
+  };
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const [selectedDays, setSelectedDays] = useState(() => {
+    if (initialData?.days_op) {
+      if (initialData.days_op === 'Daily') return [...daysOfWeek];
+      const selected = initialData.days_op.split(',').map(d => d.trim());
+      return selected.map(s => {
+        const full = daysOfWeek.find(d => d.startsWith(s));
+        return full || s;
+      });
+    }
+    return [];
+  });
+
+  const toggleDay = (day) => {
+    setSelectedDays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const [timeSlots, setTimeSlots] = useState(() => {
+    if (initialData?.time_slots) {
+      return initialData.time_slots.split(',').map(t => t.trim());
+    }
+    return [];
+  });
+  const [currentTime, setCurrentTime] = useState('');
+
+  const handleAddTime = () => {
+    if (currentTime && !timeSlots.includes(currentTime)) {
+      setTimeSlots([...timeSlots, currentTime].sort());
+      setCurrentTime('');
+    }
+  };
+
+  const handleRemoveTime = (time) => {
+    setTimeSlots(timeSlots.filter(t => t !== time));
+  };
 
   const handleAddPoint = () => {
     if (currentPoint.trim()) {
@@ -56,8 +103,14 @@ export const AddRoute = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div className="flex items-center gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Create New Route</h2>
-            <p className="text-slate-500 font-medium mt-1">Define a new standard travel corridor and assign initial assets.</p>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+              {initialData ? 'Edit Route' : 'Create New Route'}
+            </h2>
+            <p className="text-slate-500 font-medium mt-1">
+              {initialData 
+                ? `  ${initialData.name}. Modify operational parameters and assign initial assets.` 
+                : 'Define a new standard travel corridor and assign initial assets.'}
+            </p>
           </div>
         </div>
       </div>
@@ -80,12 +133,16 @@ export const AddRoute = () => {
                   type="text"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                   placeholder="e.g. Airport Express Corridor"
+                  defaultValue={initialData?.name}
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
-                <select className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer">
+                <select 
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
+                  defaultValue={initialData?.route_type || "one_way"}
+                >
                   <option value="one_way">Core route</option>
                   <option value="circuit">Flexi route</option>
                 </select>
@@ -93,7 +150,10 @@ export const AddRoute = () => {
 
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Status</label>
-                <select className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer">
+                <select 
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
+                  defaultValue={initialData?.status || "Active"}
+                >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
@@ -110,6 +170,7 @@ export const AddRoute = () => {
                     type="text"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="Terminal 1 Arrival Gate..."
+                    defaultValue={initialData?.start}
                   />
                 </div>
               </div>
@@ -122,6 +183,7 @@ export const AddRoute = () => {
                     type="text"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="Downtown Central Plaza..."
+                    defaultValue={initialData?.end}
                   />
                 </div>
               </div>
@@ -145,6 +207,7 @@ export const AddRoute = () => {
                     type="number"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="0"
+                    defaultValue={parseNumeric(initialData?.distance)}
                   />
                 </div>
               </div>
@@ -156,6 +219,7 @@ export const AddRoute = () => {
                     type="number"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-emerald-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="0.00"
+                    defaultValue={parseNumeric(initialData?.estPrice)}
                   />
                 </div>
               </div>
@@ -182,24 +246,66 @@ export const AddRoute = () => {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Days Operating</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                  />
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {daysOfWeek.map(day => {
+                    const isSelected = selectedDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleDay(day)}
+                        className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 border ${
+                          isSelected
+                            ? 'bg-primary-600 border-primary-600 text-white shadow-md shadow-primary-100'
+                            : 'bg-white border-slate-200 text-slate-500 hover:border-primary-300 hover:text-primary-600'
+                        }`}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Time Slots</label>
-                <div className="relative">
-                  <Clock1 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                  />
+              <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip Starting Times</label>
+                <div className="space-y-3">
+                  <div className="relative flex gap-2">
+                    <div className="relative flex-1">
+                      <Clock1 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="time"
+                        value={currentTime}
+                        onChange={(e) => setCurrentTime(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddTime}
+                      className="bg-primary-50 text-primary-600 p-2.5 rounded-xl hover:bg-primary-100 transition-all active:scale-95 border border-primary-100"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+                  
+                  {timeSlots.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {timeSlots.map(time => (
+                        <div key={time} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg group animate-in zoom-in duration-200">
+                          <span className="text-xs font-bold text-slate-700">{time}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTime(time)}
+                            className="text-slate-400 hover:text-red-500 transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -323,7 +429,10 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Default Corridor Driver</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none">
+                  <select 
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
+                    defaultValue={initialData?.driver}
+                  >
                     <option value="">Select Operator</option>
                     {driversData.map(d => (
                       <option key={d.id} value={d.name}>{d.name}</option>
@@ -336,7 +445,10 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Default Service Vehicle</label>
                 <div className="relative">
                   <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none">
+                  <select 
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
+                    defaultValue={initialData?.vehicle}
+                  >
                     <option value="">Select Asset</option>
                     {vehiclesData.map(v => (
                       <option key={v.id} value={`${v.make} ${v.model} (${v.registration_no})`}>
@@ -359,7 +471,7 @@ export const AddRoute = () => {
           Cancel
         </Link>
         <button className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
-          <Save className="w-4.5 h-4.5" /> Add Route
+          <Save className="w-4.5 h-4.5" /> {initialData ? 'Save Route' : 'Add Route'}
         </button>
       </div>
     </div>

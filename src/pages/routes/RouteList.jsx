@@ -83,7 +83,8 @@ export const RouteList = () => {
                         <Eye className="w-4 h-4" />
                       </button>
                       <Link 
-                        to={`/routes/edit/${route.id.replace('#','')}`} 
+                        to="/routes/add"
+                        state={{ route }}
                         className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors"
                       >
                         <Edit className="w-4 h-4" />
