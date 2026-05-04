@@ -63,9 +63,6 @@ export const ViewBooking = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
-          <Link to="/bookings" className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Booking: {booking.booking_id}</h2>

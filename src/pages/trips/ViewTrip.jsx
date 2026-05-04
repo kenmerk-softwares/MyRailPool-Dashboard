@@ -12,7 +12,8 @@ import {
   Milestone,
   ArrowRight,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  MapPin
 } from 'lucide-react';
 import { StatusBadge } from '../../components/Shared';
 import { tripsData } from '../../data/mockData';
@@ -119,7 +120,7 @@ export const ViewTrip = () => {
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Booking IDs</label>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {trip.booking_ids?.split(',').map(bid => (
+                  {(Array.isArray(trip.booking_ids) ? trip.booking_ids : trip.booking_ids?.split(',') || []).map(bid => (
                     <Link key={bid} to={`/bookings/view/${bid.trim()}`} className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-primary-600 font-bold text-[10px] hover:bg-primary-50 transition-colors">
                       {bid.trim()}
                     </Link>
@@ -166,6 +167,34 @@ export const ViewTrip = () => {
                   <p className="text-lg font-bold text-slate-900">{trip.end_loc}</p>
                 </div>
               </div>
+
+              {/* Intermediate Stops Display */}
+              {trip.stops && trip.stops.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-slate-200/60">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Intermediate Sequence</p>
+                  <div className="space-y-4">
+                    {trip.stops.map((stop, idx) => (
+                      <div key={idx} className="flex items-start gap-4 relative">
+                        {idx !== trip.stops.length - 1 && (
+                          <div className="absolute left-[15px] top-8 bottom-[-16px] w-0.5 bg-slate-200"></div>
+                        )}
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${stop.type === 'PICKUP' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          <MapPin className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="pt-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-slate-800">{stop.location}</span>
+                            <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-tight ${stop.type === 'PICKUP' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                              {stop.type}
+                            </span>
+                          </div>
+                          {stop.notes && <p className="text-xs text-slate-500 mt-0.5">{stop.notes}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
