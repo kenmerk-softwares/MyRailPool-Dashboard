@@ -60,7 +60,6 @@ export const ViewBooking = () => {
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500 font-jakarta">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
           <div>
@@ -79,9 +78,8 @@ export const ViewBooking = () => {
         </Link>
       </div>
 
-      <div className="space-y-8">
-        {/* Section 1: Core Request Basis */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+      <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Hash className="w-4 h-4 text-primary-600" />
@@ -119,8 +117,7 @@ export const ViewBooking = () => {
           </div>
         </div>
 
-        {/* Section 2: Passenger Details */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <User className="w-4 h-4 text-indigo-600" />
@@ -161,8 +158,7 @@ export const ViewBooking = () => {
           </div>
         </div>
 
-        {/* Section 3: Journey Pathway */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <Navigation className="w-4 h-4 text-emerald-600" />
@@ -209,8 +205,7 @@ export const ViewBooking = () => {
           </div>
         </div>
 
-        {/* Section 4: Financial Logistics */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-amber-50 rounded-lg">
               <DollarSign className="w-4 h-4 text-amber-600" />
@@ -253,8 +248,7 @@ export const ViewBooking = () => {
           </div>
         </div>
 
-        {/* Section 5: Constraints & Safety */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Accessibility className="w-4 h-4 text-primary-600" />
@@ -291,8 +285,7 @@ export const ViewBooking = () => {
           </div>
         </div>
 
-        {/* Section 6: Asset & Resource Management */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <Briefcase className="w-4 h-4 text-indigo-600" />
@@ -339,8 +332,7 @@ export const ViewBooking = () => {
           </div>
         </div>
 
-        {/* Section 7: Lifecycle Exceptions & Logistics */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-blue-50 rounded-lg">
               <Handshake className="w-4 h-4 text-blue-600" />

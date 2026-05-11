@@ -10,7 +10,6 @@ import {
   Route as RouteIcon,
   TrendingUp,
   Map,
-  Calendar,
   Clock1,
   X,
   Plus,
@@ -23,11 +22,9 @@ import { driversData, vehiclesData } from '../../data/mockData';
 export const AddRoute = () => {
   const location = useLocation();
   const initialData = location.state?.route || null;
-
   const [droppingPoints, setDroppingPoints] = useState(initialData?.droppingPoints || []);
   const [currentPoint, setCurrentPoint] = useState('');
 
-  // Helper to parse numeric strings like "14 km" or "₹1,200"
   const parseNumeric = (val) => {
     if (!val) return '';
     return val.replace(/[^0-9.]/g, '');
@@ -47,7 +44,7 @@ export const AddRoute = () => {
   });
 
   const toggleDay = (day) => {
-    setSelectedDays(prev => 
+    setSelectedDays(prev =>
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
     );
   };
@@ -107,18 +104,17 @@ export const AddRoute = () => {
               {initialData ? 'Edit Route' : 'Create New Route'}
             </h2>
             <p className="text-slate-500 font-medium mt-1">
-              {initialData 
-                ? `  ${initialData.name}. Modify operational parameters and assign initial assets.` 
+              {initialData
+                ? `  ${initialData.name}. Modify operational parameters and assign initial assets.`
                 : 'Define a new standard travel corridor and assign initial assets.'}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Section 1: Route Specifications */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="space-y-8 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
             <div className="p-2 bg-primary-50 rounded-lg">
               <RouteIcon className="w-4 h-4 text-primary-600" />
             </div>
@@ -132,14 +128,14 @@ export const AddRoute = () => {
                 <input
                   type="text"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                  placeholder="e.g. Airport Express Corridor"
+                  placeholder="Enter Route Name"
                   defaultValue={initialData?.name}
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
-                <select 
+                <select
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
                   defaultValue={initialData?.route_type || "one_way"}
                 >
@@ -150,7 +146,7 @@ export const AddRoute = () => {
 
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Status</label>
-                <select 
+                <select
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
                   defaultValue={initialData?.status || "Active"}
                 >
@@ -158,7 +154,7 @@ export const AddRoute = () => {
                   <option value="Inactive">Inactive</option>
                 </select>
               </div>
-              
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
@@ -169,7 +165,7 @@ export const AddRoute = () => {
                   <input
                     type="text"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Terminal 1 Arrival Gate..."
+                    placeholder="Enter Start Address"
                     defaultValue={initialData?.start}
                   />
                 </div>
@@ -182,7 +178,7 @@ export const AddRoute = () => {
                   <input
                     type="text"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Downtown Central Plaza..."
+                    placeholder="Enter End Address"
                     defaultValue={initialData?.end}
                   />
                 </div>
@@ -256,11 +252,10 @@ export const AddRoute = () => {
                         key={day}
                         type="button"
                         onClick={() => toggleDay(day)}
-                        className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 border ${
-                          isSelected
-                            ? 'bg-primary-600 border-primary-600 text-white shadow-md shadow-primary-100'
-                            : 'bg-white border-slate-200 text-slate-500 hover:border-primary-300 hover:text-primary-600'
-                        }`}
+                        className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 border ${isSelected
+                          ? 'bg-primary-600 border-primary-600 text-white shadow-md shadow-primary-100'
+                          : 'bg-white border-slate-200 text-slate-500 hover:border-primary-300 hover:text-primary-600'
+                          }`}
                       >
                         {day.slice(0, 3)}
                       </button>
@@ -289,7 +284,7 @@ export const AddRoute = () => {
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
-                  
+
                   {timeSlots.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-1">
                       {timeSlots.map(time => (
@@ -311,8 +306,7 @@ export const AddRoute = () => {
             </div>
           </div>
         </div>
-        {/* section-3: Dropping Points */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-indigo-50 rounded-lg">
@@ -366,13 +360,13 @@ export const AddRoute = () => {
                 <div className="flex flex-wrap items-center gap-y-16 gap-x-12 pt-3">
                   {droppingPoints.map((point, index) => (
                     <div key={index} className="relative flex flex-col items-center group">
-                     
+
                       {index !== droppingPoints.length - 1 && (
                         <div className="absolute left-[50%] top-[6px] w-[calc(100%+48px)] h-0.5 bg-emerald-500/30 z-0" />
                       )}
 
                       <div className="relative z-10 flex flex-col items-center gap-4">
-                        
+
                         <div className="w-3 h-3 rounded-full bg-emerald-600 border-2 border-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.3)] group-hover:scale-125 transition-transform duration-300" />
 
                         <div className="flex flex-col items-center gap-2">
@@ -382,7 +376,6 @@ export const AddRoute = () => {
                             </span>
                           </div>
 
-                          {/* Action Buttons */}
                           <div className="flex items-center gap-1 bg-white border border-slate-100 shadow-lg rounded-lg p-1 transition-all duration-200">
                             <button
                               onClick={() => movePoint(index, -1)}
@@ -392,8 +385,8 @@ export const AddRoute = () => {
                               <ChevronLeft className="w-3 h-3" />
                             </button>
                             <button
-                               onClick={() => handleRemovePoint(index)}
-                               className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-all active:scale-90"
+                              onClick={() => handleRemovePoint(index)}
+                              className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-all active:scale-90"
                             >
                               <X className="w-3 h-3" />
                             </button>
@@ -414,8 +407,7 @@ export const AddRoute = () => {
             </div>
           </div>
         </div>
-        {/* Section 2: Asset Allocation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <User className="w-4 h-4 text-indigo-600" />
@@ -429,7 +421,7 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Default Corridor Driver</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select 
+                  <select
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
                     defaultValue={initialData?.driver}
                   >
@@ -445,7 +437,7 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Default Service Vehicle</label>
                 <div className="relative">
                   <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select 
+                  <select
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
                     defaultValue={initialData?.vehicle}
                   >
@@ -461,18 +453,18 @@ export const AddRoute = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4">
-        <Link
-          to="/routes"
-          className="w-full sm:w-auto text-center px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
-        >
-          Cancel
-        </Link>
-        <button className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
-          <Save className="w-4.5 h-4.5" /> {initialData ? 'Save Route' : 'Add Route'}
-        </button>
+        <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4">
+          <Link
+            to="/routes"
+            className="w-full sm:w-auto text-center px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
+          >
+            Cancel
+          </Link>
+          <button className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
+            <Save className="w-4.5 h-4.5" /> {initialData ? 'Save Route' : 'Add Route'}
+          </button>
+        </div>
       </div>
     </div>
   );

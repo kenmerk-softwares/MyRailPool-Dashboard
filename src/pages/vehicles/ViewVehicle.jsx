@@ -42,7 +42,6 @@ export const ViewVehicle = () => {
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
           <div>
@@ -66,10 +65,9 @@ export const ViewVehicle = () => {
         </Link>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Section 1: Basic Info */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="space-y-4 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Car className="w-4 h-4 text-primary-600" />
             </div>
@@ -114,9 +112,8 @@ export const ViewVehicle = () => {
           </div>
         </div>
 
-        {/* Section 2: Registration & Licensing */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <Shield className="w-4 h-4 text-indigo-600" />
             </div>
@@ -149,9 +146,8 @@ export const ViewVehicle = () => {
           </div>
         </div>
 
-        {/* Section 3: Insurance Intelligence */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
@@ -187,9 +183,8 @@ export const ViewVehicle = () => {
           </div>
         </div>
 
-        {/* Section 4: Fleet Management */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-amber-50 rounded-lg">
               <Activity className="w-4 h-4 text-amber-600" />
             </div>
@@ -224,7 +219,6 @@ export const ViewVehicle = () => {
               </div>
             </div>
 
-            {/* Performance Summary */}
             <div className="mt-8 pt-6 border-t border-slate-50 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Missions</label>

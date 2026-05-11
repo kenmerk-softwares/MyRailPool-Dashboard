@@ -16,8 +16,7 @@ import {
   Milestone,
   Plus,
   Trash2,
-  X,
-  AlertCircle,
+  X
 } from 'lucide-react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FaRoad } from 'react-icons/fa';
@@ -57,7 +56,7 @@ export const AddTrip = () => {
     vehicle_reg: '',
     trip_date: formatDate(requestData.routeDates?.[0]) || '',
     status: 'PENDING',
-    total_bookings: 0,
+    total_bookings: '',
     booking_ids: [],
     stops: [],
     notes: '',
@@ -67,8 +66,8 @@ export const AddTrip = () => {
     actual_dest: requestData.destination || '',
     start_time: formatTime(requestData.routeDates?.[0]) || '',
     end_time: '',
-    total_pcount: requestData.passengerCount || 0,
-    miles: 0,
+    total_pcount: requestData.passengerCount || '',
+    miles: '',
     price: '',
     driver_cost: '',
     saved_money: '',
@@ -82,18 +81,16 @@ export const AddTrip = () => {
       if (trip) {
         setFormData({
           ...trip,
-          total_bookings: trip.total_bookings || 0,
-          total_pcount: trip.total_pcount || 0,
-          miles: trip.miles || 0
+          total_bookings: trip.total_bookings ?? '',
+          total_pcount: trip.total_pcount ?? '',
+          miles: trip.miles ?? ''
         });
       }
     } else {
-      // Load draft from localStorage if not in edit mode
       const savedDraft = localStorage.getItem('tripFormDraft');
       if (savedDraft) {
         try {
           const parsed = JSON.parse(savedDraft);
-          // Only load if it has relevant data
           if (parsed.trip_date || parsed.driver || parsed.booking_ids?.length > 0) {
             setFormData(prev => ({ ...prev, ...parsed }));
           }
@@ -104,7 +101,6 @@ export const AddTrip = () => {
     }
   }, [id, isEdit]);
 
-  // Persist form data to localStorage
   useEffect(() => {
     if (!isEdit) {
       localStorage.setItem('tripFormDraft', JSON.stringify(formData));
@@ -117,7 +113,7 @@ export const AddTrip = () => {
     setFormData(prev => {
       const updated = {
         ...prev,
-        [name]: type === 'number' ? parseFloat(value) : value
+        [name]: type === 'number' ? (value === '' ? '' : parseFloat(value)) : value
       };
 
       if (name === 'driver' && value) {
@@ -238,10 +234,9 @@ export const AddTrip = () => {
         </div>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Basic Information */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
+        <div className="space-y-8 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Hash className="w-4 h-4 text-primary-600" />
             </div>
@@ -260,7 +255,7 @@ export const AddTrip = () => {
                     value={formData.trip_id}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-semibold transition-all cursor-not-allowed"
-                    placeholder="TR-XXX (Auto)"
+                    placeholder="Auto Generated"
                     disabled
                   />
                 </div>
@@ -296,7 +291,7 @@ export const AddTrip = () => {
                     value={formData.driver_lic}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="DL-3994..."
+                    placeholder="License Reference"
                   />
                 </div>
               </div>
@@ -333,7 +328,7 @@ export const AddTrip = () => {
                     value={formData.trip_date}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="2026-02-12"
+                    placeholder="DD/MM/YYYY"
                   />
                 </div>
               </div>
@@ -378,7 +373,7 @@ export const AddTrip = () => {
                       onKeyDown={handleBookingKeyDown}
                       onFocus={() => newBookingId.trim() && setShowSuggestions(true)}
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-mono text-xs focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                      placeholder="Enter Booking ID (e.g. MRP-00001)"
+                      placeholder="Enter Booking ID"
                     />
                   </div>
                   <button
@@ -389,7 +384,6 @@ export const AddTrip = () => {
                     <Plus className="w-4 h-4" /> Add
                   </button>
 
-                  {/* Dropdown */}
                   {showSuggestions && (
                     <div className="absolute z-50 w-full mt-12 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden">
                       {filteredBookings.map((booking, index) => (
@@ -444,9 +438,8 @@ export const AddTrip = () => {
         </div>
 
 
-        {/* Execution & Route Details */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <Milestone className="w-4 h-4 text-emerald-600" />
             </div>
@@ -464,7 +457,7 @@ export const AddTrip = () => {
                     value={formData.start_loc}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Search start address..."
+                    placeholder="Start Location..."
                   />
                 </div>
               </div>
@@ -523,7 +516,7 @@ export const AddTrip = () => {
                     value={formData.start_time}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="07:35"
+                    placeholder="HH:MM AM/PM"
                   />
                 </div>
               </div>
@@ -538,7 +531,7 @@ export const AddTrip = () => {
                     value={formData.end_time}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="10:00"
+                    placeholder="HH:MM AM/PM"
                   />
                 </div>
               </div>
@@ -574,7 +567,6 @@ export const AddTrip = () => {
               </div>
             </div>
 
-            {/* Intermediate Stops */}
             <div className="mt-8 pt-6 border-t border-slate-100">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-sm font-bold text-slate-700 flex items-center gap-2">
@@ -667,9 +659,8 @@ export const AddTrip = () => {
           </div>
         </div>
 
-        {/* Financial Summary */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <TrendingUp className="w-4 h-4 text-indigo-600" />
             </div>
@@ -754,9 +745,9 @@ export const AddTrip = () => {
             </div>
           </div>
         </div>
-      </div>
+     
 
-      <div className="mt-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
+      <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
         <button
           onClick={() => {
             localStorage.removeItem('tripFormDraft');
@@ -772,6 +763,7 @@ export const AddTrip = () => {
         >
           <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
         </button>
+      </div>
       </div>
     </div>
   );

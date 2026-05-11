@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  DollarSign, CheckCircle, Clock, XCircle, RefreshCcw,
-  Download, Calendar as CalendarIcon
+  DollarSign,
+  CheckCircle, 
+  Clock, 
+  XCircle, 
+  RefreshCcw,
+  Download, 
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import StatCard from './StatCard';
 import Filters from './Filters';
@@ -62,7 +67,6 @@ const Payment = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 text-slate-800 animate-in fade-in duration-500">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Payment Dashboard</h2>
@@ -81,7 +85,6 @@ const Payment = () => {
       </div>
 
       <div className="space-y-10">
-        {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           <StatCard
             title="Total Revenue"
@@ -125,13 +128,11 @@ const Payment = () => {
           />
         </div>
 
-        {/* Charts Row */}
         <PaymentCharts
           revenueData={revenueChartData}
           methodData={methodDistributionData}
         />
 
-        {/* List  */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Transactions</h3>

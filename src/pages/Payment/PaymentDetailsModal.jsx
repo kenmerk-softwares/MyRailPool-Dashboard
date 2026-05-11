@@ -31,7 +31,6 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
         </div>
 
         <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh]">
-          {/* Summary */}
           <div className="flex items-center justify-between p-5 bg-indigo-600 rounded-[24px] text-white shadow-lg shadow-indigo-100">
             <div>
               <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Total Amount Paid</p>
@@ -43,7 +42,6 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-8">
-            {/* Fare Breakdown */}
             <div className="space-y-4">
               <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                 <Receipt className="w-3.5 h-3.5 text-indigo-500" />
@@ -65,7 +63,6 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Payout Details */}
             <div className="space-y-4">
               <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
@@ -90,7 +87,6 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
 
           <hr className="border-slate-50" />
 
-          {/* Transaction Info */}
           <div className="space-y-4">
             <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
               <CreditCard className="w-3.5 h-3.5 text-indigo-500" />

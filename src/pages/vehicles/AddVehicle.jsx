@@ -28,10 +28,9 @@ export const AddVehicle = () => {
         </div>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Section 1: Basic Info */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="space-y-4 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Car className="w-4 h-4 text-primary-600" />
             </div>
@@ -44,7 +43,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle ID</label>
                 <div className="relative">
                   <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-semibold outline-none cursor-not-allowed" placeholder="VH-XXX" disabled />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-semibold outline-none cursor-not-allowed" placeholder="Vehicle ID" disabled />
                 </div>
               </div>
 
@@ -52,7 +51,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Make</label>
                 <div className="relative">
                   <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="e.g. Toyota" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Vehicle Make" />
                 </div>
               </div>
 
@@ -60,7 +59,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Model</label>
                 <div className="relative">
                   <Info className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="e.g. Innova Crysta" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Vehicle Model" />
                 </div>
               </div>
 
@@ -68,7 +67,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Colour</label>
                 <div className="relative">
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-slate-300 bg-white"></div>
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="e.g. White" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Vehicle Colour" />
                 </div>
               </div>
 
@@ -87,16 +86,15 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="e.g. 6+1" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Seating Capacity" />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Section 2: Licensing & Registration */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <Shield className="w-4 h-4 text-indigo-600" />
             </div>
@@ -109,7 +107,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Registration No</label>
                 <div className="relative">
                   <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold uppercase focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="MH-12-AB-3456" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold uppercase focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Registration No" />
                 </div>
               </div>
 
@@ -117,7 +115,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH Vehicle Licence</label>
                 <div className="relative">
                   <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="PHV-XXXXXX" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="PH Vehicle Licence" />
                 </div>
               </div>
 
@@ -132,9 +130,8 @@ export const AddVehicle = () => {
           </div>
         </div>
 
-        {/* Section 3: Insurance Coverage */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
@@ -147,7 +144,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Provider Name</label>
                 <div className="relative">
                   <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="e.g. ICICI Lombard" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Provider Name" />
                 </div>
               </div>
 
@@ -155,7 +152,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Policy Number</label>
                 <div className="relative">
                   <CreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="POL-XXXXXXXX" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Policy Number" />
                 </div>
               </div>
 
@@ -170,9 +167,8 @@ export const AddVehicle = () => {
           </div>
         </div>
 
-        {/* Section 4: Fleet Management */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-amber-50 rounded-lg">
               <Activity className="w-4 h-4 text-amber-600" />
             </div>
@@ -185,7 +181,7 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="e.g. James Miller" />
+                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" placeholder="Assigned Driver" />
                 </div>
               </div>
 
@@ -202,21 +198,21 @@ export const AddVehicle = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Notes</label>
                 <div className="relative">
                   <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                  <textarea rows="3" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none" placeholder="Additional asset intelligence..."></textarea>
+                  <textarea rows="3" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none" placeholder="Additional Notes..."></textarea>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4">
+      <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4">
         <Link to="/vehicles" className="w-full sm:w-auto text-center px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm">
           Cancel
         </Link>
         <button className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
           <Save className="w-4 h-4" /> Add Vehicle
         </button>
+      </div>
       </div>
     </div>
   );

@@ -14,7 +14,6 @@ import {
   ArrowRight,
   AlertCircle,
   Hash,
-  Calendar,
   MapPin
 } from 'lucide-react';
 import { StatusBadge } from '../../components/Shared';
@@ -53,7 +52,6 @@ export default function ViewRoute() {
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
           <div>
@@ -75,17 +73,16 @@ export default function ViewRoute() {
         </Link>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Section 1: Route Specifications */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="space-y-8 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <RouteIcon className="w-4 h-4 text-primary-600" />
             </div>
             <h3 className="font-bold text-slate-800 tracking-tight">Route Specifications</h3>
           </div>
 
-          <div className="p-6">
+          <div className="ps-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route ID</label>
@@ -178,9 +175,8 @@ export default function ViewRoute() {
           </div>
         </div>
 
-        {/* Section 2: Route Pathway */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <Navigation className="w-4 h-4 text-emerald-600" />
             </div>
@@ -188,7 +184,6 @@ export default function ViewRoute() {
           </div>
 
           <div className="p-6">
-            {/* Visual Route Indicator */}
             <div className="mb-8 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
               <div className="flex items-center justify-between gap-8">
                 <div className="flex-1">
@@ -210,7 +205,6 @@ export default function ViewRoute() {
               </div>
             </div>
 
-            {/* Dropping Points List */}
             <div className="space-y-4">
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Dropping Points / Intermediate Stops</label>
               {droppingPoints.length > 0 ? (
@@ -234,9 +228,8 @@ export default function ViewRoute() {
           </div>
         </div>
 
-        {/* Section 3: Primary Asset Allocation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <User className="w-4 h-4 text-indigo-600" />
             </div>

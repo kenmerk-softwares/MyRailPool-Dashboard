@@ -3,7 +3,6 @@ import { FaTimes } from 'react-icons/fa';
 import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../../Config/Config';
 import { useToast } from '../../Toast/ToastContext';
-
 import { systemRoutes } from '../../App';
 
 export const PermissionPopup = ({ isOpen, onClose }) => {
@@ -15,9 +14,9 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 	const [saving, setSaving] = React.useState(false);
 	const [departments, setDepartments] = React.useState([]);
 	const [designations, setDesignations] = React.useState([]);
+
 	useEffect(() => {
 		if (!isOpen) return;
-
 		const qDept = query(collection(db, "departments"), orderBy("departmentName"));
 		const unsubscribeDept = onSnapshot(qDept, (snapshot) => {
 			const items = snapshot.docs.map(doc => ({

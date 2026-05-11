@@ -1,8 +1,16 @@
 import React from 'react';
-import { 
-  X, User, Mail, Phone, MapPin, 
-  Calendar, Clock, Users, MessageSquare,
-  ArrowRight, ShieldCheck
+import {
+  X,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  MessageSquare,
+  ArrowRight,
+  ShieldCheck
 } from 'lucide-react';
 
 const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
@@ -50,7 +58,6 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
 
           <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
 
-            {/* Customer Info */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 px-1">
                 <div className="w-1 h-3 bg-indigo-500 rounded-full" />
@@ -87,7 +94,6 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
               </div>
             </section>
 
-            {/* Trip Info */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 px-1">
                 <div className="w-1 h-3 bg-emerald-500 rounded-full" />
@@ -95,7 +101,6 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
               </div>
               <div className="p-6 bg-slate-50 border border-slate-100 rounded-[2rem] space-y-6">
                 <div className="flex flex-col md:flex-row items-center gap-6">
-                  {/* Pickup */}
                   <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
                     <div className="p-2 bg-emerald-50 rounded-xl flex items-center justify-center self-start">
                       <MapPin className="w-5 h-5 text-emerald-600" />
@@ -106,14 +111,12 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
                     </div>
                   </div>
 
-                  {/* Flow Arrow */}
                   <div className="flex flex-col items-center justify-center opacity-30">
                     <div className="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center">
                       <ArrowRight className="w-3 h-3 text-slate-400" />
                     </div>
                   </div>
 
-                  {/* Drop-off */}
                   <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
                     <div className="p-2 bg-rose-50 rounded-xl flex items-center justify-center self-start">
                       <MapPin className="w-5 h-5 text-rose-600" />
@@ -153,7 +156,6 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
               </div>
             </section>
 
-            {/* Timing Info */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 px-1">
                 <div className="w-1 h-3 bg-amber-500 rounded-full" />
@@ -180,7 +182,6 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
               </div>
             </section>
 
-            {/* Notes Section */}
             {request.message && (
               <section className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
@@ -194,7 +195,6 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
               </section>
             )}
 
-            {/* Rejection Info */}
             {request.status === 'Rejected' && (
                <section className="space-y-4">
                <div className="flex items-center gap-2 px-1">

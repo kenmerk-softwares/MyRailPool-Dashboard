@@ -1,13 +1,21 @@
 import React from 'react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
 } from 'recharts';
 
 const PaymentCharts = ({ revenueData, methodData }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Revenue Over Time */}
       <div className="lg:col-span-2 bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -60,7 +68,6 @@ const PaymentCharts = ({ revenueData, methodData }) => {
         </div>
       </div>
 
-      {/* Payment Method Distribution */}
       <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
         <div className="mb-8">
           <h3 className="text-lg font-black text-slate-800">Method Split</h3>

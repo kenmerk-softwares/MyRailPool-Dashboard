@@ -24,7 +24,6 @@ export const VehicleList = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden pb-10">
         <div className="overflow-x-auto w-full">
-          {/* Controls Bar */}
           <div className="flex items-center justify-between m-4">
             <div className="hidden sm:flex flex-1 max-w-xl ml-4 lg:ml-0">
               <div className="relative group w-full">
@@ -66,9 +65,6 @@ export const VehicleList = () => {
                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center gap-4">
-                      {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-700 font-bold text-sm border border-primary-100/50 shadow-sm uppercase">
-                        {vehicle.make.charAt(0)}
-                      </div> */}
                       <div>
                         <div className="text-xs md:text-sm font-medium text-slate-900">{vehicle.make} {vehicle.model}</div>
                         <div className="flex items-center gap-1.5 mt-0.5">

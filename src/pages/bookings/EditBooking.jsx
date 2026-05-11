@@ -15,8 +15,6 @@ import { bookingsData } from '../../data/mockData';
 
 export const EditBooking = () => {
   const { id } = useParams();
-
-  // Find the booking data by ID
   const booking = bookingsData.find(b => b.booking_id === id) || bookingsData[0];
 
   return (
@@ -28,10 +26,9 @@ export const EditBooking = () => {
         </div>
       </div>
 
-      <div className="space-y-8">
-        {/* Core Request Information */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
-          <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm mb-3">
+        <div className='mt-4'>
+          <div className="px-6 py-2 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <Hash className="w-5 h-5 text-primary-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Core Request Basis</h3>
           </div>
@@ -70,8 +67,7 @@ export const EditBooking = () => {
           </div>
         </div>
 
-        {/* Client & Passenger Credentials */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <User className="w-5 h-5 text-indigo-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Passenger Details</h3>
@@ -96,8 +92,7 @@ export const EditBooking = () => {
           </div>
         </div>
 
-        {/* Journey Information */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <Navigation className="w-5 h-5 text-emerald-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Journey Pathway</h3>
@@ -132,8 +127,7 @@ export const EditBooking = () => {
           </div>
         </div>
 
-        {/* Financial Logistics */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <DollarSign className="w-5 h-5 text-amber-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Financial Logistics</h3>
@@ -183,8 +177,7 @@ export const EditBooking = () => {
           </div>
         </div>
 
-        {/* Operational Constraints & Special Needs */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <Accessibility className="w-5 h-5 text-primary-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Constraints & Safety</h3>
@@ -218,8 +211,7 @@ export const EditBooking = () => {
           </div>
         </div>
 
-        {/* Resource Allocation & Dispatch */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <Briefcase className="w-5 h-5 text-indigo-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Operational Asset & Management</h3>
@@ -256,8 +248,7 @@ export const EditBooking = () => {
           </div>
         </div>
 
-        {/* Subcontracting & Cancellation Logic */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden text-sm">
+        <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
             <Handshake className="w-5 h-5 text-blue-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Lifecycle Exception Logic</h3>
@@ -301,13 +292,18 @@ export const EditBooking = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-8 flex items-center justify-end gap-3">
-        <Link to="/bookings" className="px-8 py-3 rounded-2xl font-bold text-slate-600 hover:bg-slate-100 transition-all hover:bg-red-100">Discard Changes</Link>
-        <button className="text-sm bg-primary-800 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wider hover:bg-primary-900 active:bg-primary-900 transition-all shadow-xl shadow-primary-600/30 flex items-center gap-2">
-          <Save className="w-4 h-4" /> Update Booking
-        </button>
+
+        <div className="m-8 flex items-center justify-end gap-3">
+          <Link to="/bookings"          
+          className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm">
+            Discard Changes
+          </Link>
+
+          <button className="text-sm bg-primary-800 text-white px-6 py-3 rounded-xl font-black uppercase tracking-wider hover:bg-primary-900 active:bg-primary-900 transition-all shadow-xl shadow-primary-600/30 flex items-center gap-2">
+            <Save className="w-4 h-4" /> Update Booking
+          </button>
+        </div>
       </div>
     </div>
   );
