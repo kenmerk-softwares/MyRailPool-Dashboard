@@ -55,7 +55,6 @@ export default function AdminLogs() {
                     </h3>
 
                     <div className="flex flex-wrap items-center gap-3">
-                        {/* Search Bar */}
                         <div className="relative group min-w-[200px] md:min-w-[300px]">
                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
                                 <Search className="h-4 w-4" />
@@ -67,7 +66,6 @@ export default function AdminLogs() {
                             />
                         </div>
 
-                        {/* Date Filter */}
                         <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
                             <FaCalendarAlt className="text-slate-400 text-xs" />
                             <input

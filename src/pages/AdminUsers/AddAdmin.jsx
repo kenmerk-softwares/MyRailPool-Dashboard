@@ -151,15 +151,12 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 
 	return (
 		<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-			{/* Backdrop */}
 			<div
 				className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
 				onClick={onClose}
 			/>
 
-			{/* Modal Content */}
 			<div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-				{/* Header */}
 				<div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
 					<div>
 						<h2 className="text-xl font-bold text-slate-800">{editData ? "Edit Admin User" : "Create New Admin"}</h2>
@@ -175,7 +172,6 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 					</button>
 				</div>
 
-				{/* Body */}
 				<div className="p-6 overflow-y-auto max-h-[calc(100vh-200px)]">
 					<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<div className="flex flex-col items-start w-full">

@@ -48,7 +48,6 @@ export const AdminSettings = () => {
 				id: doc.id,
 				...doc.data()
 			}));
-			// Optional: sort by createdAt or permissionName here if needed
 			setPermissionsList(items);
 		}, (err) => {
 			console.error("Error fetching permissions:", err);

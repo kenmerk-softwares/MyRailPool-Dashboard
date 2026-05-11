@@ -39,19 +39,12 @@ export const designations = [
 ];
 
 export const mockRequests = [
-  {id: "RR-2024-001",customerName: "Arun Kumar",customerPhone: "+91 98765 43210",customerEmail: "arun.k@example.com",pickup: "Indira Nagar, Bangalore",drop: "Electronic City Phase 1, Bangalore",passengerCount: 3,requestSentAt: "2024-04-21T09:30:00Z",routeDates: ["2024-04-22T08:00:00Z", "2024-04-23T08:00:00Z"],status: "Pending",message: "Need a clean car with good AC. Traveling with family."
-  },
-  {id: "RR-2024-002",customerName: "Priya Sharma",customerPhone: "+91 87654 32109",customerEmail: "priya.s@example.com",pickup: "Whitefield, Bangalore",drop: "Kempegowda International Airport",passengerCount: 1,requestSentAt: "2024-04-21T10:15:00Z",routeDates: ["2024-04-22T04:30:00Z"],status: "Accepted",message: "Early morning flight, please be on time."
-  },
-  {id: "RR-2024-003",customerName: "Rahul Verma",customerPhone: "+91 76543 21098",customerEmail: "rahul.v@example.com",pickup: "Koramangala 4th Block",drop: "Manyata Tech Park",passengerCount: 2,requestSentAt: "2024-04-20T18:00:00Z",routeDates: ["2024-04-21T09:00:00Z"],status: "Rejected",message: "Daily commute for a week.",rejectionReason: "No drivers available",rejectionComment: "All drivers on this route are fully booked for the requested time slot."
-  },
-  {id: "RR-2024-004",customerName: "Sanjana Reddy",customerPhone: "+91 99887 76655",customerEmail: "sanjana.r@example.com",pickup: "HSR Layout Sector 2",drop: "JP Nagar 6th Phase",passengerCount: 4,requestSentAt: "2024-04-21T11:00:00Z",routeDates: ["2024-04-22T17:30:00Z"],status: "Accepted",message: "Group outing, spacious vehicle required.",assignedDriver: "Vikram Singh",assignedVehicle: "Toyota Innova (KA 01 MG 1234)"
-  },
-  {id: "RR-2024-005",customerName: "Amitabh Bose",customerPhone: "+91 91234 56789",customerEmail: "amitabh.b@example.com",pickup: "M.G. Road",drop: "Yeshwanthpur Railway Station",passengerCount: 2,requestSentAt: "2024-04-21T11:20:00Z",routeDates: ["2024-04-22T10:00:00Z", "2024-04-22T16:00:00Z"],status: "Pending",message: "Traveling with heavy luggage."
-  }
+  {id: "RR-2024-001",customerName: "Arun Kumar",customerPhone: "+91 98765 43210",customerEmail: "arun.k@example.com",pickup: "Indira Nagar, Bangalore",drop: "Electronic City Phase 1, Bangalore",passengerCount: 3,requestSentAt: "2024-04-21T09:30:00Z",routeDates: ["2024-04-22T08:00:00Z", "2024-04-23T08:00:00Z"],status: "Pending",message: "Need a clean car with good AC. Traveling with family."},
+  {id: "RR-2024-002",customerName: "Priya Sharma",customerPhone: "+91 87654 32109",customerEmail: "priya.s@example.com",pickup: "Whitefield, Bangalore",drop: "Kempegowda International Airport",passengerCount: 1,requestSentAt: "2024-04-21T10:15:00Z",routeDates: ["2024-04-22T04:30:00Z"],status: "Accepted",message: "Early morning flight, please be on time."},
+  {id: "RR-2024-003",customerName: "Rahul Verma",customerPhone: "+91 76543 21098",customerEmail: "rahul.v@example.com",pickup: "Koramangala 4th Block",drop: "Manyata Tech Park",passengerCount: 2,requestSentAt: "2024-04-20T18:00:00Z",routeDates: ["2024-04-21T09:00:00Z"],status: "Rejected",message: "Daily commute for a week.",rejectionReason: "No drivers available",rejectionComment: "All drivers on this route are fully booked for the requested time slot."},
+  {id: "RR-2024-004",customerName: "Sanjana Reddy",customerPhone: "+91 99887 76655",customerEmail: "sanjana.r@example.com",pickup: "HSR Layout Sector 2",drop: "JP Nagar 6th Phase",passengerCount: 4,requestSentAt: "2024-04-21T11:00:00Z",routeDates: ["2024-04-22T17:30:00Z"],status: "Accepted",message: "Group outing, spacious vehicle required.",assignedDriver: "Vikram Singh",assignedVehicle: "Toyota Innova (KA 01 MG 1234)"},
+  {id: "RR-2024-005",customerName: "Amitabh Bose",customerPhone: "+91 91234 56789",customerEmail: "amitabh.b@example.com",pickup: "M.G. Road",drop: "Yeshwanthpur Railway Station",passengerCount: 2,requestSentAt: "2024-04-21T11:20:00Z",routeDates: ["2024-04-22T10:00:00Z", "2024-04-22T16:00:00Z"],status: "Pending",message: "Traveling with heavy luggage."}
 ];
-
-// PAYMENTS
 
 export const mockPayments = [
   {id: "BK-7821",customer: "Arjun Mehta",driver: "Rajesh Kumar",route: "Indiranagar to Koramangala",amount: 450,method: "UPI",status: "Paid",transactionId: "TXN_991203401",dateTime: "2024-04-20 10:15 AM",fareBreakdown: {baseFare: 300,distance: 100,time: 50,tax: 20,discount: 20},paymentDetail: {total: 450,commission: 45,driverEarnings: 405}},

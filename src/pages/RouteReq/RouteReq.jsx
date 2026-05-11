@@ -22,12 +22,10 @@ const RouteReq = () => {
   const [notification, setNotification] = useState(null);
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setRequests(mockRequests);
       setLoading(false);
 
-      // Simulate/Show notification after 2 seconds
       setTimeout(() => {
         setNotification({
           id: 'new-1',
@@ -84,7 +82,6 @@ const RouteReq = () => {
         : r
     ));
     setIsRejectModalOpen(false);
-    // Show success toast (simulated)
     alert(`Request ${selectedRequest.id} rejected: ${reason}`);
   };
 
@@ -110,7 +107,6 @@ const RouteReq = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/30 p-4 md:p-8 animate-in fade-in duration-700">
-      {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6">
         <div>
           <div className="flex items-center gap-3 mb-1">
@@ -178,7 +174,6 @@ const RouteReq = () => {
         </div>
       </div>
 
-      {/* Overlays */}
       <DetailsDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}

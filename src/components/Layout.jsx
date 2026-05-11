@@ -18,8 +18,6 @@ export const Layout = () => {
           isMobileMenuOpen={isMobileMenuOpen} 
           setIsMobileMenuOpen={setIsMobileMenuOpen} 
         />
-
-        {/* Dashboard Content area */}
         <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 relative w-full">
           <div className="absolute inset-0 bg-primary-50 -z-10"></div>
           

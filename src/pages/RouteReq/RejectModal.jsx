@@ -17,13 +17,11 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-between bg-rose-50/50">
           <div className="flex items-center gap-3">

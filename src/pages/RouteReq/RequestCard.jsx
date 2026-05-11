@@ -1,7 +1,14 @@
 import React from 'react';
-import { 
-  User, MapPin, Calendar, Clock, Users, 
-  ChevronRight, CheckCircle2, XCircle, Clock4 
+import {
+  User,
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
+  Clock4
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
@@ -39,7 +46,6 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
       )}
 
       <div className="flex flex-col h-full">
-        {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -53,7 +59,6 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
           <StatusBadge status={request.status} />
         </div>
 
-        {/* Route Info */}
         <div className="space-y-4 mb-8">
           <div className="relative pl-6 space-y-4">
             <div className="absolute left-1 top-1 bottom-1 w-0.5 bg-dashed border-l-2 border-slate-100 border-dashed" />
@@ -87,7 +92,6 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
           </div>
         </div>
 
-        {/* Route Dates */}
         <div className="mb-8">
           <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Planned Schedule</label>
           <div className="flex flex-wrap gap-2">
@@ -102,7 +106,6 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="mt-auto pt-6 border-t border-slate-50 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
           <button 
             onClick={() => onView(request)}
