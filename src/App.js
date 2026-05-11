@@ -4,29 +4,23 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './Config/Config';
 import { Layout } from './components/Layout';
-
 import { BookingList } from './pages/bookings/BookingList';
 import { AddBooking } from './pages/bookings/AddBooking';
 import { EditBooking } from './pages/bookings/EditBooking';
 import { ViewBooking } from './pages/bookings/ViewBooking';
-
 import { TripList } from './pages/trips/TripList';
 import { AddTrip } from './pages/trips/AddTrip';
 import { ViewTrip } from './pages/trips/ViewTrip';
-
 import { RouteList } from './pages/routes/RouteList';
 import { AddRoute } from './pages/routes/AddRoute';
 import ViewRoute from './pages/routes/ViewRoute';
-
 import { DriverList } from './pages/drivers/DriverList';
 import { AddDriver } from './pages/drivers/AddDriver';
 import { EditDriver } from './pages/drivers/EditDriver';
-
 import { VehicleList } from './pages/vehicles/VehicleList';
 import { AddVehicle } from './pages/vehicles/AddVehicle';
 import { EditVehicle } from './pages/vehicles/EditVehicle';
 import { ViewVehicle } from './pages/vehicles/ViewVehicle';
-
 import { NotificationList } from './pages/notifications/NotificationList';
 import { Dashboard } from './pages/dashboard/Dashboard';
 import { AdminUserList } from './pages/AdminUsers/AdminUserList';
@@ -39,7 +33,6 @@ import Payment from './pages/Payment/Payment';
 import RouteReq from './pages/RouteReq/RouteReq';
 import { ToastProvider } from './Toast/ToastContext';
 import Settings from './pages/Settings/Settings';
-import EmployeeSettings from './pages/Settings/Employee';
 import Company from './pages/Settings/Company';
 
 // ======================== ROUTES CONFIG ======================== //
@@ -71,7 +64,6 @@ export const routesConfig = [
   { path: '/admin-settings', element: <AdminSettings />, permission: '/admin-settings' },
   { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
   { path: '/settings', element: <Settings />, permission: '/settings'},
-  { path: '/employee-settings', element: <EmployeeSettings />, permission: '/employee-settings'},
   { path: '/company-settings', element: <Company/>, permission: '/company-settings'}
 ];
 

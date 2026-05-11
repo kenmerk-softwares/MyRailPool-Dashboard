@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  UserCog, 
   ShieldAlert, 
   Building2, 
   ChevronRight,
@@ -15,13 +14,6 @@ export default function Settings() {
   const navigate = useNavigate();
 
   const settingsOptions = [
-    {
-      title: 'Employee Settings',
-      description: 'Configure employee profiles, define organizational roles, and manage access permissions.',
-      icon: <UserCog className="w-7 h-7" />,
-      path: '/employee-settings',
-      color: 'blue'
-    },
     {
       title: 'Admin Settings',
       description: 'Access system configuration keys, security protocols, and administrative control tools.',
