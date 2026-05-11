@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getFunctions, httpsCallable } from 'firebase/functions'
-import { app, db } from '../../Config/Config'
-import { useToast } from '../../Toast/ToastContext';
+import { db } from '../../../Config/Config'
+import { useToast } from '../../../hooks/ToastContext';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { X } from 'lucide-react';
+import { userAPI } from '../services/user.api';
 
 export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }) {
 	const { showToast } = useToast();
@@ -104,10 +104,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 		setLoading(true);
 
 		try {
-			const functions = getFunctions(app, "asia-south1");
-			const manageAdmin = httpsCallable(functions, "addUser");
 			const selectedPerm = permissions.find((d) => d.id === formData.permissionId);
-
 			const payload = {
 				action: editData ? "edit" : "add",
 				id: formData.id,
@@ -123,8 +120,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 				payload.password = formData.password;
 			}
 
-			const result = await manageAdmin(payload);
-			const data = result.data || {};
+			const data = await userAPI.addAdminUser(payload);
 
 			if (data.success === true) {
 				showToast(editData ? "Admin updated successfully!" : "Admin created successfully!", "success");

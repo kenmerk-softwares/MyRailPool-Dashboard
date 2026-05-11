@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, AlertTriangle, X, KeyRound } from 'lucide-react';
-import { SectionHeader } from '../../components/Shared';
+import { SectionHeader } from '../../../components/Shared';
 import AddAdmin from './AddAdmin';
-import { collection, getDocs } from 'firebase/firestore';
-import { app, db } from '../../Config/Config';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { useToast } from '../../Toast/ToastContext';
-import { Filter } from '../../Filter/Filter';
+import { useToast } from '../../../hooks/ToastContext';
+import { Filter } from '../../../Filter/Filter';
+import { useUsers } from '../hooks/user.useUsers';
+import { userAPI } from '../services/user.api';
 
 export const AdminUserList = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
+  const { users, loading, hasMore, fetchUsers, setLoading } = useUsers();
   const [selectedUser, setSelectedUser] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
@@ -30,45 +28,21 @@ export const AdminUserList = () => {
     setSearchQuery('');
   };
 
-  const filteredData = users.filter(item => {
-    const matchesSearch = !searchQuery || 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.designation?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus = !activeFilter || activeFilter === 'Active'; // For now all are active
-
-    return matchesSearch && matchesStatus;
-  });
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const querySnapshot = await getDocs(collection(db, 'admin-users'));
-      const userList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setUsers(userList);
-    } catch (err) {
-      console.log("Error fetching admin users:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredData = users; 
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers({ searchQuery, activeFilter });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, activeFilter]);
 
   const handleDelete = async () => {
     if (!userToDelete) return;
 
     setLoading(true);
     try {
-      const functions = getFunctions(app, "asia-south1");
-      const manageAdmin = httpsCallable(functions, "addUser");
-
-      const res = await manageAdmin({ action: "delete", id: userToDelete.id });
-      if (res.data?.success) {
-        setUsers(users.filter(u => u.id !== userToDelete.id));
+      const res = await userAPI.addAdminUser({ action: "delete", id: userToDelete.id });
+      if (res?.success) {
+        fetchUsers({ searchQuery, activeFilter });
         alert("User deleted successfully");
         setIsDeleteModalOpen(false);
         setUserToDelete(null);
@@ -101,11 +75,8 @@ export const AdminUserList = () => {
 
     setPasswordLoading(true);
     try {
-      const functions = getFunctions(app, "asia-south1");
-      const changePasswordFn = httpsCallable(functions, "changePassword");
-
-      const res = await changePasswordFn({ id: passwordUser.id, password: newPassword });
-      if (res.data?.success) {
+      const res = await userAPI.changePassword({ id: passwordUser.id, password: newPassword });
+      if (res?.success) {
         showToast("Password changed successfully!", "success");
         setIsPasswordModalOpen(false);
         setPasswordUser(null);
@@ -226,6 +197,18 @@ export const AdminUserList = () => {
               ))}
             </tbody>
           </table>
+
+          {hasMore && (
+            <div className="p-4 flex justify-center border-t border-slate-100">
+              <button
+                onClick={() => fetchUsers({ searchQuery, activeFilter, isLoadMore: true })}
+                disabled={loading}
+                className="px-6 py-2 text-sm font-semibold text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-xl transition-all disabled:opacity-50"
+              >
+                {loading ? 'Loading...' : 'Load More Users'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -236,7 +219,7 @@ export const AdminUserList = () => {
           setSelectedUser(null);
         }} 
         editData={selectedUser}
-        onRefresh={fetchUsers}
+        onRefresh={() => fetchUsers({ searchQuery, activeFilter })}
       />
 
       {/* Delete Modal */}

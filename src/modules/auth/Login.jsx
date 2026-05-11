@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../logo.svg';
+import logo from '../../assets/logo.svg';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { useToast } from '../Toast/ToastContext';
+import { useToast } from '../../hooks/ToastContext';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../Config/Config';
+import { auth, db } from '../../Config/Config';
 
 export default function Login() {
     const { showToast } = useToast();

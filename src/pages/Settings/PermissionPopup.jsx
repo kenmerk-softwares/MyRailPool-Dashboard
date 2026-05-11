@@ -3,7 +3,7 @@ import { FaTimes, FaTrash, FaUserSlash } from 'react-icons/fa';
 import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../Config/Config';
-import { useToast } from '../../Toast/ToastContext';
+import { useToast } from '../../hooks/ToastContext';
 
 import { systemRoutes } from '../../App';
 
