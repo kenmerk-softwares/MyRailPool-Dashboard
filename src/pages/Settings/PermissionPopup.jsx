@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { db } from '../../Config/Config';
+import { addDoc, collection, onSnapshot, orderBy, query, updateDoc, doc } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { db, app } from '../../Config/Config';
 import { useToast } from '../../Toast/ToastContext';
+
 import { systemRoutes } from '../../App';
 
-export const PermissionPopup = ({ isOpen, onClose }) => {
+export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	const { showToast } = useToast();
 	const [permissionName, setPermissionName] = React.useState('');
 	const [selectedDepartment, setSelectedDepartment] = React.useState('');
@@ -16,7 +18,24 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 	const [designations, setDesignations] = React.useState([]);
 
 	useEffect(() => {
+		if (isOpen) {
+			if (editData) {
+				setPermissionName(editData.permissionName || '');
+				setSelectedDepartment(editData.departmentId || '');
+				setSelectedDesignation(editData.designationId || '');
+				setCurrentDesignationRoutes(editData.permissions || []);
+			} else {
+				setPermissionName('');
+				setSelectedDepartment('');
+				setSelectedDesignation('');
+				setCurrentDesignationRoutes([]);
+			}
+		}
+	}, [isOpen, editData]);
+
+	useEffect(() => {
 		if (!isOpen) return;
+
 		const qDept = query(collection(db, "departments"), orderBy("departmentName"));
 		const unsubscribeDept = onSnapshot(qDept, (snapshot) => {
 			const items = snapshot.docs.map(doc => ({
@@ -62,25 +81,50 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 	};
 
 	const handleSave = () => {
-		const ref = collection(db, "permissions");
 		setSaving(true);
-		addDoc(ref, {
+		
+		const payload = {
 			permissionName: permissionName,
 			departmentId: selectedDepartment,
 			departmentName: departments.find(d => d.id === selectedDepartment)?.departmentName || '',
 			designationId: selectedDesignation,
 			designationName: designations.find(d => d.id === selectedDesignation)?.designationName || '',
 			permissions: currentDesignationRoutes,
-			createdAt: new Date(),
-		}).then(() => {
-			setSaving(false);
-			showToast("Permissions saved successfully!", "success");
-			onClose();
-		}).catch((err) => {
-			setSaving(false);
-			showToast("Error saving permissions", "error");
-			console.error(err);
-		});
+			updatedAt: new Date(),
+		};
+
+		if (editData) {
+			const functions = getFunctions(app);
+			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
+			
+			editPermissionsFn({ id: editData.id, payload: payload })
+				.then((result) => {
+					setSaving(false);
+					if (result.data.success) {
+						showToast("Permissions updated successfully!", "success");
+						onClose();
+					} else {
+						showToast(result.data.error || "Error updating permissions", "error");
+					}
+				})
+				.catch((err) => {
+					setSaving(false);
+					showToast("Error updating permissions", "error");
+					console.error(err);
+				});
+		} else {
+			payload.createdAt = new Date();
+			const ref = collection(db, "permissions");
+			addDoc(ref, payload).then(() => {
+				setSaving(false);
+				showToast("Permissions saved successfully!", "success");
+				onClose();
+			}).catch((err) => {
+				setSaving(false);
+				showToast("Error saving permissions", "error");
+				console.error(err);
+			});
+		}
 	};
 	if (!isOpen) return null;
 

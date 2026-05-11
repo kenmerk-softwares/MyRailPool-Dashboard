@@ -44,9 +44,14 @@ const editSettings = onCall(async (request) => {
           const adminUsersData = await db.collection("admin-users").where("permissionId", "==", permId).get();
           adminUsersData.forEach((userSnap) => {
             batch.update(userSnap.ref, {
-              [type]: formData.name,
+              [type]: formData.name || userSnap.data()[type],
               updatedAt: new Date(),
             });
+          });
+          const permissionRef = db.collection("permissions").doc(permId);
+          batch.update(permissionRef, {
+            [nameField]: formData.name,
+            updatedAt: new Date(),
           });
         }
       } else if (operation === "delete") {

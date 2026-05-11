@@ -1,15 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { PermissionPopup } from './PermissionPopup';
-import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash } from 'react-icons/fa';
-import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash, FaEdit } from 'react-icons/fa';
+import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc, getDocs, where } from 'firebase/firestore';
 import { db } from '../../Config/Config';
 import { useToast } from '../../Toast/ToastContext';
 
 export const AdminSettings = () => {
+	const { showToast } = useToast();
 	const [permissionPopup, setPermissionPopup] = React.useState(false);
 	const [showDeptPopup, setShowDeptPopup] = useState(false);
 	const [showDesigPopup, setShowDesigPopup] = useState(false);
 	const [permissionsList, setPermissionsList] = useState([]);
+	const [editPermissionData, setEditPermissionData] = useState(null);
+	const [deletePermissionId, setDeletePermissionId] = useState(null);
+
+	const handleEditPermission = (perm) => {
+		setEditPermissionData(perm);
+		setPermissionPopup(true);
+	};
+
+	const handleDeletePermission = (permId) => {
+		setDeletePermissionId(permId);
+	};
+
+	const confirmDeletePermission = async () => {
+		if (!deletePermissionId) return;
+		try {
+			const usersSnap = await getDocs(query(collection(db, 'admin-users'), where('permissionId', '==', deletePermissionId)));
+			if (!usersSnap.empty) {
+				showToast('Cannot delete permission model assigned to admin users', 'error');
+				setDeletePermissionId(null);
+				return;
+			}
+			await deleteDoc(doc(db, 'permissions', deletePermissionId));
+			showToast('Permission deleted successfully', 'success');
+		} catch (error) {
+			console.error("Error deleting permission:", error);
+			showToast('Error deleting permission', 'error');
+		} finally {
+			setDeletePermissionId(null);
+		}
+	};
 
 	useEffect(() => {
 		const unsubscribe = onSnapshot(collection(db, 'permissions'), (snapshot) => {
@@ -74,6 +105,7 @@ export const AdminSettings = () => {
 									<th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider">Department</th>
 									<th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider">Designation</th>
 									<th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider">Permissions</th>
+									<th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
 								</tr>
 							</thead>
 							<tbody className="bg-white divide-y divide-gray-200">
@@ -105,17 +137,35 @@ export const AdminSettings = () => {
 														</span>
 													)}
 												</td>
+												<td className="px-3 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap text-xs sm:text-sm font-medium">
+													<div className="flex justify-center items-center gap-3">
+														<button
+															onClick={() => handleEditPermission(perm)}
+															className="text-blue-500 hover:text-blue-700 transition-colors"
+															title="Edit Permission"
+														>
+															<FaEdit className="w-4 h-4" />
+														</button>
+														<button
+															onClick={() => handleDeletePermission(perm.id)}
+															className="text-red-500 hover:text-red-700 transition-colors"
+															title="Delete Permission"
+														>
+															<FaTrash className="w-4 h-4" />
+														</button>
+													</div>
+												</td>
 											</tr>
 										);
 									})
 								) : (
 									<tr>
-										<td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-400">
+										<td colSpan="6" className="px-6 py-8 text-center text-sm text-gray-400">
 											No permissions configured. Click "Permission Model" to add one.
 										</td>
 									</tr>
 								)}
-							</tbody>
+				</tbody>
 						</table>
 					</div>
 				</div>
@@ -123,7 +173,11 @@ export const AdminSettings = () => {
 
 			<PermissionPopup
 				isOpen={permissionPopup}
-				onClose={() => setPermissionPopup(false)}
+				onClose={() => {
+					setPermissionPopup(false);
+					setEditPermissionData(null);
+				}}
+				editData={editPermissionData}
 			/>
 			<DepartmentPopup 
 				isOpen={showDeptPopup} 
@@ -133,6 +187,36 @@ export const AdminSettings = () => {
 				isOpen={showDesigPopup} 
 				onClose={() => setShowDesigPopup(false)} 
 			/>
+
+			{/* Delete Permission Modal */}
+			{deletePermissionId && (
+				<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+					<div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
+						<div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+							<FaTrash className="text-xl" />
+						</div>
+						<h3 className="text-lg font-bold text-gray-900">Delete Permission Model?</h3>
+						<p className="text-gray-500 text-sm mt-2 mb-6">
+							Are you sure you want to delete this permission model?<br />
+							This action cannot be undone.
+						</p>
+						<div className="flex gap-3">
+							<button
+								onClick={() => setDeletePermissionId(null)}
+								className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors"
+							>
+								Cancel
+							</button>
+							<button
+								onClick={confirmDeletePermission}
+								className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
