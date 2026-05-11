@@ -1,8 +1,9 @@
 import React from 'react';
-import { Edit, Trash2, UserPlus, Search, Eye, MapPin } from 'lucide-react';
+import { Edit, Trash2, UserPlus, Eye, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { driversData } from '../../data/mockData';
+import { Filter } from '../../Filter/Filter';
 
 export const DriverList = () => {
   const navigate = useNavigate();
@@ -11,6 +12,26 @@ export const DriverList = () => {
     const Id = driver.driver_id.replace('#', '');
     navigate(`view/${Id}`);
   };
+
+  const [activeFilter, setActiveFilter] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const handleClear = () => {
+    setActiveFilter('');
+    setSearchQuery('');
+  };
+
+  const filteredData = driversData.filter(item => {
+    const matchesSearch = !searchQuery || 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.driver_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = !activeFilter || item.status.toLowerCase() === activeFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <>
@@ -24,28 +45,18 @@ export const DriverList = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden pb-10">
         <div className="overflow-x-auto w-full">
-          <div className="flex items-center justify-between m-4">
-            <div className="hidden sm:flex flex-1 max-w-xl ml-4 lg:ml-0">
-              <div className="relative group w-full">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
-                  <Search className="h-4 w-4 md:h-5 md:w-5" />
-                </div>
-                <input
-                  type="text"
-                  className="block w-full pl-10 md:pl-11 pr-4 py-2 md:py-2.5 bg-slate-50 border border-transparent rounded-xl text-xs md:text-sm placeholder-slate-400 focus:border-primary-500 focus:bg-white focus:ring focus:ring-primary-500/20 transition-all duration-200"
-                  placeholder="Search drivers..."
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <select className="border border-slate-200 rounded-xl px-4 py-2 text-xs md:text-sm bg-white outline-none focus:border-primary-500 transition-all">
-                <option value="">All</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <button className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm" onClick={() => {}}>Clear</button>
-            </div>
-          </div>
+          <Filter 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            onClear={handleClear}
+            searchPlaceholder="Search drivers by name, ID, contact..."
+            options={[
+              { label: 'Active', value: 'active' },
+              { label: 'Inactive', value: 'inactive' },
+            ]}
+          />
 
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
@@ -59,7 +70,7 @@ export const DriverList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {driversData.map((driver, idx) => (
+              {filteredData.map((driver, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-1 md:px-2 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
 

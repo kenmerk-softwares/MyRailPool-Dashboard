@@ -1,24 +1,60 @@
 import React from 'react';
-import { Edit, Trash2, Search, Eye } from 'lucide-react';
+import { Edit, Trash2, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { StatusBadge } from './Shared';
-import { FaCalendarAlt } from 'react-icons/fa';
 import { Filter } from '../Filter/Filter';
 
 export const BookingTable = ({ data }) => {
   const navigate = useNavigate();
   const [fromDate, setFromDate] = React.useState('');
   const [toDate, setToDate] = React.useState('');
-  const [activeFilter, setActiveFilter] = React.useState(null);
+  const [activeFilter, setActiveFilter] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const handleClear = () => {
+    setFromDate('');
+    setToDate('');
+    setActiveFilter('');
+    setSearchQuery('');
+  };
 
   const handleViewBooking = (id) => {
     const cleanId = id.replace('#', '');
     navigate(`/bookings/view/${cleanId}`);
   };
 
+  const filteredData = data.filter(item => {
+    const matchesSearch = !searchQuery || 
+      item.booking_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.driver?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = !activeFilter || item.status === activeFilter;
+    const matchesDate = (!fromDate || item.req_date >= fromDate) && (!toDate || item.req_date <= toDate);
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
   return (
     <div className="overflow-x-auto w-full">
-      <Filter />
+      <Filter 
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        fromDate={fromDate}
+        setFromDate={setFromDate}
+        toDate={toDate}
+        setToDate={setToDate}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        onClear={handleClear}
+        searchPlaceholder="Search bookings, customer, driver..."
+        options={[
+          { label: 'Approved', value: 'APPROVED' },
+          { label: 'Pending', value: 'PENDING' },
+          { label: 'Completed', value: 'COMPLETED' },
+          { label: 'Declined', value: 'DECLINED' },
+        ]}
+      />
 
       <table className="w-full text-left border-collapse min-w-[1000px]">
         <thead>
@@ -36,7 +72,7 @@ export const BookingTable = ({ data }) => {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-xs md:text-sm">
-          {data.map((booking, idx) => (
+          {filteredData.map((booking, idx) => (
             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
               <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{idx + 1}</td>
               <td className="px-4 md:px-6 py-4 font-medium text-slate-900">{booking.req_ref}</td>
