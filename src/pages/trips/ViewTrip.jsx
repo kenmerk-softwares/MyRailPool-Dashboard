@@ -98,6 +98,13 @@ export const ViewTrip = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Registration</label>
                 <p className="px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100">{trip.vehicle_reg}</p>
               </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
+                <p className="px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold border border-emerald-100 uppercase text-xs">
+                  {trip.route_type ? trip.route_type.replace('_', ' ') : 'Core Route'}
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 pt-6 border-t border-slate-50">
@@ -239,6 +246,7 @@ export const ViewTrip = () => {
                   <span className="font-bold text-slate-800">{trip.miles || '0'} Miles</span>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>
