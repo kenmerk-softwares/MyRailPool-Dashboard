@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Save,
   MapPin,
-  Navigation,
   Clock,
   ArrowRightLeft,
   User,
@@ -17,13 +16,25 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
+import { GOOGLE_MAPS_API_KEY } from '../../Config/Config';
 import { driversData, vehiclesData } from '../../data/mockData';
 
+const LIBRARIES = ['places'];
+
 export const AddRoute = () => {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries: LIBRARIES,
+  });
+
   const location = useLocation();
   const initialData = location.state?.route || null;
   const [droppingPoints, setDroppingPoints] = useState(initialData?.droppingPoints || []);
+  const [droppingPointsDetails, setDroppingPointsDetails] = useState(initialData?.droppingPointsDetails || []);
+  const [fareMatrix, setFareMatrix] = useState(initialData?.fareMatrix || {});
   const [currentPoint, setCurrentPoint] = useState('');
+  const [autocomplete, setAutocomplete] = useState(null);
 
   const parseNumeric = (val) => {
     if (!val) return '';
@@ -68,15 +79,55 @@ export const AddRoute = () => {
     setTimeSlots(timeSlots.filter(t => t !== time));
   };
 
-  const handleAddPoint = () => {
-    if (currentPoint.trim()) {
-      setDroppingPoints([...droppingPoints, currentPoint.trim()]);
+  const onLoad = (autocompleteInstance) => {
+    setAutocomplete(autocompleteInstance);
+  };
+
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (place.formatted_address) {
+        handleAddPoint(place);
+      }
+    }
+  };
+
+  const handleAddPoint = (placeDetails = null) => {
+    const pointName = placeDetails ? placeDetails.name || placeDetails.formatted_address : currentPoint.trim();
+    
+    if (pointName) {
+      setDroppingPoints([...droppingPoints, pointName]);
+      
+      const details = placeDetails ? {
+        formatted_address: placeDetails.formatted_address,
+        lat: placeDetails.geometry?.location?.lat(),
+        lng: placeDetails.geometry?.location?.lng(),
+        place_id: placeDetails.place_id,
+        name: placeDetails.name,
+        distanceFromStart: 0
+      } : { name: pointName, distanceFromStart: 0 };
+
+      setDroppingPointsDetails([...droppingPointsDetails, details]);
       setCurrentPoint('');
     }
   };
 
+  const updatePointDistance = (index, value) => {
+    const newDetails = [...droppingPointsDetails];
+    newDetails[index].distanceFromStart = value;
+    setDroppingPointsDetails(newDetails);
+  };
+
+  const updateFare = (fromIdx, toIdx, value) => {
+    setFareMatrix(prev => ({
+      ...prev,
+      [`${fromIdx}-${toIdx}`]: value
+    }));
+  };
+
   const handleRemovePoint = (index) => {
     setDroppingPoints(droppingPoints.filter((_, i) => i !== index));
+    setDroppingPointsDetails(droppingPointsDetails.filter((_, i) => i !== index));
   };
 
   const handleKeyDown = (e) => {
@@ -88,11 +139,30 @@ export const AddRoute = () => {
 
   const movePoint = (index, direction) => {
     const newPoints = [...droppingPoints];
+    const newDetails = [...droppingPointsDetails];
     const targetIndex = index + direction;
+    
     if (targetIndex >= 0 && targetIndex < newPoints.length) {
       [newPoints[index], newPoints[targetIndex]] = [newPoints[targetIndex], newPoints[index]];
+      [newDetails[index], newDetails[targetIndex]] = [newDetails[targetIndex], newDetails[index]];
       setDroppingPoints(newPoints);
+      setDroppingPointsDetails(newDetails);
     }
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    data.selectedDays = selectedDays;
+    data.timeSlots = timeSlots;
+    data.droppingPointsNames = droppingPoints;
+    data.droppingPointsDetails = droppingPointsDetails;
+    data.fareMatrix = fareMatrix;
+    data.start = droppingPoints[0] || '';
+    data.end = droppingPoints[droppingPoints.length - 1] || '';
+    console.log("=== Saved Route Data ===");
+    console.log(data);
   };
 
   return (
@@ -112,6 +182,7 @@ export const AddRoute = () => {
         </div>
       </div>
 
+      <form onSubmit={handleSave}>
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
         <div className="space-y-8 mt-4">
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
@@ -127,6 +198,7 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Name</label>
                 <input
                   type="text"
+                  name="routeName"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                   placeholder="Enter Route Name"
                   defaultValue={initialData?.name}
@@ -136,6 +208,7 @@ export const AddRoute = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
                 <select
+                  name="routeType"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
                   defaultValue={initialData?.route_type || "one_way"}
                 >
@@ -147,6 +220,7 @@ export const AddRoute = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Status</label>
                 <select
+                  name="status"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
                   defaultValue={initialData?.status || "Active"}
                 >
@@ -157,70 +231,37 @@ export const AddRoute = () => {
 
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-6 border-t border-slate-50">
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Primary Origin (Start)</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Enter Start Address"
-                    defaultValue={initialData?.start}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Primary Objective (End)</label>
-                <div className="relative">
-                  <Navigation className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Enter End Address"
-                    defaultValue={initialData?.end}
-                  />
-                </div>
-              </div>
-
-              {/* <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Intermediate stops</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-emerald-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Add stops"
-                  />
-                </div>
-              </div> */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Distance (km)</label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Route Distance (km)</label>
                 <div className="relative">
                   <Map className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="number"
+                    name="distance"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="0"
                     defaultValue={parseNumeric(initialData?.distance)}
                   />
                 </div>
               </div>
+
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Base Est. Price (₹)</label>
                 <div className="relative">
                   <TrendingUp className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                   <input
                     type="number"
+                    name="estPrice"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-emerald-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="0.00"
                     defaultValue={parseNumeric(initialData?.estPrice)}
                   />
                 </div>
               </div>
+            </div>
 
-
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Start Date & Time</label>
                 <div className="relative">
@@ -327,14 +368,31 @@ export const AddRoute = () => {
               <div className="relative flex gap-2">
                 <div className="relative flex-1">
                   <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={currentPoint}
-                    onChange={(e) => setCurrentPoint(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
-                    placeholder="Enter location name..."
-                  />
+                  {isLoaded ? (
+                    <Autocomplete
+                      onLoad={onLoad}
+                      onPlaceChanged={onPlaceChanged}
+                    >
+                      <input
+                        type="text"
+                        value={currentPoint}
+                        onChange={(e) => setCurrentPoint(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                        placeholder="Search for a location..."
+                      />
+                    </Autocomplete>
+                  ) : (
+                    <input
+                      type="text"
+                      value={currentPoint}
+                      onChange={(e) => setCurrentPoint(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all animate-pulse"
+                      placeholder="Loading maps..."
+                      disabled
+                    />
+                  )}
                 </div>
                 <button
                   onClick={handleAddPoint}
@@ -374,6 +432,17 @@ export const AddRoute = () => {
                             <span className="text-[10px] font-bold text-emerald-800 block truncate text-center uppercase tracking-tight">
                               {point}
                             </span>
+                            {index !== 0 && (
+                              <div className="mt-2 pt-2 border-t border-emerald-100">
+                                <label className="text-[8px] font-bold text-emerald-600 uppercase block mb-1">Dist. (km)</label>
+                                <input 
+                                  type="number"
+                                  value={droppingPointsDetails[index]?.distanceFromStart || 0}
+                                  onChange={(e) => updatePointDistance(index, e.target.value)}
+                                  className="w-full bg-white border border-emerald-200 rounded px-1 py-0.5 text-[10px] font-bold text-emerald-800 outline-none focus:border-emerald-500"
+                                />
+                              </div>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-1 bg-white border border-slate-100 shadow-lg rounded-lg p-1 transition-all duration-200">
@@ -407,6 +476,53 @@ export const AddRoute = () => {
             </div>
           </div>
         </div>
+
+        {/* Section 4: Fare Matrix */}
+        {droppingPoints.length > 1 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-slate-800 tracking-tight">Fare Configuration</h3>
+            </div>
+            <div className="p-6">
+              <p className="text-xs text-slate-500 mb-6">Configure fares for all possible travel combinations between your route points.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {droppingPoints.map((fromPoint, i) => (
+                  droppingPoints.slice(i + 1).map((toPoint, jOffset) => {
+                    const j = i + 1 + jOffset;
+                    const key = `${i}-${j}`;
+                    return (
+                      <div key={key} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-emerald-200 transition-all">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Combination</span>
+                          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">₹ Fixed</span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="flex-1 text-[11px] font-bold text-slate-700 truncate">{fromPoint}</div>
+                          <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                          <div className="flex-1 text-[11px] font-bold text-slate-700 truncate">{toPoint}</div>
+                        </div>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">₹</span>
+                          <input 
+                            type="number"
+                            value={fareMatrix[key] || ''}
+                            onChange={(e) => updateFare(i, j, e.target.value)}
+                            className="w-full pl-7 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none focus:border-emerald-500 transition-all"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
@@ -452,7 +568,6 @@ export const AddRoute = () => {
               </div>
             </div>
           </div>
-        </div>
 
         <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4">
           <Link
@@ -461,11 +576,12 @@ export const AddRoute = () => {
           >
             Cancel
           </Link>
-          <button className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
+          <button type="submit" className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
             <Save className="w-4.5 h-4.5" /> {initialData ? 'Save Route' : 'Add Route'}
           </button>
         </div>
       </div>
+      </div></form>
     </div>
   );
 };

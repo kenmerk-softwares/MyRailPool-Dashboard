@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { addDoc, collection, onSnapshot, orderBy, query, updateDoc, doc } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../Config/Config';
 import { useToast } from '../../Toast/ToastContext';
@@ -90,7 +90,6 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 			designationId: selectedDesignation,
 			designationName: designations.find(d => d.id === selectedDesignation)?.designationName || '',
 			permissions: currentDesignationRoutes,
-			updatedAt: new Date(),
 		};
 
 		if (editData) {
@@ -113,9 +112,8 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 					console.error(err);
 				});
 		} else {
-			payload.createdAt = new Date();
 			const ref = collection(db, "permissions");
-			addDoc(ref, payload).then(() => {
+			addDoc(ref, {...payload, createdAt: new Date()}).then(() => {
 				setSaving(false);
 				showToast("Permissions saved successfully!", "success");
 				onClose();

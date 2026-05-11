@@ -32,4 +32,5 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 const adminDb = getFirestore(adminApp);
-export { db, auth, app, storage, adminDb };
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_PLACES_WEB_API;
+export { db, auth, app, storage, adminDb, GOOGLE_MAPS_API_KEY };
