@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaTrash, FaUserSlash } from 'react-icons/fa';
 import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../Config/Config';
@@ -16,6 +16,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	const [saving, setSaving] = React.useState(false);
 	const [departments, setDepartments] = React.useState([]);
 	const [designations, setDesignations] = React.useState([]);
+	const functions = getFunctions(app, "asia-south1");
 
 	useEffect(() => {
 		if (isOpen) {
@@ -93,10 +94,9 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 		};
 
 		if (editData) {
-			const functions = getFunctions(app);
 			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
 			
-			editPermissionsFn({ id: editData.id, payload: payload })
+			editPermissionsFn({ id: editData.id, payload: payload, operation: "edit" })
 				.then((result) => {
 					setSaving(false);
 					if (result.data.success) {
@@ -123,6 +123,54 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 				console.error(err);
 			});
 		}
+	};
+
+	const handleDelete = () => {
+		if (!editData?.id) return;
+		if (!window.confirm("Are you sure you want to delete this permission model?")) return;
+		
+		setSaving(true);
+		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
+		
+		editPermissionsFn({ id: editData.id, operation: "delete" })
+			.then((result) => {
+				setSaving(false);
+				if (result.data.success) {
+					showToast("Permission model deleted successfully", "success");
+					onClose();
+				} else {
+					showToast(result.data.error || "Error deleting permission", "error");
+				}
+			})
+			.catch((err) => {
+				setSaving(false);
+				showToast("Error deleting permission", "error");
+				console.error(err);
+			});
+	};
+
+	const handleRevoke = () => {
+		if (!editData?.id) return;
+		if (!window.confirm("Are you sure you want to revoke this permission from all assigned users?")) return;
+		
+		setSaving(true);
+		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
+		
+		editPermissionsFn({ id: editData.id, operation: "revoke" })
+			.then((result) => {
+				setSaving(false);
+				if (result.data.success) {
+					showToast("Permission revoked from all users successfully", "success");
+					onClose();
+				} else {
+					showToast(result.data.error || "Error revoking permission", "error");
+				}
+			})
+			.catch((err) => {
+				setSaving(false);
+				showToast("Error revoking permission", "error");
+				console.error(err);
+			});
 	};
 	if (!isOpen) return null;
 
@@ -221,13 +269,32 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 					<button className="bg-white border border-slate-200 text-slate-500 px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300" onClick={onClose}>
 						Close
 					</button>
+					{editData && (
+						<>
+							<button
+								className="bg-amber-500 text-white px-4 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-amber-600 disabled:opacity-50 flex items-center gap-2"
+								onClick={handleRevoke}
+								disabled={saving}
+								title="Revoke from all users"
+							>
+								<FaUserSlash className="w-4 h-4" /> Revoke
+							</button>
+							<button
+								className="bg-red-500 text-white px-4 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
+								onClick={handleDelete}
+								disabled={saving}
+							>
+								<FaTrash className="w-4 h-4" /> Delete
+							</button>
+						</>
+					)}
 					{selectedDepartment && selectedDesignation && permissionName && (
 						<button
 							className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-emerald-700 disabled:bg-emerald-300"
 							onClick={handleSave}
 							disabled={saving}
 						>
-							{saving ? 'Saving...' : 'Save Permissions'}
+							{saving ? 'Saving...' : editData ? 'Update Permissions' : 'Save Permissions'}
 						</button>
 					)}
 				</div>

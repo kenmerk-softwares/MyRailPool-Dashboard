@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { PermissionPopup } from './PermissionPopup';
-import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash, FaEdit } from 'react-icons/fa';
-import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc, getDocs, where } from 'firebase/firestore';
-import { db } from '../../Config/Config';
+import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash, FaEdit, FaUserSlash } from 'react-icons/fa';
+import { collection, onSnapshot, query, orderBy, addDoc} from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { db, app } from '../../Config/Config';
 import { useToast } from '../../Toast/ToastContext';
 
 export const AdminSettings = () => {
@@ -13,6 +14,8 @@ export const AdminSettings = () => {
 	const [permissionsList, setPermissionsList] = useState([]);
 	const [editPermissionData, setEditPermissionData] = useState(null);
 	const [deletePermissionId, setDeletePermissionId] = useState(null);
+	const [revokePermissionId, setRevokePermissionId] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const handleEditPermission = (perm) => {
 		setEditPermissionData(perm);
@@ -23,22 +26,59 @@ export const AdminSettings = () => {
 		setDeletePermissionId(permId);
 	};
 
+	const handleRevokePermission = (permId) => {
+		setRevokePermissionId(permId);
+	};
+
 	const confirmDeletePermission = async () => {
 		if (!deletePermissionId) return;
+		setLoading(true);
 		try {
-			const usersSnap = await getDocs(query(collection(db, 'admin-users'), where('permissionId', '==', deletePermissionId)));
-			if (!usersSnap.empty) {
-				showToast('Cannot delete permission model assigned to admin users', 'error');
-				setDeletePermissionId(null);
-				return;
+			const functions = getFunctions(app, "asia-south1");
+			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
+			
+			const result = await editPermissionsFn({ 
+				id: deletePermissionId, 
+				operation: "delete" 
+			});
+
+			if (result.data.success) {
+				showToast('Permission deleted successfully', 'success');
+			} else {
+				showToast(result.data.error || 'Error deleting permission', 'error');
 			}
-			await deleteDoc(doc(db, 'permissions', deletePermissionId));
-			showToast('Permission deleted successfully', 'success');
 		} catch (error) {
 			console.error("Error deleting permission:", error);
 			showToast('Error deleting permission', 'error');
 		} finally {
+			setLoading(false);
 			setDeletePermissionId(null);
+		}
+	};
+
+	const confirmRevokePermission = async () => {
+		if (!revokePermissionId) return;
+		setLoading(true);
+		try {
+			const functions = getFunctions(app);
+			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
+			
+			const result = await editPermissionsFn({ 
+				id: revokePermissionId, 
+				operation: "revoke" 
+			});
+
+			if (result.data.success) {
+				showToast('Permission revoked from all users successfully', 'success');
+			} else {
+				showToast(result.data.error || 'Error revoking permission', 'error');
+			}
+		} catch (error) {
+			console.error("Error revoking permission:", error);
+			showToast('Error revoking permission', 'error');
+		} finally {
+			setLoading(false);
+			setRevokePermissionId(null);
 		}
 	};
 
@@ -147,6 +187,13 @@ export const AdminSettings = () => {
 															<FaEdit className="w-4 h-4" />
 														</button>
 														<button
+															onClick={() => handleRevokePermission(perm.id)}
+															className="text-amber-500 hover:text-amber-700 transition-colors"
+															title="Revoke from all users"
+														>
+															<FaUserSlash className="w-4 h-4" />
+														</button>
+														<button
 															onClick={() => handleDeletePermission(perm.id)}
 															className="text-red-500 hover:text-red-700 transition-colors"
 															title="Delete Permission"
@@ -203,15 +250,48 @@ export const AdminSettings = () => {
 						<div className="flex gap-3">
 							<button
 								onClick={() => setDeletePermissionId(null)}
-								className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors"
+								disabled={loading}
+								className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
 							>
 								Cancel
 							</button>
 							<button
 								onClick={confirmDeletePermission}
-								className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
+								disabled={loading}
+								className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
 							>
-								Delete
+								{loading ? 'Deleting...' : 'Delete'}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Revoke Permission Modal */}
+			{revokePermissionId && (
+				<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+					<div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
+						<div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+							<FaUserSlash className="text-xl" />
+						</div>
+						<h3 className="text-lg font-bold text-gray-900">Revoke Permissions?</h3>
+						<p className="text-gray-500 text-sm mt-2 mb-6">
+							Are you sure you want to revoke this permission model from all assigned admin users?
+						</p>
+						<div className="flex gap-3">
+							<button
+								onClick={() => setRevokePermissionId(null)}
+								disabled={loading}
+								className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+							>
+								Cancel
+							</button>
+							<button
+								onClick={confirmRevokePermission}
+								disabled={loading}
+								className="flex-1 px-4 py-2.5 rounded-xl bg-amber-500 text-white font-semibold text-sm hover:bg-amber-600 shadow-lg shadow-amber-200 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+							>
+								{loading ? 'Revoking...' : 'Revoke'}
 							</button>
 						</div>
 					</div>
@@ -227,13 +307,15 @@ function Designation({ isOpen, onClose }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [formData, setFormData] = useState({
-	  uid: '',
+	  id: '',
 	  designationName: ""
 	});
+	const [editData, setEditData] = useState(null);
   
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [designationToDelete, setDesignationToDelete] = useState(null);
-  
+				const functions = getFunctions(app, "asia-south1");
+
 	useEffect(() => {
 	  if (!isOpen) return;
   
@@ -256,26 +338,50 @@ function Designation({ isOpen, onClose }) {
 	const handleInputChange = (e) => {
 	  setFormData({ ...formData, designationName: e.target.value });
 	};
-  
+
+	const handleEdit = (desig) => {
+		setEditData(desig);
+		setFormData({ id: desig.id, designationName: desig.designationName });
+	};
+
+	const resetForm = () => {
+		setEditData(null);
+		setFormData({ id: '', designationName: "" });
+	};
+
 	const handleAdd = async (e) => {
 	  e.preventDefault();
 	  setError("");
 	  setLoading(true);
   
 	  try {
-		const payload = {
-			designationName: formData.designationName,
-			searchKey: formData.designationName.toLowerCase(),
-			createdAt: new Date(),
+		if (editData) {
+			const editSettingsFn = httpsCallable(functions, 'editSettings');
 			
-		};
-  
-		await addDoc(collection(db, "designations"), payload);
-		showToast("Designation created successfully!", "success");
-		setFormData({
-			uid: '',
-			designationName: ""
-		});
+			const result = await editSettingsFn({
+				id: editData.id,
+				type: "designation",
+				operation: "edit",
+				formData: { name: formData.designationName }
+			});
+
+			if (result.data.success) {
+				showToast("Designation updated successfully!", "success");
+				resetForm();
+			} else {
+				setError(result.data.error || "Error updating designation");
+			}
+		} else {
+			const payload = {
+				designationName: formData.designationName,
+				searchKey: formData.designationName.toLowerCase(),
+				createdAt: new Date(),
+			};
+	
+			await addDoc(collection(db, "designations"), payload);
+			showToast("Designation created successfully!", "success");
+			resetForm();
+		}
 	  } catch (err) {
 		console.error("Designation submit error:", err);
 		setError(err.message || "Unexpected error occurred.");
@@ -293,8 +399,19 @@ function Designation({ isOpen, onClose }) {
 	  if (!designationToDelete) return;
 	  setLoading(true);
 	  try {
-		await deleteDoc(doc(db, "designations", designationToDelete.id));
-		showToast("Designation deleted successfully", "success");
+		const editSettingsFn = httpsCallable(functions, 'editSettings');
+		
+		const result = await editSettingsFn({
+			id: designationToDelete.id,
+			type: "designation",
+			operation: "delete"
+		});
+
+		if (result.data.success) {
+			showToast("Designation deleted successfully", "success");
+		} else {
+			showToast(result.data.error || "Error deleting designation", "error");
+		}
 	  } catch (error) {
 		console.error("Error deleting designation:", error);
 		showToast("Error deleting designation", "error");
@@ -336,8 +453,17 @@ function Designation({ isOpen, onClose }) {
                     className="bg-emerald-700 text-white px-6 rounded-xl font-semibold cursor-pointer hover:bg-emerald-800 transition-colors disabled:opacity-50" 
                     disabled={loading}
                   >
-					{loading ? "Saving..." : "Add"}
+					{loading ? "Saving..." : editData ? "Update" : "Add"}
 				  </button>
+				  {editData && (
+					<button 
+						type="button" 
+						onClick={resetForm}
+						className="bg-slate-100 text-slate-600 px-4 rounded-xl font-semibold cursor-pointer hover:bg-slate-200 transition-colors"
+					>
+						Cancel
+					</button>
+				  )}
 				</div>
 				{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 			  </form>
@@ -348,12 +474,20 @@ function Designation({ isOpen, onClose }) {
 				designations.map(desig => (
 				  <div key={desig.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl mb-2 hover:bg-slate-100 transition-colors group">
 					<span className="font-medium text-slate-700">{desig.designationName}</span>
-					<button
-					  className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
-					  onClick={() => handleDelete(desig)}
-					>
-					  <FaTrash className="w-4 h-4" />
-					</button>
+					<div className="flex items-center gap-1">
+						<button
+							className="text-blue-400 hover:bg-blue-50 hover:text-blue-600 p-2 rounded-lg transition-all"
+							onClick={() => handleEdit(desig)}
+						>
+							<FaEdit className="w-4 h-4" />
+						</button>
+						<button
+							className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
+							onClick={() => handleDelete(desig)}
+						>
+							<FaTrash className="w-4 h-4" />
+						</button>
+					</div>
 				  </div>
 				))
 			  ) : (
@@ -413,9 +547,10 @@ function DepartmentPopup({ isOpen, onClose }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [formData, setFormData] = useState({
-	  uid: '',
+	  id: '',
 	  departmentName: ""
 	});
+	const [editData, setEditData] = useState(null);
   
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [departmentToDelete, setDepartmentToDelete] = useState(null);
@@ -441,23 +576,46 @@ function DepartmentPopup({ isOpen, onClose }) {
 	const handleInputChange = (e) => {
 	  setFormData({ ...formData, departmentName: e.target.value });
 	};
-  
+
+	const handleEdit = (dept) => {
+		setEditData(dept);
+		setFormData({ id: dept.id, departmentName: dept.departmentName });
+	};
+
+	const resetForm = () => {
+		setEditData(null);
+		setFormData({ id: '', departmentName: "" });
+	};
+
 	const handleAdd = async (e) => {
 	  e.preventDefault();
 	  setError("");
 	  setLoading(true);
   
 	  try {
-		const payload = { departmentName: formData.departmentName };
-  
-		await addDoc(collection(db, "departments"), payload);
-		
-		showToast("Department created successfully!", "success");
-  
-		setFormData({
-		  uid: '',
-		  departmentName: ""
-		});
+		if (editData) {
+			const functions = getFunctions(app);
+			const editSettingsFn = httpsCallable(functions, 'editSettings');
+			
+			const result = await editSettingsFn({
+				id: editData.id,
+				type: "department",
+				operation: "edit",
+				formData: { name: formData.departmentName }
+			});
+
+			if (result.data.success) {
+				showToast("Department updated successfully!", "success");
+				resetForm();
+			} else {
+				setError(result.data.error || "Error updating department");
+			}
+		} else {
+			const payload = { departmentName: formData.departmentName };
+			await addDoc(collection(db, "departments"), payload);
+			showToast("Department created successfully!", "success");
+			resetForm();
+		}
 	  } catch (err) {
 		console.error("Department submit error:", err);
 		setError(err.message || "Unexpected error occurred.");
@@ -475,8 +633,20 @@ function DepartmentPopup({ isOpen, onClose }) {
 	  if (!departmentToDelete) return;
 	  setLoading(true);
 	  try {
-		await deleteDoc(doc(db, "departments", departmentToDelete.id));
-		showToast("Department deleted successfully", "success");
+		const functions = getFunctions(app);
+		const editSettingsFn = httpsCallable(functions, 'editSettings');
+		
+		const result = await editSettingsFn({
+			id: departmentToDelete.id,
+			type: "department",
+			operation: "delete"
+		});
+
+		if (result.data.success) {
+			showToast("Department deleted successfully", "success");
+		} else {
+			showToast(result.data.error || "Error deleting department", "error");
+		}
 	  } catch (error) {
 		console.error("Error deleting department:", error);
 		showToast("Error deleting department", "error");
@@ -518,8 +688,17 @@ function DepartmentPopup({ isOpen, onClose }) {
                     className="bg-emerald-700 text-white px-6 rounded-xl font-semibold cursor-pointer hover:bg-emerald-800 transition-colors disabled:opacity-50" 
                     disabled={loading}
                   >
-					{loading ? "Saving..." : "Add"}
+					{loading ? "Saving..." : editData ? "Update" : "Add"}
 				  </button>
+				  {editData && (
+					<button 
+						type="button" 
+						onClick={resetForm}
+						className="bg-slate-100 text-slate-600 px-4 rounded-xl font-semibold cursor-pointer hover:bg-slate-200 transition-colors"
+					>
+						Cancel
+					</button>
+				  )}
 				</div>
 				{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 			  </form>
@@ -530,12 +709,20 @@ function DepartmentPopup({ isOpen, onClose }) {
 				departments.map(dept => (
 				  <div key={dept.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl mb-2 hover:bg-slate-100 transition-colors group">
 					<span className="font-medium text-slate-700">{dept.departmentName}</span>
-					<button
-					  className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
-					  onClick={() => handleDelete(dept)}
-					>
-					  <FaTrash className="w-4 h-4" />
-					</button>
+					<div className="flex items-center gap-1">
+						<button
+							className="text-blue-400 hover:bg-blue-50 hover:text-blue-600 p-2 rounded-lg transition-all"
+							onClick={() => handleEdit(dept)}
+						>
+							<FaEdit className="w-4 h-4" />
+						</button>
+						<button
+							className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
+							onClick={() => handleDelete(dept)}
+						>
+							<FaTrash className="w-4 h-4" />
+						</button>
+					</div>
 				  </div>
 				))
 			  ) : (

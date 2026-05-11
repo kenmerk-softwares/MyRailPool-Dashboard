@@ -3,7 +3,7 @@ const {onCall} = require("firebase-functions/v2/https");
 const {db} = require("../config/config");
 const {adminLogs} = require("../logs/admin-logs");
 
-const editSettings = onCall(async (request) => {
+const editSettings = onCall({cors: true}, async (request) => {
   try {
     if (!request.auth) {
       return {success: false, error: "Unauthorized"};
@@ -30,7 +30,7 @@ const editSettings = onCall(async (request) => {
       });
     });
     if (operation === "edit") {
-    // ======================== UPDATE MAIN COLLECTION ======================== //
+      // ======================== UPDATE MAIN COLLECTION ======================== //
       const mainRef = db.collection(mainCol).doc(id);
       batch.update(mainRef, {
         [nameField]: formData.name,
@@ -39,7 +39,7 @@ const editSettings = onCall(async (request) => {
         updatedAt: new Date(),
       });
       if (permissionIds.length > 0) {
-      // ======================== UPDATE ADMIN-USERS COLLECTION ======================== //
+        // ======================== UPDATE ADMIN-USERS COLLECTION ======================== //
         for (const permId of permissionIds) {
           const adminUsersData = await db.collection("admin-users").where("permissionId", "==", permId).get();
           adminUsersData.forEach((userSnap) => {
@@ -54,14 +54,14 @@ const editSettings = onCall(async (request) => {
             updatedAt: new Date(),
           });
         }
-      } else if (operation === "delete") {
-        if (permissionIds.length > 0) {
-          return {success: false, error: "Permission is already assigned to an admin user"};
-        }
-        // ======================== UPDATE MAIN COLLECTION ======================== //
-        const mainRef = db.collection(mainCol).doc(id);
-        batch.delete(mainRef);
       }
+    } else if (operation === "delete") {
+      if (permissionIds.length > 0) {
+        return {success: false, error: "This item is used in permission models and cannot be deleted."};
+      }
+      // ======================== UPDATE MAIN COLLECTION ======================== //
+      const mainRef = db.collection(mainCol).doc(id);
+      batch.delete(mainRef);
     }
 
     // ======================== COMMIT BATCH ======================== //
