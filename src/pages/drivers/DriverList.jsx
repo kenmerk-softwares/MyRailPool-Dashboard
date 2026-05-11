@@ -25,7 +25,6 @@ export const DriverList = () => {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden pb-10">
         <div className="overflow-x-auto w-full">
           <div className="flex items-center justify-between m-4">
-            {/* Search Bar */}
             <div className="hidden sm:flex flex-1 max-w-xl ml-4 lg:ml-0">
               <div className="relative group w-full">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
@@ -50,8 +49,8 @@ export const DriverList = () => {
 
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
-              <tr className="bg-slate-50/50">
-              <th className="px-1 md:px-2 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No</th>
+              <tr className="bg-slate-50/50 ">
+              <th className="ps-6 px-1 md:px-2 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Name</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Contact</th>
                 <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden lg:table-cell">Address</th>
@@ -66,9 +65,6 @@ export const DriverList = () => {
 
                   <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center gap-4">
-                      {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-700 font-bold text-sm border border-primary-100/50 shadow-sm uppercase">
-                        {driver.name.charAt(0)}
-                      </div> */}
                       <div>
                         <div className="text-xs md:text-sm font-medium text-slate-900">{driver.name}</div>
                         <div className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider">{driver.driver_id}</div>

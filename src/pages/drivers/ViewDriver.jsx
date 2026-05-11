@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {
   Award,
   Briefcase,
@@ -27,8 +27,6 @@ import { driversData, tripsData } from '../../data/mockData';
 
 export default function ViewDriver() {
   const { id } = useParams();
-  // const navigate = useNavigate();
-
   const selectedDriver = driversData.find(d => d.driver_id.replace('#', '') === id);
   const driverTrips = selectedDriver ? tripsData.filter(t => t.driver === selectedDriver.name) : [];
 
@@ -95,7 +93,6 @@ export default function ViewDriver() {
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
           <div>
@@ -119,19 +116,17 @@ export default function ViewDriver() {
         </Link>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Identity Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="space-y-8 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <UserCheck className="w-4 h-4 text-primary-600" />
             </div>
             <h3 className="font-bold text-slate-800 tracking-tight">Identity & Contact</h3>
           </div>
 
-          <div className="p-6">
+          <div className="ps-6">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
-              {/* Avatar */}
               <div className="relative shrink-0">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-800 font-bold text-2xl border border-primary-100 uppercase shadow-inner">
                   {selectedDriver.name.charAt(0)}
@@ -141,7 +136,6 @@ export default function ViewDriver() {
                 </div>
               </div>
 
-              {/* Details */}
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   <h3 className="text-xl font-bold text-slate-800 tracking-tight">{selectedDriver.name}</h3>
@@ -165,7 +159,6 @@ export default function ViewDriver() {
                 </div>
               </div>
 
-              {/* Stats */}
               <div className="shrink-0 px-6 py-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
                 <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Trips</p>
                 <p className="text-3xl font-bold text-slate-800">{driverTrips.length}</p>
@@ -174,10 +167,9 @@ export default function ViewDriver() {
           </div>
         </div>
 
-        {/* Info Groups */}
         {infoGroups.map((group, idx) => (
-          <div key={idx} className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+          <div key={idx}>
+            <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
               <div className={`p-2 ${group.iconBg} rounded-lg`}>
                 <group.icon className={`w-4 h-4 ${group.iconColor}`} />
               </div>
@@ -226,7 +218,6 @@ export default function ViewDriver() {
           </div>
         ))}
 
-        {/* Trip History */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/30">
             <div className="flex items-center gap-3">

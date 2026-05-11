@@ -30,7 +30,7 @@ export const ViewTrip = () => {
         </div>
         <h3 className="text-xl font-bold text-slate-800">Trip Not Found</h3>
         <p className="text-slate-500 mt-1 mb-6">The specified Mission ID does not exist in the decentralized database.</p>
-        
+
       </div>
     );
   }
@@ -44,16 +44,11 @@ export const ViewTrip = () => {
       default: return 'slate';
     }
   };
-
-  // const revenue = trip.price ? parseFloat(trip.price.replace('₹', '').replace(',', '')) : 0;
-  // const profit = trip.profit ? parseFloat(trip.profit.replace('₹', '').replace(',', '')) : 0;
-
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
-          
+
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Trip Details: {trip.trip_id}</h2>
@@ -70,10 +65,9 @@ export const ViewTrip = () => {
         </Link>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/*  Basic Information */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Hash className="w-4 h-4 text-primary-600" />
             </div>
@@ -138,9 +132,8 @@ export const ViewTrip = () => {
           </div>
         </div>
 
-        {/* Execution & Route Details */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <Milestone className="w-4 h-4 text-emerald-600" />
             </div>
@@ -168,7 +161,6 @@ export const ViewTrip = () => {
                 </div>
               </div>
 
-              {/* Intermediate Stops Display */}
               {trip.stops && trip.stops.length > 0 && (
                 <div className="mt-8 pt-6 border-t border-slate-200/60">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Intermediate Sequence</p>
@@ -251,9 +243,8 @@ export const ViewTrip = () => {
           </div>
         </div>
 
-        {/* Financial Summary */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <TrendingUp className="w-4 h-4 text-indigo-600" />
             </div>

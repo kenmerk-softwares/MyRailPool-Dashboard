@@ -6,7 +6,6 @@ const Filters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, dat
 
   return (
     <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4">
-      {/* Search */}
       <div className="relative flex-1 w-full">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
@@ -26,7 +25,6 @@ const Filters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, dat
         )}
       </div>
 
-      {/* Status Filter */}
       <div className="flex items-center gap-2 w-full md:w-auto">
         <Filter className="w-4 h-4 text-slate-500 hidden md:block" />
         <div className="flex flex-wrap gap-2">
@@ -45,7 +43,6 @@ const Filters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, dat
         </div>
       </div>
 
-      {/* Date Filter */}
       <div className="relative w-full md:w-auto">
         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input

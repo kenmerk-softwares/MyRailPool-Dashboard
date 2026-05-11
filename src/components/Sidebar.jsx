@@ -57,7 +57,6 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
@@ -65,7 +64,6 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         />
       )}
 
-      {/* Sidebar Content */}
       <aside className={`fixed lg:static inset-y-0 left-0 w-72 bg-primary-900 flex flex-col shadow-2xl lg:shadow-xl z-40 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="h-20 flex items-center justify-between px-8 border-b border-primary-800/50 shrink-0">
           <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>

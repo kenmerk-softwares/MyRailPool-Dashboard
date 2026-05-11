@@ -32,10 +32,9 @@ export const EditVehicle = () => {
         </div>
       </div>
 
-      <div className="space-y-8 text-sm">
-        {/* Section 1: Basic Info */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="space-y-4 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-primary-50 rounded-lg">
               <Car className="w-4 h-4 text-primary-600" />
             </div>
@@ -98,8 +97,7 @@ export const EditVehicle = () => {
           </div>
         </div>
 
-        {/* Section 2: Licensing & Registration */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <Shield className="w-4 h-4 text-indigo-600" />
@@ -136,8 +134,7 @@ export const EditVehicle = () => {
           </div>
         </div>
 
-        {/* Section 3: Insurance Coverage */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -174,8 +171,7 @@ export const EditVehicle = () => {
           </div>
         </div>
 
-        {/* Section 4: Fleet Management */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-amber-50 rounded-lg">
               <Activity className="w-4 h-4 text-amber-600" />
@@ -212,9 +208,9 @@ export const EditVehicle = () => {
             </div>
           </div>
         </div>
-      </div>
+     
 
-      <div className="mt-10 flex items-center justify-end gap-4 px-4">
+      <div className="m-8 flex items-center justify-end gap-4 px-4">
         <Link to="/vehicles" className="px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm">
           Cancel
         </Link>
@@ -222,6 +218,7 @@ export const EditVehicle = () => {
           <Save className="w-4 h-4" /> Save Changes
         </button>
       </div>
+    </div>
     </div>
   );
 };

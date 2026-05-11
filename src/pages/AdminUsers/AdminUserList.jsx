@@ -122,7 +122,6 @@ export const AdminUserList = () => {
         </div>
         <div className="overflow-x-auto w-full">
           <div className="flex items-center justify-between m-4">
-            {/* Search Bar */}
             <div className="hidden sm:flex flex-1 max-w-xl ml-4 lg:ml-0">
               <div className="relative group w-full">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
@@ -232,7 +231,7 @@ export const AdminUserList = () => {
         onRefresh={fetchUsers}
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div 

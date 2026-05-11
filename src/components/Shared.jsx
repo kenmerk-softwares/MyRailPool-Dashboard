@@ -87,7 +87,6 @@ export const EmptyView = ({ title, subtitle, icon: Icon }) => (
   </div>
 );
 
-// Fallback Activity icon
 export const Activity = (props) => (
   <svg
     {...props}
