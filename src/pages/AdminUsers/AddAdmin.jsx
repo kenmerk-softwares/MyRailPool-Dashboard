@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions'
 import { app, db } from '../../Config/Config'
 import { useToast } from '../../Toast/ToastContext';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 import { X } from 'lucide-react';
 
 export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }) {

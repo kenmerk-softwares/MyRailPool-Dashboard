@@ -3,10 +3,7 @@ const {onCall} = require("firebase-functions/v2/https");
 const {db, auth} = require("../config/config");
 const {adminLogs} = require("../logs/admin-logs");
 
-const addUser = onCall({
-  cors: true,
-  region: "asia-south1",
-}, async (req) => {
+const addUser = onCall(async (req) => {
   try {
     if (!req.auth) {
       return {success: false, error: "Unauthorized"};
@@ -63,6 +60,10 @@ const addUser = onCall({
       return {status: 200, success: true, uid, email};
     } else if (action === "edit") {
       if (!id) return {success: false, error: "Missing user ID"};
+      const currentData = await db.collection("admin-users").doc(id).get();
+      if (!currentData.exists) {
+        return {success: false, error: "User not found"};
+      }
       const updateData = {
         displayName: name,
         email: email,
@@ -71,19 +72,16 @@ const addUser = onCall({
         updateData.password = password;
       }
       await auth.updateUser(id, updateData);
-
-      // Update Firestore
       const payload = {
-        name,
-        email,
-        mobile,
-        permissionId: permissionId || "",
-        designation: designation || "",
-        department: department || "",
+        name: name || currentData.data().name,
+        email: email || currentData.data().email,
+        mobile: mobile || currentData.data().mobile,
+        permissionId: permissionId || currentData.data().permissionId,
+        designation: designation || currentData.data().designation,
+        department: department || currentData.data().department,
         updatedAt: new Date(),
       };
       await db.collection("admin-users").doc(id).update(payload);
-
       await adminLogs(req.auth.uid, req.auth.token.email, "User Updated", `Updated admin user: ${name} (${email})`);
       return {
         status: 200,
@@ -92,13 +90,13 @@ const addUser = onCall({
       };
     } else if (action === "delete") {
       if (!id) return {success: false, error: "Missing user ID"};
-
-      // Delete from Auth
       await auth.deleteUser(id);
-
-      // Delete from Firestore
-      await db.collection("admin-users").doc(id).delete();
-
+      await db.collection("admin-users").doc(id).update({
+        status: "removed",
+        updatedAt: new Date(),
+        deletedAt: new Date(),
+        deletedBy: req.auth.uid,
+      });
       await adminLogs(req.auth.uid, req.auth.token.email, "User Deleted", `Deleted admin user ID: ${id}`);
       return {
         status: 200,
