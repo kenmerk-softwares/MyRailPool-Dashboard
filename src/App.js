@@ -75,7 +75,7 @@ export const routesConfig = [
   { path: '/company-settings', element: <Company/>, permission: '/company-settings'}
 ];
 
-// Derive unique top-level routes with display names for permission management
+
 export const systemRoutes = [...new Map(
   routesConfig
     .filter(r => r.permission)
@@ -89,7 +89,7 @@ function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [allowedRoutes, setAllowedRoutes] = useState(null); // null = loading/legacy, [] = no permissions
 
-  // Auth listener
+  // =================== AUTH LISTENER =================== //
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -98,7 +98,7 @@ function App() {
     return () => unsub();
   }, []);
 
-  // Fetch user's permissions when logged in
+  // =================== FETCH USER'S PERMISSIONS =================== //
   useEffect(() => {
     if (!user) {
       setAllowedRoutes(null);
@@ -121,12 +121,10 @@ function App() {
         const permissionId = userData.permissionId;
 
         if (!permissionId) {
-          // No permissionId → grant all access (fallback for legacy users)
           setAllowedRoutes(null);
           return;
         }
 
-        // Listen to permissions doc in real-time
         const permDocRef = doc(db, 'permissions', permissionId);
         unsubPermissions = onSnapshot(permDocRef, (permSnap) => {
           if (permSnap.exists()) {
@@ -189,11 +187,9 @@ function App() {
 
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
         <Route path="/no-access" element={<NoAccess />} />
-        {/* Logged-in routes with permission check */}
         {user && (
           <>
             {routesConfig.map((route) => {
-              // Skip root — already handled above
               if (route.path === '/') return null;
 
               return (
