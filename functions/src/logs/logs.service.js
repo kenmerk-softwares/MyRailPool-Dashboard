@@ -1,7 +1,8 @@
+/* eslint-disable max-len */
 const {initializeApp, cert, getApps} = require("firebase-admin/app");
 const {getFirestore} = require("firebase-admin/firestore");
-const {getServiceAccountFromEnv} = require("../config/service-account-env");
-const {db} = require("../config/config");
+const {getServiceAccountFromEnv} = require("../shared/config/service-account-env");
+const {db} = require("../shared/config/firebase");
 
 let adminLogDb = null;
 

@@ -3,31 +3,78 @@ import { Search, Clock, ArrowRight } from 'lucide-react';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { SectionHeader } from '../../components/Shared';
 import { adminDb } from '../../Config/Config';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where, limit, startAfter } from 'firebase/firestore';
 
 export default function AdminLogs() {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [lastDoc, setLastDoc] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
+    const PAGE_LIMIT = 20;
 
-    const fetchLogs = async () => {
-        setLoading(true);
+    const fetchLogs = async (isLoadMore = false) => {
+        if (isLoadMore) setLoadingMore(true);
+        else {
+            setLoading(true);
+            setLogs([]);
+            setLastDoc(null);
+        }
+
         try {
-            const q = query(collection(adminDb, 'admin-logs'), orderBy('createdAt', 'desc'));
+            const constraints = [orderBy('createdAt', 'desc'), limit(PAGE_LIMIT)];
+
+            if (fromDate) {
+                constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
+            }
+            if (toDate) {
+                constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
+            }
+            
+            if (searchQuery) {
+                constraints.push(where('email', '==', searchQuery.trim()));
+            }
+
+            if (isLoadMore && lastDoc) {
+                constraints.push(startAfter(lastDoc));
+            }
+
+            const q = query(collection(adminDb, 'admin-logs'), ...constraints);
             const querySnapshot = await getDocs(q);
+            
             const logList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setLogs(logList);
+            
+            if (isLoadMore) {
+                setLogs(prev => [...prev, ...logList]);
+            } else {
+                setLogs(logList);
+            }
+
+            setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] || null);
+            setHasMore(logList.length === PAGE_LIMIT);
         } catch (err) {
             console.error("Error fetching admin logs:", err);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     };
 
     useEffect(() => {
-        fetchLogs();
-    }, []);
+        if (!fromDate && !toDate && !searchQuery) {
+            fetchLogs();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchQuery, fromDate, toDate]);
+
+    const handleSearch = () => {
+        setSearchQuery(searchTerm);
+        fetchLogs(false);
+    };
 
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return { time: 'N/A', date: 'N/A' };
@@ -61,12 +108,22 @@ export default function AdminLogs() {
                             </div>
                             <input
                                 type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="block w-full pl-10 pr-4 py-2 bg-slate-50 border border-transparent rounded-xl text-xs md:text-sm placeholder-slate-400 focus:border-primary-500 focus:bg-white focus:ring focus:ring-primary-500/20 transition-all duration-200"
-                                placeholder="Search logs, admins, actions..."
+                                placeholder="Search by email..."
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             />
                         </div>
 
-                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                        <button 
+                            onClick={handleSearch}
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all active:scale-95 shadow-sm"
+                        >
+                            Search
+                        </button>
+
+                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
                             <FaCalendarAlt className="text-slate-400 text-xs" />
                             <input
                                 type="date"
@@ -82,17 +139,6 @@ export default function AdminLogs() {
                                 className="bg-transparent border-none outline-none text-xs text-slate-600 w-28 focus:ring-0"
                             />
                         </div>
-
-                        {/* <select className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs md:text-sm text-slate-600 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none">
-                            <option value="">All Actions</option>
-                            <option value="create">Created</option>
-                            <option value="update">Updated</option>
-                            <option value="delete">Deleted</option>
-                            <option value="assign">Assigned</option>
-                        </select> */}
-
-                        <button className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm">Clear</button>
-
                     </div>
                 </div>
 
@@ -132,7 +178,7 @@ export default function AdminLogs() {
                                                     <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs mr-3">
                                                         {(log.email || '?').charAt(0).toUpperCase()}
                                                     </div>
-                                                    <span className="text-sm font-medium text-slate-900">{log.uid || 'N/A'}</span>
+                                                    <span className="text-sm font-medium text-slate-900">{log.name || 'N/A'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -158,10 +204,30 @@ export default function AdminLogs() {
                     </table>
                 </div>
 
-                <div className="p-4 md:p-6 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
+                <div className="p-4 md:p-6 bg-slate-50/30 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-xs md:text-sm text-slate-500">
                         Showing <span className="font-semibold text-slate-800">{logs.length}</span> log entries
                     </p>
+                    
+                    {hasMore && (
+                        <button
+                            onClick={() => fetchLogs(true)}
+                            disabled={loadingMore}
+                            className="w-full sm:w-auto px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {loadingMore ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                                    Loading...
+                                </>
+                            ) : (
+                                <>
+                                    Load More Logs
+                                    <ArrowRight className="w-4 h-4" />
+                                </>
+                            )}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

@@ -73,8 +73,28 @@ export const AddTrip = () => {
     driver_cost: '',
     saved_money: '',
     profit: '',
-    co2_saved: ''
+    co2_saved: '',
+    timeSlots: []
   });
+
+  const [currentTime, setCurrentTime] = useState('');
+
+  const handleAddTime = () => {
+    if (currentTime && !formData.timeSlots.includes(currentTime)) {
+      setFormData(prev => ({
+        ...prev,
+        timeSlots: [...prev.timeSlots, currentTime].sort()
+      }));
+      setCurrentTime('');
+    }
+  };
+
+  const handleRemoveTime = (time) => {
+    setFormData(prev => ({
+      ...prev,
+      timeSlots: prev.timeSlots.filter(t => t !== time)
+    }));
+  };
 
   useEffect(() => {
     if (isEdit) {
@@ -518,21 +538,6 @@ export const AddTrip = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4 pt-4 border-t border-slate-50">
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Scheduled Start</label>
-                <div className="relative">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="start_time"
-                    value={formData.start_time}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="HH:MM AM/PM"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Estimated End</label>
                 <div className="relative">
                   <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -544,6 +549,47 @@ export const AddTrip = () => {
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     placeholder="HH:MM AM/PM"
                   />
+                </div>
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip Starting Times</label>
+                <div className="space-y-3">
+                  <div className="relative flex gap-2">
+                    <div className="relative flex-1">
+                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="time"
+                        value={currentTime}
+                        onChange={(e) => setCurrentTime(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddTime}
+                      className="bg-primary-50 text-primary-600 p-2.5 rounded-xl hover:bg-primary-100 transition-all active:scale-95 border border-primary-100"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {formData.timeSlots?.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {formData.timeSlots.map(time => (
+                        <div key={time} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg group animate-in zoom-in duration-200">
+                          <span className="text-xs font-bold text-slate-700">{time}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTime(time)}
+                            className="text-slate-500 hover:text-red-500 transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -561,7 +607,6 @@ export const AddTrip = () => {
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Miles</label>
                 <div className="relative">
