@@ -57,6 +57,7 @@ export const AddTrip = () => {
     trip_date: formatDate(requestData.routeDates?.[0]) || '',
     status: 'PENDING',
     total_bookings: '',
+    route_type:'',
     booking_ids: [],
     stops: [],
     notes: '',
@@ -109,7 +110,7 @@ export const AddTrip = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    
+
     setFormData(prev => {
       const updated = {
         ...prev,
@@ -121,7 +122,7 @@ export const AddTrip = () => {
         if (vehicle) {
           updated.vehicle_reg = vehicle.registration_no;
         }
-        
+
         const driver = driversData.find(d => d.name === value);
         if (driver) {
           updated.driver_lic = driver.dvla_lic || '';
@@ -140,8 +141,8 @@ export const AddTrip = () => {
 
   useEffect(() => {
     if (newBookingId.trim()) {
-      const filtered = bookingsData.filter(b => 
-        b.booking_id.toLowerCase().includes(newBookingId.toLowerCase()) && 
+      const filtered = bookingsData.filter(b =>
+        b.booking_id.toLowerCase().includes(newBookingId.toLowerCase()) &&
         !(formData.booking_ids || []).includes(b.booking_id)
       ).slice(0, 5);
       setFilteredBookings(filtered);
@@ -359,10 +360,20 @@ export const AddTrip = () => {
                   placeholder="0"
                 />
               </div>
-
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
+                <select
+                  name="routeType"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
+                  defaultValue={formData.route_type || "one_way"}
+                >
+                  <option value="one_way">Core route</option>
+                  <option value="circuit">Flexi route</option>
+                </select>
+              </div>
               <div className="space-y-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Booking IDs</label>
-               
+
                 <div className="relative flex gap-2">
                   <div className="relative flex-1">
                     <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -406,7 +417,7 @@ export const AddTrip = () => {
                   {(Array.isArray(formData.booking_ids) ? formData.booking_ids : []).map((id, index) => (
                     <div key={index} className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg border border-primary-100 font-mono text-xs font-bold group transition-all">
                       <Link to={`/bookings/view/${id}`} className="hover:underline">{id}</Link>
-                      <button 
+                      <button
                         onClick={() => removeBookingId(index)}
                         className="p-0.5 hover:bg-primary-100 rounded text-primary-400 hover:text-primary-600 transition-colors"
                       >
@@ -745,25 +756,25 @@ export const AddTrip = () => {
             </div>
           </div>
         </div>
-     
 
-      <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
-        <button
-          onClick={() => {
-            localStorage.removeItem('tripFormDraft');
-            navigate('/trips');
-          }}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
-        >
-          Discard Changes
-        </button>
-        <button
-          onClick={handleSave}
-          className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5"
-        >
-          <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
-        </button>
-      </div>
+
+        <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
+          <button
+            onClick={() => {
+              localStorage.removeItem('tripFormDraft');
+              navigate('/trips');
+            }}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
+          >
+            Discard Changes
+          </button>
+          <button
+            onClick={handleSave}
+            className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5"
+          >
+            <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
+          </button>
+        </div>
       </div>
     </div>
   );

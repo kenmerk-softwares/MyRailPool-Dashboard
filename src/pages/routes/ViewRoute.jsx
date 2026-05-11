@@ -138,21 +138,18 @@ export default function ViewRoute() {
               <div className="space-y-1.5 col-span-1 md:col-span-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Days Operating</label>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {daysOfWeek.map(day => {
-                    const isSelected = selectedDays.includes(day);
-                    return (
+                  {route.operating_dates && route.operating_dates.length > 0 ?
+                    route.operating_dates.map(date => (
                       <span
-                        key={day}
-                        className={`px-2 py-1 rounded-lg text-[12px] font-bold border transition-colors ${
-                          isSelected
-                            ? 'bg-primary-100 border-primary-900 text-primary-900'
-                            : 'bg-slate-50 border-slate-100 text-slate-300'
-                        }`}
+                        key={date}
+                        className="px-2 py-1 bg-primary-50 border border-primary-200 text-primary-700 rounded-lg text-[10px] font-bold"
                       >
-                        {day.slice(0, 3)}
+                        {new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </span>
-                    );
-                  })}
+                    ))
+                    :<>
+                    <span className="text-slate-400 italic text-xs">No operating dates defined</span>
+                    </>}
                 </div>
               </div>
 
