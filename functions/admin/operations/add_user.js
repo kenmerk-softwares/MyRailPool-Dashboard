@@ -1,5 +1,7 @@
+/* eslint-disable max-len */
 const {onCall} = require("firebase-functions/v2/https");
-const {db, auth} = require("../config");
+const {db, auth} = require("../config/config");
+const {adminLogs} = require("../logs/admin-logs");
 
 const addUser = onCall({
   cors: true,
@@ -17,8 +19,8 @@ const addUser = onCall({
       email,
       password,
       mobile,
+      permissionId,
       designation,
-      designationId,
       department,
     } = data;
 
@@ -48,8 +50,8 @@ const addUser = onCall({
         name,
         email,
         mobile,
+        permissionId: permissionId || "",
         designation: designation || "",
-        designationId: designationId || "",
         department: department || "",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -57,11 +59,10 @@ const addUser = onCall({
 
       await db.collection("admin-users").doc(uid).set(payload);
 
+      await adminLogs(req.auth.uid, req.auth.token.email, "User Created", `Created admin user: ${name} (${email})`);
       return {status: 200, success: true, uid, email};
     } else if (action === "edit") {
       if (!id) return {success: false, error: "Missing user ID"};
-
-      // Update Auth
       const updateData = {
         displayName: name,
         email: email,
@@ -76,13 +77,14 @@ const addUser = onCall({
         name,
         email,
         mobile,
+        permissionId: permissionId || "",
         designation: designation || "",
-        designationId: designationId || "",
         department: department || "",
         updatedAt: new Date(),
       };
       await db.collection("admin-users").doc(id).update(payload);
 
+      await adminLogs(req.auth.uid, req.auth.token.email, "User Updated", `Updated admin user: ${name} (${email})`);
       return {
         status: 200,
         success: true,
@@ -97,6 +99,7 @@ const addUser = onCall({
       // Delete from Firestore
       await db.collection("admin-users").doc(id).delete();
 
+      await adminLogs(req.auth.uid, req.auth.token.email, "User Deleted", `Deleted admin user ID: ${id}`);
       return {
         status: 200,
         success: true,
@@ -106,11 +109,35 @@ const addUser = onCall({
       return {success: false, error: "Invalid action"};
     }
   } catch (error) {
-    console.error("🔥 Admin Action Error:", error);
+    console.error("Admin Action Error:", error);
     return {
       success: false,
       error: error.message || "Internal server error",
     };
   }
 });
-module.exports = {addUser};
+const changePassword = onCall({
+  cors: true,
+  region: "asia-south1",
+}, async (req) => {
+  try {
+    if (!req.auth) {
+      return {success: false, error: "Unauthorized"};
+    }
+    const data = req.data || {};
+    const {id, password} = data;
+    if (!id || !password) {
+      return {success: false, error: "Missing required fields"};
+    }
+    await auth.updateUser(id, {password});
+    await adminLogs(req.auth.uid, req.auth.token.email, "Password Changed", `Changed password for user ID: ${id}`);
+    return {status: 200, success: true, message: "Password changed successfully"};
+  } catch (error) {
+    console.error("Change Password Error:", error);
+    return {
+      success: false,
+      error: error.message || "Internal server error",
+    };
+  }
+});
+module.exports = {addUser, changePassword};

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaBuilding, FaUserTie, FaTimes, FaTrash } from 'react-icons/fa';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app, db } from '../../Config/Config';
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../../Config/Config';
 import { useToast } from '../../Toast/ToastContext';
 
 
@@ -98,36 +97,16 @@ function Designation({ isOpen, onClose }) {
 	  setLoading(true);
   
 	  try {
-		const functions = getFunctions(app, "asia-south1");
-		const isUpdating = Boolean(formData.uid);
+		const payload = { designationName: formData.designationName };
   
-		const designationFunction = httpsCallable(
-		  functions,
-		  "manageDesignation"
-		);
+		await addDoc(collection(db, "designations"), payload);
+		
+		showToast("Designation created successfully!", "success");
   
-		const payload = isUpdating
-		  ? { action: "update", id: formData.uid, designationName: formData.designationName }
-		  : { action: "add", designationName: formData.designationName };
-  
-		const result = await designationFunction(payload);
-		const data = result.data || {};
-  
-		if (data.success) {
-		  showToast(
-			isUpdating ? "Designation updated successfully!" : "Designation created successfully!",
-			"success"
-		  );
-  
-		  setFormData({
-			uid: '',
-			designationName: ""
-		  });
-		} else if (data.error) {
-		  setError(data.error);
-		} else {
-		  setError("Failed to save designation.");
-		}
+		setFormData({
+		  uid: '',
+		  designationName: ""
+		});
 	  } catch (err) {
 		console.error("Designation submit error:", err);
 		setError(err.message || "Unexpected error occurred.");
@@ -145,14 +124,8 @@ function Designation({ isOpen, onClose }) {
 	  if (!designationToDelete) return;
 	  setLoading(true);
 	  try {
-		const functions = getFunctions(app, "asia-south1");
-		const deleteFunction = httpsCallable(functions, "manageDesignation");
-		const result = await deleteFunction({ action: "delete", id: designationToDelete.id });
-		if (result.data.success) {
-		  showToast("Designation deleted successfully", "success");
-		} else {
-		  showToast("Failed to delete designation", "error");
-		}
+		await deleteDoc(doc(db, "designations", designationToDelete.id));
+		showToast("Designation deleted successfully", "success");
 	  } catch (error) {
 		console.error("Error deleting designation:", error);
 		showToast("Error deleting designation", "error");
@@ -306,36 +279,16 @@ function DepartmentPopup({ isOpen, onClose }) {
 	  setLoading(true);
   
 	  try {
-		const functions = getFunctions(app, "asia-south1");
-		const isUpdating = Boolean(formData.uid);
+		const payload = { departmentName: formData.departmentName };
   
-		const departmentFunction = httpsCallable(
-		  functions,
-		  "manageDepartment"
-		);
+		await addDoc(collection(db, "departments"), payload);
+		
+		showToast("Department created successfully!", "success");
   
-		const payload = isUpdating
-		  ? { action: "update", id: formData.uid, departmentName: formData.departmentName }
-		  : { action: "add", departmentName: formData.departmentName };
-  
-		const result = await departmentFunction(payload);
-		const data = result.data || {};
-  
-		if (data.success) {
-		  showToast(
-			"Department created successfully!",
-			"success"
-		  );
-  
-		  setFormData({
-			uid: '',
-			departmentName: ""
-		  });
-		} else if (data.error) {
-		  setError(data.error);
-		} else {
-		  setError("Failed to save department.");
-		}
+		setFormData({
+		  uid: '',
+		  departmentName: ""
+		});
 	  } catch (err) {
 		console.error("Department submit error:", err);
 		setError(err.message || "Unexpected error occurred.");
@@ -353,14 +306,8 @@ function DepartmentPopup({ isOpen, onClose }) {
 	  if (!departmentToDelete) return;
 	  setLoading(true);
 	  try {
-		const functions = getFunctions(app, "asia-south1");
-		const deleteFunction = httpsCallable(functions, "manageDepartment");
-		const result = await deleteFunction({ action: "delete", id: departmentToDelete.id });
-		if (result.data.success) {
-		  showToast("Department deleted successfully", "success");
-		} else {
-		  showToast("Failed to delete department", "error");
-		}
+		await deleteDoc(doc(db, "departments", departmentToDelete.id));
+		showToast("Department deleted successfully", "success");
 	  } catch (error) {
 		console.error("Error deleting department:", error);
 		showToast("Error deleting department", "error");

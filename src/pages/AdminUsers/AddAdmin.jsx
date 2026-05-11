@@ -13,7 +13,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 		name: '',
 		email: '',
 		mobile: '',
-		designationId: '',
+		permissionId: '',
 		department: '',
 		password: '',
 		confirmPassword: ''
@@ -21,41 +21,25 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')
-	const [designations, setDesignations] = useState([])
-	const [departments, setDepartments] = useState([])
+	const [permissions, setPermissions] = useState([])
 
-	const fetchDepartments = async () => {
-		const q = query(collection(db, "departments"));
+	const fetchPermissions = async () => {
+		const q = query(collection(db, "permissions"));
 		const unsubscribe = onSnapshot(q, (snapshot) => {
 			const items = snapshot.docs.map(doc => ({
 				id: doc.id,
 				...doc.data()
 			}));
-			setDepartments(items);
+			setPermissions(items);
 		}, (err) => {
-			console.error("Error fetching departments:", err);
-		});
-		return () => unsubscribe();
-	}
-
-	const fetchDesignations = async () => {
-		const q = query(collection(db, "designations"), orderBy("designationName"));
-		const unsubscribe = onSnapshot(q, (snapshot) => {
-			const items = snapshot.docs.map(doc => ({
-				id: doc.id,
-				...doc.data()
-			}));
-			setDesignations(items);
-		}, (err) => {
-			console.error("Error fetching designations:", err);
+			console.error("Error fetching permissions:", err);
 		});
 		return () => unsubscribe();
 	}
 
 	useEffect(() => {
 		if (isOpen) {
-			fetchDepartments();
-			fetchDesignations();
+			fetchPermissions();
 
 			if (editData) {
 				setFormData({
@@ -63,7 +47,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 					name: editData.name || '',
 					email: editData.email || '',
 					mobile: editData.mobile || '',
-					designationId: editData.designationId || '',
+					permissionId: editData.permissionId || '',
 					department: editData.department || '',
 					password: '',
 					confirmPassword: '',
@@ -74,7 +58,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 					name: '',
 					email: '',
 					mobile: '',
-					designationId: '',
+					permissionId: '',
 					department: '',
 					password: '',
 					confirmPassword: '',
@@ -85,28 +69,36 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 
 	const handleChange = (e) => {
 		const { name, value } = e.target
-		setFormData(prev => ({
-			...prev,
-			[name]: value
-		}))
+		if (name === 'permissionId') {
+			const selectedPerm = permissions.find(p => p.id === value);
+			setFormData(prev => ({
+				...prev,
+				permissionId: value,
+				department: selectedPerm?.departmentName || '',
+			}))
+		} else {
+			setFormData(prev => ({
+				...prev,
+				[name]: value
+			}))
+		}
 	}
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
 
-		if (formData.password || formData.confirmPassword) {
+		if (!editData) {
 			if (formData.password !== formData.confirmPassword) {
 				setError("Passwords do not match");
 				setLoading(false);
 				return;
 			}
-		}
-
-		if (!editData && (!formData.password || !formData.email || !formData.name)) {
-			setError("Please fill all required fields");
-			setLoading(false);
-			return;
+			if (!formData.password || !formData.email || !formData.name) {
+				setError("Please fill all required fields");
+				setLoading(false);
+				return;
+			}
 		}
 
 		setLoading(true);
@@ -114,7 +106,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 		try {
 			const functions = getFunctions(app, "asia-south1");
 			const manageAdmin = httpsCallable(functions, "addUser");
-			const selectedDesig = designations.find((d) => d.id === formData.designationId);
+			const selectedPerm = permissions.find((d) => d.id === formData.permissionId);
 
 			const payload = {
 				action: editData ? "edit" : "add",
@@ -122,12 +114,12 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 				name: formData.name,
 				email: formData.email,
 				mobile: formData.mobile,
-				designation: selectedDesig?.designationName || "",
-				designationId: formData.designationId,
+				permissionId: formData.permissionId,
+				designation: selectedPerm?.designationName || editData?.designation || "",
 				department: formData.department,
 			};
 
-			if (formData.password) {
+			if (!editData && formData.password) {
 				payload.password = formData.password;
 			}
 
@@ -235,20 +227,20 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 						</div>
 
 						<div className="flex flex-col items-start w-full">
-							<label htmlFor="designationId" className="mb-2 text-sm font-semibold text-slate-700">
-								Designation
+							<label htmlFor="permissionId" className="mb-2 text-sm font-semibold text-slate-700">
+								Permission Model
 							</label>
 							<select
-								id="designationId"
-								name="designationId"
+								id="permissionId"
+								name="permissionId"
 								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all bg-white text-sm"
-								value={formData.designationId}
+								value={formData.permissionId}
 								onChange={handleChange}
 							>
-								<option value="">Select Designation</option>
-								{designations.map((desig) => (
-									<option key={desig.id} value={desig.id}>
-										{desig.designationName}
+								<option value="">Select Permission Model</option>
+								{permissions.map((perm) => (
+									<option key={perm.id} value={perm.id}>
+										{perm.permissionName}
 									</option>
 								))}
 							</select>
@@ -258,53 +250,67 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 							<label htmlFor="department" className="mb-2 text-sm font-semibold text-slate-700">
 								Department
 							</label>
-							<select
+							<input
+								type="text"
 								id="department"
 								name="department"
-								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all bg-white text-sm"
+								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 outline-none transition-all text-sm cursor-not-allowed"
 								value={formData.department}
-								onChange={handleChange}
-							>
-								<option value="">Select Department</option>
-								{departments.map((dept) => (
-									<option key={dept.id} value={dept.departmentName}>
-										{dept.departmentName}
-									</option>
-								))}
-							</select>
-						</div>
-
-						<div className="flex flex-col items-start w-full">
-							<label htmlFor="password" className="mb-2 text-sm font-semibold text-slate-700">
-								Password {editData ? "(Leave blank to keep current)" : <span className="text-red-500">*</span>}
-							</label>
-							<input
-								type="password"
-								id="password"
-								name="password"
-								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-400 text-sm"
-								value={formData.password}
-								onChange={handleChange}
-								placeholder="••••••••"
-								required={!editData}
+								readOnly
+								placeholder="Auto-filled from Permission Model"
 							/>
 						</div>
 
 						<div className="flex flex-col items-start w-full">
-							<label htmlFor="confirmPassword" className="mb-2 text-sm font-semibold text-slate-700">
-								Confirm Password {editData ? "(Leave blank to keep current)" : <span className="text-red-500">*</span>}
+							<label htmlFor="designationId" className="mb-2 text-sm font-semibold text-slate-700">
+								Designation
 							</label>
 							<input
-								type="password"
-								id="confirmPassword"
-								name="confirmPassword"
-								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-400 text-sm"
-								value={formData.confirmPassword}
-								onChange={handleChange}
-								placeholder="••••••••"
-								required={!editData}
+								type="text"
+								id="designationId"
+								name="designation"
+								className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 outline-none transition-all text-sm cursor-not-allowed"
+								value={permissions.find(p => p.id === formData.permissionId)?.designationName || (editData ? editData.designation : '') || ''}
+								readOnly
+								placeholder="Auto-filled from Permission Model"
 							/>
 						</div>
+
+						{!editData && (
+							<>
+								<div className="flex flex-col items-start w-full">
+									<label htmlFor="password" className="mb-2 text-sm font-semibold text-slate-700">
+										Password <span className="text-red-500">*</span>
+									</label>
+									<input
+										type="password"
+										id="password"
+										name="password"
+										className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-400 text-sm"
+										value={formData.password}
+										onChange={handleChange}
+										placeholder="••••••••"
+										required
+									/>
+								</div>
+
+								<div className="flex flex-col items-start w-full">
+									<label htmlFor="confirmPassword" className="mb-2 text-sm font-semibold text-slate-700">
+										Confirm Password <span className="text-red-500">*</span>
+									</label>
+									<input
+										type="password"
+										id="confirmPassword"
+										name="confirmPassword"
+										className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-400 text-sm"
+										value={formData.confirmPassword}
+										onChange={handleChange}
+										placeholder="••••••••"
+										required
+									/>
+								</div>
+							</>
+						)}
 
 						{error && <div className="text-red-500 text-xs font-medium col-span-full bg-red-50 p-3 rounded-lg border border-red-100">{error}</div>}
 

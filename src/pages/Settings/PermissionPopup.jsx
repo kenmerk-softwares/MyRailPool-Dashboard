@@ -1,31 +1,36 @@
 import React, { useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../../Config/Config';
+import { useToast } from '../../Toast/ToastContext';
 
-const systemRoutes = [
-	{ name: 'Dashboard', path: '/' },
-	{ name: 'Bookings', path: '/bookings' },
-	{ name: 'Trips', path: '/trips' },
-	{ name: 'Routes', path: '/routes' },
-	{ name: 'Drivers', path: '/drivers' },
-	{ name: 'Vehicles', path: '/vehicles' },
-	{ name: 'Notifications', path: '/notifications' },
-	{ name: 'Admin Users', path: '/admin-users' },
-	{ name: 'Admin Settings', path: '/admin-settings' },
-];
+import { systemRoutes } from '../../App';
 
 export const PermissionPopup = ({ isOpen, onClose }) => {
+	const { showToast } = useToast();
+	const [permissionName, setPermissionName] = React.useState('');
+	const [selectedDepartment, setSelectedDepartment] = React.useState('');
 	const [selectedDesignation, setSelectedDesignation] = React.useState('');
-	const [allRoutes, setAllRoutes] = React.useState(systemRoutes);
 	const [currentDesignationRoutes, setCurrentDesignationRoutes] = React.useState([]);
 	const [saving, setSaving] = React.useState(false);
+	const [departments, setDepartments] = React.useState([]);
 	const [designations, setDesignations] = React.useState([]);
 	useEffect(() => {
 		if (!isOpen) return;
 
-		const q = query(collection(db, "designations"), orderBy("designationName"));
-		const unsubscribe = onSnapshot(q, (snapshot) => {
+		const qDept = query(collection(db, "departments"), orderBy("departmentName"));
+		const unsubscribeDept = onSnapshot(qDept, (snapshot) => {
+			const items = snapshot.docs.map(doc => ({
+				id: doc.id,
+				...doc.data()
+			}));
+			setDepartments(items);
+		}, (err) => {
+			console.error("Error fetching departments:", err);
+		});
+
+		const qDesig = query(collection(db, "designations"), orderBy("designationName"));
+		const unsubscribeDesig = onSnapshot(qDesig, (snapshot) => {
 			const items = snapshot.docs.map(doc => ({
 				id: doc.id,
 				...doc.data()
@@ -35,10 +40,13 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 			console.error("Error fetching designations:", err);
 		});
 
-		return () => unsubscribe();
+		return () => {
+			unsubscribeDept();
+			unsubscribeDesig();
+		};
 	}, [isOpen]);
 	const handleSelectAll = () => {
-		const allPaths = allRoutes.map(r => r.path);
+		const allPaths = systemRoutes.map(r => r.path);
 		if (currentDesignationRoutes.length === allPaths.length) {
 			setCurrentDesignationRoutes([]);
 		} else {
@@ -55,14 +63,25 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 	};
 
 	const handleSave = () => {
+		const ref = collection(db, "permissions");
 		setSaving(true);
-		// Here you would save the permissions to your backend
-		console.log('Saving permissions for designation:', selectedDesignation);
-		console.log('Permissions:', currentDesignationRoutes);
-		setTimeout(() => {
+		addDoc(ref, {
+			permissionName: permissionName,
+			departmentId: selectedDepartment,
+			departmentName: departments.find(d => d.id === selectedDepartment)?.departmentName || '',
+			designationId: selectedDesignation,
+			designationName: designations.find(d => d.id === selectedDesignation)?.designationName || '',
+			permissions: currentDesignationRoutes,
+			createdAt: new Date(),
+		}).then(() => {
 			setSaving(false);
+			showToast("Permissions saved successfully!", "success");
 			onClose();
-		}, 1000);
+		}).catch((err) => {
+			setSaving(false);
+			showToast("Error saving permissions", "error");
+			console.error(err);
+		});
 	};
 	if (!isOpen) return null;
 
@@ -78,21 +97,48 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 
 				<div className="flex-1 overflow-y-hidden">
 
-					<div className="mb-6">
-						<label className="block mb-2 text-slate-600 font-medium">Select Designation</label>
-						<select
-							className="w-full p-3 border border-slate-200 rounded-lg bg-white text-base text-slate-800 outline-none focus:border-indigo-500"
-							value={selectedDesignation}
-							onChange={(e) => setSelectedDesignation(e.target.value)}
-						>
-							<option value="">-- Choose Designation --</option>
-							{designations.map(desig => (
-								<option key={desig.id} value={desig.id}>{desig.designationName}</option>
-							))}
-						</select>
+					<div className="mb-4">
+						<label className="block mb-2 text-slate-600 font-medium">Permission Name</label>
+						<input
+							type="text"
+							className="w-full p-3 border border-slate-200 rounded-lg bg-white text-base text-slate-800 outline-none focus:border-indigo-500 placeholder:text-slate-400"
+							placeholder="e.g. Manager Access, Viewer Access"
+							value={permissionName}
+							onChange={(e) => setPermissionName(e.target.value)}
+						/>
 					</div>
 
-					{selectedDesignation && (
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+						<div>
+							<label className="block mb-2 text-slate-600 font-medium">Select Department</label>
+							<select
+								className="w-full p-3 border border-slate-200 rounded-lg bg-white text-base text-slate-800 outline-none focus:border-indigo-500"
+								value={selectedDepartment}
+								onChange={(e) => setSelectedDepartment(e.target.value)}
+							>
+								<option value="">-- Choose Department --</option>
+								{departments.map(dept => (
+									<option key={dept.id} value={dept.id}>{dept.departmentName}</option>
+								))}
+							</select>
+						</div>
+
+						<div>
+							<label className="block mb-2 text-slate-600 font-medium">Select Designation</label>
+							<select
+								className="w-full p-3 border border-slate-200 rounded-lg bg-white text-base text-slate-800 outline-none focus:border-indigo-500"
+								value={selectedDesignation}
+								onChange={(e) => setSelectedDesignation(e.target.value)}
+							>
+								<option value="">-- Choose Designation --</option>
+								{designations.map(desig => (
+									<option key={desig.id} value={desig.id}>{desig.designationName}</option>
+								))}
+							</select>
+						</div>
+					</div>
+
+					{selectedDepartment && selectedDesignation && (
 						<div className="space-y-4">
 							<div className="flex justify-between items-center mb-4">
 								<label className="m-0 text-slate-600 font-medium">
@@ -103,11 +149,11 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 									onClick={handleSelectAll}
 									className="bg-transparent border-none text-emerald-500 cursor-pointer font-semibold text-sm hover:text-indigo-700 transition-colors"
 								>
-									{allRoutes.every(r => currentDesignationRoutes.includes(r.path)) ? 'Deselect All' : 'Select All'}
+									{systemRoutes.every(r => currentDesignationRoutes.includes(r.path)) ? 'Deselect All' : 'Select All'}
 								</button>
 							</div>
 							<div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 overflow-y-auto pr-2 max-h-[400px]">
-								{allRoutes.map((route, index) => (
+								{systemRoutes.map((route, index) => (
 									<label key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-slate-100">
 										<input
 											type="checkbox"
@@ -122,9 +168,9 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 						</div>
 					)}
 
-					{!selectedDesignation && (
+					{(!selectedDepartment || !selectedDesignation) && (
 						<div className="text-center text-slate-400 py-8">
-							Please select a designation to configure permissions.
+							Please select a department and designation to configure permissions.
 						</div>
 					)}
 
@@ -134,7 +180,7 @@ export const PermissionPopup = ({ isOpen, onClose }) => {
 					<button className="bg-white border border-slate-200 text-slate-500 px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300" onClick={onClose}>
 						Close
 					</button>
-					{selectedDesignation && (
+					{selectedDepartment && selectedDesignation && permissionName && (
 						<button
 							className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-emerald-700 disabled:bg-emerald-300"
 							onClick={handleSave}

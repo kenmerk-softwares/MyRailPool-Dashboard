@@ -75,6 +75,15 @@ export const routesConfig = [
   { path: '/company-settings', element: <Company/>, permission: '/company-settings'}
 ];
 
+// Derive unique top-level routes with display names for permission management
+export const systemRoutes = [...new Map(
+  routesConfig
+    .filter(r => r.permission)
+    .map(r => [r.permission, {
+      name: r.permission.substring(1).split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+      path: r.permission,
+    }])
+).values()];
 function App() {
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -109,20 +118,20 @@ function App() {
         }
 
         const userData = userDocSnap.data();
-        const designationId = userData.designationId;
+        const permissionId = userData.permissionId;
 
-        if (!designationId) {
-          // No designationId → grant all access (fallback for legacy users)
+        if (!permissionId) {
+          // No permissionId → grant all access (fallback for legacy users)
           setAllowedRoutes(null);
           return;
         }
 
         // Listen to permissions doc in real-time
-        const permDocRef = doc(db, 'permissions', designationId);
+        const permDocRef = doc(db, 'permissions', permissionId);
         unsubPermissions = onSnapshot(permDocRef, (permSnap) => {
           if (permSnap.exists()) {
             const permData = permSnap.data();
-            setAllowedRoutes(permData.allowedRoutes || []);
+            setAllowedRoutes(permData.permissions || []);
           } else {
             setAllowedRoutes([]);
           }
@@ -172,6 +181,7 @@ function App() {
                     ? route.element
                     : <NoAccess />
                 }
+                
               />
             );
           })}

@@ -1,19 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Clock, ArrowRight } from 'lucide-react';
 import { FaCalendarAlt } from 'react-icons/fa';
-import { SectionHeader, StatusBadge } from '../../components/Shared';
-
-const adminLogsMockData = [
-    { id: 1, user: 'Super Admin', email: "superadmin@gmail.com", action: 'Trip Created', details: 'Manual trip creation for Route #102', time: '10:00 AM', date: 'Mar 30, 2024', status: 'Approved', statusColor: 'success' },
-    { id: 2, user: 'Admin User', email: "admin@gmail.com", action: 'Booking Cancelled', details: 'Booking #BK-4521 cancelled by operator', time: '11:30 AM', date: 'Mar 30, 2024', status: 'Declined', statusColor: 'danger' },
-    { id: 3, user: 'Super Admin', email: "superadmin@gmail.com", action: 'Driver Assigned', details: 'Driver John Doe assigned to Trip #TR-88', time: '02:15 PM', date: 'Mar 30, 2024', status: 'Completed', statusColor: 'success' },
-    { id: 4, user: 'Manager', email: "manager@gmail.com", action: 'Profile Updated', details: 'Vehicle #UP-32-AB-1234 maintenance logs updated', time: '04:45 PM', date: 'Mar 29, 2024', status: 'Approved', statusColor: 'success' },
-    { id: 5, user: 'Super Admin', email: "superadmin@gmail.com", action: 'Settings Changed', details: 'System backup schedule updated to daily', time: '09:00 AM', date: 'Mar 29, 2024', status: 'Pending', statusColor: 'warning' },
-];
+import { SectionHeader } from '../../components/Shared';
+import { adminDb } from '../../Config/Config';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 export default function AdminLogs() {
-    const [fromDate, setFromDate] = React.useState('');
-    const [toDate, setToDate] = React.useState('');
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchLogs = async () => {
+        setLoading(true);
+        try {
+            const q = query(collection(adminDb, 'admin-logs'), orderBy('createdAt', 'desc'));
+            const querySnapshot = await getDocs(q);
+            const logList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setLogs(logList);
+        } catch (err) {
+            console.error("Error fetching admin logs:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchLogs();
+    }, []);
+
+    const formatTimestamp = (timestamp) => {
+        if (!timestamp) return { time: 'N/A', date: 'N/A' };
+        const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
+        return {
+            time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            date: date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
+        };
+    };
 
     return (
         <div className="p-4 md:p-6 lg:p-8">
@@ -79,66 +102,68 @@ export default function AdminLogs() {
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr className="bg-slate-50/50">
-                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Administrator</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Sl No</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Name</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Email</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Action Type</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Details</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Timestamp</th>
-                                {/* <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100">Status</th> */}
-                                {/* <th className="px-6 py-4 text-xs font-semibold text-slate-500 tracking-wider uppercase border-b border-slate-100 text-right">Actions</th> */}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {adminLogsMockData.map((log) => (
-                                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs mr-3">
-                                                {log.user.charAt(0)}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-medium text-slate-900">{log.user}</span>
-                                                <span className="text-xs text-slate-500">{log.email}</span>
-                                            </div>
-                                        </div>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-sm text-slate-400">
+                                        Loading logs...
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">
-                                            {log.action}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <p className="text-sm text-slate-600 max-w-xs md:max-w-md truncate">{log.details}</p>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-xs text-slate-900 font-medium">{log.time}</div>
-                                        <div className="text-[10px] text-slate-400 mt-0.5">{log.date}</div>
-                                    </td>
-                                    {/* <td className="px-6 py-4 whitespace-nowrap">
-                                        <StatusBadge status={log.status} statusColor={log.statusColor} />
-                                    </td> */}
-                                    {/* <td className="px-6 py-4 text-right">
-                                        <button className="text-slate-400 hover:text-primary-600 p-1.5 rounded-lg hover:bg-primary-50 transition-colors">
-                                            <MoreVertical className="w-4 h-4" />
-                                        </button>
-                                    </td> */}
                                 </tr>
-                            ))}
+                            ) : logs.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-sm text-slate-400">
+                                        No admin logs found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                logs.map((log, idx) => {
+                                    const { time, date } = formatTimestamp(log.createdAt);
+                                    return (
+                                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-4 whitespace-nowrap text-xs md:text-sm font-medium text-slate-500">{idx + 1}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs mr-3">
+                                                        {(log.email || '?').charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span className="text-sm font-medium text-slate-900">{log.uid || 'N/A'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="text-xs text-slate-600">{log.email || 'N/A'}</span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">
+                                                    {log.action || 'N/A'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <p className="text-sm text-slate-600 max-w-xs md:max-w-md truncate">{log.description || 'N/A'}</p>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-xs text-slate-900 font-medium">{time}</div>
+                                                <div className="text-[10px] text-slate-400 mt-0.5">{date}</div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 <div className="p-4 md:p-6 bg-slate-50/30 border-t border-slate-100 flex items-center justify-between">
                     <p className="text-xs md:text-sm text-slate-500">
-                        Showing <span className="font-semibold text-slate-800">5</span> of <span className="font-semibold text-slate-800">50</span> log entries
+                        Showing <span className="font-semibold text-slate-800">{logs.length}</span> log entries
                     </p>
-                    <div className="flex items-center gap-2">
-                        <button className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors" disabled>
-                            Previous
-                        </button>
-                        <button className="px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
-                            Next
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
