@@ -42,16 +42,19 @@ export const useUsers = () => {
                 dispatch(setUsers([...users, ...usersData]));
             } else {
                 dispatch(setUsers(usersData));
+                setLastVisible(null);
             }
 
-            setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+            const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+            setLastVisible(lastDoc);
             setHasMore(querySnapshot.docs.length === 10);
         } catch (error) {
             console.error("Error fetching users:", error);
         } finally {
             dispatch(setLoading(false));
         }
-    }, [dispatch, lastVisible, users]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch, lastVisible]);
 
     const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);
 

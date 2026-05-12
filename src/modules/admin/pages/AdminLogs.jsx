@@ -1,79 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Search, Clock, ArrowRight } from 'lucide-react';
 import { FaCalendarAlt } from 'react-icons/fa';
-import { SectionHeader } from '../../components/Shared';
-import { adminDb } from '../../Config/Config';
-import { collection, getDocs, query, orderBy, where, limit, startAfter } from 'firebase/firestore';
+import { SectionHeader } from '../../../components/Shared';
+import { adminDb } from '../../../Config/Config';
+import { where, orderBy } from 'firebase/firestore';
+import { useCollection } from '../../../shared/hooks/useCollection';
 
 export default function AdminLogs() {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-    const [logs, setLogs] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [lastDoc, setLastDoc] = useState(null);
-    const [hasMore, setHasMore] = useState(true);
-    const PAGE_LIMIT = 20;
+    const { data: logs, loading, hasMore, fetchData } = useCollection('admin-logs', { 
+        pageSize: 20, 
+        dbInstance: adminDb 
+    });
 
-    const fetchLogs = async (isLoadMore = false) => {
-        if (isLoadMore) setLoadingMore(true);
-        else {
-            setLoading(true);
-            setLogs([]);
-            setLastDoc(null);
+    const getConstraints = useCallback(() => {
+        const constraints = [orderBy('createdAt', 'desc')];
+        if (fromDate) {
+            constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
         }
-
-        try {
-            const constraints = [orderBy('createdAt', 'desc'), limit(PAGE_LIMIT)];
-
-            if (fromDate) {
-                constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
-            }
-            if (toDate) {
-                constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
-            }
-            
-            if (searchQuery) {
-                constraints.push(where('email', '==', searchQuery.trim()));
-            }
-
-            if (isLoadMore && lastDoc) {
-                constraints.push(startAfter(lastDoc));
-            }
-
-            const q = query(collection(adminDb, 'admin-logs'), ...constraints);
-            const querySnapshot = await getDocs(q);
-            
-            const logList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-            if (isLoadMore) {
-                setLogs(prev => [...prev, ...logList]);
-            } else {
-                setLogs(logList);
-            }
-
-            setLastDoc(querySnapshot.docs[querySnapshot.docs.length - 1] || null);
-            setHasMore(logList.length === PAGE_LIMIT);
-        } catch (err) {
-            console.error("Error fetching admin logs:", err);
-        } finally {
-            setLoading(false);
-            setLoadingMore(false);
+        if (toDate) {
+            constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
         }
-    };
+        if (searchQuery) {
+            constraints.push(where('email', '==', searchQuery.trim()));
+        }
+        return constraints;
+    }, [fromDate, toDate, searchQuery]);
 
     useEffect(() => {
-        if (!fromDate && !toDate && !searchQuery) {
-            fetchLogs();
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchQuery, fromDate, toDate]);
+        fetchData({ constraints: getConstraints() });
+    }, [fetchData, getConstraints]);
 
     const handleSearch = () => {
         setSearchQuery(searchTerm);
-        fetchLogs(false);
+    };
+
+    const handleLoadMore = () => {
+        fetchData({ 
+            constraints: getConstraints(), 
+            isLoadMore: true 
+        });
     };
 
     const formatTimestamp = (timestamp) => {
@@ -211,11 +180,11 @@ export default function AdminLogs() {
                     
                     {hasMore && (
                         <button
-                            onClick={() => fetchLogs(true)}
-                            disabled={loadingMore}
+                            onClick={handleLoadMore}
+                            disabled={loading}
                             className="w-full sm:w-auto px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                            {loadingMore ? (
+                            {loading ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
                                     Loading...

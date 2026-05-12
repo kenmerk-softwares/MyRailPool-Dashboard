@@ -17,7 +17,7 @@ import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 import { app, GOOGLE_MAPS_API_KEY } from '../../Config/Config';
 import { httpsCallable, getFunctions } from 'firebase/functions';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../../hooks/ToastContext';
+import { useToast } from '../../shared/hooks/ToastContext';
 
 const LIBRARIES = ['places'];
 

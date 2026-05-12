@@ -53,3 +53,15 @@
     background: rgba(255, 255, 255, 0.2);
   }
 }
+
+/* Premium Loading Bar Animation */
+@keyframes premium-loading {
+  0% { transform: scaleX(0); transform-origin: left; }
+  45% { transform: scaleX(1); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+.animate-premium-loading {
+  animation: premium-loading 1.5s ease-in-out infinite;
+}

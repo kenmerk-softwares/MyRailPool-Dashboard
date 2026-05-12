@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, AlertTriangle, X, KeyRound } from 'lucide-react';
 import { SectionHeader } from '../../../components/Shared';
 import AddAdmin from './AddAdmin';
-import { useToast } from '../../../hooks/ToastContext';
+import { useToast } from '../../../shared/hooks/ToastContext';
 import { Filter } from '../../../Filter/Filter';
 import { useUsers } from '../hooks/user.useUsers';
-import { userAPI } from '../services/user.api';
+import { FunctionsAPI } from '../../../shared/services/functions.api';
 
 export const AdminUserList = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -40,7 +40,7 @@ export const AdminUserList = () => {
 
     setLoading(true);
     try {
-      const res = await userAPI.addAdminUser({ action: "delete", id: userToDelete.id });
+      const res = await FunctionsAPI.addAdminUser({ action: "delete", id: userToDelete.id });
       if (res?.success) {
         fetchUsers({ searchQuery, activeFilter });
         alert("User deleted successfully");
@@ -75,7 +75,7 @@ export const AdminUserList = () => {
 
     setPasswordLoading(true);
     try {
-      const res = await userAPI.changePassword({ id: passwordUser.id, password: newPassword });
+      const res = await FunctionsAPI.changePassword({ id: passwordUser.id, password: newPassword });
       if (res?.success) {
         showToast("Password changed successfully!", "success");
         setIsPasswordModalOpen(false);

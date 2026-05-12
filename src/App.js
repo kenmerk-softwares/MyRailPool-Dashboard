@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, {  useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { auth, db } from './Config/Config';
+import { useDispatch, useSelector } from 'react-redux';
+import { listenToAuth } from './modules/auth/auth.listner';
 import { Layout } from './components/Layout';
 import { BookingList } from './modules/bookings/BookingList';
 import { AddBooking } from './modules/bookings/AddBooking';
@@ -13,7 +12,7 @@ import { AddTrip } from './modules/trips/AddTrip';
 import { ViewTrip } from './modules/trips/ViewTrip';
 import { RouteList } from './modules/routes/RouteList';
 import { AddRoute } from './modules/routes/AddRoute';
-import ViewRoute from './modules/routes/ViewRoute';
+import ViewRoute from './modules/routes/ViewRoute'; 
 import { DriverList } from './modules/drivers/DriverList';
 import { AddDriver } from './modules/drivers/AddDriver';
 import { EditDriver } from './modules/drivers/EditDriver';
@@ -26,14 +25,14 @@ import { Dashboard } from './modules/dashboard/Dashboard';
 import { AdminUserList } from './modules/user/pages/AdminUserList';
 import { AdminSettings } from './pages/Settings/AdminSettings';
 import ViewDriver from './modules/drivers/ViewDriver';
-import Login from './modules/auth/Login';
+import Login from './modules/auth/pages/Login';
 import NoAccess from './utils/NoAccess';
-import AdminLogs from './modules/admin/AdminLogs';
+import AdminLogs from './modules/admin/pages/AdminLogs';
 import RouteReq from './pages/RouteReq/RouteReq';
-import { ToastProvider } from './hooks/ToastContext';
+import { ToastProvider } from './shared/hooks/ToastContext';
 import Settings from './pages/Settings/Settings';
 import Company from './pages/Settings/Company';
-import Payment from './modules/payment/Payment';
+import Loading from './utils/Loading';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -57,7 +56,7 @@ export const routesConfig = [
   { path: '/vehicles/add', element: <AddVehicle />, permission: '/vehicles' },
   { path: '/vehicles/edit/:id', element: <EditVehicle />, permission: '/vehicles' },
   { path: '/vehicles/view/:id', element: <ViewVehicle />, permission: '/vehicles' },
-  { path: '/payment', element: <Payment />, permission: '/payment' },
+  // { path: '/payment', element: <Payment />, permission: '/payment' },
   { path: '/route-req', element: <RouteReq />, permission: '/route-req' },
   { path: '/notifications', element: <NotificationList />, permission: '/notifications' },
   { path: '/admin-users', element: <AdminUserList />, permission: '/admin-users' },
@@ -77,70 +76,20 @@ export const systemRoutes = [...new Map(
     }])
 ).values()];
 function App() {
-  const [user, setUser] = useState(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [allowedRoutes, setAllowedRoutes] = useState(null); // null = loading/legacy, [] = no permissions
+  const dispatch = useDispatch();
+  
+  // Get Auth state from Redux
+  const { 
+    user, 
+    permissions: allowedRoutes, 
+    loading: checkingAuth, 
+    isAuthenticated 
+  } = useSelector((state) => state.auth);
 
   // =================== AUTH LISTENER =================== //
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setCheckingAuth(false);
-    });
-    return () => unsub();
-  }, []);
-
-  // =================== FETCH USER'S PERMISSIONS =================== //
-  useEffect(() => {
-    if (!user) {
-      setAllowedRoutes(null);
-      return;
-    }
-
-    let unsubPermissions = null;
-
-    const fetchPermissions = async () => {
-      try {
-        const userDocRef = doc(db, 'admin-users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (!userDocSnap.exists()) {
-          setAllowedRoutes([]);
-          return;
-        }
-
-        const userData = userDocSnap.data();
-        const permissionId = userData.permissionId;
-
-        if (!permissionId) {
-          setAllowedRoutes(null);
-          return;
-        }
-
-        const permDocRef = doc(db, 'permissions', permissionId);
-        unsubPermissions = onSnapshot(permDocRef, (permSnap) => {
-          if (permSnap.exists()) {
-            const permData = permSnap.data();
-            setAllowedRoutes(permData.permissions || []);
-          } else {
-            setAllowedRoutes([]);
-          }
-        }, (err) => {
-          console.error("Error fetching permissions:", err);
-          setAllowedRoutes(null);
-        });
-      } catch (error) {
-        console.error("Error fetching user permissions:", error);
-        setAllowedRoutes(null);
-      }
-    };
-
-    fetchPermissions();
-
-    return () => {
-      if (unsubPermissions) unsubPermissions();
-    };
-  }, [user]);
+    listenToAuth(dispatch);
+  }, [dispatch]);
 
   const isRouteAllowed = (permission) => {
     if (permission === null) return true;
@@ -148,19 +97,19 @@ function App() {
     return allowedRoutes.includes(permission);
   };
 
-  if (checkingAuth) return null;
+  if (checkingAuth) return <Loading message= "Loading data's & Initializing " />;
 
   return (
     <ToastProvider>
       <Routes>
         <Route
           path="/"
-          element={user ? <Layout /> : <Login />}
+          element={isAuthenticated ? <Layout /> : <Login />}
         >
           <Route index element={<Dashboard />} />
 
           {/* Logged-in routes with permission check */}
-          {user && routesConfig.map((route) => {
+          {isAuthenticated && routesConfig.map((route) => {
             if (route.path === '/') return null;
             return (
               <Route

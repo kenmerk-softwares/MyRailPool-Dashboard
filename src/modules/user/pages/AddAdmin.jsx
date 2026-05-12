@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../Config/Config'
-import { useToast } from '../../../hooks/ToastContext';
+import { useToast } from '../../../shared/hooks/ToastContext';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { X } from 'lucide-react';
-import { userAPI } from '../services/user.api';
+import { FunctionsAPI } from '../../../shared/services/functions.api';
 
 export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }) {
 	const { showToast } = useToast();
@@ -120,7 +120,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 				payload.password = formData.password;
 			}
 
-			const data = await userAPI.addAdminUser(payload);
+			const data = await FunctionsAPI.addAdminUser(payload);
 
 			if (data.success === true) {
 				showToast(editData ? "Admin updated successfully!" : "Admin created successfully!", "success");

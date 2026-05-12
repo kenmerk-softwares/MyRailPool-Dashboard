@@ -4,7 +4,7 @@ import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash, FaEdit, FaUserSl
 import { collection, onSnapshot, query, orderBy, addDoc} from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../Config/Config';
-import { useToast } from '../../hooks/ToastContext';
+import { useToast } from '../../shared/hooks/ToastContext';
 
 export const AdminSettings = () => {
 	const { showToast } = useToast();

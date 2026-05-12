@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo.svg';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { useToast } from '../../hooks/ToastContext';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../../Config/Config';
+import logo from '../../../assets/logo.svg';
+import { useToast } from '../../../shared/hooks/ToastContext';
+import { adminLogin } from '../services/auth.api';
 
 export default function Login() {
     const { showToast } = useToast();
@@ -23,40 +21,18 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         try {
-            const userCredential = await signInWithEmailAndPassword(
-                auth,
-                formData.email,
-                formData.password
-            );
-            const user = userCredential.user;
-            const adminRef = doc(db, 'admin-users', user.uid);
-            const adminSnap = await getDoc(adminRef);
+            const res = await adminLogin(formData.email, formData.password);
+            
+            if (!res.success) {
+                showToast(res.error, 'error');
+                return;
+            }
 
-            if (!adminSnap.exists()) {
-                await signOut(auth);
-                showToast('Access denied. Admin only.', 'error');
-                return;
-            }
-            const adminData = adminSnap.data();
-            if (adminData.uid !== user.uid) {
-                await signOut(auth);
-                showToast('Account disabled. Contact admin.', 'error');
-                return;
-            }
             showToast('Login successful', 'success');
             navigate('/');
         } catch (error) {
-            console.error(error);
-
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                showToast('User not found or invalid credentials', 'error');
-            } else if (error.code === 'auth/wrong-password') {
-                showToast('Incorrect password', 'error');
-            } else if (error.code === 'auth/configuration-not-found') {
-                showToast('Firebase configuration error. Please check your project settings.', 'error');
-            } else {
-                showToast(error.message, 'error');
-            }
+            console.error("Login component error:", error);
+            showToast(error.message || "An unexpected error occurred.", "error");
         } finally {
             setLoading(false);
         }
