@@ -5,7 +5,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../Config/Config';
 import { useToast } from '../../shared/hooks/ToastContext';
 
-import { systemRoutes } from '../../App';
+import { systemRoutes } from '../../app/routes';
 
 export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	const { showToast } = useToast();

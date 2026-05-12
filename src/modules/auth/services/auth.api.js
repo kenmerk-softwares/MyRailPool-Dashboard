@@ -2,25 +2,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../Config/Config";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
-/**
- * Utility to serialize Firestore data (converts Timestamps to milliseconds)
- * to avoid Redux non-serializable errors.
- */
-const serialize = (data) => {
-    if (!data) return data;
-    const serialized = { ...data };
-    Object.keys(serialized).forEach(key => {
-        const val = serialized[key];
-        if (val && typeof val.toDate === 'function') {
-            serialized[key] = val.toDate().getTime();
-        } else if (Array.isArray(val)) {
-            serialized[key] = val.map(item => (item && typeof item === 'object') ? serialize(item) : item);
-        } else if (val !== null && typeof val === 'object' && !(val instanceof Date)) {
-            serialized[key] = serialize(val);
-        }
-    });
-    return serialized;
-};
+import { serialize } from "../../../shared/utils/serialize";
 
 // ==================== USER PROFILE FETCH ==================== //
 

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { collection, getDocs, query, where, limit, startAfter, orderBy } from "firebase/firestore";
 import { db } from "../../../Config/Config";
 import { setUsers, setLoading } from "../user.slice";
+import { serialize } from "../../../shared/utils/serialize";
 
 export const useUsers = () => {
     const dispatch = useDispatch();
@@ -33,10 +34,10 @@ export const useUsers = () => {
             }
 
             const querySnapshot = await getDocs(q);
-            const usersData = querySnapshot.docs.map((doc) => ({
+            const usersData = serialize(querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            })));
 
             if (isLoadMore) {
                 dispatch(setUsers([...users, ...usersData]));
