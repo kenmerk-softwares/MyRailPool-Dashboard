@@ -179,7 +179,7 @@ export const AddRoute = () => {
         action: initialData ? 'edit' : 'add',
         id: initialData?.id,
         name: data.routeName,
-        status: initialData?.status || "Active",
+        status: data.status,
         activationDate: data.activationDate,
         deactivationDate: data.deactivationDate,
         selectedDates: selectedDates,
@@ -221,19 +221,9 @@ export const AddRoute = () => {
   };
 
   return (
-    <div className="max-w-full pb-12 px-6 animate-in fade-in duration-500">
-
+    <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            {initialData ? 'Edit Route Corridor' : 'Establish New Corridor'}
-          </h2>
-          <p className="text-slate-500 font-medium mt-1">
-            {initialData
-              ? `Refining ${initialData.name}. Update pathing, schedule, and fare structures.`
-              : 'Define a new standard travel corridor, schedule, and point-to-point pricing.'}
-          </p>
-        </div>
+        
       </div>
 
       <form onSubmit={handleSave}>
@@ -246,28 +236,37 @@ export const AddRoute = () => {
                 <RouteIcon className="w-5 h-5 text-primary-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-800">Route Specifications</h3>
-                <p className="text-xs text-slate-500 font-medium">Define the core identity and status of this corridor.</p>
+                <h3 className="text-lg font-bold text-slate-800">Add Route</h3>
+                
               </div>
             </div>
-
-            <div className="p-6">
+            
+            <div className="p-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Route Identifier / Name <span className="text-red-500"> *</span></label>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Route Identifier / Name</label>
                   <div className="relative group">
                     <input
                       type="text"
                       name="routeName"
-                      className="w-full pl-5 pr-2 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-500 text-sm"
-                      placeholder=" Enter Route Name"
+                      className="w-full pl-14 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-300"
+                      placeholder="e.g., North-South Express Corridor"
                       defaultValue={initialData?.name}
                       onChange={handleInputChange}
                     />
-
-                    {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.name}</p>}
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status</label>
+                  <select
+                    name="status"
+                    className="w-full px-5 py-2.5 rounded-2xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
+                    defaultValue={initialData?.status || "Active"}
+                  >
+                    <option value="Active">Active Corridor</option>
+                    <option value="Inactive">Under Maintenance / Inactive</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -286,36 +285,32 @@ export const AddRoute = () => {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date <span className="text-red-500"> *</span></label>
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date</label>
                     <div className="relative group">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
+                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
                       <input
                         type="date"
                         name="activationDate"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm"
+                        className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
                         defaultValue={initialData?.activationDate}
-                        onChange={handleInputChange}
                       />
-                      {errors.activationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.activationDate}</p>}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date <span className="text-red-500"> *</span></label>
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date</label>
                     <div className="relative group">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
+                      <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
                       <input
                         type="date"
                         name="deactivationDate"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm"
+                        className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
                         defaultValue={initialData?.deactivationDate}
-                        onChange={handleInputChange}
                       />
-                      {errors.deactivationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.deactivationDate}</p>}
                     </div>
                   </div>
                 </div>
@@ -327,8 +322,7 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       onChange={handleAddDate}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm"
-
+                      className="w-full px-5 py-1.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                     />
 
                     {errors.selectedDates && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.selectedDates}</p>}
@@ -402,13 +396,14 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block mb-3">Integrate New Location Node <span className="text-red-500"> *</span></label>
                 <div className="relative flex gap-3">
                   <div className="relative flex-1 group">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                     <MapPlaces onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                       <input
                         type="text"
                         value={currentPoint}
                         onChange={(e) => setCurrentPoint(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-500 text-sm"
+                        className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-300"
                         placeholder="Search for a geographical node..."
                       />
                     </MapPlaces>
@@ -417,8 +412,7 @@ export const AddRoute = () => {
                   <button
                     onClick={handleAddPoint}
                     type="button"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-indigo-200 hover:shadow-indigo-300/50 text-sm"
-
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-1.5 rounded-2xl font-bold transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-indigo-200 hover:shadow-indigo-300/50"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Append</span>
@@ -558,10 +552,9 @@ export const AddRoute = () => {
                   <p className="text-xs text-slate-500 font-medium">Define algorithmic point-to-point pricing for this corridor.</p>
                 </div>
               </div>
-
-              <div className="p-6">
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {routes.map((fromPoint, i) => (
                     routes.slice(i + 1).map((toPoint, jOffset) => {
                       const j = i + 1 + jOffset;
@@ -611,31 +604,26 @@ export const AddRoute = () => {
             </div>
 
           )}
-        </div>
-
-        <div className="mt-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-4 px-2">
-          <Link
-            to="/routes"
-            className="w-full sm:w-auto text-center px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all text-xs uppercase tracking-widest"
-
-          >
-            Discard Changes
-          </Link>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto justify-center bg-slate-900 text-white px-10 py-3 rounded-xl font-black text-xs hover:bg-primary-600 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
-
-          >
-            {loading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 text-primary-400" />
-            )}
-            {loading ? 'Processing...' : (initialData ? 'Synchronize' : 'Establish')}
-          </button>
-
+          <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-4">
+            <Link
+              to="/routes"
+              className="w-full sm:w-auto text-center px-8 py-1.5 rounded-2xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all text-sm uppercase tracking-widest"
+            >
+              Discard Changes
+            </Link>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full sm:w-auto justify-center bg-slate-900 text-white px-12 py-1.5 rounded-2xl font-black text-sm hover:bg-primary-600 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Save className="w-5 h-5 text-primary-400" /> 
+              )}
+              {loading ? 'Processing...' : (initialData ? 'Synchronize Route' : 'Establish Corridor')}
+            </button>
+          </div>
         </div>
       </form>
     </div>

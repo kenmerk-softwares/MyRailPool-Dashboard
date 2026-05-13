@@ -51,7 +51,7 @@ export default function ViewRoute() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
+    <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
         <div className="flex items-center gap-4">
           <div>
@@ -82,30 +82,30 @@ export default function ViewRoute() {
             <h3 className="font-bold text-slate-800 tracking-tight">Route Specifications</h3>
           </div>
 
-          <div className="ps-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route ID</label>
-                <p className="px-4 py-3 rounded-xl bg-slate-50 text-slate-700 font-bold border border-slate-100">{route.id}</p>
+                <p className="px-4 py-1.5 rounded-xl bg-slate-50 text-slate-700 font-bold border border-slate-100">{route.id}</p>
               </div>
 
               <div className="space-y-1.5 md:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Name</label>
-                <p className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm">{route.name}</p>
+                <p className="px-4 py-1.5 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm">{route.name}</p>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Corridor Type</label>
-                <p className="px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100 uppercase">
+                <p className="px-4 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100 uppercase">
                   {route.route_type.replace('_', ' ')}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 pt-6 border-t border-slate-50">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-50">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Distance</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                <div className="flex items-center gap-3 px-4 py-1.5 rounded-xl bg-white border border-slate-200">
                   <Globe className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.distance}</span>
                 </div>
@@ -113,7 +113,7 @@ export default function ViewRoute() {
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Est. Fare</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                <div className="flex items-center gap-3 px-4 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100">
                   <TrendingUp className="w-4 h-4 text-emerald-600" />
                   <span className="font-bold text-emerald-700">{route.estPrice}</span>
                 </div>
@@ -121,7 +121,7 @@ export default function ViewRoute() {
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Start Date & Time</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                <div className="flex items-center gap-3 px-4 py-1.5 rounded-xl bg-white border border-slate-200">
                   <Clock className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.timings}</span>
                 </div>
@@ -129,7 +129,7 @@ export default function ViewRoute() {
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">End Date & Time</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                <div className="flex items-center gap-3 px-4 py-1.5 rounded-xl bg-white border border-slate-200">
                   <ArrowRightLeft className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.return_timing || 'Continuous'}</span>
                 </div>
@@ -182,7 +182,7 @@ export default function ViewRoute() {
 
           <div className="p-6">
             <div className="mb-8 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-              <div className="flex items-center justify-between gap-8">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Primary Origin</p>
                   <p className="text-lg font-bold text-slate-900">{route.start}</p>
@@ -234,10 +234,10 @@ export default function ViewRoute() {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
-                <div className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm flex items-center gap-3">
+                <div className="px-4 py-1.5 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm flex items-center gap-3">
                   <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-[10px]">
                     {route.driver.charAt(0)}
                   </div>
@@ -247,7 +247,7 @@ export default function ViewRoute() {
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle No.</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
+                <div className="flex items-center gap-3 px-4 py-1.5 rounded-xl bg-white border border-slate-200">
                   <Car className="w-4 h-4 text-slate-500" />
                   <span className="font-bold text-slate-800">{route.vehicle}</span>
                 </div>
