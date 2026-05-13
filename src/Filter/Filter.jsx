@@ -87,7 +87,8 @@ export const Filter = ({
 	onClear,
 }) => {
 	return (
-		<div className="flex flex-col md:flex-row items-center justify-between m-4 gap-4">
+		<div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-4">
+
 			<SearchFilter
 				placeholder={searchPlaceholder}
 				searchQuery={searchQuery}
