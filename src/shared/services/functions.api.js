@@ -12,4 +12,6 @@ export const FunctionsAPI = {
     addAdminUser: (data) => callFunction("addAdminUser", data),
     changePassword: (data) => callFunction("changePassword", data),
     addDriver: (data) => callFunction("addDriver", data),
+    addVehicle: (data) => callFunction("addVehicle", data),
+    editVehicle: (data) => callFunction("editVehicle", data),
 };

@@ -60,7 +60,13 @@ export const AddDriver = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try{
-      const res = await FunctionsAPI.addDriver({type: "add", fields: formData});
+      const res = await FunctionsAPI.addDriver({
+        type: "add", 
+        fields: {
+          ...formData,
+          searchKey: formData.name ? formData.name.toLowerCase() : ""
+        }
+      });
       if(res.status === "success"){
         showToast("Driver added successfully!", "success");
         setFormData({

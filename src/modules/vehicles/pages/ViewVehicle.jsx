@@ -15,8 +15,8 @@ import {
   Activity,
   Award,
 } from 'lucide-react';
-import { StatusBadge } from '../../components/Shared';
-import { vehiclesData } from '../../data/mockData';
+import { StatusBadge } from '../../../components/Shared';
+import { vehiclesData } from '../../../data/mockData';
 
 export const ViewVehicle = () => {
   const { id } = useParams();
