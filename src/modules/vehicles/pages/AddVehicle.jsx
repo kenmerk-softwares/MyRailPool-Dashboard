@@ -35,7 +35,8 @@ export const AddVehicle = () => {
       fetchDrivers({ searchQuery: driverSearch });
     }, 400);
     return () => clearTimeout(timer);
-  }, [driverSearch, fetchDrivers]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverSearch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -59,6 +60,7 @@ export const AddVehicle = () => {
     policyNumber: '',
     insuranceExpiry: '',
     assignedDriver: '',
+    driverId: '',
     operationalStatus: 'Active',
     notes: ''
   });
@@ -90,6 +92,7 @@ export const AddVehicle = () => {
           policyNumber: '',
           insuranceExpiry: '',
           assignedDriver: '',
+          driverId: '',
           operationalStatus: 'Active',
           notes: ''
         });
@@ -112,6 +115,7 @@ export const AddVehicle = () => {
           </div>
         </div>
       </div>
+      {console.log(formData)}
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
         <div className="space-y-4 mt-4">
@@ -347,7 +351,7 @@ export const AddVehicle = () => {
                       setDriverSearch(e.target.value);
                       setShowDriverResults(true);
                       if (!e.target.value) {
-                        setFormData(prev => ({ ...prev, assignedDriver: '' }));
+                        setFormData(prev => ({ ...prev, assignedDriver: '', driverId: '' }));
                       }
                     }}
                     onFocus={() => setShowDriverResults(true)}
@@ -360,7 +364,11 @@ export const AddVehicle = () => {
                           key={driver.id}
                           type="button"
                           onClick={() => {
-                            setFormData(prev => ({ ...prev, assignedDriver: driver.name }));
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              assignedDriver: driver.name,
+                              driverId: driver.docId
+                            }));
                             setDriverSearch(driver.name);
                             setShowDriverResults(false);
                           }}
