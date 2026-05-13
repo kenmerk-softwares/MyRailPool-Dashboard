@@ -16,9 +16,13 @@ import {
   Milestone,
   Plus,
   Trash2,
-  X
+  X,
+  ArrowRight
 } from 'lucide-react';
-import {  Autocomplete } from '../../components/Shared';
+import { db } from '../../shared/services/firebase';
+import { collection, getDocs, query, limit } from 'firebase/firestore';
+
+import { Autocomplete } from '../../components/Shared';
 import { useLocation, useParams, useNavigate, Link } from 'react-router-dom';
 import { FaRoad } from 'react-icons/fa';
 import { tripsData, driversData, vehiclesData, bookingsData } from '../../data/mockData';
@@ -33,16 +37,47 @@ export const AddTrip = () => {
   const isEdit = Boolean(id);
   const { drivers, fetchDrivers, loading: driversLoading } = useDrivers();
   const { vehicles, fetchVehicles, loading: vehiclesLoading } = useVehicles();
-  
+
   const [driverSearch, setDriverSearch] = useState('');
   const [vehicleSearch, setVehicleSearch] = useState('');
+  const [routeSearch, setRouteSearch] = useState('');
+  const [routes, setRoutes] = useState([]);
+  const [routesLoading, setRoutesLoading] = useState(false);
+
+  const fetchRoutes = async (queryStr) => {
+    setRoutesLoading(true);
+    try {
+      const routesRef = collection(db, 'routes');
+      const q = query(routesRef, limit(20));
+      const snapshot = await getDocs(q);
+      const list = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+
+      const filtered = list.filter(r =>
+        (r.startingPoint || '').toLowerCase().includes(queryStr.toLowerCase()) ||
+        (r.endPoint || '').toLowerCase().includes(queryStr.toLowerCase()) ||
+        (r.name || '').toLowerCase().includes(queryStr.toLowerCase())
+      );
+      setRoutes(filtered);
+    } catch (error) {
+      console.error("Error fetching routes:", error);
+    } finally {
+      setRoutesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchRoutes(routeSearch);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [routeSearch]);
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchDrivers({ searchQuery: driverSearch });
     }, 400);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch]);
 
   useEffect(() => {
@@ -50,7 +85,6 @@ export const AddTrip = () => {
       fetchVehicles({ searchQuery: vehicleSearch });
     }, 400);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleSearch]);
 
   const formatDate = (isoStr) => {
@@ -81,7 +115,7 @@ export const AddTrip = () => {
     trip_date: formatDate(requestData.routeDates?.[0]) || '',
     status: 'PENDING',
     total_bookings: '',
-    route_type:'',
+    route_type: '',
     booking_ids: [],
     stops: [],
     notes: '',
@@ -98,8 +132,54 @@ export const AddTrip = () => {
     saved_money: '',
     profit: '',
     co2_saved: '',
-    timeSlots: []
+    timeSlots: [],
+    date: formatDate(requestData.routeDates?.[0]) || ''
   });
+
+  const [schedules, setSchedules] = useState([]);
+
+  const handleAddSchedule = () => {
+    // If user has a time in the input but hasn't clicked the small plus button, use it
+    let currentTimes = [...formData.timeSlots];
+    if (currentTimes.length === 0 && currentTime) {
+      currentTimes = [currentTime];
+    }
+
+    if (!formData.date) {
+      alert("Please select a date first.");
+      return;
+    }
+
+    if (currentTimes.length === 0) {
+      alert("Please specify at least one trip starting time.");
+      return;
+    }
+
+    setSchedules(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        date: formData.date,
+        times: currentTimes,
+        passengerCount: formData.total_pcount || 0
+      }
+    ]);
+
+    // Clear operational inputs for next entry
+    setFormData(prev => ({
+      ...prev,
+      date: '',
+      timeSlots: [],
+      total_pcount: ''
+    }));
+    setCurrentTime('');
+  };
+
+
+  const handleRemoveSchedule = (id) => {
+    setSchedules(prev => prev.filter(s => s.id !== id));
+  };
+
 
   const [currentTime, setCurrentTime] = useState('');
 
@@ -290,10 +370,10 @@ export const AddTrip = () => {
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip ID</label>
                 <div className="relative">
-                  <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text"
                     name="trip_id"
@@ -304,7 +384,7 @@ export const AddTrip = () => {
                     disabled
                   />
                 </div>
-              </div>
+              </div> */}
 
               <Autocomplete
                 label="Assign Driver"
@@ -315,8 +395,8 @@ export const AddTrip = () => {
                 loading={driversLoading}
                 results={drivers}
                 onSelect={(driver) => {
-                  setFormData(prev => ({ 
-                    ...prev, 
+                  setFormData(prev => ({
+                    ...prev,
                     driver: driver.name,
                     driverId: driver.docId,
                     driver_lic: driver.licenseNo || driver.license_no || ''
@@ -331,20 +411,36 @@ export const AddTrip = () => {
                 )}
               />
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">License Reference</label>
-                <div className="relative">
-                  <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="driver_lic"
-                    value={formData.driver_lic}
-                    readOnly
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-medium outline-none transition-all cursor-not-allowed"
-                    placeholder="Auto-filled license"
-                  />
-                </div>
-              </div>
+              <Autocomplete
+                label="Select Route Corridor"
+                placeholder="Search route name or location..."
+                icon={Milestone}
+                value={routeSearch}
+                onChange={setRouteSearch}
+                loading={routesLoading}
+                results={routes}
+                onSelect={(route) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    route: route.name,
+                    routeId: route.docId,
+                    start_loc: route.startingPoint || '',
+                    end_loc: route.endPoint || ''
+                  }));
+                  setRouteSearch(`${route.startingPoint} -> ${route.endPoint}`);
+                }}
+                renderItem={(route) => (
+                  <div className="flex flex-col gap-1">
+                    <span className="font-bold text-slate-800">{route.name}</span>
+                    <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium uppercase tracking-tight">
+                      <span>{route.startingPoint}</span>
+                      <ArrowRight className="w-3 h-3 text-slate-600" />
+                      <span>{route.endPoint}</span>
+                    </div>
+                  </div>
+                )}
+              />
+
 
               <Autocomplete
                 label="Vehicle Registration"
@@ -355,8 +451,8 @@ export const AddTrip = () => {
                 loading={vehiclesLoading}
                 results={vehicles}
                 onSelect={(vehicle) => {
-                  setFormData(prev => ({ 
-                    ...prev, 
+                  setFormData(prev => ({
+                    ...prev,
                     vehicle_reg: vehicle.registrationNo,
                     vehicleId: vehicle.docId
                   }));
@@ -369,13 +465,24 @@ export const AddTrip = () => {
                   </>
                 )}
               />
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
+                <select
+                  name="routeType"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
+                  defaultValue={formData.route_type || "one_way"}
+                >
+                  <option value="one_way">Core route</option>
+                  <option value="circuit">Flexi route</option>
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip Date & Time</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text"
                     name="trip_date"
@@ -385,9 +492,9 @@ export const AddTrip = () => {
                     placeholder="DD/MM/YYYY"
                   />
                 </div>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Status</label>
                 <select
                   name="status"
@@ -400,9 +507,9 @@ export const AddTrip = () => {
                   <option value="IN TRANSIT">IN TRANSIT</option>
                   <option value="COMPLETED">COMPLETED</option>
                 </select>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Bookings</label>
                 <input
                   type="number"
@@ -412,24 +519,14 @@ export const AddTrip = () => {
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
                   placeholder="0"
                 />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
-                <select
-                  name="routeType"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
-                  defaultValue={formData.route_type || "one_way"}
-                >
-                  <option value="one_way">Core route</option>
-                  <option value="circuit">Flexi route</option>
-                </select>
-              </div>
-              <div className="space-y-2 lg:col-span-2">
+              </div> */}
+
+              {/* <div className="space-y-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Booking IDs</label>
 
                 <div className="relative flex gap-2">
                   <div className="relative flex-1">
-                    <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type="text"
                       value={newBookingId}
@@ -479,15 +576,15 @@ export const AddTrip = () => {
                     </div>
                   ))}
                   {(!formData.booking_ids || formData.booking_ids.length === 0) && (
-                    <span className="text-xs text-slate-400 italic">No bookings assigned yet.</span>
+                    <span className="text-xs text-slate-500 italic">No bookings assigned yet.</span>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               <div className="space-y-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Remarks</label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                  <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
                   <textarea
                     name="notes"
                     value={formData.notes}
@@ -502,253 +599,177 @@ export const AddTrip = () => {
         </div>
 
 
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <Milestone className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="px-8 py-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200">
+                <Milestone className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 tracking-tight">Trip Execution & Multi-Date Scheduling</h3>
+              </div>
             </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Execution & Route Details</h3>
           </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Start Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="start_loc"
-                    value={formData.start_loc}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Start Location..."
-                  />
+
+
+          <div className="p-8">
+            <div className="bg-slate-50/30 rounded-[2rem] p-6 border border-slate-100/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                
+                <div className="space-y-2.5">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Operational Date</label>
+                  <div className="relative group">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
+                    <input
+                      type="date"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Arrival Point</label>
-                <div className="relative">
-                  <Navigation className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="end_loc"
-                    value={formData.end_loc}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Destination address..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route</label>
-                <div className="relative">
-                  <Milestone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="route"
-                    value={formData.route}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="Route identifier..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Actual Destination</label>
-                <input
-                  type="text"
-                  name="actual_dest"
-                  value={formData.actual_dest}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                  placeholder="Final arrival point..."
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4 pt-4 border-t border-slate-50">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Estimated End</label>
-                <div className="relative">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="end_time"
-                    value={formData.end_time}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="HH:MM AM/PM"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 col-span-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip Starting Times</label>
-                <div className="space-y-3">
-                  <div className="relative flex gap-2">
-                    <div className="relative flex-1">
-                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <div className="space-y-2.5">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Departure Window</label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1 group">
+                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
                       <input
                         type="time"
                         value={currentTime}
                         onChange={(e) => setCurrentTime(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={handleAddTime}
-                      className="bg-primary-50 text-primary-600 p-2.5 rounded-xl hover:bg-primary-100 transition-all active:scale-95 border border-primary-100"
+                      className="bg-emerald-50 text-emerald-600 p-3.5 rounded-2xl hover:bg-emerald-100 transition-all active:scale-90 border border-emerald-100 shadow-sm"
                     >
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
-
-                  {formData.timeSlots?.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {formData.timeSlots.map(time => (
-                        <div key={time} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg group animate-in zoom-in duration-200">
-                          <span className="text-xs font-bold text-slate-700">{time}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTime(time)}
-                            className="text-slate-500 hover:text-red-500 transition-colors"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Passenger Count</label>
-                <div className="relative">
-                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="number"
-                    name="total_pcount"
-                    value={formData.total_pcount}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="0"
-                  />
+                <div className="space-y-2.5">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Planned Pax Count</label>
+                  <div className="relative group">
+                    <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
+                    <input
+                      type="number"
+                      name="total_pcount"
+                      value={formData.total_pcount}
+                      onChange={handleChange}
+                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
+                      placeholder="0"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Miles</label>
-                <div className="relative">
-                  <FaRoad className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="number"
-                    name="miles"
-                    value={formData.miles}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-emerald-500" />
-                  Intermediate Stops & Customer Points
-                </h4>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  {formData.stops?.length || 0} Stops Added
-                </span>
+                <button
+                  type="button"
+                  onClick={handleAddSchedule}
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-primary-200"
+                >
+                  <Plus className="w-4 h-4" />
+                  Append Trip
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 space-y-3">
-                  {formData.stops?.map((stop, index) => (
-                    <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 group animate-in slide-in-from-left-2 duration-300">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${stop.type === 'PICKUP' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stop.type === 'PICKUP' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                            {stop.type}
-                          </span>
-                          <span className="text-sm font-bold text-slate-800 truncate">{stop.location}</span>
-                        </div>
-                        {stop.notes && <p className="text-xs text-slate-500 mt-0.5 truncate">{stop.notes}</p>}
-                      </div>
+              {/* Time Slots Chips Container */}
+              {formData.timeSlots?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4 ml-1">
+                  {formData.timeSlots.map(time => (
+                    <div key={time} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-emerald-200 transition-all group animate-in zoom-in duration-300">
+                      <span className="text-[11px] font-black text-slate-700">{time}</span>
                       <button
-                        onClick={() => removeStop(index)}
-                        className="p-2 text-red-700 hover:text-red-900 hover:bg-red-100 rounded-lg transition-all opacity-100"
+                        type="button"
+                        onClick={() => handleRemoveTime(time)}
+                        className="text-slate-300 hover:text-rose-500 transition-colors"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}
-
-                  {(!formData.stops || formData.stops.length === 0) && (
-                    <div className="py-8 text-center rounded-xl border-2 border-dashed border-slate-100">
-                      <p className="text-sm text-slate-400 italic">No intermediate stops defined.</p>
-                    </div>
-                  )}
                 </div>
-
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-12 gap-3 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 h-fit">
-                  <div className="md:col-span-6 space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Stop Location</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
-                        type="text"
-                        value={newStop.location}
-                        onChange={(e) => setNewStop(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                        placeholder="Enter address..."
-                      />
-                    </div>
-                  </div>
-                  <div className="md:col-span-2 space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Type</label>
-                    <select
-                      value={newStop.type}
-                      onChange={(e) => setNewStop(prev => ({ ...prev, type: e.target.value }))}
-                      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-bold focus:border-primary-500 outline-none transition-all cursor-pointer"
-                    >
-                      <option value="PICKUP">PICKUP</option>
-                      <option value="DROP-OFF">DROP-OFF</option>
-                    </select>
-                  </div>
-                  <div className="md:col-span-3 space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Notes</label>
-                    <input
-                      type="text"
-                      value={newStop.notes}
-                      onChange={(e) => setNewStop(prev => ({ ...prev, notes: e.target.value }))}
-                      className="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-sm focus:border-primary-500 outline-none transition-all"
-                      placeholder="Notes..."
-                    />
-                  </div>
-                  <div className="md:col-span-1 flex items-end">
-                    <button
-                      onClick={addStop}
-                      className="w-full h-[42px] bg-primary-600 text-white rounded-lg flex items-center justify-center hover:bg-primary-700 transition-all shadow-md shadow-primary-600/20"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        <div>
+            {/* Schedules Table */}
+            {schedules.length > 0 ? (
+              <div className="mt-8 overflow-hidden border border-slate-100 shadow-2xl shadow-slate-200/40 bg-white animate-in fade-in slide-in-from-top-4 duration-500">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100">
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Execution Date</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Deployment Slots</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Capacity</th>
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Controls</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {schedules.map((schedule) => (
+                      <tr key={schedule.id} className="group hover:bg-emerald-50/30 transition-all duration-300">
+                        <td className="px-8 py-5">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-slate-50 group-hover:bg-white rounded-xl flex flex-col items-center justify-center border border-slate-100 transition-colors">
+                              <span className="text-xs font-black text-slate-800 leading-none">{new Date(schedule.date).getDate()}</span>
+                              <span className="text-[8px] font-bold text-slate-500 uppercase">{new Date(schedule.date).toLocaleString('default', { month: 'short' })}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-black text-slate-800">{new Date(schedule.date).toLocaleDateString('en-GB', { weekday: 'long' })}</span>
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{new Date(schedule.date).getFullYear()}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5">
+                          <div className="flex flex-wrap gap-2">
+                            {schedule.times.map(time => (
+                              <div key={time} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50/50 text-emerald-700 text-[10px] font-black rounded-lg border border-emerald-100 group-hover:bg-white transition-colors">
+                                <Clock className="w-3 h-3" />
+                                {time}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-8 py-5">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
+                              <Users className="w-4 h-4 text-slate-500 group-hover:text-emerald-500" />
+                            </div>
+                            <span className="text-sm font-black text-slate-800">{schedule.passengerCount} <span className="text-slate-500 font-bold ml-1">Seats</span></span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSchedule(schedule.id)}
+                            className="p-3 text-red-600 hover:text-red7600 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                            title="Remove Schedule"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="mt-8 py-16 flex flex-col items-center justify-center bg-slate-50/30 rounded-[2.5rem] border-2 border-dashed border-slate-100 animate-in fade-in zoom-in duration-700">
+                <div className="w-20 h-20 bg-white rounded-3xl shadow-lg flex items-center justify-center mb-6">
+                  <Calendar className="w-10 h-10 text-slate-200" />
+                </div>
+                <h4 className="text-lg font-black text-slate-800 mb-1 uppercase tracking-widest">No Scheduled Trips</h4>
+                <p className="text-slate-500 text-sm font-bold">Configure your first execution window using the form above.</p>
+              </div>
+            )}
+          </div>
+
+      </div>
+
+      {/* <div>
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <TrendingUp className="w-4 h-4 text-indigo-600" />
@@ -833,27 +854,27 @@ export const AddTrip = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
 
-        <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
-          <button
-            onClick={() => {
-              localStorage.removeItem('tripFormDraft');
-              navigate('/trips');
-            }}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
-          >
-            Discard Changes
-          </button>
-          <button
-            onClick={handleSave}
-            className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5"
-          >
-            <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
-          </button>
-        </div>
+      <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
+        <button
+          onClick={() => {
+            localStorage.removeItem('tripFormDraft');
+            navigate('/trips');
+          }}
+          className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
+        >
+          Discard Changes
+        </button>
+        <button
+          onClick={handleSave}
+          className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5"
+        >
+          <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
+        </button>
       </div>
+    </div>
     </div>
   );
 };
