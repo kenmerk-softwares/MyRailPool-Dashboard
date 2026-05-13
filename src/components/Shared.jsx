@@ -103,3 +103,77 @@ export const Activity = (props) => (
     <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
   </svg>
 );
+
+export const Autocomplete = ({ 
+  label, 
+  placeholder, 
+  value, 
+  onChange, 
+  onSelect, 
+  results = [], 
+  loading = false, 
+  icon: Icon,
+  renderItem,
+  emptyMessage = "No results found"
+}) => {
+  const [showResults, setShowResults] = React.useState(false);
+  const dropdownRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="space-y-2">
+      {label && <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">{label}</label>}
+      <div className="relative" ref={dropdownRef}>
+        {Icon && <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />}
+        <input 
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setShowResults(true);
+          }}
+          onFocus={() => setShowResults(true)}
+          className={`w-full ${Icon ? 'pl-10' : 'px-4'} pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`}
+        />
+        {showResults && (results.length > 0 || loading) && (
+          <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            {loading ? (
+              <div className="px-4 py-3 text-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-500 border-t-transparent mx-auto"></div>
+              </div>
+            ) : (
+              results.map((item, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => {
+                    onSelect(item);
+                    setShowResults(false);
+                  }}
+                  className="w-full text-left px-4 py-2.5 hover:bg-primary-50 transition-colors flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
+                >
+                  {renderItem(item)}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+        {showResults && !loading && value && results.length === 0 && (
+          <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl p-4 text-center">
+            <p className="text-sm text-slate-500 font-medium">{emptyMessage}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

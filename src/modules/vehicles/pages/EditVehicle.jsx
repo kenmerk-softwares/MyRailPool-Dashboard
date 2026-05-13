@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Save,
   Car,
@@ -19,16 +19,15 @@ import { vehiclesData } from '../../../data/mockData';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { useDrivers } from '../../drivers/hooks/driver.useDrivers';
+import { Autocomplete } from '../../../components/Shared';
 
 
 export const EditVehicle = () => {
   const { id } = useParams();
   const { showToast } = useToast();
-  const { drivers, fetchDrivers } = useDrivers();
-  const dropdownRef = useRef(null);
+  const { drivers, fetchDrivers, loading: driversLoading } = useDrivers();
   
   const [driverSearch, setDriverSearch] = useState('');
-  const [showDriverResults, setShowDriverResults] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,16 +36,6 @@ export const EditVehicle = () => {
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDriverResults(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
   
   const [formData, setFormData] = useState({
     make: '',
@@ -337,54 +326,29 @@ export const EditVehicle = () => {
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
-                <div className="relative" ref={dropdownRef}>
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="text"
-                    placeholder="Search driver name..."
-                    value={driverSearch}
-                    onChange={(e) => {
-                      setDriverSearch(e.target.value);
-                      setShowDriverResults(true);
-                      if (!e.target.value) {
-                        setFormData(prev => ({ ...prev, assignedDriver: '', driverId: '' }));
-                      }
-                    }}
-                    onFocus={() => setShowDriverResults(true)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                  />
-                  {showDriverResults && drivers.length > 0 && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2">
-                      {drivers.map(driver => (
-                        <button
-                          key={driver.id}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({ 
-                              ...prev, 
-                              assignedDriver: driver.name,
-                              driverId: driver.docId
-                            }));
-                            setDriverSearch(driver.name);
-                            setShowDriverResults(false);
-                          }}
-                          className="w-full text-left px-4 py-2 hover:bg-primary-50 transition-colors flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
-                        >
-                          <span className="font-bold text-slate-800">{driver.name}</span>
-                          <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{driver.mobile || 'No Mobile'}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {showDriverResults && driverSearch && drivers.length === 0 && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl p-4 text-center">
-                      <p className="text-sm text-slate-500 font-medium">No drivers found matching "{driverSearch}"</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <Autocomplete
+                label="Assigned Driver"
+                placeholder="Search driver name..."
+                icon={User}
+                value={driverSearch}
+                onChange={setDriverSearch}
+                loading={driversLoading}
+                results={drivers}
+                onSelect={(driver) => {
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    assignedDriver: driver.name,
+                    driverId: driver.docId
+                  }));
+                  setDriverSearch(driver.name);
+                }}
+                renderItem={(driver) => (
+                  <>
+                    <span className="font-bold text-slate-800">{driver.name}</span>
+                    <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{driver.mobile || 'No Mobile'}</span>
+                  </>
+                )}
+              />
 
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Status</label>

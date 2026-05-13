@@ -18,10 +18,12 @@ import {
   Trash2,
   X
 } from 'lucide-react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import {  Autocomplete } from '../../components/Shared';
+import { useLocation, useParams, useNavigate, Link } from 'react-router-dom';
 import { FaRoad } from 'react-icons/fa';
 import { tripsData, driversData, vehiclesData, bookingsData } from '../../data/mockData';
-import { useLocation } from 'react-router-dom';
+import { useDrivers } from '../drivers/hooks/driver.useDrivers';
+import { useVehicles } from '../vehicles/hooks/vehicle.useVehicles';
 
 export const AddTrip = () => {
   const location = useLocation();
@@ -29,6 +31,27 @@ export const AddTrip = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const { drivers, fetchDrivers, loading: driversLoading } = useDrivers();
+  const { vehicles, fetchVehicles, loading: vehiclesLoading } = useVehicles();
+  
+  const [driverSearch, setDriverSearch] = useState('');
+  const [vehicleSearch, setVehicleSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchDrivers({ searchQuery: driverSearch });
+    }, 400);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchVehicles({ searchQuery: vehicleSearch });
+    }, 400);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicleSearch]);
 
   const formatDate = (isoStr) => {
     if (!isoStr) return '';
@@ -50,10 +73,11 @@ export const AddTrip = () => {
   };
 
   const [formData, setFormData] = useState({
-    trip_id: '',
     driver: '',
+    driverId: '',
     driver_lic: '',
     vehicle_reg: '',
+    vehicleId: '',
     trip_date: formatDate(requestData.routeDates?.[0]) || '',
     status: 'PENDING',
     total_bookings: '',
@@ -282,25 +306,30 @@ export const AddTrip = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assign Driver</label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 px-0.5" />
-                  <select
-                    name="driver"
-                    value={formData.driver}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="">Select a driver</option>
-                    {driversData.map(driver => (
-                      <option key={driver.driver_id} value={driver.name}>
-                        {driver.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <Autocomplete
+                label="Assign Driver"
+                placeholder="Search driver name..."
+                icon={User}
+                value={driverSearch}
+                onChange={setDriverSearch}
+                loading={driversLoading}
+                results={drivers}
+                onSelect={(driver) => {
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    driver: driver.name,
+                    driverId: driver.docId,
+                    driver_lic: driver.licenseNo || driver.license_no || ''
+                  }));
+                  setDriverSearch(driver.name);
+                }}
+                renderItem={(driver) => (
+                  <>
+                    <span className="font-bold text-slate-800">{driver.name}</span>
+                    <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{driver.mobile || 'No Mobile'}</span>
+                  </>
+                )}
+              />
 
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">License Reference</label>
@@ -310,32 +339,36 @@ export const AddTrip = () => {
                     type="text"
                     name="driver_lic"
                     value={formData.driver_lic}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="License Reference"
+                    readOnly
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-medium outline-none transition-all cursor-not-allowed"
+                    placeholder="Auto-filled license"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Registration</label>
-                <div className="relative">
-                  <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select
-                    name="vehicle_reg"
-                    value={formData.vehicle_reg}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="">Select vehicle</option>
-                    {vehiclesData.map(vehicle => (
-                      <option key={vehicle.id} value={vehicle.registration_no}>
-                        {vehicle.registration_no} ({vehicle.make} {vehicle.model})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <Autocomplete
+                label="Vehicle Registration"
+                placeholder="Search registration no..."
+                icon={Car}
+                value={vehicleSearch}
+                onChange={setVehicleSearch}
+                loading={vehiclesLoading}
+                results={vehicles}
+                onSelect={(vehicle) => {
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    vehicle_reg: vehicle.registrationNo,
+                    vehicleId: vehicle.docId
+                  }));
+                  setVehicleSearch(vehicle.registrationNo);
+                }}
+                renderItem={(vehicle) => (
+                  <>
+                    <span className="font-bold text-slate-800">{vehicle.registrationNo}</span>
+                    <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{vehicle.make} {vehicle.model}</span>
+                  </>
+                )}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
