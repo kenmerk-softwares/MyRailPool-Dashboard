@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
-import { Filter } from '../../Filter/Filter';
+import { Table } from '../../shared/Table/Table';
 import { db } from '../../shared/services/firebase';
+
 import { collection, getDocs, query, where, limit, startAfter, orderBy } from 'firebase/firestore';
 
 export const RouteList = () => {
@@ -37,7 +38,6 @@ export const RouteList = () => {
       }
 
       if (searchQuery) {
-        // Simple prefix search for name
         q = query(q, 
           where('name', '>=', searchQuery), 
           where('name', '<=', searchQuery + '\uf8ff')
@@ -71,7 +71,6 @@ export const RouteList = () => {
 
   useEffect(() => {
     fetchRoutes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilter, searchQuery]);
 
   const filteredData = routesList;
@@ -85,84 +84,87 @@ export const RouteList = () => {
         actionIcon={Plus}
         actionTo="/routes/add"
       />
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden pb-10">
-        <div className="overflow-x-auto w-full">
-          <Filter 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-            onClear={handleClear}
-            searchPlaceholder="Search routes by name or locations..."
-            options={[
-              { label: 'Active', value: 'Active' },
-              { label: 'Inactive', value: 'Inactive' },
-            ]}
-          />
-          <table className="w-full text-left border-collapse min-w-[700px]">
-            <thead>
-              <tr className="bg-slate-50/50">
-               <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Sl No </th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Route Name</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Route</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100">Status</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredData.map((route, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                   <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{idx + 1}</td>
-                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm font-medium text-slate-900">{route.name}</td>
-                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600">
-                    <span className="font-semibold text-slate-700">{route.startingPoint}</span>
-                    <span className="mx-2 text-slate-300">→</span>
-                    <span className="font-semibold text-slate-700">{route.endPoint}</span>
-                  </td>
-                  <td className="px-4 md:px-6 py-4">
-                    <StatusBadge 
-                      status={route.status} 
-                      statusColor={route.status === 'Active' ? 'success' : 'slate'} 
-                    />
-                  </td>
-                  <td className="px-4 md:px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => handleView(route)} 
-                        className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <Link 
-                        to="/routes/add"
-                        state={{ route }}
-                        className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded-lg hover:bg-yellow-50 transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Link>
-                      <button className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {hasMore && (
-            <div className="p-4 flex justify-center border-t border-slate-100">
-              <button
-                onClick={() => fetchRoutes(true)}
-                disabled={loading}
-                className="px-6 py-2 text-sm font-semibold text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-xl transition-all disabled:opacity-50"
+      <div className="pb-10">
+        <Table
+          headers={['Sl No', 'Route Name', 'Route Corridor', 'Operational Status']}
+          data={filteredData}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+          onClear={handleClear}
+          searchPlaceholder="Search routes by name or locations..."
+          filterOptions={[
+            { label: 'All', value: '' },
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' },
+          ]}
+          renderRow={(route, idx) => (
+            <>
+              <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
+              <td className="px-8 py-4">
+                <div className="flex flex-col">
+                  <span className="text-[13px] font-black text-slate-800">{route.name}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Corridor ID: {route.id}</span>
+                </div>
+              </td>
+              <td className="px-8 py-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl group-hover:bg-primary-50 group-hover:border-primary-100 transition-colors">
+                    <span className="text-[11px] font-black text-slate-700 group-hover:text-primary-700">{route.startingPoint}</span>
+                    <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-primary-400" />
+                    <span className="text-[11px] font-black text-slate-700 group-hover:text-primary-700">{route.endPoint}</span>
+                  </div>
+                </div>
+              </td>
+              <td className="px-8 py-4">
+                <StatusBadge 
+                  status={route.status} 
+                  statusColor={route.status === 'Active' ? 'success' : 'slate'} 
+                />
+              </td>
+            </>
+          )}
+          actions={(route) => (
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => handleView(route)} 
+                className="p-2 bg-white border border-green-200 text-green-500 hover:text-green-700 hover:border-green-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                title="Quick View"
               >
-                {loading ? 'Loading...' : 'Load More Routes'}
+                <Eye className="w-4 h-4" />
+              </button>
+              <Link 
+                to="/routes/add"
+                state={{ route }}
+                className="p-2 bg-white border border-yellow-100 text-yellow-500 hover:text-yellow-700 hover:border-yellow-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                title="Edit Corridor"
+              >
+                <Edit className="w-4 h-4" />
+              </Link>
+              <button 
+                className="p-2 bg-white border border-red-100 text-red-500 hover:text-red-700 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                title="Delete Route"
+              >
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           )}
-        </div>
+        />
+
+        {hasMore && (
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => fetchRoutes(true)}
+              disabled={loading}
+              className="px-8 py-3 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+            >
+              {loading ? 'Synchronizing...' : 'Load More Corridor Data'}
+            </button>
+          </div>
+        )}
       </div>
+
     </>
   );
 };
