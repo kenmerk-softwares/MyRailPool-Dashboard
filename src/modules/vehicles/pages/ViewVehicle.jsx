@@ -14,233 +14,219 @@ import {
   Hash,
   Activity,
   Award,
+  Phone,
+  Mail,
+  MapPin,
+  Search,
+  Clock,
+  Info
 } from 'lucide-react';
 import { StatusBadge } from '../../../components/Shared';
-import { vehiclesData } from '../../../data/mockData';
+import { vehiclesData, tripsData } from '../../../data/mockData';
 
 export const ViewVehicle = () => {
   const { id } = useParams();
   const vehicle = vehiclesData.find(v => v.id.replace('#', '') === id);
+  const vehicleTrips = vehicle ? tripsData.filter(t => t.vehicle_id === vehicle.id) : [];
 
   if (!vehicle) {
     return (
-      <div className="p-12 text-center bg-white rounded-2xl border border-slate-200/60 shadow-sm animate-in zoom-in duration-300">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-8 h-8 text-slate-500" />
-        </div>
-        <h3 className="text-xl font-bold text-slate-800">Asset Not Located</h3>
-        <p className="text-slate-500 mt-1 mb-6">The requested vehicle registry could not be found in the system.</p>
-        <Link
-          to="/vehicles"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
-        >
-          Return to Fleet
-        </Link>
+      <div className="p-10 text-center bg-white border border-slate-200 max-w-md mx-auto mt-20 rounded-xl shadow-sm">
+        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+        <h3 className="text-lg font-bold text-slate-800">Asset Not Located</h3>
+        <p className="text-slate-500 text-sm mt-1">The requested vehicle registry could not be found in the system.</p>
+        <Link to="/vehicles" className="mt-6 inline-block px-6 py-2 bg-primary-700 text-white rounded-lg font-bold text-sm shadow-sm">Return Index</Link>
       </div>
     );
   }
 
+  const sections = [
+    {
+      title: 'Asset Configuration & Management',
+      icon: Car,
+      fields: [
+        { label: 'Vehicle Make', value: vehicle.make, icon: Car },
+        { label: 'Vehicle Model', value: vehicle.model, icon: Info },
+        { label: 'Vehicle Type', value: vehicle.type, icon: Hash },
+        { label: 'Colour', value: vehicle.colour, icon: Activity },
+        { label: 'Seating Capacity', value: vehicle.capacity, icon: User },
+        { label: 'Assigned Driver', value: vehicle.driver, icon: User },
+        { label: 'Asset Status', value: vehicle.status, icon: CheckCircle2, isBadge: true },
+      ]
+    },
+    {
+      title: 'Compliance & Coverage Details',
+      icon: Shield,
+      fields: [
+        { label: 'Registration No', value: vehicle.registration_no, icon: Hash },
+        { label: 'PH Vehicle Licence', value: vehicle.ph_vehicle_licence_no, icon: Award },
+        { label: 'Licence Expiry', value: vehicle.licence_expiry, icon: Calendar, isDate: true },
+        { label: 'Insurance Provider', value: vehicle.insurence_provider, icon: Briefcase },
+        { label: 'Policy Number', value: vehicle.policy_no, icon: CreditCard },
+        { label: 'Insurance Expiry', value: vehicle.insurence_expiry, icon: Calendar, isDate: true },
+      ]
+    }
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
-        <div className="flex items-center gap-4">
+    <div className="w-full max-w-full mx-auto pb-10 px-2 animate-in fade-in duration-300">
+      {/* Header Bar */}
+      <header className="flex items-center justify-between mb-4 bg-white p-4 border border-slate-200 rounded-xl shadow-sm">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-primary-700 text-white flex items-center justify-center font-black text-2xl rounded-lg">
+            {vehicle.make.charAt(0)}
+          </div>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{vehicle.make} {vehicle.model}</h2>
-              <StatusBadge
-                status={vehicle.status}
-                statusColor={vehicle.status === 'Active' ? 'success' : vehicle.status === 'Maintenance' ? 'warning' : 'danger'}
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{vehicle.make} {vehicle.model}</h1>
+              <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded-full ${
+                vehicle.status.toLowerCase() === 'active' 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' 
+                : 'bg-amber-50 text-amber-700 border-amber-100 shadow-sm'
+              }`}>
+                {vehicle.status}
+              </span>
+            </div>
+            <div className="flex items-center gap-6 text-xs font-bold text-slate-500 mt-1.5">
+              <span className="text-primary-700 font-black">{vehicle.id}</span>
+              <span className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5 text-primary-600" /> {vehicle.registration_no}</span>
+              <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5 text-primary-600" /> {vehicle.type}</span>
+              <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-primary-600" /> {vehicle.capacity} Seats</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right border-r pr-5 border-slate-100">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] mb-0.5">Total Missions</p>
+            <p className="text-xl font-black text-primary-700 leading-none">{vehicleTrips.length || 0}</p>
+          </div>
+          <Link
+            to={`/vehicles/edit/${id}`}
+            className="px-6 py-3 bg-slate-900 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 rounded-lg hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+          >
+            <Edit className="w-4 h-4" /> Update Asset
+          </Link>
+        </div>
+      </header>
+
+      
+      <main className="bg-white border border-slate-200 rounded-xl shadow-sm divide-y divide-slate-100 overflow-hidden">
+        
+        
+        <div className="p-6 space-y-10">
+          {sections.map((section, sIdx) => (
+            <section key={sIdx}>
+              <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-2">
+                <section.icon className="w-4 h-4 text-primary-700" />
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{section.title}</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6">
+                {section.fields.map((field, fIdx) => (
+                  <div key={fIdx} className="flex flex-col">
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                      {field.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {field.isBadge ? (
+                        <span className={`text-sm font-black uppercase tracking-tight ${
+                          field.value?.toLowerCase() === 'active' || field.value?.toLowerCase() === 'yes'
+                            ? 'text-emerald-600'
+                            : field.value?.toLowerCase() === 'maintenance'
+                            ? 'text-amber-600'
+                            : 'text-slate-500'
+                        }`}>
+                          {field.value || 'N/A'}
+                        </span>
+                      ) : (
+                        <span className={`text-[15px] font-bold text-slate-800 leading-tight truncate ${field.isDate ? 'font-mono text-sm' : ''}`}>
+                          {field.value || '---'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+
+
+          <section className="pt-2">
+            <div className="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
+              <Activity className="w-4 h-4 text-primary-700" />
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Asset Remarks</h3>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+              <p className="text-sm font-medium text-slate-600 leading-relaxed italic">
+                {vehicle.notes || "No maintenance logs or special remarks recorded for this vehicle asset."}
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <section className="bg-slate-50/20">
+          <div className="p-5 flex items-center justify-between bg-white border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary-100 text-primary-700 flex items-center justify-center rounded-lg shadow-sm">
+                <Car className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Deployment Logs</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-0.5">
+                  {vehicleTrips.length} Historical entries recorded
+                </p>
+              </div>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Filter deployment history..."
+                className="pl-9 pr-4 py-2 bg-white border border-slate-200 text-xs font-bold focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none rounded-lg w-64 shadow-sm"
               />
             </div>
-            <p className="text-slate-500 font-medium mt-1 flex items-center gap-2">
-              <Hash className="w-3.5 h-3.5 text-indigo-500" /> {vehicle.registration_no} &bull; {vehicle.type}
-            </p>
-          </div>
-        </div>
-        <Link
-          to={`/vehicles/edit/${id}`}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
-        >
-          <Edit className="w-4 h-4" /> Update Vehicle
-        </Link>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        <div className="space-y-4 mt-4">
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <Car className="w-4 h-4 text-primary-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Vehicle Identity</h3>
           </div>
 
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle ID</label>
-                <p className="px-4 py-3 rounded-xl bg-slate-50 text-slate-700 font-bold border border-slate-100">{vehicle.id}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Make & Model</label>
-                <div className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-[10px] font-bold">
-                    {vehicle.make.charAt(0)}
-                  </div>
-                  <span>{vehicle.make} {vehicle.model}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Type</label>
-                <p className="px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100 uppercase">{vehicle.type}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Colour</label>
-                <p className="px-4 py-3 rounded-xl bg-slate-50 text-slate-700 font-bold border border-slate-100">{vehicle.colour}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <User className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{vehicle.capacity}</span>
-                </div>
-              </div>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/50">
+                  <th className="pl-6 pr-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trip ID</th>
+                  <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route Details</th>
+                  <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
+                  <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {vehicleTrips.length > 0 ? (
+                  vehicleTrips.map((trip, idx) => (
+                    <tr key={idx} className="hover:bg-primary-50/30 transition-colors group">
+                      <td className="pl-6 pr-4 py-4 text-sm font-black text-slate-800">{trip.trip_id}</td>
+                      <td className="px-4 py-4 text-sm font-bold text-slate-700 group-hover:text-primary-700 transition-colors">{trip.route}</td>
+                      <td className="px-4 py-4 text-xs font-bold text-slate-400 font-mono italic">{trip.trip_date}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${
+                          trip.status === 'COMPLETED' 
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                          : 'bg-indigo-50 text-indigo-700 border-indigo-100'
+                        }`}>
+                          {trip.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-8 text-center text-sm font-bold text-slate-400 uppercase tracking-widest">
+                      No missions logged for this asset
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        </div>
-
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-indigo-50 rounded-lg">
-              <Shield className="w-4 h-4 text-indigo-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Registration & Licensing</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Plate Number</label>
-                <p className="px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100 uppercase tracking-widest">{vehicle.registration_no}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH License No</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Award className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{vehicle.ph_vehicle_licence_no}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Licence Expiry</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Calendar className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800 font-mono text-xs">{vehicle.licence_expiry}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Insurance Intelligence</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Provider</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Briefcase className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{vehicle.insurence_provider}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Policy Number</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <CreditCard className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{vehicle.policy_no}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Policy Expiry</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Calendar className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800 font-mono text-xs">{vehicle.insurence_expiry}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-amber-50 rounded-lg">
-              <Activity className="w-4 h-4 text-amber-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Fleet Management</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
-                <div className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-[10px] font-bold">
-                    {vehicle.driver?.charAt(0)}
-                  </div>
-                  <span>{vehicle.driver}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Asset Status</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span className="font-bold text-emerald-700 uppercase">{vehicle.status}</span>
-                </div>
-              </div>
-
-              <div className="md:col-span-2 space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Asset Remarks</label>
-                <div className="px-4 py-3 rounded-xl bg-yellow-50/30 text-slate-600 font-medium italic border border-yellow-100 min-h-[46px]">
-                  {vehicle.notes || 'No maintenance logs or special remarks recorded for this vehicle asset.'}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-slate-50 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Missions</label>
-                <p className="text-2xl font-bold text-slate-800">142</p>
-                <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
-                  <CheckCircle2 className="w-3 h-3" /> All Successful
-                </div>
-              </div>
-              <div className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Distance Logged</label>
-                <p className="text-2xl font-bold text-slate-800">12,450 km</p>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Cumulative Odometer</p>
-              </div>
-              <div className="px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100 space-y-0.5">
-                <label className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block">Health Index</label>
-                <p className="text-2xl font-bold text-emerald-700">98%</p>
-                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Optimal Condition</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };

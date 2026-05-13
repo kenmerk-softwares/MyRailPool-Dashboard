@@ -22,7 +22,6 @@ import {
   Bell,
   UserCheck
 } from 'lucide-react';
-import { StatusBadge } from '../../../components/Shared';
 import { driversData, tripsData } from '../../../data/mockData';
 
 export default function ViewDriver() {
@@ -32,28 +31,19 @@ export default function ViewDriver() {
 
   if (!selectedDriver) {
     return (
-      <div className="p-12 text-center bg-white rounded-2xl border border-slate-200/60 shadow-sm animate-in zoom-in duration-300">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-8 h-8 text-slate-500" />
-        </div>
-        <h3 className="text-xl font-bold text-slate-800">Operator Profile Not Found</h3>
-        <p className="text-slate-500 mt-1 mb-6">The specified driver ID does not exist in the database.</p>
-        <Link
-          to="/drivers"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
-        >
-          Return to Fleet Index
-        </Link>
+      <div className="p-10 text-center bg-white border border-slate-200 max-w-md mx-auto mt-20 rounded-xl shadow-sm">
+        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+        <h3 className="text-lg font-bold text-slate-800">Operator Not Found</h3>
+        <p className="text-slate-500 text-sm mt-1">The requested driver profile could not be located.</p>
+        <Link to="/drivers" className="mt-6 inline-block px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm shadow-sm">Return Index</Link>
       </div>
     );
   }
 
-  const infoGroups = [
+  const sections = [
     {
-      title: 'Licensing Jurisdictions',
+      title: 'Licensing & Operative Compliance',
       icon: Shield,
-      iconBg: 'bg-indigo-50',
-      iconColor: 'text-indigo-600',
       fields: [
         { label: 'PH License', value: selectedDriver.ph_lic, icon: Award },
         { label: 'PH Expiry', value: selectedDriver.ph_exp, icon: Calendar, isDate: true },
@@ -61,235 +51,188 @@ export default function ViewDriver() {
         { label: 'DVLA Expiry', value: selectedDriver.dvla_exp, icon: Calendar, isDate: true },
         { label: 'DBS Cert No', value: selectedDriver.dbs_no, icon: FileText },
         { label: 'DBS Issue Date', value: selectedDriver.dbs_date, icon: Calendar, isDate: true },
-      ]
-    },
-    {
-      title: 'Operative Compliance',
-      icon: GraduationCap,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
-      fields: [
         { label: 'Medical Exemption', value: selectedDriver.medical_ex, icon: Stethoscope, isBadge: true },
         { label: 'Training Status', value: selectedDriver.training_done, icon: CheckCircle2, isBadge: true },
         { label: 'Training Date', value: selectedDriver.training_date, icon: Calendar, isDate: true },
-        { label: 'RTW Verified', value: selectedDriver.rtw_date, icon: Clock, isDate: true },
-        { label: 'RTW Note', value: selectedDriver.rtw_note, icon: UserCheck },
         { label: 'Council Notified', value: selectedDriver.council_notified, icon: Bell, isBadge: true },
       ]
     },
     {
-      title: 'Fleet Lifecycle & Metrics',
+      title: 'Employment Lifecycle & Onboarding',
       icon: Briefcase,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
       fields: [
         { label: 'Service Start', value: selectedDriver.start_date, icon: Calendar, isDate: true },
         { label: 'Contract End', value: selectedDriver.end_date, icon: Calendar, isDate: true },
-        { label: 'Termination Reason', value: selectedDriver.termination_reason, icon: AlertCircle },
-        { label: 'Confidential Notes', value: selectedDriver.notes, icon: Activity, isFullWidth: true },
+        { label: 'RTW Verified', value: selectedDriver.rtw_date, icon: Clock, isDate: true },
+        { label: 'RTW Note', value: selectedDriver.rtw_note, icon: UserCheck },
+        { label: 'Termination Reason', value: selectedDriver.termination_reason || 'N/A', icon: AlertCircle },
       ]
     }
   ];
 
   return (
-    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
-        <div className="flex items-center gap-4">
+    <div className="w-full max-w-full mx-auto pb-10 px-2 animate-in fade-in duration-300">
+      {/* Header Bar */}
+      <header className="flex items-center justify-between mb-4 bg-white p-4 border border-slate-200 rounded-xl shadow-sm">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-emerald-600 text-white flex items-center justify-center font-black text-2xl rounded-lg">
+            {selectedDriver.name.charAt(0)}
+          </div>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Driver Profile</h2>
-              <StatusBadge
-                status={selectedDriver.status}
-                statusColor={selectedDriver.status.toLowerCase() === 'active' ? 'success' : 'warning'}
-              />
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{selectedDriver.name}</h1>
+              <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded-full ${
+                selectedDriver.status.toLowerCase() === 'active' 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' 
+                : 'bg-amber-50 text-amber-700 border-amber-100 shadow-sm'
+              }`}>
+                {selectedDriver.status}
+              </span>
             </div>
-            <p className="text-slate-500 font-medium mt-1">
-              Operational record and compliance analytics for {selectedDriver.name}
-            </p>
-          </div>
-        </div>
-        <Link
-          to={`/drivers/edit/${selectedDriver.driver_id.replace('#', '')}`}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
-        >
-          <Edit className="w-4 h-4" /> Update Profile
-        </Link>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        <div className="space-y-8 mt-4">
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <UserCheck className="w-4 h-4 text-primary-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Identity & Contact</h3>
-          </div>
-
-          <div className="ps-6">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
-              <div className="relative shrink-0">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100/50 flex items-center justify-center text-primary-800 font-bold text-2xl border border-primary-100 uppercase shadow-inner">
-                  {selectedDriver.name.charAt(0)}
-                </div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 rounded-xl border-4 border-white flex items-center justify-center shadow-lg">
-                  <ShieldCheck className="w-3.5 h-3.5 text-white" />
-                </div>
-              </div>
-
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <h3 className="text-xl font-bold text-slate-800 tracking-tight">{selectedDriver.name}</h3>
-                  <span className="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-semibold text-slate-500 uppercase tracking-wider border border-slate-200">
-                    {selectedDriver.driver_id}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <div className="flex items-center gap-2.5 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100">
-                    <Phone className="w-4 h-4 text-primary-600" />
-                    <span className="font-bold text-sm text-slate-700">{selectedDriver.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100">
-                    <Mail className="w-4 h-4 text-primary-600" />
-                    <span className="font-bold text-sm text-slate-700">{selectedDriver.email}</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100">
-                    <MapPin className="w-4 h-4 text-primary-600" />
-                    <span className="font-bold text-sm text-slate-700">{selectedDriver.address}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="shrink-0 px-6 py-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Trips</p>
-                <p className="text-3xl font-bold text-slate-800">{driverTrips.length}</p>
-              </div>
+            <div className="flex items-center gap-6 text-xs font-bold text-slate-500 mt-1.5">
+              <span className="text-emerald-700 font-black">{selectedDriver.driver_id}</span>
+              <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-emerald-600" /> {selectedDriver.phone}</span>
+              <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-emerald-600" /> {selectedDriver.email}</span>
+              <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-emerald-600" /> {selectedDriver.address}</span>
             </div>
           </div>
         </div>
-
-        {infoGroups.map((group, idx) => (
-          <div key={idx}>
-            <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-              <div className={`p-2 ${group.iconBg} rounded-lg`}>
-                <group.icon className={`w-4 h-4 ${group.iconColor}`} />
-              </div>
-              <h3 className="font-bold text-slate-800 tracking-tight">{group.title}</h3>
-            </div>
-
-            <div className={`p-6 grid grid-cols-1 gap-6 ${
-              group.title === 'Fleet Lifecycle & Metrics'
-                ? 'sm:grid-cols-2 lg:grid-cols-4'
-                : 'sm:grid-cols-2 lg:grid-cols-3'
-            }`}>
-              {group.fields.map((field, fIdx) => (
-                <div
-                  key={fIdx}
-                  className={`space-y-1.5 ${
-                    field.isFullWidth
-                      ? (group.title === 'Fleet Lifecycle & Metrics' ? 'sm:col-span-2 lg:col-span-4' : 'sm:col-span-2 lg:col-span-3')
-                      : ''
-                  }`}
-                >
-                  <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                    {field.label}
-                  </label>
-                  {field.isBadge ? (
-                    <div className="px-4 py-3 rounded-xl bg-white border border-slate-200 flex items-center gap-3">
-                      <field.icon className="w-4 h-4 text-slate-400" />
-                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                        field.value?.toLowerCase() === 'yes' || field.value?.toLowerCase() === 'completed'
-                          ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                          : 'bg-slate-100 text-slate-600 border border-slate-200'
-                      }`}>
-                        {field.value || 'N/A'}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                      <field.icon className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span className={`font-bold text-slate-800 truncate ${field.isDate ? 'font-mono text-xs' : ''}`}>
-                        {field.value || '---'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right border-r pr-5 border-slate-100">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] mb-0.5">Total Trips</p>
+            <p className="text-xl font-black text-emerald-600 leading-none">{driverTrips.length}</p>
           </div>
-        ))}
+          <Link
+            to={`/drivers/edit/${selectedDriver.driver_id.replace('#', '')}`}
+            className="px-6 py-3 bg-slate-900 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 rounded-lg hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+          >
+            <Edit className="w-4 h-4" /> Update Profile
+          </Link>
+        </div>
+      </header>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/30">
+     
+      <main className="bg-white border border-slate-200 rounded-xl shadow-sm divide-y divide-slate-100 overflow-hidden">
+        
+  
+        <div className="p-6 space-y-10">
+          {sections.map((section, sIdx) => (
+            <section key={sIdx}>
+              <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-2">
+                <section.icon className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{section.title}</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-8 gap-y-6">
+                {section.fields.map((field, fIdx) => (
+                  <div key={fIdx} className="flex flex-col">
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                      {field.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {field.isBadge ? (
+                        <span className={`text-sm font-black uppercase tracking-tight ${
+                          field.value?.toLowerCase() === 'yes' || field.value?.toLowerCase() === 'completed'
+                            ? 'text-emerald-600'
+                            : field.value?.toLowerCase() === 'no' || field.value?.toLowerCase() === 'pending'
+                            ? 'text-red-600'
+                            : 'text-slate-500'
+                        }`}>
+                          {field.value || 'N/A'}
+                        </span>
+                      ) : (
+                        <span className={`text-[15px] font-bold text-slate-800 leading-tight truncate ${field.isDate ? 'font-mono text-sm' : ''}`}>
+                          {field.value || '---'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+
+          {/* Notes Section */}
+          <section className="pt-2">
+            <div className="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
+              <Activity className="w-4 h-4 text-emerald-600" />
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Confidential Notes</h3>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+              <p className="text-sm font-medium text-slate-600 leading-relaxed italic">
+                {selectedDriver.notes || "Secure digital record initialized. No additional operational annotations recorded for this cycle."}
+              </p>
+            </div>
+          </section>
+        </div>
+
+        {/* History Table */}
+        <section className="bg-slate-50/20">
+          <div className="p-5 flex items-center justify-between bg-white border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-50 rounded-lg">
-                <Car className="w-4 h-4 text-indigo-600" />
+              <div className="w-8 h-8 bg-emerald-100 text-emerald-700 flex items-center justify-center rounded-lg shadow-sm">
+                <Car className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 tracking-tight">Trip History</h3>
-                <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
-                  {driverTrips.length} historical deployments
+                <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Deployment Logs</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-0.5">
+                  {driverTrips.length} Historical entries recorded
                 </p>
               </div>
             </div>
-            <div className="relative group w-full sm:w-64">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search logs..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none"
+                placeholder="Filter deployment history..."
+                className="pl-9 pr-4 py-2 bg-white border border-slate-200 text-xs font-bold focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none rounded-lg w-64 shadow-sm"
               />
             </div>
           </div>
 
-          {driverTrips.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead>
-                  <tr className="bg-slate-50/50">
-                    <th className="px-6 py-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">Deployment ID</th>
-                    <th className="px-6 py-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">Operative Path</th>
-                    <th className="px-6 py-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">Timestamp</th>
-                    <th className="px-6 py-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {driverTrips.map((trip, idx) => (
-                    <tr key={idx} className="group hover:bg-slate-50/40 transition-colors">
-                      <td className="px-6 py-5">
-                        <span className="font-bold text-slate-800">{trip.trip_id}</span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-white transition-colors">
-                            <MapPin className="w-3.5 h-3.5 text-primary-600" />
-                          </div>
-                          <span className="font-bold text-slate-700">{trip.route}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-2 font-mono text-slate-500 text-xs">
-                          <Clock className="w-3.5 h-3.5" />
-                          {trip.trip_date}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 text-center">
-                        <StatusBadge status={trip.status} statusColor={trip.status === 'COMPLETED' ? 'success' : 'primary'} />
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/50">
+                  <th className="pl-6 pr-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trip ID</th>
+                  <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route Details</th>
+                  <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
+                  <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {driverTrips.length > 0 ? (
+                  driverTrips.map((trip, idx) => (
+                    <tr key={idx} className="hover:bg-emerald-50/30 transition-colors group">
+                      <td className="pl-6 pr-4 py-4 text-sm font-black text-slate-800">{trip.trip_id}</td>
+                      <td className="px-4 py-4 text-sm font-bold text-slate-700 group-hover:text-emerald-700 transition-colors">{trip.route}</td>
+                      <td className="px-4 py-4 text-xs font-bold text-slate-400 font-mono italic">{trip.trip_date}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${
+                          trip.status === 'COMPLETED' 
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                          : 'bg-indigo-50 text-indigo-700 border-indigo-100'
+                        }`}>
+                          {trip.status}
+                        </span>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 bg-slate-50/10">
-              <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 mb-4 shadow-sm">
-                <Activity className="w-8 h-8" />
-              </div>
-              <p className="text-slate-400 font-semibold uppercase tracking-widest text-[11px]">Zero historical deployments</p>
-            </div>
-          )}
-        </div>
-      </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-8 text-center text-sm font-black text-slate-400 uppercase tracking-widest">
+                      No deployment logs found for this operator
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
+
+
+
