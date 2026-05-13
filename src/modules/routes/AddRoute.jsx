@@ -179,7 +179,7 @@ export const AddRoute = () => {
         action: initialData ? 'edit' : 'add',
         id: initialData?.id,
         name: data.routeName,
-        status: data.status,
+        status: initialData?.status || "Active",
         activationDate: data.activationDate,
         deactivationDate: data.deactivationDate,
         selectedDates: selectedDates,
@@ -269,24 +269,7 @@ export const AddRoute = () => {
                     {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.name}</p>}
                   </div>
                 </div>
-
-
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status <span className="text-red-500"> *</span></label>
-                  <select
-                    name="status"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none text-sm"
-                    defaultValue={initialData?.status || "Active"}
-                    onChange={handleInputChange}
-                  >
-
-                    <option value="Active">Active Corridor</option>
-                    <option value="Inactive">Under Maintenance / Inactive</option>
-                  </select>
-                  {errors.status && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.status}</p>}
-                </div>
               </div>
-
             </div>
           </div>
 
@@ -304,40 +287,36 @@ export const AddRoute = () => {
             </div>
 
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date <span className="text-red-500"> *</span></label>
-                  <div className="relative group">
-                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
-                    <input
-                      type="date"
-                      name="activationDate"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all text-sm"
-                      defaultValue={initialData?.activationDate}
-                      onChange={handleInputChange}
-                    />
-
-                    {errors.activationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.activationDate}</p>}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date <span className="text-red-500"> *</span></label>
+                    <div className="relative group">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
+                      <input
+                        type="date"
+                        name="activationDate"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm"
+                        defaultValue={initialData?.activationDate}
+                        onChange={handleInputChange}
+                      />
+                      {errors.activationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.activationDate}</p>}
+                    </div>
                   </div>
-                </div>
 
-
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date <span className="text-red-500"> *</span></label>
-                  <div className="relative group">
-                    <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
-                    <input
-                      type="date"
-                      name="deactivationDate"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all text-sm"
-                      defaultValue={initialData?.deactivationDate}
-                      onChange={handleInputChange}
-                    />
-
-
-
-                    {errors.deactivationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.deactivationDate}</p>}
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date <span className="text-red-500"> *</span></label>
+                    <div className="relative group">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
+                      <input
+                        type="date"
+                        name="deactivationDate"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm"
+                        defaultValue={initialData?.deactivationDate}
+                        onChange={handleInputChange}
+                      />
+                      {errors.deactivationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.deactivationDate}</p>}
+                    </div>
                   </div>
                 </div>
 
