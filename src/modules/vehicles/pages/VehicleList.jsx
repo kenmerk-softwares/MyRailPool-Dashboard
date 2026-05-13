@@ -1,9 +1,9 @@
 import React from 'react';
 import { Plus, Edit, Trash2, Car, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { SectionHeader, StatusBadge } from '../../components/Shared';
-import { vehiclesData } from '../../data/mockData';
-import { Filter } from '../../Filter/Filter';
+import { SectionHeader, StatusBadge } from '../../../components/Shared';
+import { vehiclesData } from '../../../data/mockData';
+import { Filter } from '../../../Filter/Filter';
 
 export const VehicleList = () => {
   const navigate = useNavigate();

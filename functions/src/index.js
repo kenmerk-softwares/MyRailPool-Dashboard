@@ -16,3 +16,7 @@ exports.addRoute = addRoute;
 // ================ DRIVER MODULES ==================== //
 const {addDriver} = require("./modules/driver/driver.callable");
 exports.addDriver = addDriver;
+
+// ================ VEHICLE MODULES ==================== //
+const {addVehicle} = require("./modules/vehicle/vehicle.callable");
+exports.addVehicle = addVehicle;

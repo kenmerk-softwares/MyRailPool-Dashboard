@@ -1,4 +1,4 @@
-const {db} = require("../../shared/config/firebase");
+const {db, auth} = require("../../shared/config/firebase");
 const {FieldValue} = require("firebase-admin/firestore");
 
 const addDriverService = async (data, req) => {
@@ -14,12 +14,17 @@ const addDriverService = async (data, req) => {
     const counterData = counterDoc.data();
     const counterId = counterData.counter || 0;
     const newCounterId = counterId + 1;
-
+    const userRecord = await auth.createUser({
+      email: fields.email,
+      password: "password123",
+      displayName: fields.name,
+    });
     batch.update(counterRef, {counter: newCounterId});
-    const driverRef = db.collection("drivers").doc();
+    const driverRef = db.collection("drivers").doc(userRecord.uid);
     const driverData = {
       ...fields,
       id: newCounterId,
+      uid: userRecord.uid,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
