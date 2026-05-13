@@ -23,7 +23,7 @@ const addRouteService = async (data, req) => {
       return {success: false, error: "Missing required fields or insufficient geographical nodes"};
     }
 
-    // ====================== STORE PLACES DATA ======================
+    // ====================== STORE PLACES DATA ====================== //
     if (routesData && Array.isArray(routesData)) {
       const batch = db.batch();
       routesData.forEach((place) => {
@@ -40,7 +40,7 @@ const addRouteService = async (data, req) => {
       await batch.commit();
     }
 
-    // ===================== CREATING PAIRS AND FARE MATRIX =====================
+    // ===================== CREATING PAIRS AND FARE MATRIX ===================== //
     const transformedFareMatrix = {};
     const routePairs = [];
     if (fareMatrix && typeof fareMatrix === "object") {
@@ -57,9 +57,13 @@ const addRouteService = async (data, req) => {
         }
       });
     }
+    // ===================== ADDING ROUTES ===================== //
+    const countSnapshot = await db.collection("routes").count().get();
+    const routeOrder = countSnapshot.data().count + 1;
 
     const payload = {
       name,
+      order: routeOrder,
       status: status || "Active",
       activationDate: new Date(activationDate),
       deactivationDate: new Date(deactivationDate),
@@ -89,7 +93,7 @@ const addRouteService = async (data, req) => {
       return {success: false, error: "Route not found"};
     }
 
-    // ====================== STORE PLACES DATA ======================
+    // ====================== STORE PLACES DATA ====================== //
     if (routesData && Array.isArray(routesData)) {
       const batch = db.batch();
       routesData.forEach((place) => {
@@ -106,7 +110,7 @@ const addRouteService = async (data, req) => {
       await batch.commit();
     }
 
-    // ====================== CREATING PAIRS AND FARE MATRIX ======================
+    // ====================== CREATING PAIRS AND FARE MATRIX ====================== //
     const transformedFareMatrix = {};
     const routePairs = [];
     if (fareMatrix && typeof fareMatrix === "object") {

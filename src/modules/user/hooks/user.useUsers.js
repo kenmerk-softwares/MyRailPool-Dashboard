@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { collection, getDocs, query, where, limit, startAfter, orderBy } from "firebase/firestore";
-import { db } from "../../../Config/Config";
+import { db } from "../../../shared/services/firebase";
 import { setUsers, setLoading } from "../user.slice";
 import { serialize } from "../../../shared/utils/serialize";
 

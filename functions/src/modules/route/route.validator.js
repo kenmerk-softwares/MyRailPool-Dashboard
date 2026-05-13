@@ -1,9 +1,5 @@
 const Joi = require("joi");
 const addRouteValidator = (req) => {
-  if (!req.auth) {
-    return {success: false, error: "Unauthorized"};
-  }
-
   const action = req.data.action;
   let schema = null;
   if (action === "add") {

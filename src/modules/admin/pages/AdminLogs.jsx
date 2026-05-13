@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Search, Clock, ArrowRight } from 'lucide-react';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { SectionHeader } from '../../../components/Shared';
-import { adminDb } from '../../../Config/Config';
+import { adminDb } from '../../../shared/services/firebase';
 import { where, orderBy } from 'firebase/firestore';
 import { useCollection } from '../../../shared/hooks/useCollection';
 

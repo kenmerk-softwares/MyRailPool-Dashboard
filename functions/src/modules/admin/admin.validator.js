@@ -42,9 +42,6 @@ const addAdminValidator = (data) => {
 };
 
 const changePasswordValidator = (req, data) => {
-  if (!req.auth) {
-    return {success: false, error: "Unauthorized"};
-  }
   if (!data || Object.keys(data).length === 0) {
     return {success: false, error: "Missing required fields"};
   }
@@ -73,9 +70,6 @@ const changePasswordValidator = (req, data) => {
 
 // ====================== EDIT PERMISSIONS VALIDATOR ==================== //
 const editPermissionsValidator = (req, data) => {
-  if (!req.auth) {
-    return {success: false, error: "Unauthorized"};
-  }
   if (!data || Object.keys(data).length === 0) {
     return {success: false, error: "Missing required fields"};
   }
@@ -107,9 +101,6 @@ const editPermissionsValidator = (req, data) => {
 
 // ====================== EDIT EMPLOYEE SETTINGS VALIDATOR ==================== //
 const updateEmployeeSettingsValidator = (req, data) => {
-  if (!req.auth) {
-    return {success: false, error: "Unauthorized"};
-  }
   if (!data || Object.keys(data).length === 0) {
     return {success: false, error: "Missing required fields"};
   }

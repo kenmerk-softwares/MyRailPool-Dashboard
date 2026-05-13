@@ -3,7 +3,7 @@ import { PermissionPopup } from './PermissionPopup';
 import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash, FaEdit, FaUserSlash } from 'react-icons/fa';
 import { collection, onSnapshot, query, orderBy, addDoc} from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { db, app } from '../../Config/Config';
+import { db, app } from '../../shared/services/firebase';
 import { useToast } from '../../shared/hooks/ToastContext';
 
 export const AdminSettings = () => {

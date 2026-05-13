@@ -2,7 +2,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { onSnapshot, doc } from "firebase/firestore";
 import { serialize } from "../../shared/utils/serialize";
 import { setUser, setProfile, setRole, setPermissions, logout, setLoading } from "./auth.slice";
-import { auth, db } from "../../Config/Config";
+import { auth, db } from "../../shared/services/firebase";
 
 let profileUnsub = null;
 let permUnsub = null;

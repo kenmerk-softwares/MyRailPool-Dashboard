@@ -22,8 +22,8 @@ import {
   Bell,
   UserCheck
 } from 'lucide-react';
-import { StatusBadge } from '../../components/Shared';
-import { driversData, tripsData } from '../../data/mockData';
+import { StatusBadge } from '../../../components/Shared';
+import { driversData, tripsData } from '../../../data/mockData';
 
 export default function ViewDriver() {
   const { id } = useParams();

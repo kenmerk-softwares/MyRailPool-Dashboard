@@ -1,5 +1,5 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app } from "../../Config/Config";
+import { app } from "./firebase";
 
 const functions = getFunctions(app, "asia-south1");
 const callFunction = async (name, data = {}) => {
@@ -11,4 +11,5 @@ const callFunction = async (name, data = {}) => {
 export const FunctionsAPI = {
     addAdminUser: (data) => callFunction("addAdminUser", data),
     changePassword: (data) => callFunction("changePassword", data),
+    addDriver: (data) => callFunction("addDriver", data),
 };

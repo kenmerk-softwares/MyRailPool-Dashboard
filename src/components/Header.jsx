@@ -3,7 +3,7 @@ import { Menu, Bell, UserCircle, ChevronDown, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
-import { auth } from '../Config/Config';
+import { auth } from '../shared/services/firebase';
 import { useToast } from '../shared/hooks/ToastContext';
 
 export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {

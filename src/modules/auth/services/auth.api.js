@@ -1,5 +1,5 @@
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../../Config/Config";
+import { auth, db } from "../../../shared/services/firebase";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 import { serialize } from "../../../shared/utils/serialize";

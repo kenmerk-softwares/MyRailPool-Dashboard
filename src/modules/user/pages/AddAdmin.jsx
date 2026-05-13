@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../../Config/Config'
+import { db } from '../../../shared/services/firebase'
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { X } from 'lucide-react';

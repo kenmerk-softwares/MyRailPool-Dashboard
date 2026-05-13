@@ -1,9 +1,9 @@
 import React from 'react';
 import { Edit, Trash2, UserPlus, Eye, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { SectionHeader, StatusBadge } from '../../components/Shared';
-import { driversData } from '../../data/mockData';
-import { Filter } from '../../Filter/Filter';
+import { SectionHeader, StatusBadge } from '../../../components/Shared';
+import { driversData } from '../../../data/mockData';
+import { Filter } from '../../../Filter/Filter';
 
 export const DriverList = () => {
   const navigate = useNavigate();

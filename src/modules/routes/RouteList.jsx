@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { Filter } from '../../Filter/Filter';
-import { db } from '../../Config/Config';
+import { db } from '../../shared/services/firebase';
 import { collection, getDocs, query, where, limit, startAfter, orderBy } from 'firebase/firestore';
 
 export const RouteList = () => {

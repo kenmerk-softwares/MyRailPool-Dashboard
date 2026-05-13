@@ -1,67 +1,42 @@
 /* eslint-disable max-len */
-const {onCall} = require("firebase-functions/v2/https");
+const {callableWrapper} = require("../../shared/utils/callable.wrapper");
 const {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService} = require("./admin.service");
 const {addAdminValidator, changePasswordValidator, editPermissionsValidator, updateEmployeeSettingsValidator} = require("./admin.validator");
-const {logError} = require("../../shared/utils/logger");
 
 // ==================== ADD ADMIN USER ==================== //
-const addAdminUser = onCall(async (req) => {
-  try {
-    const validateData = await addAdminValidator(req, req.data);
-    if (!validateData.success) {
-      return validateData;
-    }
-    const data = req.data || {};
-    return await addAdminUserService(data, req);
-  } catch (error) {
-    return {error: error.message, success: false};
+const addAdminUser = callableWrapper(async (req) => {
+  const validateData = addAdminValidator(req, req.data);
+  if (!validateData.success) {
+    return validateData;
   }
+  return await addAdminUserService(req.data || {}, req);
 });
 
-module.exports = {addAdminUser};
-
 // =================== CHANGE PASSWORD ==================== //
-const changePassword = onCall(async (req) => {
-  try {
-    const validateData = await changePasswordValidator(req, req.data);
-    if (!validateData.success) {
-      return validateData;
-    }
-    return await changePasswordService(req);
-  } catch (error) {
-    logError(error);
-    return {error: error.message, success: false};
+const changePassword = callableWrapper(async (req) => {
+  const validateData = changePasswordValidator(req, req.data);
+  if (!validateData.success) {
+    return validateData;
   }
+  return await changePasswordService(req);
 });
 
 // ====================== EDIT PERMISSIONS ==================== //
-const editPermissions = onCall(async (req) => {
-  try {
-    const validateData = await editPermissionsValidator(req, req.data);
-    if (!validateData.success) {
-      return validateData;
-    }
-    return await editPermissionsService(req);
-  } catch (error) {
-    logError(error);
-    return {error: error.message, success: false};
+const editPermissions = callableWrapper(async (req) => {
+  const validateData = editPermissionsValidator(req, req.data);
+  if (!validateData.success) {
+    return validateData;
   }
+  return await editPermissionsService(req);
 });
 
 // ===================== UPDATE DESIGNATION/DEPARTMENT ==================== //
-const updateEmployeeSettings = onCall(async (req) => {
-  try {
-    const validateData = await updateEmployeeSettingsValidator(req, req.data);
-    if (!validateData.success) {
-      return validateData;
-    }
-    return await updateEmployeeSettingsService(req);
-  } catch (error) {
-    logError(error);
-    return {error: error.message, success: false};
+const updateEmployeeSettings = callableWrapper(async (req) => {
+  const validateData = updateEmployeeSettingsValidator(req, req.data);
+  if (!validateData.success) {
+    return validateData;
   }
+  return await updateEmployeeSettingsService(req);
 });
 
-
 module.exports = {addAdminUser, changePassword, editPermissions, updateEmployeeSettings};
-

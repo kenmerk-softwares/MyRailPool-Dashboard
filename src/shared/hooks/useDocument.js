@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../Config/Config';
+import { db } from '../services/firebase';
 
 /**
  * 

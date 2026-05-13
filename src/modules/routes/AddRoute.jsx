@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
-import { app, GOOGLE_MAPS_API_KEY } from '../../Config/Config';
+import { app, GOOGLE_MAPS_API_KEY } from '../../shared/services/firebase';
 import { httpsCallable, getFunctions } from 'firebase/functions';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../shared/hooks/ToastContext';

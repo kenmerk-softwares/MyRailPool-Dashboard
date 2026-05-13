@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { collection, getDocs, query, limit, startAfter } from 'firebase/firestore';
-import { db } from '../../Config/Config';
+import { db } from '../services/firebase';
 
 /**
  * 
