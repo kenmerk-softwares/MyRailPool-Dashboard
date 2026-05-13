@@ -35,7 +35,8 @@ export const EditVehicle = () => {
       fetchDrivers({ searchQuery: driverSearch });
     }, 400);
     return () => clearTimeout(timer);
-  }, [driverSearch, fetchDrivers]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverSearch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -60,6 +61,7 @@ export const EditVehicle = () => {
     policyNumber: '',
     insuranceExpiry: '',
     assignedDriver: '',
+    driverId: '',
     operationalStatus: 'Active',
     notes: ''
   });
@@ -80,6 +82,7 @@ export const EditVehicle = () => {
         policyNumber: vehicle.policy_no || '',
         insuranceExpiry: vehicle.insurence_expiry || '',
         assignedDriver: vehicle.driver || '',
+        driverId: vehicle.driverId || '',
         operationalStatus: vehicle.status || 'Active',
         notes: vehicle.notes || ''
       });
@@ -346,7 +349,7 @@ export const EditVehicle = () => {
                       setDriverSearch(e.target.value);
                       setShowDriverResults(true);
                       if (!e.target.value) {
-                        setFormData(prev => ({ ...prev, assignedDriver: '' }));
+                        setFormData(prev => ({ ...prev, assignedDriver: '', driverId: '' }));
                       }
                     }}
                     onFocus={() => setShowDriverResults(true)}
@@ -359,7 +362,11 @@ export const EditVehicle = () => {
                           key={driver.id}
                           type="button"
                           onClick={() => {
-                            setFormData(prev => ({ ...prev, assignedDriver: driver.name }));
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              assignedDriver: driver.name,
+                              driverId: driver.docId
+                            }));
                             setDriverSearch(driver.name);
                             setShowDriverResults(false);
                           }}
