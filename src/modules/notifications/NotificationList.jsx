@@ -36,6 +36,7 @@ const NotificationItem = ({ icon: Icon, title, message, time, type, onView }) =>
   );
 };
 
+
 export const NotificationList = () => {
   const [selectedNotif, setSelectedNotif] = useState(null);
   
