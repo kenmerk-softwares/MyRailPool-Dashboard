@@ -40,6 +40,7 @@ export const useDrivers = () => {
 
             const querySnapshot = await getDocs(q);
             const driversData = serialize(querySnapshot.docs.map((doc) => ({
+                id: doc.id,
                 ...doc.data(),
                 docId: doc.id
             })));

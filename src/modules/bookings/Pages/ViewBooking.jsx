@@ -22,8 +22,8 @@ import {
   Hash,
   User2
 } from 'lucide-react';
-import { StatusBadge } from '../../components/Shared';
-import { bookingsData } from '../../data/mockData';
+import { StatusBadge } from '../../../components/Shared';
+import { bookingsData } from '../../../data/mockData';
 
 export const ViewBooking = () => {
   const { id } = useParams();

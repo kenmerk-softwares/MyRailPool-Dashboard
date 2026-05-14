@@ -3,9 +3,10 @@ import { Plus, Edit, Trash2, AlertTriangle, X, KeyRound } from 'lucide-react';
 import { SectionHeader } from '../../../components/Shared';
 import AddAdmin from './AddAdmin';
 import { useToast } from '../../../shared/hooks/ToastContext';
-import { Filter } from '../../../Filter/Filter';
 import { useUsers } from '../hooks/user.useUsers';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
+import { Table } from '../../../shared/Table/Table';
+import { StatusBadge } from '../../../components/Shared';
 
 export const AdminUserList = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -106,110 +107,97 @@ export const AdminUserList = () => {
         }}
       />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-4 md:p-6 border-b border-slate-100">
-          <h3 className="text-base md:text-lg font-bold text-slate-800">Admin User List</h3>
-        </div>
-        <div className="overflow-x-auto w-full">
-          <Filter 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-            onClear={handleClear}
-            searchPlaceholder="Search admin users by name, email, role..."
-            options={[
-              { label: 'Active', value: 'Active' },
-              { label: 'Inactive', value: 'Inactive' },
-            ]}
-          />
-          <table className="w-full text-left border-collapse min-w-[700px]">
-            <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Sl No</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Name</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Email</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 hidden sm:table-cell text-center">Role</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Status</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Last Active</th>
-                <th className="px-4 md:px-6 py-4 text-xs md:text-sm font-semibold text-slate-500 border-b border-slate-100 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredData.map((user, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-4 md:px-6 py-4 text-center text-xs md:text-sm font-medium text-slate-500">{idx + 1}</td>
-                  <td className="px-4 md:px-6 py-4 text-center">
-                    <div className="text-xs md:text-sm font-medium text-slate-900">{user.name}</div>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 text-center">
-                    <div className="text-[10px] md:text-sm text-slate-600 mt-0.5">{user.email}</div>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 text-center">{user.designation || 'N/A'}</td>
-                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-center">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800`}>
-                      Active
-                    </span>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 text-xs md:text-sm text-slate-600 text-center">
-                    {user.lastActive
-                      ? new Date(user.lastActive.seconds ? user.lastActive.seconds * 1000 : user.lastActive).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                      : 'N/A'}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button 
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setIsAddModalOpen(true);
-                        }}
-                        className="text-primary-600 hover:text-primary-800 p-1.5 rounded-lg hover:bg-primary-50 transition-colors"
-                        title="Edit User"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setPasswordUser(user);
-                          setPasswordError('');
-                          setNewPassword('');
-                          setConfirmNewPassword('');
-                          setIsPasswordModalOpen(true);
-                        }}
-                        className="text-amber-600 hover:text-amber-800 p-1.5 rounded-lg hover:bg-amber-50 transition-colors"
-                        title="Change Password"
-                      >
-                        <KeyRound className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setUserToDelete(user);
-                          setIsDeleteModalOpen(true);
-                        }}
-                        className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                        title="Delete User"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {hasMore && (
-            <div className="p-4 flex justify-center border-t border-slate-100">
-              <button
-                onClick={() => fetchUsers({ searchQuery, activeFilter, isLoadMore: true })}
-                disabled={loading}
-                className="px-6 py-2 text-sm font-semibold text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-xl transition-all disabled:opacity-50"
+      <div className="pb-10">
+        <Table
+          headers={['Sl No', 'User Info', 'Role & Access', 'Status', 'Last Activity']}
+          data={filteredData}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+          onClear={handleClear}
+          searchPlaceholder="Search admin users by name, email, role..."
+          filterOptions={[
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' },
+          ]}
+          renderRow={(user, idx) => (
+            <>
+              <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
+              <td className="px-8 py-4">
+                <div className="flex flex-col">
+                  <span className="text-[13px] font-black text-slate-800">{user.name}</span>
+                  <span className="text-[10px] font-bold text-slate-400">{user.email}</span>
+                </div>
+              </td>
+              <td className="px-8 py-4">
+                <span className="text-[13px] font-black text-slate-600 uppercase tracking-tighter">
+                  {user.designation || 'N/A'}
+                </span>
+              </td>
+              <td className="px-8 py-4">
+                <StatusBadge 
+                  status="Active" 
+                  statusColor="success" 
+                />
+              </td>
+              <td className="px-8 py-4 text-[13px] font-black text-slate-600 whitespace-nowrap">
+                {user.lastActive
+                  ? new Date(user.lastActive.seconds ? user.lastActive.seconds * 1000 : user.lastActive).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                  : 'N/A'}
+              </td>
+            </>
+          )}
+          actions={(user) => (
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => {
+                  setSelectedUser(user);
+                  setIsAddModalOpen(true);
+                }}
+                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                title="Edit User"
               >
-                {loading ? 'Loading...' : 'Load More Users'}
+                <Edit className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => {
+                  setPasswordUser(user);
+                  setPasswordError('');
+                  setNewPassword('');
+                  setConfirmNewPassword('');
+                  setIsPasswordModalOpen(true);
+                }}
+                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-amber-600 hover:border-amber-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                title="Change Password"
+              >
+                <KeyRound className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => {
+                  setUserToDelete(user);
+                  setIsDeleteModalOpen(true);
+                }}
+                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                title="Delete User"
+              >
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           )}
-        </div>
+        />
+
+        {hasMore && (
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => fetchUsers({ searchQuery, activeFilter, isLoadMore: true })}
+              disabled={loading}
+              className="px-8 py-3 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+            >
+              {loading ? 'Synchronizing...' : 'Load More Admin Data'}
+            </button>
+          </div>
+        )}
       </div>
 
       <AddAdmin 

@@ -1,0 +1,41 @@
+/* eslint-disable max-len */
+const Joi = require("joi");
+
+const addTripValidator = (req) => {
+  const schema = Joi.object({
+    fields: Joi.object({
+      available_seats: Joi.number().required(),
+      createdAt: Joi.any().optional(),
+      fareMatrix: Joi.object().required(),
+      order: Joi.number().required(),
+      routePairs: Joi.array().items(Joi.string()).required(),
+      routeTiming: Joi.object().required(),
+      route_id: Joi.string().required(),
+      route_name: Joi.string().required(),
+      route_type: Joi.string().required(),
+      routes: Joi.array().items(Joi.string()).required(),
+      selectedDates: Joi.array().items(Joi.string()).required(),
+      status: Joi.string().required(),
+      total_seats: Joi.number().required(),
+    }).required(),
+  });
+
+  const {error, value} = schema.validate(req.data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.details.map((err) => err.message),
+    };
+  }
+
+  return {
+    success: true,
+    data: value,
+  };
+};
+
+module.exports = {addTripValidator};

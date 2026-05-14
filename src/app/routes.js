@@ -1,14 +1,14 @@
 import React from 'react';
-import { BookingList } from '../modules/bookings/BookingList';
-import { AddBooking } from '../modules/bookings/AddBooking';
-import { EditBooking } from '../modules/bookings/EditBooking';
-import { ViewBooking } from '../modules/bookings/ViewBooking';
+import { BookingList } from '../modules/bookings/Pages/BookingList';
+import { AddBooking } from '../modules/bookings/Pages/AddBooking';
+import { EditBooking } from '../modules/bookings/Pages/EditBooking';
+import { ViewBooking } from '../modules/bookings/Pages/ViewBooking';
 import { TripList } from '../modules/trips/TripList';
 import { AddTrip } from '../modules/trips/AddTrip';
 import { ViewTrip } from '../modules/trips/ViewTrip';
-import { RouteList } from '../modules/routes/RouteList';
-import { AddRoute } from '../modules/routes/AddRoute';
-import ViewRoute from '../modules/routes/ViewRoute'; 
+import { RouteList } from '../modules/routes/pages/RouteList';
+import { AddRoute } from '../modules/routes/pages/AddRoute';
+import ViewRoute from '../modules/routes/pages/ViewRoute';
 import { DriverList } from '../modules/drivers/pages/DriverList';
 import { AddDriver } from '../modules/drivers/pages/AddDriver';
 import { EditDriver } from '../modules/drivers/pages/EditDriver';
@@ -26,6 +26,7 @@ import AdminLogs from '../modules/admin/pages/AdminLogs';
 import RouteReq from '../pages/RouteReq/RouteReq';
 import Settings from '../pages/Settings/Settings';
 import Company from '../pages/Settings/Company';
+import Payment from '../modules/payment/Payment';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -55,8 +56,9 @@ export const routesConfig = [
   { path: '/admin-users', element: <AdminUserList />, permission: '/admin-users' },
   { path: '/admin-settings', element: <AdminSettings />, permission: '/admin-settings' },
   { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
-  { path: '/settings', element: <Settings />, permission: '/settings'},
-  { path: '/company-settings', element: <Company/>, permission: '/company-settings'}
+  { path: '/settings', element: <Settings />, permission: '/settings' },
+  { path: '/company-settings', element: <Company />, permission: '/company-settings' },
+  { path: '/payment', element: <Payment />, permission: '/payment' }
 ];
 
 export const systemRoutes = [...new Map(

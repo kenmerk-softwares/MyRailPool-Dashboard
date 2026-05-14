@@ -3,7 +3,7 @@ const {db} = require("../../shared/config/firebase");
 
 const addTripService = async (data, req) => {
   const fields = req.data.fields;
-  const counterDoc = db.collection("counters").doc("trip");
+  const counterDoc = db.collection("configurations").doc("trip-settings");
   const counterSnap = await counterDoc.get();
   const batch = db.batch();
   let tripNo = 0;
@@ -14,7 +14,7 @@ const addTripService = async (data, req) => {
 
   const payload = {
     ...fields,
-    tripNo,
+    tripId: tripNo,
     status: "Active",
     updatedAt: new Date(),
     total_bookings: 0,
