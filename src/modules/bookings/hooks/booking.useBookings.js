@@ -2,23 +2,23 @@ import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { collection, getDocs, query, where, limit, startAfter, orderBy } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
-import { setUsers, setLoading } from "../user.slice";
+import { setBookings, setLoading } from "../booking.slice";
 import { serialize } from "../../../shared/utils/serialize";
 
-export const useUsers = () => {
+export const useBookings = () => {
     const dispatch = useDispatch();
-    const users = useSelector((state) => state.user.list);
-    const loading = useSelector((state) => state.user.loading);
+    const bookings = useSelector((state) => state.booking.list);
+    const loading = useSelector((state) => state.booking.loading);
     const [lastVisible, setLastVisible] = useState(null);
     const [hasMore, setHasMore] = useState(true);
 
-    const fetchUsers = useCallback(async ({ searchQuery = "", activeFilter = "", isLoadMore = false } = {}) => {
+    const fetchBookings = useCallback(async ({ searchQuery = "", activeFilter = "", isLoadMore = false } = {}) => {
         dispatch(setLoading(true));
         try {
-            const usersCollection = collection(db, "admin-users");
-            let q = query(usersCollection, orderBy("name"), limit(10));
+            const bookingsCollection = collection(db, "bookings");
+            let q = query(bookingsCollection, orderBy("req_date", "desc"), limit(10));
 
-            if (activeFilter && activeFilter !== "Active") {
+            if (activeFilter && activeFilter !== "" && activeFilter !== "All Status") {
                 q = query(q, where("status", "==", activeFilter));
             }
 
@@ -34,15 +34,15 @@ export const useUsers = () => {
             }
 
             const querySnapshot = await getDocs(q);
-            const usersData = serialize(querySnapshot.docs.map((doc) => ({
+            const bookingsData = serialize(querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
             })));
 
             if (isLoadMore) {
-                dispatch(setUsers([...users, ...usersData]));
+                dispatch(setBookings([...bookings, ...bookingsData]));
             } else {
-                dispatch(setUsers(usersData));
+                dispatch(setBookings(bookingsData));
                 setLastVisible(null);
             }
 
@@ -50,7 +50,7 @@ export const useUsers = () => {
             setLastVisible(lastDoc);
             setHasMore(querySnapshot.docs.length === 10);
         } catch (error) {
-            console.error("Error fetching users:", error);
+            console.error("Error fetching bookings:", error);
         } finally {
             dispatch(setLoading(false));
         }
@@ -59,5 +59,5 @@ export const useUsers = () => {
 
     const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);
 
-    return { users, loading, hasMore, fetchUsers, setLoading: setGlobalLoading };
+    return { bookings, loading, hasMore, fetchBookings, setLoading: setGlobalLoading };
 };

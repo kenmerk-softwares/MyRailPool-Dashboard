@@ -9,7 +9,6 @@ import {
   Calendar as CalendarIcon
 } from 'lucide-react';
 import StatCard from './StatCard';
-import Filters from './Filters';
 import PaymentTable from './PaymentTable';
 import PaymentCharts from './PaymentCharts';
 import PaymentDetailsModal from './PaymentDetailsModal';
@@ -142,19 +141,19 @@ const Payment = () => {
             </div>
           </div>
 
-          <Filters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            methodFilter={methodFilter}
-            setMethodFilter={setMethodFilter}
-          />
-
           <PaymentTable
             payments={filteredPayments}
             onView={handleViewDetails}
             onRefund={handleInitiateRefund}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            onClear={() => {
+              setSearchTerm('');
+              setStatusFilter('All Status');
+              setMethodFilter('All Methods');
+            }}
           />
         </div>
       </div>

@@ -11,7 +11,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import { bookingsData } from '../../data/mockData';
+import { bookingsData } from '../../../data/mockData';
 
 export const EditBooking = () => {
   const { id } = useParams();

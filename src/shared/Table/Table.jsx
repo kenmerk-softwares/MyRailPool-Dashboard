@@ -1,4 +1,4 @@
-import { MoreHorizontal, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Filter } from '../../Filter/Filter';
 
 export const Table = ({ 
@@ -47,7 +47,7 @@ export const Table = ({
                 </th>
               ))}
               {actions && (
-                <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-slate-100 text-right">
+                <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-slate-100 text-center">
                   Actions
                 </th>
               )}
@@ -60,8 +60,8 @@ export const Table = ({
                   {renderRow(item, index)}
                   {actions && (
 
-                    <td className="px-8 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 transition-all duration-300 transform translate-x-2 ">
+                    <td className="px-8 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2 transition-all duration-300 ">
                         {actions(item)}
                       </div>
                     </td>

@@ -15,13 +15,13 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import MapPlaces from '../../shared/Components/Map_places';
+import MapPlaces from '../../../shared/Components/Map_places';
 
-import { app } from '../../shared/services/firebase';
+import { app } from '../../../shared/services/firebase';
 import { httpsCallable, getFunctions } from 'firebase/functions';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../../shared/hooks/ToastContext';
-import { routeValidation } from '../../shared/utils/Validations/RouteValidation';
+import { useToast } from '../../../shared/hooks/ToastContext';
+import { routeValidation } from '../../../shared/utils/Validations/RouteValidation';
 
 
 
@@ -223,7 +223,7 @@ export const AddRoute = () => {
   return (
     <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        
+
       </div>
 
       <form onSubmit={handleSave}>
@@ -237,27 +237,51 @@ export const AddRoute = () => {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Add Route</h3>
-                
+
               </div>
             </div>
-            
-            <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 space-y-2">
+
+            <div className="px-8 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Route Identifier / Name</label>
                   <div className="relative group">
                     <input
                       type="text"
                       name="routeName"
-                      className="w-full pl-14 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-300"
-                      placeholder="e.g., North-South Express Corridor"
+                      className="w-full pl-4 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-400"
+                      placeholder="Route Name"
                       defaultValue={initialData?.name}
                       onChange={handleInputChange}
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date</label>
+                  <div className="relative group">
+                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                    <input
+                      type="date"
+                      name="activationDate"
+                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      defaultValue={initialData?.activationDate}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date</label>
+                  <div className="relative group">
+                    <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                    <input
+                      type="date"
+                      name="deactivationDate"
+                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      defaultValue={initialData?.deactivationDate}
+                    />
+                  </div>
+                </div>
+
+                {/* <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status</label>
                   <select
                     name="status"
@@ -267,7 +291,7 @@ export const AddRoute = () => {
                     <option value="Active">Active Corridor</option>
                     <option value="Inactive">Under Maintenance / Inactive</option>
                   </select>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -286,86 +310,59 @@ export const AddRoute = () => {
             </div>
 
             <div className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date</label>
-                    <div className="relative group">
-                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
-                      <input
-                        type="date"
-                        name="activationDate"
-                        className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
-                        defaultValue={initialData?.activationDate}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date</label>
-                    <div className="relative group">
-                      <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
-                      <input
-                        type="date"
-                        name="deactivationDate"
-                        className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
-                        defaultValue={initialData?.deactivationDate}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Active Calendar Dates <span className="text-red-500"> *</span></label>
                   <div className="relative group">
                     <input
                       type="date"
                       onChange={handleAddDate}
-                      className="w-full px-5 py-1.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
+                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
                     />
 
                     {errors.selectedDates && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.selectedDates}</p>}
-
-
-                    {selectedDates.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                  </div>
+                </div>
+                <div className="col-span-2 md:col-span-3 mt-2">
+                  {selectedDates.length > 0 ? (
+                    <div className="mt-4 flex items-center gap-3 px-5 py-2.5 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
+                      <div className="flex flex-wrap gap-2">
                         {selectedDates.sort().map(date => {
                           const dateObj = new Date(date);
                           return (
-                            <div key={date} className=" min-w-[110px] relative group flex items-center gap-1 p-2 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-lg hover:border-primary-200 transition-all duration-300 animate-in zoom-in duration-200 overflow-hidden">
 
-                              <div className="flex flex-col items-center justify-center bg-slate-50 group-hover:bg-primary-50 rounded-xl px-2 py-1 transition-colors">
-                                <span className="text-xs font-black text-slate-700 group-hover:text-primary-700 leading-none">{dateObj.getDate()}</span>
-                                <span className="text-[8px] font-bold text-slate-500 group-hover:text-primary-400 uppercase tracking-tighter">{dateObj.toLocaleString('default', { month: 'short' })}</span>
+                            <div key={date} className="group flex items-center gap-2.5 px-3 py-1.5 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md hover:border-amber-200 hover:bg-amber-50/30 transition-all duration-300 animate-in zoom-in duration-200">
+                              <div className="flex flex-col items-center justify-center bg-slate-50 group-hover:bg-amber-100 rounded-lg px-2 py-0.5 transition-colors">
+                                <span className="text-[10px] font-black text-slate-700 group-hover:text-amber-700 leading-none">{dateObj.getDate()}</span>
+                                <span className="text-[7px] font-bold text-slate-500 group-hover:text-amber-500 uppercase tracking-tighter">{dateObj.toLocaleString('default', { month: 'short' })}</span>
                               </div>
 
-                              <div className="flex flex-col flex-1 me-2">
-                                <span className="text-[11px] font-bold text-slate-800 leading-tight">{dateObj.toLocaleDateString('en-GB', { weekday: 'long' })}</span>
-                                <span className="text-[9px] font-medium text-slate-500 leading-tight">{dateObj.getFullYear()}</span>
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-slate-800 leading-tight">{dateObj.toLocaleDateString('en-GB', { weekday: 'short' })}</span>
+                                <span className="text-[8px] font-medium text-slate-400 leading-tight">{dateObj.getFullYear()}</span>
                               </div>
 
                               <button
                                 type="button"
                                 onClick={() => handleRemoveDate(date)}
-                                className="absolute top-1.5 left-0.5 p-1 text-red-500 hover:text-red-700 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                               >
                                 <X className="w-3 h-3" />
                               </button>
-
                             </div>
                           );
                         })}
                       </div>
-                    ) : (
-                      <div className="mt-4 px-5 py-6 border-2 border-dashed border-slate-100 rounded-2xl text-center bg-slate-50/30">
-                        <Calendar className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">No operating dates selected</span>
-                      </div>
-                    )}
-
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4 flex items-center gap-3 px-5 py-2.5 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
+                      <Calendar className="w-5 h-5 text-slate-200" />
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No operating dates selected</span>
+                    </div>
+                  )}
                 </div>
+
+
               </div>
             </div>
           </div>
@@ -552,7 +549,7 @@ export const AddRoute = () => {
                   <p className="text-xs text-slate-500 font-medium">Define algorithmic point-to-point pricing for this corridor.</p>
                 </div>
               </div>
-              
+
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {routes.map((fromPoint, i) => (
@@ -611,15 +608,15 @@ export const AddRoute = () => {
             >
               Discard Changes
             </Link>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="w-full sm:w-auto justify-center bg-slate-900 text-white px-12 py-1.5 rounded-2xl font-black text-sm hover:bg-primary-600 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <Save className="w-5 h-5 text-primary-400" /> 
+                <Save className="w-5 h-5 text-primary-400" />
               )}
               {loading ? 'Processing...' : (initialData ? 'Synchronize Route' : 'Establish Corridor')}
             </button>
