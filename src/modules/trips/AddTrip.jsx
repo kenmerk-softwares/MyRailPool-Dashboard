@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Save,
-  MapPin,
   User,
   Car,
   Calendar,
   Clock,
-  Navigation,
-  Leaf,
   FileText,
-  TrendingUp,
-  Briefcase,
   Users,
   Hash,
   Milestone,
@@ -23,11 +18,12 @@ import { db } from '../../shared/services/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 
 import { Autocomplete } from '../../components/Shared';
-import { useLocation, useParams, useNavigate, Link } from 'react-router-dom';
-import { FaRoad } from 'react-icons/fa';
-import { tripsData, driversData, vehiclesData, bookingsData } from '../../data/mockData';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { tripsData, driversData, vehiclesData } from '../../data/mockData';
 import { useDrivers } from '../drivers/hooks/driver.useDrivers';
 import { useVehicles } from '../vehicles/hooks/vehicle.useVehicles';
+import { useToast } from '../../shared/hooks/ToastContext';
+import { FunctionsAPI } from '../../shared/services/functions.api';
 
 export const AddTrip = () => {
   const location = useLocation();
@@ -37,6 +33,7 @@ export const AddTrip = () => {
   const isEdit = Boolean(id);
   const { drivers, fetchDrivers, loading: driversLoading } = useDrivers();
   const { vehicles, fetchVehicles, loading: vehiclesLoading } = useVehicles();
+  const { showToast } = useToast();
 
   const [driverSearch, setDriverSearch] = useState('');
   const [vehicleSearch, setVehicleSearch] = useState('');
@@ -78,6 +75,7 @@ export const AddTrip = () => {
       fetchDrivers({ searchQuery: driverSearch });
     }, 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch]);
 
   useEffect(() => {
@@ -85,6 +83,7 @@ export const AddTrip = () => {
       fetchVehicles({ searchQuery: vehicleSearch });
     }, 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleSearch]);
 
   const formatDate = (isoStr) => {
@@ -133,7 +132,9 @@ export const AddTrip = () => {
     profit: '',
     co2_saved: '',
     timeSlots: [],
-    date: formatDate(requestData.routeDates?.[0]) || ''
+    date: formatDate(requestData.routeDates?.[0]) || '',
+    selectedRoute: null,
+    selectedVehicle: null
   });
 
   const [schedules, setSchedules] = useState([]);
@@ -257,92 +258,70 @@ export const AddTrip = () => {
     });
   };
 
-  const [newBookingId, setNewBookingId] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredBookings, setFilteredBookings] = useState([]);
-  const [suggestionIndex, setSuggestionIndex] = useState(-1);
-  const [newStop, setNewStop] = useState({ location: '', type: 'PICKUP', notes: '' });
-
-  useEffect(() => {
-    if (newBookingId.trim()) {
-      const filtered = bookingsData.filter(b =>
-        b.booking_id.toLowerCase().includes(newBookingId.toLowerCase()) &&
-        !(formData.booking_ids || []).includes(b.booking_id)
-      ).slice(0, 5);
-      setFilteredBookings(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setShowSuggestions(false);
+  
+  const handleSave = async () => {
+    if (!formData.routeId || !formData.vehicleId || !formData.driverId) {
+      showToast("Please select Route, Vehicle and Driver.", "error");
+      return;
     }
-  }, [newBookingId, formData.booking_ids]);
 
-  const addBookingId = (id) => {
-    const idToAdd = id || newBookingId.trim();
-    if (idToAdd && !(formData.booking_ids || []).includes(idToAdd)) {
-      setFormData(prev => ({
-        ...prev,
-        booking_ids: [...(Array.isArray(prev.booking_ids) ? prev.booking_ids : []), idToAdd],
-        total_bookings: (Array.isArray(prev.booking_ids) ? prev.booking_ids.length : 0) + 1
-      }));
-      setNewBookingId('');
-      setShowSuggestions(false);
-      setSuggestionIndex(-1);
+    if (schedules.length === 0 && !formData.date) {
+      showToast("Please add at least one schedule date.", "error");
+      return;
     }
-  };
 
-  const handleBookingKeyDown = (e) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSuggestionIndex(prev => Math.min(prev + 1, filteredBookings.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSuggestionIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (suggestionIndex >= 0) {
-        addBookingId(filteredBookings[suggestionIndex].booking_id);
+    // Include the current date/times if they are not yet appended to schedules
+    let allDates = schedules.map(s => s.date);
+    if (formData.date && !allDates.includes(formData.date)) {
+      allDates.push(formData.date);
+    }
+
+    if (allDates.length === 0) {
+      showToast("Please specify trip dates.", "error");
+      return;
+    }
+
+    const { selectedRoute, selectedVehicle } = formData;
+    const capacity = parseInt(selectedVehicle?.seatingCapacity || 0);
+    const plannedPax = parseInt(formData.total_pcount || 0);
+
+    const payload = {
+      available_seats: capacity - plannedPax,
+      createdAt: new Date(),
+      fareMatrix: selectedRoute?.fareMatrix || {},
+      order: selectedRoute?.order || 1,
+      routePairs: selectedRoute?.routePairs || [],
+      routeTiming: selectedRoute?.routeTiming || {},
+      route_id: formData.routeId,
+      route_name: formData.route,
+      route_type: formData.routeType || 'core',
+      routes: selectedRoute?.routes || [],
+      selectedDates: allDates,
+      status: "Active",
+      total_seats: capacity,
+    };
+
+    try {
+      const res = await FunctionsAPI.addTrip({ fields: payload });
+      if (res.success) {
+        showToast("Trip scheduled successfully!", "success");
+        localStorage.removeItem('tripFormDraft');
+        navigate('/trips');
       } else {
-        addBookingId();
+        showToast(res.error || "Failed to schedule trip", "error");
       }
-    } else if (e.key === 'Escape') {
-      setShowSuggestions(false);
+    } catch (error) {
+      console.error("Error saving trip:", error);
+      showToast("Error occurred while saving trip", "error");
     }
   };
 
-  const removeBookingId = (index) => {
-    setFormData(prev => {
-      const ids = Array.isArray(prev.booking_ids) ? prev.booking_ids : [];
-      const updatedIds = ids.filter((_, i) => i !== index);
-      return {
-        ...prev,
-        booking_ids: updatedIds,
-        total_bookings: updatedIds.length
-      };
-    });
-  };
 
-  const addStop = () => {
-    if (newStop.location.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        stops: [...(prev.stops || []), { ...newStop }]
-      }));
-      setNewStop({ location: '', type: 'PICKUP', notes: '' });
-    }
-  };
+ 
 
-  const removeStop = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      stops: prev.stops.filter((_, i) => i !== index)
-    }));
-  };
 
-  const handleSave = () => {
-    console.log('Saving trip data:', formData);
-    localStorage.removeItem('tripFormDraft');
-    navigate(-1);
-  };
+
+  
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
@@ -370,21 +349,7 @@ export const AddTrip = () => {
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip ID</label>
-                <div className="relative">
-                  <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input
-                    type="text"
-                    name="trip_id"
-                    value={formData.trip_id}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-semibold transition-all cursor-not-allowed"
-                    placeholder="Auto Generated"
-                    disabled
-                  />
-                </div>
-              </div> */}
+            
 
               <Autocomplete
                 label="Assign Driver"
@@ -425,7 +390,8 @@ export const AddTrip = () => {
                     route: route.name,
                     routeId: route.docId,
                     start_loc: route.startingPoint || '',
-                    end_loc: route.endPoint || ''
+                    end_loc: route.endPoint || '',
+                    selectedRoute: route
                   }));
                   setRouteSearch(`${route.startingPoint} -> ${route.endPoint}`);
                 }}
@@ -454,7 +420,8 @@ export const AddTrip = () => {
                   setFormData(prev => ({
                     ...prev,
                     vehicle_reg: vehicle.registrationNo,
-                    vehicleId: vehicle.docId
+                    vehicleId: vehicle.docId,
+                    selectedVehicle: vehicle
                   }));
                   setVehicleSearch(vehicle.registrationNo);
                 }}
@@ -479,107 +446,7 @@ export const AddTrip = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
-              {/* <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip Date & Time</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input
-                    type="text"
-                    name="trip_date"
-                    value={formData.trip_date}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                    placeholder="DD/MM/YYYY"
-                  />
-                </div>
-              </div> */}
-
-              {/* <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
-                >
-                  <option value="PENDING">PENDING</option>
-                  <option value="ASSIGNED">ASSIGNED</option>
-                  <option value="IN TRANSIT">IN TRANSIT</option>
-                  <option value="COMPLETED">COMPLETED</option>
-                </select>
-              </div> */}
-
-              {/* <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Bookings</label>
-                <input
-                  type="number"
-                  name="total_bookings"
-                  value={formData.total_bookings}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                  placeholder="0"
-                />
-              </div> */}
-
-              {/* <div className="space-y-2 lg:col-span-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Booking IDs</label>
-
-                <div className="relative flex gap-2">
-                  <div className="relative flex-1">
-                    <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type="text"
-                      value={newBookingId}
-                      onChange={(e) => setNewBookingId(e.target.value)}
-                      onKeyDown={handleBookingKeyDown}
-                      onFocus={() => newBookingId.trim() && setShowSuggestions(true)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-mono text-xs focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all"
-                      placeholder="Enter Booking ID"
-                    />
-                  </div>
-                  <button
-                    onClick={() => addBookingId()}
-                    type="button"
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all flex items-center gap-2 font-bold text-xs"
-                  >
-                    <Plus className="w-4 h-4" /> Add
-                  </button>
-
-                  {showSuggestions && (
-                    <div className="absolute z-50 w-full mt-12 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden">
-                      {filteredBookings.map((booking, index) => (
-                        <div
-                          key={booking.booking_id}
-                          onClick={() => addBookingId(booking.booking_id)}
-                          className={`px-4 py-2 cursor-pointer flex items-center justify-between transition-colors ${index === suggestionIndex ? 'bg-primary-50 text-primary-700' : 'hover:bg-slate-50'}`}
-                        >
-                          <div>
-                            <p className="font-bold text-xs">{booking.booking_id}</p>
-                            <p className="text-[10px] text-slate-500">{booking.name} • {booking.pickup}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {(Array.isArray(formData.booking_ids) ? formData.booking_ids : []).map((id, index) => (
-                    <div key={index} className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg border border-primary-100 font-mono text-xs font-bold group transition-all">
-                      <Link to={`/bookings/view/${id}`} className="hover:underline">{id}</Link>
-                      <button
-                        onClick={() => removeBookingId(index)}
-                        className="p-0.5 hover:bg-primary-100 rounded text-primary-400 hover:text-primary-600 transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {(!formData.booking_ids || formData.booking_ids.length === 0) && (
-                    <span className="text-xs text-slate-500 italic">No bookings assigned yet.</span>
-                  )}
-                </div>
-              </div> */}
+             
 
               <div className="space-y-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Remarks</label>
@@ -769,92 +636,6 @@ export const AddTrip = () => {
 
       </div>
 
-      {/* <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30 rounded-t-2xl">
-            <div className="p-2 bg-indigo-50 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-indigo-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Financial Summary</h3>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              <div className="space-y-2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Gross Revenue</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-slate-900">₹</span>
-                  <input
-                    type="text"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-none p-0 text-lg font-bold text-slate-900 focus:ring-0 outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Driver Cost</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-slate-700">₹</span>
-                  <input
-                    type="text"
-                    name="driver_cost"
-                    value={formData.driver_cost}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-none p-0 text-lg font-bold text-slate-700 focus:ring-0 outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Fuel Economy</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-slate-700">₹</span>
-                  <input
-                    type="text"
-                    name="saved_money"
-                    value={formData.saved_money}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-none p-0 text-lg font-bold text-slate-700 focus:ring-0 outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 px-4 py-3 rounded-xl bg-primary-50 border border-primary-100">
-                <label className="text-[11px] font-semibold text-primary-700 uppercase tracking-wider block mb-1">Net Profit</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-extrabold text-primary-700">₹</span>
-                  <input
-                    type="text"
-                    name="profit"
-                    value={formData.profit}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-none p-0 text-xl font-extrabold text-primary-700 focus:ring-0 outline-none placeholder:text-primary-300"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
-                <label className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block mb-1">CO2 Savings</label>
-                <div className="flex items-center gap-2">
-                  <Leaf className="w-5 h-5 text-emerald-600" />
-                  <input
-                    type="text"
-                    name="co2_saved"
-                    value={formData.co2_saved}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-none p-0 text-lg font-bold text-emerald-700 focus:ring-0 outline-none placeholder:text-emerald-300"
-                    placeholder="0.00 kg"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
 
 
       <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">

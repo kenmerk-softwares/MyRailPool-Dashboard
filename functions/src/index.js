@@ -20,3 +20,7 @@ exports.addDriver = addDriver;
 // ================ VEHICLE MODULES ==================== //
 const {addVehicle} = require("./modules/vehicle/vehicle.callable");
 exports.addVehicle = addVehicle;
+
+// ================ TRIP MODULES ==================== //
+const {addTrip} = require("./modules/trip/trip.callable");
+exports.addTrip = addTrip;

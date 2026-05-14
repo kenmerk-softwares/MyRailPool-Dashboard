@@ -14,4 +14,5 @@ export const FunctionsAPI = {
     addDriver: (data) => callFunction("addDriver", data),
     addVehicle: (data) => callFunction("addVehicle", data),
     editVehicle: (data) => callFunction("editVehicle", data),
+    addTrip: (data) => callFunction("addTrip", data),
 };
