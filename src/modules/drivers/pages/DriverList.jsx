@@ -12,7 +12,7 @@ export const DriverList = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   const handleView = (driver) => {
-    const Id = String(driver?.id || '').replace('#', '');
+    const Id = String(driver?.docId || '').replace('#', '');
     navigate(`view/${Id}`);
   };
 
@@ -62,8 +62,8 @@ export const DriverList = () => {
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[14px] font-black text-slate-800 leading-tight">{driver.name}</span>
                     <div className="flex items-center gap-3 text-[11px] font-bold text-slate-400">
-                       <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {driver.mobile}</span>
-                       <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {driver.email}</span>
+                      <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {driver.mobile}</span>
+                      <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {driver.email}</span>
                     </div>
                   </div>
                 </div>
@@ -84,9 +84,9 @@ export const DriverList = () => {
                 <StatusBadge
                   status={driver?.status || 'active'}
                   statusColor={
-                    driver?.status === 'active' ? 'success' : 
-                    driver?.status === 'inactive' ? 'warning' : 
-                    'danger'
+                    driver?.status === 'active' ? 'success' :
+                      driver?.status === 'inactive' ? 'warning' :
+                        'danger'
                   }
                 />
               </td>
@@ -100,21 +100,21 @@ export const DriverList = () => {
           )}
           actions={(driver) => (
             <div className="flex items-center gap-1.5">
-              <button 
-                onClick={() => handleView(driver)} 
+              <button
+                onClick={() => handleView(driver)}
                 className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group"
                 title="View Full Profile"
               >
                 <Eye className="w-4 h-4 transition-transform group-hover:scale-110" />
               </button>
-              <Link 
-                to={`/drivers/edit/${driver.id}`}
+              <Link
+                to={`/drivers/edit/${driver.docId}`}
                 className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-amber-600 hover:border-amber-100 hover:bg-amber-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group"
                 title="Edit Records"
               >
                 <Edit className="w-4 h-4 transition-transform group-hover:scale-110" />
               </Link>
-              <button 
+              <button
                 className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-100 hover:bg-rose-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group"
                 title="Remove Driver"
               >
@@ -123,7 +123,7 @@ export const DriverList = () => {
             </div>
           )}
         />
-        
+
         {hasMore && (
           <div className="mt-10 flex justify-center">
             <button

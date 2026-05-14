@@ -30,6 +30,12 @@ const addDriverService = async (data, req) => {
     };
     batch.set(driverRef, driverData);
   } else if (data.type === "update") {
+    // Update Firebase Authentication first
+    await auth.updateUser(fields.id, {
+      email: fields.email,
+      displayName: fields.name,
+    });
+
     const driverRef = db.collection("drivers").doc(fields.id);
     const driverData = {
       ...fields,
@@ -38,7 +44,7 @@ const addDriverService = async (data, req) => {
     batch.update(driverRef, driverData);
   }
   await batch.commit();
-  return {success: true, message: "Driver added successfully"};
+  return {success: true, message: `Driver ${data.type === "add" ? "added" : "updated"} successfully`};
 };
 
 module.exports = {addDriverService};

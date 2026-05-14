@@ -41,16 +41,41 @@ export const EditDriver = () => {
   useEffect(() => {
     const fetchDriver = async () => {
       try {
-        const docRef = doc(db, "drivers", id);
+        const docId = String(id || '').replace('#', '');
+        const docRef = doc(db, "drivers", docId);
         const docSnap = await getDoc(docRef);
+        
         if (docSnap.exists()) {
-          setFormData(docSnap.data());
+          const data = docSnap.data();
+          // Format date fields for HTML5 date inputs (YYYY-MM-DD)
+          const formattedData = { ...data };
+          const dateFields = [
+            'phExpiryDate', 'dvlaExpiryDate', 'dbsDateOfIssue', 
+            'trainingSignedDate', 'rtwVerifiedDate', 
+            'serviceStartDate', 'contractEndDate'
+          ];
+          
+          dateFields.forEach(field => {
+            if (formattedData[field]) {
+              // Handle Firestore Timestamp
+              if (typeof formattedData[field].toDate === 'function') {
+                formattedData[field] = formattedData[field].toDate().toISOString().split('T')[0];
+              } 
+              // Handle string dates if they are not already in YYYY-MM-DD
+              else if (typeof formattedData[field] === 'string' && formattedData[field].includes('T')) {
+                formattedData[field] = formattedData[field].split('T')[0];
+              }
+            }
+          });
+          
+          setFormData(formattedData);
         } else {
-          showToast("Driver not found", "error");
+          showToast("Dossier not found in registry", "error");
           navigate('/drivers');
         }
       } catch (error) {
-        showToast("Error fetching driver data", "error");
+        console.error("Fetch Error:", error);
+        showToast("Access Denied: Unable to retrieve driver dossier", "error");
       } finally {
         setLoading(false);
       }
@@ -75,17 +100,23 @@ export const EditDriver = () => {
       const newErrors = {};
       error.details.forEach(err => { newErrors[err.path[0]] = err.message; });
       setErrors(newErrors);
-      showToast("Verification failed. Please review mandatory fields.", "error");
+      showToast("Verification failed. Please review all highlighted fields.", "error");
       return;
     }
 
     setUpdating(true);
     try {
+      const docId = String(id || '').replace('#', '');
+      
+      // Clean up fields before sending to update
+      // We don't want to update the 'id' field inside the document if it exists as 'id' or 'uid'
+      const { id: _, uid: __, docId: ___, ...updateFields } = formData;
+
       const res = await FunctionsAPI.addDriver({
         type: "update", 
         fields: {
-          ...formData,
-          id: id, // docId for update
+          ...updateFields,
+          id: docId, 
           searchKey: formData.name ? formData.name.toLowerCase() : ""
         }
       });
@@ -151,6 +182,7 @@ export const EditDriver = () => {
                         className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.name ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
                       />
                     </div>
+                    {errors.name && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.name}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -162,6 +194,7 @@ export const EditDriver = () => {
                         className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.mobile ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
                       />
                     </div>
+                    {errors.mobile && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.mobile}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -173,6 +206,7 @@ export const EditDriver = () => {
                         className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.email ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
                       />
                     </div>
+                    {errors.email && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.email}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -197,6 +231,7 @@ export const EditDriver = () => {
                         className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.address ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
                       />
                     </div>
+                    {errors.address && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.address}</p>}
                   </div>
                 </div>
               </div>
@@ -217,15 +252,23 @@ export const EditDriver = () => {
                       <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">PH License Number</label>
                       <div className="relative">
                         <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="text" name="phLicenseNumber" value={formData?.phLicenseNumber || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                        <input 
+                          type="text" name="phLicenseNumber" value={formData?.phLicenseNumber || ''} onChange={handleChange} 
+                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.phLicenseNumber ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
+                        />
                       </div>
+                      {errors.phLicenseNumber && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phLicenseNumber}</p>}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">PH Expiry Date</label>
                       <div className="relative">
                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="date" name="phExpiryDate" value={formData?.phExpiryDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                        <input 
+                          type="date" name="phExpiryDate" value={formData?.phExpiryDate || ''} onChange={handleChange} 
+                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.phExpiryDate ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
+                        />
                       </div>
+                      {errors.phExpiryDate && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phExpiryDate}</p>}
                     </div>
                   </div>
 
@@ -234,15 +277,23 @@ export const EditDriver = () => {
                       <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">DVLA License Number</label>
                       <div className="relative">
                         <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="text" name="dvlaLicenseNumber" value={formData?.dvlaLicenseNumber || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                        <input 
+                          type="text" name="dvlaLicenseNumber" value={formData?.dvlaLicenseNumber || ''} onChange={handleChange} 
+                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dvlaLicenseNumber ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
+                        />
                       </div>
+                      {errors.dvlaLicenseNumber && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaLicenseNumber}</p>}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">DVLA Expiry Date</label>
                       <div className="relative">
                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input type="date" name="dvlaExpiryDate" value={formData?.dvlaExpiryDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                        <input 
+                          type="date" name="dvlaExpiryDate" value={formData?.dvlaExpiryDate || ''} onChange={handleChange} 
+                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dvlaExpiryDate ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
+                        />
                       </div>
+                      {errors.dvlaExpiryDate && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaExpiryDate}</p>}
                     </div>
                   </div>
 
@@ -252,15 +303,23 @@ export const EditDriver = () => {
                         <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">DBS Certificate Number</label>
                         <div className="relative">
                           <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input type="text" name="dbsCertificateNumber" value={formData?.dbsCertificateNumber || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                          <input 
+                            type="text" name="dbsCertificateNumber" value={formData?.dbsCertificateNumber || ''} onChange={handleChange} 
+                            className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dbsCertificateNumber ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
+                          />
                         </div>
+                        {errors.dbsCertificateNumber && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dbsCertificateNumber}</p>}
                       </div>
                       <div className="space-y-2">
                         <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">DBS Date of Issue</label>
                         <div className="relative">
                           <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input type="date" name="dbsDateOfIssue" value={formData?.dbsDateOfIssue || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                          <input 
+                            type="date" name="dbsDateOfIssue" value={formData?.dbsDateOfIssue || ''} onChange={handleChange} 
+                            className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dbsDateOfIssue ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
+                          />
                         </div>
+                        {errors.dbsDateOfIssue && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dbsDateOfIssue}</p>}
                       </div>
                     </div>
                   </div>
@@ -293,6 +352,20 @@ export const EditDriver = () => {
                     <input type="date" name="contractEndDate" value={formData?.contractEndDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">RTW Verified Date</label>
+                  <div className="relative">
+                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input type="date" name="rtwVerifiedDate" value={formData?.rtwVerifiedDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Termination Reason</label>
+                  <div className="relative">
+                    <AlertCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input type="text" name="terminationReason" value={formData?.terminationReason || ''} onChange={handleChange} placeholder="Optional" className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-rose-500 focus:ring-4 focus:ring-rose-500/5 outline-none transition-all" />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -315,15 +388,44 @@ export const EditDriver = () => {
                   </select>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <div>
+                  <div className="flex-1">
                     <p className="text-[12px] font-black text-slate-700">Training Status</p>
                     <p className="text-[10px] font-bold text-slate-400">Induction check</p>
                   </div>
-                  <select name="trainingStatus" value={formData?.trainingStatus || 'No'} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
-                    <option value="No">Pending</option>
-                    <option value="Yes">Inducted</option>
-                  </select>
+                  <div className="flex items-center gap-3">
+                    <input type="date" name="trainingSignedDate" value={formData?.trainingSignedDate || ''} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 px-3 outline-none" />
+                    <select name="trainingStatus" value={formData?.trainingStatus || 'No'} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
+                      <option value="No">Pending</option>
+                      <option value="Yes">Inducted</option>
+                    </select>
+                  </div>
                 </div>
+
+                <div className="pt-4 space-y-2">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">RTW Verification Note</label>
+                  <textarea 
+                    name="rtwNote" value={formData?.rtwNote || ''} onChange={handleChange}
+                    className="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50/50 text-[12px] font-bold text-slate-600 focus:border-indigo-500 outline-none transition-all resize-none h-20"
+                    placeholder="Enter validation details..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Confidential Section */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden col-span-full">
+              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-950">
+                <div className="p-2 bg-slate-800 rounded-xl">
+                  <Activity className="w-4 h-4 text-slate-200" />
+                </div>
+                <h3 className="font-black text-slate-200 tracking-tight uppercase text-xs">Confidential Records</h3>
+              </div>
+              <div className="p-8">
+                <textarea 
+                  name="confidentialNotes" value={formData?.confidentialNotes || ''} onChange={handleChange}
+                  className="w-full p-6 rounded-2xl border border-slate-200 bg-slate-50/50 text-[13px] font-medium text-slate-600 focus:border-indigo-500 outline-none transition-all h-32"
+                  placeholder="Enter internal annotations..."
+                />
               </div>
             </div>
           </div>

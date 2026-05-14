@@ -101,10 +101,10 @@ export const DriverValidationSchema = Joi.object({
         }),
 
     trainingSignedDate: Joi.date()
-        .required()
+        .allow('', null)
+        .optional()
         .messages({
-            'date.base': 'Training Signed Date must be a valid date',
-            'any.required': 'Training signed date is required'
+            'date.base': 'Training Signed Date must be a valid date'
         }),
 
     councilNotified: Joi.string()
@@ -116,24 +116,24 @@ export const DriverValidationSchema = Joi.object({
         }),
 
     rtwVerifiedDate: Joi.date()
-        .required()
+        .allow('', null)
+        .optional()
         .messages({
-            'date.base': 'Right to Work Verified Date must be a valid date',
-            'any.required': 'RTW verified date is required'
+            'date.base': 'Right to Work Verified Date must be a valid date'
         }),
 
     serviceStartDate: Joi.date()
-        .required()
+        .allow('', null)
+        .optional()
         .messages({
-            'date.base': 'Service Start Date must be a valid date',
-            'any.required': 'Service start date is required'
+            'date.base': 'Service Start Date must be a valid date'
         }),
 
     contractEndDate: Joi.date()
-        .required()
+        .allow('', null)
+        .optional()
         .messages({
-            'date.base': 'Contract end date must be a valid date',
-            'any.required': 'Contract end date is required'
+            'date.base': 'Contract end date must be a valid date'
         }),
 
     rtwNote: Joi.string()
