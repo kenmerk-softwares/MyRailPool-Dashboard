@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { SectionHeader, StatusBadge } from '../../components/Shared';
-import { Table } from '../../shared/Table/Table';
-import { db } from '../../shared/services/firebase';
-
-import { collection, getDocs, query, where, limit, startAfter, orderBy } from 'firebase/firestore';
+import { SectionHeader, StatusBadge } from '../../../components/Shared';
+import { Table } from '../../../shared/Table/Table';
+import { useRoutes } from '../hooks/route.useRoute';
 
 export const RouteList = () => {
+  const { routes, loading, hasMore, fetchRoutes } = useRoutes();
+  const [fromDate, setFromDate] = React.useState('');
+  const [toDate, setToDate] = React.useState('');
   const navigate = useNavigate();
   const handleView = (route) => {
-    const Id = route.id.replace('#', '');
+    const Id = String(route?.id || '').replace('#', '');
     navigate(`view/${Id}`);
   };
 
@@ -22,58 +23,10 @@ export const RouteList = () => {
     setSearchQuery('');
   };
 
-  const [loading, setLoading] = useState(false);
-  const [routesList, setRoutesList] = useState([]);
-  const [lastVisible, setLastVisible] = useState(null);
-  const [hasMore, setHasMore] = useState(true);
+ useEffect(() => {
+    fetchRoutes({ searchQuery, activeFilter });
+      }, [searchQuery, activeFilter, fetchRoutes]);
 
-  const fetchRoutes = async (isLoadMore = false) => {
-    setLoading(true);
-    try {
-      const routesRef = collection(db, 'routes');
-      let q = query(routesRef, orderBy("createdAt", "desc"), limit(10));
-
-      if (activeFilter) {
-        q = query(q, where('status', '==', activeFilter));
-      }
-
-      if (searchQuery) {
-        q = query(q, 
-          where('name', '>=', searchQuery), 
-          where('name', '<=', searchQuery + '\uf8ff')
-        );
-      }
-
-      if (isLoadMore && lastVisible) {
-        q = query(q, startAfter(lastVisible));
-      }
-
-      const snapshot = await getDocs(q);
-      const routesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      if (isLoadMore) {
-        setRoutesList(prev => [...prev, ...routesData]);
-      } else {
-        setRoutesList(routesData);
-      }
-
-      setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-      setHasMore(snapshot.docs.length === 10);
-    } catch (error) {
-      console.error("Error fetching routes:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRoutes();
-  }, [activeFilter, searchQuery]);
-
-  const filteredData = routesList;
   
   return (
     <>
@@ -87,15 +40,20 @@ export const RouteList = () => {
       <div className="pb-10">
         <Table
           headers={['Sl No', 'Route Name', 'Route Corridor', 'Operational Status']}
-          data={filteredData}
+          data={routes}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           onClear={handleClear}
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
+
           searchPlaceholder="Search routes by name or locations..."
           filterOptions={[
-            { label: 'All', value: '' },
+            // { label: 'All', value: '' },
             { label: 'Active', value: 'Active' },
             { label: 'Inactive', value: 'Inactive' },
           ]}

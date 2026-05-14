@@ -16,8 +16,8 @@ import {
   Hash,
   MapPin
 } from 'lucide-react';
-import { StatusBadge } from '../../components/Shared';
-import { routesData } from '../../data/mockData';
+import { StatusBadge } from '../../../components/Shared';
+import { routesData } from '../../../data/mockData';
 
 export default function ViewRoute() {
   const { id } = useParams();

@@ -540,11 +540,11 @@ export const AddTrip = () => {
                   className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-primary-200"
                 >
                   <Plus className="w-4 h-4" />
-                  Append Trip
+                  Add Trip
                 </button>
               </div>
 
-              {/* Time Slots Chips Container */}
+              {/* Time Slots Chips */}
               {formData.timeSlots?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4 ml-1">
                   {formData.timeSlots.map(time => (
@@ -553,7 +553,7 @@ export const AddTrip = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveTime(time)}
-                        className="text-slate-300 hover:text-rose-500 transition-colors"
+                        className="text-red-500 hover:text-rose-800 transition-colors"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -563,7 +563,7 @@ export const AddTrip = () => {
               )}
             </div>
 
-            {/* Schedules Table */}
+            {/*  Table */}
             {schedules.length > 0 ? (
               <div className="mt-8 overflow-hidden border border-slate-100 shadow-2xl shadow-slate-200/40 bg-white animate-in fade-in slide-in-from-top-4 duration-500">
                 <table className="w-full text-left border-collapse">
