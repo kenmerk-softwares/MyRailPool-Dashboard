@@ -132,7 +132,19 @@ export const DriverValidationSchema = Joi.object({
     contractEndDate: Joi.date()
         .required()
         .messages({
-            'date.base': 'Contract End Date must be a valid date',
+            'date.base': 'Contract end date must be a valid date',
             'any.required': 'Contract end date is required'
-        })
+        }),
+
+    rtwNote: Joi.string()
+        .allow('', null)
+        .optional(),
+
+    terminationReason: Joi.string()
+        .allow('', null)
+        .optional(),
+
+    confidentialNotes: Joi.string()
+        .allow('', null)
+        .optional()
 });

@@ -138,9 +138,9 @@ export const AddDriver = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Full Name <span className="text-red-500 text-sm">*</span></label>
+            <div className="flex flex-col lg:flex-row gap-4 items-start">
+              <div className="flex-1 w-full space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Full Name <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <UserCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -148,21 +148,20 @@ export const AddDriver = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.name ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.name ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                     placeholder="Full name" 
                   />
                 </div>
                 {errors.name && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.name}</p>}
               </div>
 
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Account Status <span className="text-red-500 text-sm">*</span></label>
+              <div className="w-full lg:w-40 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Account Status <span className="text-red-500 text-sm">*</span></label>
                 <select 
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className={`w-full px-4 py-1.5 rounded-xl border ${errors.status ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer`}
+                  className={`w-full px-4 py-2.5 h-[42px] rounded-xl border ${errors.status ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer`}
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -172,8 +171,8 @@ export const AddDriver = () => {
                 {errors.status && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.status}</p>}
               </div>
 
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Mobile Number <span className="text-red-500 text-sm">*</span></label>
+              <div className="flex-1 w-full space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Mobile Number <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -181,15 +180,15 @@ export const AddDriver = () => {
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.mobile ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.mobile ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                     placeholder="Enter Mobile Number" 
                   />
                 </div>
                 {errors.mobile && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.mobile}</p>}
               </div>
 
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Email Address <span className="text-red-500 text-sm">*</span></label>
+              <div className="flex-1 w-full space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Email Address <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -197,28 +196,28 @@ export const AddDriver = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.email ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.email ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                     placeholder="Enter Email Address" 
                   />
                 </div>
                 {errors.email && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.email}</p>}
               </div>
+            </div>
 
-              <div className="md:col-span-3 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Residential Address <span className="text-red-500 text-sm">*</span></label>
-                <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="text" 
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.address ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
-                    placeholder="Enter Address" 
-                  />
-                </div>
-                {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.address}</p>}
+            <div className="mt-4 space-y-2">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Residential Address <span className="text-red-500 text-sm">*</span></label>
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                <textarea 
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  rows="3"
+                  className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.address ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none`} 
+                  placeholder="Enter Address" 
+                />
               </div>
+              {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.address}</p>}
             </div>
           </div>
         </div>
@@ -232,9 +231,9 @@ export const AddDriver = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH License Number <span className="text-red-500 text-sm">*</span></label>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">PH License Number <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -242,7 +241,7 @@ export const AddDriver = () => {
                     name="phLicenseNumber"
                     value={formData.phLicenseNumber}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.phLicenseNumber ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.phLicenseNumber ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                     placeholder="Enter PH License Number" 
                   />
                 </div>
@@ -250,7 +249,7 @@ export const AddDriver = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH Expiry Date <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">PH Expiry Date <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -258,14 +257,14 @@ export const AddDriver = () => {
                     name="phExpiryDate"
                     value={formData.phExpiryDate}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.phExpiryDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.phExpiryDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.phExpiryDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phExpiryDate}</p>}
               </div>
 
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DVLA License Number <span className="text-red-500 text-sm">*</span></label>
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">DVLA License Number <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -273,7 +272,7 @@ export const AddDriver = () => {
                     name="dvlaLicenseNumber"
                     value={formData.dvlaLicenseNumber}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.dvlaLicenseNumber ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.dvlaLicenseNumber ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                     placeholder="Enter DVLA License Number" 
                   />
                 </div>
@@ -281,7 +280,7 @@ export const AddDriver = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DVLA Expiry Date <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">DVLA Expiry Date <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -289,14 +288,14 @@ export const AddDriver = () => {
                     name="dvlaExpiryDate"
                     value={formData.dvlaExpiryDate}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.dvlaExpiryDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.dvlaExpiryDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.dvlaExpiryDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaExpiryDate}</p>}
               </div>
 
-              <div className="md:col-span-3 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DBS Certificate Number <span className="text-red-500 text-sm">*</span></label>
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">DBS Certificate Number <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -304,7 +303,7 @@ export const AddDriver = () => {
                     name="dbsCertificateNumber"
                     value={formData.dbsCertificateNumber}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.dbsCertificateNumber ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.dbsCertificateNumber ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                     placeholder="Enter DBS Certificate Number" 
                   />
                 </div>
@@ -312,7 +311,7 @@ export const AddDriver = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DBS Date of Issue <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">DBS Date of Issue <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -320,7 +319,7 @@ export const AddDriver = () => {
                     name="dbsDateOfIssue"
                     value={formData.dbsDateOfIssue}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.dbsDateOfIssue ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.dbsDateOfIssue ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.dbsDateOfIssue && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dbsDateOfIssue}</p>}
@@ -338,16 +337,16 @@ export const AddDriver = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Medical Exemption <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Medical Exemption <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Stethoscope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <select 
                     name="medicalExemption"
                     value={formData.medicalExemption}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.medicalExemption ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none`}
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.medicalExemption ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none`}
                   >
                     <option value="No">No Exemption</option>
                     <option value="Yes">Exemption Active</option>
@@ -357,14 +356,14 @@ export const AddDriver = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Status <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Training Status <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <select 
                     name="trainingStatus"
                     value={formData.trainingStatus}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.trainingStatus ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none`}
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.trainingStatus ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none`}
                   >
                     <option value="No">Pending</option>
                     <option value="Yes">Completed</option>
@@ -374,7 +373,7 @@ export const AddDriver = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Signed Date <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Training Signed Date <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -382,21 +381,21 @@ export const AddDriver = () => {
                     name="trainingSignedDate"
                     value={formData.trainingSignedDate}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.trainingSignedDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.trainingSignedDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.trainingSignedDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.trainingSignedDate}</p>}
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Council Notified <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Council Notified <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Bell className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <select 
                     name="councilNotified"
                     value={formData.councilNotified}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.councilNotified ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none`}
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.councilNotified ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none`}
                   >
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
@@ -406,7 +405,7 @@ export const AddDriver = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Right to Work Verified Date <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">RTW Verified Date <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -414,22 +413,22 @@ export const AddDriver = () => {
                     name="rtwVerifiedDate"
                     value={formData.rtwVerifiedDate}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.rtwVerifiedDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.rtwVerifiedDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.rtwVerifiedDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.rtwVerifiedDate}</p>}
               </div>
 
-              <div className="md:col-span-5 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Right to Work Note</label>
+              <div className="xl:col-span-5 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Right to Work Note</label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="text" 
+                  <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                  <textarea 
                     name="rtwNote"
                     value={formData.rtwNote}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" 
+                    rows="3"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none" 
                     placeholder="Enter Right to Work Note" 
                   />
                 </div>
@@ -447,9 +446,9 @@ export const AddDriver = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Service Start Date <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Service Start Date <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -457,14 +456,14 @@ export const AddDriver = () => {
                     name="serviceStartDate"
                     value={formData.serviceStartDate}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.serviceStartDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.serviceStartDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.serviceStartDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.serviceStartDate}</p>}
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Contract End Date <span className="text-red-500 text-sm">*</span></label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Contract End Date <span className="text-red-500 text-sm">*</span></label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -472,14 +471,14 @@ export const AddDriver = () => {
                     name="contractEndDate"
                     value={formData.contractEndDate}
                     onChange={handleChange}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors.contractEndDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
+                    className={`w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border ${errors.contractEndDate ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`} 
                   />
                 </div>
                 {errors.contractEndDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.contractEndDate}</p>}
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Termination Reason</label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Termination Reason</label>
                 <div className="relative">
                   <AlertCircle className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -487,14 +486,14 @@ export const AddDriver = () => {
                     name="terminationReason"
                     value={formData.terminationReason}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" 
+                    className="w-full pl-11 pr-4 py-2.5 h-[42px] rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" 
                     placeholder="Enter Termination Reason" 
                   />
                 </div>
               </div>
 
-              <div className="md:col-span-5 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Confidential Notes</label>
+              <div className="xl:col-span-4 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Confidential Notes</label>
                 <div className="relative">
                   <Activity className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
                   <textarea 

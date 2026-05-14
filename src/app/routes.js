@@ -17,6 +17,7 @@ import { AddVehicle } from '../modules/vehicles/pages/AddVehicle';
 import { EditVehicle } from '../modules/vehicles/pages/EditVehicle';
 import { ViewVehicle } from '../modules/vehicles/pages/ViewVehicle';
 import { NotificationList } from '../modules/notifications/NotificationList';
+import { SendNotification } from '../modules/notifications/SendNotification';
 import { Dashboard } from '../modules/dashboard/Dashboard';
 import { AdminUserList } from '../modules/user/pages/AdminUserList';
 import { AdminSettings } from '../pages/Settings/AdminSettings';
@@ -50,6 +51,7 @@ export const routesConfig = [
   { path: '/vehicles/view/:id', element: <ViewVehicle />, permission: '/vehicles' },
   { path: '/route-req', element: <RouteReq />, permission: '/route-req' },
   { path: '/notifications', element: <NotificationList />, permission: '/notifications' },
+  { path: '/notifications/send', element: <SendNotification />, permission: '/notifications' },
   { path: '/admin-users', element: <AdminUserList />, permission: '/admin-users' },
   { path: '/admin-settings', element: <AdminSettings />, permission: '/admin-settings' },
   { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
