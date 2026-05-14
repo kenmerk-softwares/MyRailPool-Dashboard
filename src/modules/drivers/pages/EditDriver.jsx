@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Save,
   User,
@@ -18,275 +18,331 @@ import {
   Briefcase,
   AlertCircle,
   Clock,
-  Info,
+  Loader2,
+  ChevronLeft,
+  BadgeCheck
 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
-import { driversData } from '../../../data/mockData';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../../shared/services/firebase';
+import { FunctionsAPI } from '../../../shared/services/functions.api';
+import { useToast } from '../../../shared/hooks/ToastContext';
+import { DriverValidationSchema } from '../../../shared/utils/Validations/DriverValidation';
 
 export const EditDriver = () => {
   const { id } = useParams();
-  const driver = driversData.find(d => d.driver_id.replace('#', '') === id) || driversData[0];
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState(null);
+
+  useEffect(() => {
+    const fetchDriver = async () => {
+      try {
+        const docRef = doc(db, "drivers", id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setFormData(docSnap.data());
+        } else {
+          showToast("Driver not found", "error");
+          navigate('/drivers');
+        }
+      } catch (error) {
+        showToast("Error fetching driver data", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDriver();
+  }, [id, navigate, showToast]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate
+    const { error } = DriverValidationSchema.validate(formData, { abortEarly: false, allowUnknown: true });
+    if (error) {
+      const newErrors = {};
+      error.details.forEach(err => { newErrors[err.path[0]] = err.message; });
+      setErrors(newErrors);
+      showToast("Verification failed. Please review mandatory fields.", "error");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const res = await FunctionsAPI.addDriver({
+        type: "update", 
+        fields: {
+          ...formData,
+          id: id, // docId for update
+          searchKey: formData.name ? formData.name.toLowerCase() : ""
+        }
+      });
+      
+      if (res.success) {
+        showToast("Driver profile updated successfully!", "success");
+        navigate('/drivers');
+      } else {
+        showToast(res.error || "Failed to update driver profile", "error");
+      }
+    } catch (error) {
+      showToast(error.message || "An unexpected error occurred", "error");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Synchronizing Dossier...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
+          <Link to="/drivers" className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-slate-600 rounded-xl transition-all hover:shadow-md">
+            <ChevronLeft className="w-5 h-5" />
+          </Link>
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Edit Operator {driver.driver_id}</h2>
-            <p className="text-slate-500 font-medium mt-1">Modify compliance records and operational parameters for {driver.name}.</p>
+            <div className="flex items-center gap-2">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Modify Dossier</h2>
+                <BadgeCheck className="w-6 h-6 text-indigo-500 fill-indigo-50" />
+            </div>
+            <p className="text-slate-500 font-medium mt-1">Updating compliance records for <span className="text-indigo-600 font-black">{formData?.name}</span></p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        <div className="space-y-8 mt-4">
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <User className="w-4 h-4 text-primary-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Identity & Communication</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Full Name</label>
-                <div className="relative">
-                  <UserCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.name} />
+      <form noValidate onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Identity Section */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+                <div className="p-2 bg-indigo-50 rounded-xl">
+                  <User className="w-4 h-4 text-indigo-600" />
                 </div>
+                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Identity Profile</h3>
               </div>
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Full Legal Name</label>
+                    <div className="relative group">
+                      <UserCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <input 
+                        type="text" name="name" value={formData?.name || ''} onChange={handleChange}
+                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.name ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operator ID</label>
-                <div className="relative">
-                  <Info className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.driver_id} />
-                </div>
-              </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Primary Mobile</label>
+                    <div className="relative group">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <input 
+                        type="tel" name="mobile" value={formData?.mobile || ''} onChange={handleChange}
+                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.mobile ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Account Status</label>
-                <select className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer" defaultValue={driver.status}>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="on_leave">On Leave</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Email Address</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <input 
+                        type="email" name="email" value={formData?.email || ''} onChange={handleChange}
+                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.email ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
+                      />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Mobile Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="tel" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.phone} />
-                </div>
-              </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Account Status</label>
+                    <select 
+                      name="status" value={formData?.status || 'active'} onChange={handleChange}
+                      className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-white text-indigo-700 font-black focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all cursor-pointer appearance-none shadow-sm"
+                    >
+                      <option value="active">🟢 Active Deployment</option>
+                      <option value="inactive">⚪ Inactive Profile</option>
+                      <option value="on_leave">🟡 Seasonal Leave</option>
+                      <option value="suspended">🔴 Suspended Duty</option>
+                    </select>
+                  </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="email" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.email} />
-                </div>
-              </div>
-
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Residential Address</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.address} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-indigo-50 rounded-lg">
-              <Shield className="w-4 h-4 text-indigo-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Licensing Jurisdictions</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH License Number</label>
-                <div className="relative">
-                  <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.ph_lic} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH Expiry Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.ph_exp} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DVLA License Number</label>
-                <div className="relative">
-                  <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.dvla_lic} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DVLA Expiry Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.dvla_exp} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DBS Certificate Number</label>
-                <div className="relative">
-                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.dbs_no} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">DBS Date of Issue</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.dbs_date} />
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Residential Address</label>
+                    <div className="relative group">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                      <input 
+                        type="text" name="address" value={formData?.address || ''} onChange={handleChange}
+                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.address ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all`} 
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <GraduationCap className="w-4 h-4 text-emerald-600" />
+            {/* Compliance Section */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+                <div className="p-2 bg-emerald-50 rounded-xl">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                </div>
+                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Licensing & Regulatory Compliance</h3>
+              </div>
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">PH License Number</label>
+                      <div className="relative">
+                        <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input type="text" name="phLicenseNumber" value={formData?.phLicenseNumber || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">PH Expiry Date</label>
+                      <div className="relative">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input type="date" name="phExpiryDate" value={formData?.phExpiryDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">DVLA License Number</label>
+                      <div className="relative">
+                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input type="text" name="dvlaLicenseNumber" value={formData?.dvlaLicenseNumber || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">DVLA Expiry Date</label>
+                      <div className="relative">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input type="date" name="dvlaExpiryDate" value={formData?.dvlaExpiryDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">DBS Certificate Number</label>
+                        <div className="relative">
+                          <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <input type="text" name="dbsCertificateNumber" value={formData?.dbsCertificateNumber || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">DBS Date of Issue</label>
+                        <div className="relative">
+                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <input type="date" name="dbsDateOfIssue" value={formData?.dbsDateOfIssue || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Operative Compliance</h3>
           </div>
 
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Medical Exemption</label>
-                <div className="relative">
-                  <Stethoscope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none" defaultValue={driver.medical_ex}>
-                    <option value="No">No Exemption</option>
-                    <option value="Yes">Exemption Active</option>
-                  </select>
+          {/* Sidebar Section */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+                <div className="p-2 bg-amber-50 rounded-xl">
+                  <Activity className="w-4 h-4 text-amber-600" />
+                </div>
+                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Deployment Metrics</h3>
+              </div>
+              <div className="p-8 space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-amber-600">Service Start Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input type="date" name="serviceStartDate" value={formData?.serviceStartDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Contract End Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input type="date" name="contractEndDate" value={formData?.contractEndDate || ''} onChange={handleChange} className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" />
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Status</label>
-                <div className="relative">
-                  <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none" defaultValue={driver.training_done}>
-                    <option value="No">Pending</option>
-                    <option value="Yes">Completed</option>
-                  </select>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+                <div className="p-2 bg-rose-50 rounded-xl">
+                  <GraduationCap className="w-4 h-4 text-rose-600" />
                 </div>
+                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Safety Checklist</h3>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Signed Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.training_date} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Council Notified</label>
-                <div className="relative">
-                  <Bell className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <select className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none" defaultValue={driver.council_notified}>
-                    <option value="Yes">Yes</option>
+              <div className="p-8 space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[12px] font-black text-slate-700">Medical Exemption</p>
+                    <p className="text-[10px] font-bold text-slate-400">Validated status</p>
+                  </div>
+                  <select name="medicalExemption" value={formData?.medicalExemption || 'No'} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
                     <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[12px] font-black text-slate-700">Training Status</p>
+                    <p className="text-[10px] font-bold text-slate-400">Induction check</p>
+                  </div>
+                  <select name="trainingStatus" value={formData?.trainingStatus || 'No'} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
+                    <option value="No">Pending</option>
+                    <option value="Yes">Inducted</option>
                   </select>
                 </div>
               </div>
-
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Right to Work Verified Date</label>
-                <div className="relative">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.rtw_date} />
-                </div>
-              </div>
-
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Right to Work Note</label>
-                <div className="relative">
-                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.rtw_note} />
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-amber-50 rounded-lg">
-              <Briefcase className="w-4 h-4 text-amber-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Lifecycle Management</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Service Start Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.start_date} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Contract End Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="date" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.end_date} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Termination Reason</label>
-                <div className="relative">
-                  <AlertCircle className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all" defaultValue={driver.termination_reason} />
-                </div>
-              </div>
-
-              <div className="lg:col-span-3 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Confidential Notes</label>
-                <div className="relative">
-                  <Activity className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                  <textarea rows="3" className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none" defaultValue={driver.notes}></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 pt-6 border-t border-slate-100">
+          <Link to="/drivers" className="w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all text-center">
+            Cancel Updates
+          </Link>
+          <button 
+            type="submit" disabled={updating} 
+            className="w-full sm:w-auto px-12 py-3.5 bg-indigo-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 disabled:opacity-70"
+          >
+            {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {updating ? "Updating..." : "Commit Changes"}
+          </button>
         </div>
-
-      <div className="m-8 flex items-center justify-end gap-4 px-4">
-        <Link to="/drivers" className="px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm">
-          Cancel Updates
-        </Link>
-        <button className="bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5">
-          <Save className="w-4 h-4" /> Update Driver
-        </button>
-      </div>
-    </div>
+      </form>
     </div>
   );
 };
+
