@@ -11,19 +11,20 @@ import {
   Milestone,
   Plus,
   Trash2,
-  X,
-  ArrowRight
+
+  ArrowRight,
+  MapPin
 } from 'lucide-react';
-import { db } from '../../shared/services/firebase';
+import { db } from '../../../shared/services/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 
-import { Autocomplete } from '../../components/Shared';
+import { Autocomplete } from '../../../components/Shared';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import { tripsData, driversData, vehiclesData } from '../../data/mockData';
-import { useDrivers } from '../drivers/hooks/driver.useDrivers';
-import { useVehicles } from '../vehicles/hooks/vehicle.useVehicles';
-import { useToast } from '../../shared/hooks/ToastContext';
-import { FunctionsAPI } from '../../shared/services/functions.api';
+import { tripsData, driversData, vehiclesData } from '../../../data/mockData';
+import { useDrivers } from '../../drivers/hooks/driver.useDrivers';
+import { useVehicles } from '../../vehicles/hooks/vehicle.useVehicles';
+import { useToast } from '../../../shared/hooks/ToastContext';
+import { FunctionsAPI } from '../../../shared/services/functions.api';
 
 export const AddTrip = () => {
   const location = useLocation();
@@ -75,7 +76,6 @@ export const AddTrip = () => {
       fetchDrivers({ searchQuery: driverSearch });
     }, 400);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch]);
 
   useEffect(() => {
@@ -83,7 +83,6 @@ export const AddTrip = () => {
       fetchVehicles({ searchQuery: vehicleSearch });
     }, 400);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleSearch]);
 
   const formatDate = (isoStr) => {
@@ -134,25 +133,21 @@ export const AddTrip = () => {
     timeSlots: [],
     date: formatDate(requestData.routeDates?.[0]) || '',
     selectedRoute: null,
-    selectedVehicle: null
+    selectedVehicle: null,
+    routes: [],
+    routeTiming: {}
   });
 
   const [schedules, setSchedules] = useState([]);
 
   const handleAddSchedule = () => {
-    // If user has a time in the input but hasn't clicked the small plus button, use it
-    let currentTimes = [...formData.timeSlots];
-    if (currentTimes.length === 0 && currentTime) {
-      currentTimes = [currentTime];
-    }
-
     if (!formData.date) {
       alert("Please select a date first.");
       return;
     }
 
-    if (currentTimes.length === 0) {
-      alert("Please specify at least one trip starting time.");
+    if (!formData.start_time) {
+      alert("Please specify a trip starting time.");
       return;
     }
 
@@ -161,44 +156,22 @@ export const AddTrip = () => {
       {
         id: Date.now(),
         date: formData.date,
-        times: currentTimes,
+        times: [formData.start_time],
         passengerCount: formData.total_pcount || 0
       }
     ]);
 
-    // Clear operational inputs for next entry
     setFormData(prev => ({
       ...prev,
       date: '',
-      timeSlots: [],
+      start_time: '',
       total_pcount: ''
     }));
-    setCurrentTime('');
   };
 
 
   const handleRemoveSchedule = (id) => {
     setSchedules(prev => prev.filter(s => s.id !== id));
-  };
-
-
-  const [currentTime, setCurrentTime] = useState('');
-
-  const handleAddTime = () => {
-    if (currentTime && !formData.timeSlots.includes(currentTime)) {
-      setFormData(prev => ({
-        ...prev,
-        timeSlots: [...prev.timeSlots, currentTime].sort()
-      }));
-      setCurrentTime('');
-    }
-  };
-
-  const handleRemoveTime = (time) => {
-    setFormData(prev => ({
-      ...prev,
-      timeSlots: prev.timeSlots.filter(t => t !== time)
-    }));
   };
 
   useEffect(() => {
@@ -258,7 +231,7 @@ export const AddTrip = () => {
     });
   };
 
-  
+
   const handleSave = async () => {
     if (!formData.routeId || !formData.vehicleId || !formData.driverId) {
       showToast("Please select Route, Vehicle and Driver.", "error");
@@ -270,7 +243,6 @@ export const AddTrip = () => {
       return;
     }
 
-    // Include the current date/times if they are not yet appended to schedules
     let allDates = schedules.map(s => s.date);
     if (formData.date && !allDates.includes(formData.date)) {
       allDates.push(formData.date);
@@ -291,7 +263,7 @@ export const AddTrip = () => {
       fareMatrix: selectedRoute?.fareMatrix || {},
       order: selectedRoute?.order || 1,
       routePairs: selectedRoute?.routePairs || [],
-      routeTiming: selectedRoute?.routeTiming || {},
+      routeTiming: formData.routeTiming || {},
       route_id: formData.routeId,
       route_name: formData.route,
       route_type: formData.routeType || 'core',
@@ -317,11 +289,11 @@ export const AddTrip = () => {
   };
 
 
- 
 
 
 
-  
+
+
 
   return (
     <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
@@ -349,7 +321,7 @@ export const AddTrip = () => {
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
+
 
               <Autocomplete
                 label="Assign Driver"
@@ -391,7 +363,9 @@ export const AddTrip = () => {
                     routeId: route.docId,
                     start_loc: route.startingPoint || '',
                     end_loc: route.endPoint || '',
-                    selectedRoute: route
+                    selectedRoute: route,
+                    routes: route.routes || [],
+                    routeTiming: (route.routes || []).reduce((acc, curr) => ({ ...acc, [curr]: "" }), {})
                   }));
                   setRouteSearch(`${route.startingPoint} -> ${route.endPoint}`);
                 }}
@@ -446,7 +420,7 @@ export const AddTrip = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
-             
+
 
               <div className="space-y-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Remarks</label>
@@ -465,8 +439,57 @@ export const AddTrip = () => {
           </div>
         </div>
 
+        {/* Route Timings Section */}
+        {formData.routes?.length > 0 && (
+          <div className="mt-2 px-6 border-t border-slate-100 pt-8 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-indigo-50 rounded-lg">
+                <Milestone className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 tracking-tight">Route Timeline & Arrival Timings</h3>
+              </div>
+            </div>
 
-        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="relative overflow-x-auto pb-6 scrollbar-hide">
+              <div className="flex items-start min-w-max px-4">
+                {formData.routes.map((stop, idx) => (
+                  <div key={idx} className="flex items-start">
+                    <div className="flex flex-col items-center w-40">
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${formData.routeTiming[stop] ? 'bg-primary-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400'}`}>
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <div className="mt-4 text-center px-2">
+                        <p className="text-[11px] font-black text-slate-800 truncate w-32 uppercase tracking-tighter" title={stop}>
+                          {stop}
+                        </p>
+                        <div className="mt-2 relative">
+                          <input
+                            type="time"
+                            value={formData.routeTiming[stop] || ""}
+                            onChange={(e) => {
+                              const newTiming = { ...formData.routeTiming, [stop]: e.target.value };
+                              setFormData(prev => ({ ...prev, routeTiming: newTiming }));
+                            }}
+                            className="w-24 pl-7 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 focus:border-primary-500 focus:bg-white transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {idx < formData.routes.length - 1 && (
+                      <div className="flex flex-col items-center pt-5">
+                        <div className="w-12 h-[2px] bg-gradient-to-r from-slate-300 to-slate-300 group-hover:from-primary-300 group-hover:to-primary-300 transition-all"></div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div>
           <div className="px-8 py-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200">
@@ -482,7 +505,7 @@ export const AddTrip = () => {
           <div className="p-8">
             <div className="bg-slate-50/30 rounded-[2rem] p-6 border border-slate-100/50">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-                
+
                 <div className="space-y-2.5">
                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Operational Date</label>
                   <div className="relative group">
@@ -504,18 +527,12 @@ export const AddTrip = () => {
                       <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
                       <input
                         type="time"
-                        value={currentTime}
-                        onChange={(e) => setCurrentTime(e.target.value)}
+                        name="start_time"
+                        value={formData.start_time}
+                        onChange={handleChange}
                         className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleAddTime}
-                      className="bg-emerald-50 text-emerald-600 p-3.5 rounded-2xl hover:bg-emerald-100 transition-all active:scale-90 border border-emerald-100 shadow-sm"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
                   </div>
                 </div>
 
@@ -544,23 +561,6 @@ export const AddTrip = () => {
                 </button>
               </div>
 
-              {/* Time Slots Chips */}
-              {formData.timeSlots?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4 ml-1">
-                  {formData.timeSlots.map(time => (
-                    <div key={time} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-emerald-200 transition-all group animate-in zoom-in duration-300">
-                      <span className="text-[11px] font-black text-slate-700">{time}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTime(time)}
-                        className="text-red-500 hover:text-rose-800 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/*  Table */}
@@ -634,28 +634,28 @@ export const AddTrip = () => {
             )}
           </div>
 
+        </div>
+
+
+
+        <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
+          <button
+            onClick={() => {
+              localStorage.removeItem('tripFormDraft');
+              navigate('/trips');
+            }}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
+          >
+            Discard Changes
+          </button>
+          <button
+            onClick={handleSave}
+            className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5"
+          >
+            <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
+          </button>
+        </div>
       </div>
-
-
-
-      <div className="m-8 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 px-4 sm:me-2">
-        <button
-          onClick={() => {
-            localStorage.removeItem('tripFormDraft');
-            navigate('/trips');
-          }}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm"
-        >
-          Discard Changes
-        </button>
-        <button
-          onClick={handleSave}
-          className="w-full sm:w-auto justify-center bg-primary-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm hover:bg-primary-700 active:scale-[0.98] transition-all shadow-lg shadow-primary-600/20 flex items-center gap-2.5"
-        >
-          <Save className="w-4.5 h-4.5" /> {isEdit ? 'Save Changes' : 'Confirm & Schedule Trip'}
-        </button>
-      </div>
-    </div>
     </div>
   );
 };
