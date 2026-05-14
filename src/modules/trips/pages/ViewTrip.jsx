@@ -15,9 +15,8 @@ import {
   AlertCircle,
   MapPin
 } from 'lucide-react';
-import { StatusBadge } from '../../components/Shared';
-import { tripsData } from '../../data/mockData';
-
+import { StatusBadge } from '../../../components/Shared';
+import { tripsData } from '../../../data/mockData';
 export const ViewTrip = () => {
   const { id } = useParams();
   const trip = tripsData.find(t => t.trip_id === id);
