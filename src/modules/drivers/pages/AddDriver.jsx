@@ -193,6 +193,7 @@ export const AddDriver = () => {
                   </div>
                 </div>
               </div>
+              {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.address}</p>}
             </div>
 
             {/* Compliance Documentation */}

@@ -73,13 +73,13 @@ export const ViewVehicle = () => {
       {/* Header Bar */}
       <header className="flex items-center justify-between mb-4 bg-white p-4 border border-slate-200 rounded-xl shadow-sm">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-primary-700 text-white flex items-center justify-center font-black text-2xl rounded-lg">
+          <div className="w-14 h-14 bg-primary-700 text-white flex items-center justify-center font-bold text-2xl rounded-lg">
             {vehicle.make.charAt(0)}
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{vehicle.make} {vehicle.model}</h1>
-              <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded-full ${
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight uppercase">{vehicle.make} {vehicle.model}</h1>
+              <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-tight border rounded-full ${
                 vehicle.status.toLowerCase() === 'active' 
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' 
                 : 'bg-amber-50 text-amber-700 border-amber-100 shadow-sm'
@@ -88,7 +88,7 @@ export const ViewVehicle = () => {
               </span>
             </div>
             <div className="flex items-center gap-6 text-xs font-bold text-slate-500 mt-1.5">
-              <span className="text-primary-700 font-black">{vehicle.id}</span>
+              <span className="text-primary-700 font-bold">{vehicle.id}</span>
               <span className="flex items-center gap-1.5"><Hash className="w-3.5 h-3.5 text-primary-600" /> {vehicle.registration_no}</span>
               <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5 text-primary-600" /> {vehicle.type}</span>
               <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-primary-600" /> {vehicle.capacity} Seats</span>
@@ -97,12 +97,12 @@ export const ViewVehicle = () => {
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right border-r pr-5 border-slate-100">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] mb-0.5">Total Missions</p>
-            <p className="text-xl font-black text-primary-700 leading-none">{vehicleTrips.length || 0}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Total Missions</p>
+            <p className="text-xl font-bold text-primary-700 leading-none">{vehicleTrips.length || 0}</p>
           </div>
           <Link
             to={`/vehicles/edit/${id}`}
-            className="px-6 py-3 bg-slate-900 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 rounded-lg hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+            className="px-6 py-3 bg-slate-900 text-white font-bold text-xs uppercase tracking-tight flex items-center gap-2 rounded-lg hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
           >
             <Edit className="w-4 h-4" /> Update Asset
           </Link>
@@ -118,18 +118,18 @@ export const ViewVehicle = () => {
             <section key={sIdx}>
               <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-2">
                 <section.icon className="w-4 h-4 text-primary-700" />
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{section.title}</h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-tight">{section.title}</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6">
                 {section.fields.map((field, fIdx) => (
                   <div key={fIdx} className="flex flex-col">
-                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-1">
                       {field.label}
                     </span>
                     <div className="flex items-center gap-2">
                       {field.isBadge ? (
-                        <span className={`text-sm font-black uppercase tracking-tight ${
+                        <span className={`text-sm font-bold uppercase tracking-tight ${
                           field.value?.toLowerCase() === 'active' || field.value?.toLowerCase() === 'yes'
                             ? 'text-emerald-600'
                             : field.value?.toLowerCase() === 'maintenance'
@@ -139,7 +139,7 @@ export const ViewVehicle = () => {
                           {field.value || 'N/A'}
                         </span>
                       ) : (
-                        <span className={`text-[15px] font-bold text-slate-800 leading-tight truncate ${field.isDate ? 'font-mono text-sm' : ''}`}>
+                        <span className={`text-[15px] font-bold text-slate-800 leading-tight truncate ${field.isDate ? 'text-sm' : ''}`}>
                           {field.value || '---'}
                         </span>
                       )}
@@ -154,7 +154,7 @@ export const ViewVehicle = () => {
           <section className="pt-2">
             <div className="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
               <Activity className="w-4 h-4 text-primary-700" />
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Asset Remarks</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase ">Asset Remarks</h3>
             </div>
             <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
               <p className="text-sm font-medium text-slate-600 leading-relaxed italic">
@@ -171,8 +171,8 @@ export const ViewVehicle = () => {
                 <Car className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Deployment Logs</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-0.5">
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Deployment Logs</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
                   {vehicleTrips.length} Historical entries recorded
                 </p>
               </div>
@@ -191,21 +191,21 @@ export const ViewVehicle = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50">
-                  <th className="pl-6 pr-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trip ID</th>
-                  <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route Details</th>
-                  <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
-                  <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                  <th className="pl-6 pr-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-tight">Trip ID</th>
+                  <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-tight">Route Details</th>
+                  <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-tight">Timestamp</th>
+                  <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {vehicleTrips.length > 0 ? (
                   vehicleTrips.map((trip, idx) => (
                     <tr key={idx} className="hover:bg-primary-50/30 transition-colors group">
-                      <td className="pl-6 pr-4 py-4 text-sm font-black text-slate-800">{trip.trip_id}</td>
+                      <td className="pl-6 pr-4 py-4 text-sm font-bold text-slate-800">{trip.trip_id}</td>
                       <td className="px-4 py-4 text-sm font-bold text-slate-700 group-hover:text-primary-700 transition-colors">{trip.route}</td>
-                      <td className="px-4 py-4 text-xs font-bold text-slate-400 font-mono italic">{trip.trip_date}</td>
+                      <td className="px-4 py-4 text-xs font-bold text-slate-400 italic">{trip.trip_date}</td>
                       <td className="px-6 py-4 text-center">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight border shadow-sm ${
                           trip.status === 'COMPLETED' 
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
                           : 'bg-indigo-50 text-indigo-700 border-indigo-100'
@@ -217,7 +217,7 @@ export const ViewVehicle = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-sm font-bold text-slate-400 uppercase tracking-widest">
+                    <td colSpan="4" className="px-6 py-8 text-center text-sm font-bold text-slate-400 uppercase tracking-tight">
                       No missions logged for this asset
                     </td>
                   </tr>
