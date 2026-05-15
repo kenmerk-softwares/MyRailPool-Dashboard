@@ -4,7 +4,7 @@ const Joi = require("joi");
 const addTripValidator = (req) => {
   const schema = Joi.object({
     fields: Joi.object({
-      available_seats: Joi.number().required(),
+      available_seats: Joi.object().pattern(Joi.string(), Joi.number()).required(),
       createdAt: Joi.any().optional(),
       fareMatrix: Joi.object().required(),
       order: Joi.number().required(),
@@ -17,6 +17,10 @@ const addTripValidator = (req) => {
       selectedDates: Joi.array().items(Joi.string()).required(),
       status: Joi.string().required(),
       total_seats: Joi.number().required(),
+      driver_name: Joi.string().required(),
+      driver_id: Joi.string().required(),
+      vehicle_id: Joi.string().required(),
+      vehicle_reg: Joi.string().required(),
     }).required(),
   });
 
