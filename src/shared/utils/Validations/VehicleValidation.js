@@ -21,20 +21,23 @@ export const VehicleValidationSchema = Joi.object({
       'Sedan',
       'SUV',
       'Hatchback',
+      'MPV',
       'Van',
       'Mini Van',
       'Luxury',
       'Electric'
     )
-    .default('Sedan'),
-
-  seatingCapacity: Joi.number()
-    .integer()
-    .min(1)
     .required()
     .messages({
-      'number.base': 'Seating capacity must be a number',
-      'number.min': 'Seating capacity must be at least 1',
+      'any.only': 'Please select a valid vehicle type',
+      'any.required': 'Vehicle type is required'
+    }),
+
+  seatingCapacity: Joi.string()
+    .trim()
+    .required()
+    .messages({
+      'string.empty': 'Seating capacity is required',
       'any.required': 'Seating capacity is required'
     }),
 
@@ -48,8 +51,8 @@ export const VehicleValidationSchema = Joi.object({
     'any.required': 'PH License is mandatory'
   }),
 
-  licenceExpiry: Joi.date().required().messages({
-    'date.base': 'Licence expiry must be a valid date',
+  licenceExpiry: Joi.string().trim().required().messages({
+    'string.empty': 'Licence expiry is required',
     'any.required': 'Licence expiry date is required'
   }),
 
@@ -63,28 +66,22 @@ export const VehicleValidationSchema = Joi.object({
     'any.required': 'Policy number is mandatory'
   }),
 
-  insuranceExpiry: Joi.date().required().messages({
-    'date.base': 'Insurance expiry must be a valid date',
+  insuranceExpiry: Joi.string().trim().required().messages({
+    'string.empty': 'Insurance expiry is required',
     'any.required': 'Insurance expiry date is required'
   }),
 
-  assignedDriver: Joi.string().trim().required().messages({
-    'string.empty': 'Please assign a driver to this vehicle',
-    'any.required': 'Assigned driver is mandatory'
-  }),
-
-  driverId: Joi.string().allow(''),
+  assignedDriver: Joi.string().trim().allow('', null),
+  
+  driverId: Joi.string().trim().allow('', null),
 
   operationalStatus: Joi.string()
-    .valid(
-      'Active',
-      'Inactive',
-      'Maintenance',
-      'Suspended'
-    )
+    .valid('Active', 'Inactive', 'Maintenance')
     .required()
     .messages({
       'any.required': 'Operational status is required'
     })
     .default('Active'),
+
+  notes: Joi.string().trim().allow('', null)
 });
