@@ -143,7 +143,7 @@ export const Autocomplete = ({
             setShowResults(true);
           }}
           onFocus={() => setShowResults(true)}
-          className={`w-full ${Icon ? 'pl-10' : 'px-4'} pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`}
+          className={`w-full ${Icon ? 'pl-10' : 'px-4'} pr-4 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all`}
         />
         {showResults && (results.length > 0 || loading) && (
           <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2 animate-in fade-in slide-in-from-top-2 duration-200">
