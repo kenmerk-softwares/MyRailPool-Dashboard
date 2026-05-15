@@ -1,5 +1,5 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Clock,
   Users,
@@ -13,286 +13,286 @@ import {
   ArrowRight,
   CheckCircle,
   AlertCircle,
-  MapPin
+  MapPin,
+  ChevronLeft,
+  Loader2,
+  Calendar,
+  Activity,
+  Car,
+  User,
+  Shield,
+  FileText
 } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../../shared/services/firebase';
+import { useToast } from '../../../shared/hooks/ToastContext';
 import { StatusBadge } from '../../../components/Shared';
-import { tripsData } from '../../../data/mockData';
+
 export const ViewTrip = () => {
   const { id } = useParams();
-  const trip = tripsData.find(t => t.trip_id === id);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [trip, setTrip] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!trip) {
+  useEffect(() => {
+    const fetchTrip = async () => {
+      try {
+        const docId = String(id || '').replace('#', '');
+        const docRef = doc(db, "trips", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setTrip({ ...docSnap.data(), docId: docSnap.id });
+        } else {
+          showToast("Trip dossier not found", "error");
+          navigate('/trips');
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        showToast("Access Denied: Unable to retrieve trip registry", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrip();
+  }, [id, navigate, showToast]);
+
+  if (loading) {
     return (
-      <div className="p-12 text-center bg-white rounded-2xl border border-slate-200/60 shadow-sm animate-in zoom-in duration-300">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-8 h-8 text-slate-500" />
-        </div>
-        <h3 className="text-xl font-bold text-slate-800">Trip Not Found</h3>
-        <p className="text-slate-500 mt-1 mb-6">The specified Mission ID does not exist in the decentralized database.</p>
-
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Accessing Operational Dossier...</p>
       </div>
     );
   }
 
-  const getStatusColor = (status) => {
-    switch (status?.toUpperCase()) {
-      case 'COMPLETED': return 'success';
-      case 'IN TRANSIT': return 'primary';
-      case 'PENDING': return 'warning';
-      case 'CANCELLED': return 'danger';
-      default: return 'slate';
+  if (!trip) return null;
+
+  const sections = [
+    {
+      title: 'Resource Allocation',
+      icon: Shield,
+      fields: [
+        { label: 'Assigned Operator', value: trip.driver_name, icon: User },
+        { label: 'Asset Registry', value: trip.vehicle_reg, icon: Car },
+        { label: 'Service Type', value: trip.route_type, icon: Activity },
+        { label: 'Fleet Capacity', value: `${trip.total_seats} Seats`, icon: Users },
+      ]
+    },
+    {
+      title: 'Mission Configuration',
+      icon: Milestone,
+      fields: [
+        { 
+          label: 'Route Corridor', 
+          value: trip.route_name, 
+          icon: Globe,
+          link: `/routes/view/${trip.route_id}`
+        },
+        { label: 'Registry ID', value: trip.tripId, icon: Hash },
+        { label: 'Scheduled Dates', value: `${trip.selectedDates?.length || 0} Deployments`, icon: Calendar },
+        { label: 'Operational Status', value: trip.status, icon: CheckCircle, isBadge: true },
+      ]
     }
-  };
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4 text-sm">
-        <div className="flex items-center gap-4">
-
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Trip Details: {trip.trip_id}</h2>
-              <StatusBadge status={trip.status} statusColor={getStatusColor(trip.status)} />
+    <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* ── Mission Hero Header ── */}
+      <header className="mb-6">
+        <div className="bg-white p-6 border border-slate-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -mr-32 -mt-32 z-0"></div>
+          
+          <div className="flex items-center gap-6 relative z-10">
+            <div className="w-20 h-20 bg-slate-900 text-white flex items-center justify-center rounded-2xl shadow-xl shadow-slate-200 ring-4 ring-slate-50 transition-transform hover:scale-105 duration-500">
+              <Navigation className="w-10 h-10" />
             </div>
-            <p className="text-slate-500 font-medium mt-1">Operational audit and mission overview for selected trip ID.</p>
+            
+            <div>
+              <div className="flex items-center gap-3">
+                <Link to="/trips" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                  <ChevronLeft className="w-4 h-4 text-slate-400" />
+                </Link>
+                <Link to={`/routes/view/${trip.route_id}`} className="hover:text-indigo-600 transition-colors">
+                  <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">{trip.route_name}</h1>
+                </Link>
+                <StatusBadge 
+                  status={trip.status} 
+                  statusColor={trip.status === 'Active' ? 'success' : trip.status === 'Completed' ? 'primary' : 'danger'} 
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2">
+                <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg border border-indigo-100">
+                  <Hash className="w-3.5 h-3.5 text-indigo-600" />
+                  <span className="text-xs font-black text-indigo-700 tracking-wider">MISSION ID: {trip.tripId}</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">{trip.selectedDates?.length || 0} Scheduled Windows</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Activity className="w-3.5 h-3.5" />
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">{trip.route_type} Service</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 relative z-10">
+            <Link
+              to={`/trips/edit/${trip.docId}`}
+              className="px-8 py-3 bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.15em] flex items-center gap-3 rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95"
+            >
+              <Edit className="w-4 h-4" /> Update Mission
+            </Link>
           </div>
         </div>
-        <Link
-          to={`/trips/add/${id}`}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-700 text-white rounded-xl font-bold text-sm hover:bg-primary-800 transition-all shadow-lg shadow-primary-600/20"
-        >
-          <Edit className="w-4.5 h-4.5" /> Edit Trip
-        </Link>
-      </div>
+      </header>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        <div className="mt-4">
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <Hash className="w-4 h-4 text-primary-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Basic Information</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip ID</label>
-                <p className="px-4 py-3 rounded-xl bg-slate-50 text-slate-700 font-bold border border-slate-100">{trip.trip_id}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
-                <div className="px-4 py-3 rounded-xl bg-white text-slate-800 font-bold border border-slate-200 shadow-sm flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-[10px]">{trip.driver.charAt(0)}</div>
-                  <span>{trip.driver}</span>
+      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column: Data Grids & Route Map */}
+        <div className="lg:col-span-2 space-y-6">
+          {sections.map((section, sIdx) => (
+            <div key={sIdx} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden group">
+              <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-3 bg-slate-50/30 group-hover:bg-slate-50 transition-colors duration-500">
+                <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-110 transition-transform duration-500">
+                  <section.icon className="w-4 h-4 text-indigo-600" />
                 </div>
+                <h3 className="font-bold text-slate-800 tracking-tight uppercase text-xs">{section.title}</h3>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">License Reference</label>
-                <p className="px-4 py-3 rounded-xl bg-white text-slate-600 font-semibold border border-slate-200">{trip.driver_lic || 'DL-3994-01'}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Vehicle Registration</label>
-                <p className="px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold border border-indigo-100">{trip.vehicle_reg}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
-                <p className="px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold border border-emerald-100 uppercase text-xs">
-                  {trip.route_type ? trip.route_type.replace('_', ' ') : 'Core Route'}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 pt-6 border-t border-slate-50">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Trip Date & Time</label>
-                <p className="px-4 py-3 rounded-xl bg-white text-slate-700 font-bold border border-slate-200">{trip.trip_date} • {trip.start_time}</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Bookings</label>
-                <p className="px-4 py-3 rounded-xl bg-slate-50 text-slate-800 font-bold border border-slate-100">{trip.total_bookings} Bookings</p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Booking IDs</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {(Array.isArray(trip.booking_ids) ? trip.booking_ids : trip.booking_ids?.split(',') || []).map(bid => (
-                    <Link key={bid} to={`/bookings/view/${bid.trim()}`} className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-primary-600 font-bold text-[10px] hover:bg-primary-50 transition-colors">
-                      {bid.trim()}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Remarks</label>
-                <div className="px-4 py-3 rounded-xl bg-yellow-50/30 text-slate-600 font-medium italic border border-yellow-100 min-h-[46px]">
-                  {trip.notes || 'No remarks recorded.'}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <Milestone className="w-4 h-4 text-emerald-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight"> Route Details</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="mb-8 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-              <div className="flex items-center justify-between gap-8">
-                <div className="flex-1">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Departure</p>
-                  <p className="text-lg font-bold text-slate-900">{trip.start_loc}</p>
-                </div>
-                <div className="flex flex-col items-center gap-1 group">
-                  <div className="h-px w-24 sm:w-48 bg-gradient-to-r from-primary-200 via-primary-500 to-emerald-200 relative mb-2">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-1.5 bg-white border border-slate-200 rounded-full shadow-sm">
-                      <ArrowRight className="w-3.5 h-3.5 text-primary-600" />
+              <div className="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {section.fields.map((field, fIdx) => (
+                  <div key={fIdx} className="space-y-1.5">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">
+                      {field.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {field.isBadge ? (
+                        <StatusBadge status={String(field.value || '')} statusColor={field.value === 'Active' ? 'success' : 'primary'} />
+                      ) : field.link ? (
+                        <Link to={field.link} className="text-[15px] font-black text-indigo-600 hover:text-indigo-700 tracking-tight transition-colors">
+                          {typeof field.value === 'string' || typeof field.value === 'number' ? field.value : '—'}
+                        </Link>
+                      ) : (
+                        <span className="text-[15px] font-black text-slate-800 tracking-tight">
+                          {typeof field.value === 'string' || typeof field.value === 'number' ? field.value : '—'}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <StatusBadge status={trip.status} statusColor={getStatusColor(trip.status)} />
-                </div>
-                <div className="flex-1 text-right">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Destination</p>
-                  <p className="text-lg font-bold text-slate-900">{trip.end_loc}</p>
-                </div>
+                ))}
               </div>
+            </div>
+          ))}
 
-              {trip.stops && trip.stops.length > 0 && (
-                <div className="mt-8 pt-6 border-t border-slate-200/60">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Intermediate Sequence</p>
-                  <div className="space-y-4">
-                    {trip.stops.map((stop, idx) => (
-                      <div key={idx} className="flex items-start gap-4 relative">
-                        {idx !== trip.stops.length - 1 && (
-                          <div className="absolute left-[15px] top-8 bottom-[-16px] w-0.5 bg-slate-200"></div>
-                        )}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${stop.type === 'PICKUP' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                          <MapPin className="w-3.5 h-3.5" />
-                        </div>
-                        <div className="pt-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-slate-800">{stop.location}</span>
-                            <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-tight ${stop.type === 'PICKUP' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                              {stop.type}
-                            </span>
-                          </div>
-                          {stop.notes && <p className="text-xs text-slate-500 mt-0.5">{stop.notes}</p>}
+          {/* Route Visualizer */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-3">
+              <MapPin className="w-4 h-4 text-emerald-600" />
+              <h3 className="font-bold text-slate-800 tracking-tight uppercase text-xs">Route Execution Sequence</h3>
+            </div>
+            <div className="p-8 bg-slate-50/30">
+              <div className="flex items-start overflow-x-auto pb-6 scrollbar-hide gap-0">
+                {trip.routes?.map((stop, idx) => (
+                  <div key={idx} className="flex items-start">
+                    <div className="flex flex-col items-center w-40">
+                      <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center shadow-lg group hover:border-indigo-500 transition-all duration-500">
+                        <MapPin className="w-6 h-6 text-indigo-600" />
+                      </div>
+                      <div className="mt-4 text-center px-2">
+                        <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">{stop}</p>
+                        <div className="mt-2 flex items-center justify-center gap-1.5 px-3 py-1 bg-indigo-50 rounded-lg text-indigo-700 text-[10px] font-black">
+                          <Clock className="w-3 h-3" />
+                          {trip.routeTiming?.[stop] || '--:--'}
                         </div>
                       </div>
-                    ))}
+                    </div>
+                    {idx < trip.routes.length - 1 && (
+                      <div className="pt-6 px-1">
+                        <div className="w-12 h-0.5 bg-slate-200"></div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Remarks Section */}
+          <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform duration-700">
+              <FileText className="w-20 h-20 text-indigo-500" />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <Activity className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mission Operational Remarks</h3>
+              </div>
+              <p className="text-slate-300 font-medium text-sm leading-relaxed italic pr-20">
+                "{trip.notes || "No specific operational notes or special remarks recorded for this trip."}"
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Execution Schedule & Quick Stats */}
+        <div className="space-y-6">
+          {/* Execution Windows Card */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 border-l-4 border-l-emerald-600">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                <Calendar className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-slate-800 text-sm uppercase tracking-tight">Execution Windows</h3>
+            </div>
+            
+            <div className="space-y-3">
+              {Array.isArray(trip.selectedDates) && trip.selectedDates.map((date, idx) => (
+                <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-white hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white rounded-lg flex flex-col items-center justify-center border border-slate-100 text-slate-800">
+                      <span className="text-[12px] font-black leading-none">{typeof date === 'string' ? new Date(date).getDate() : '?'}</span>
+                      <span className="text-[7px] font-bold uppercase">{typeof date === 'string' ? new Date(date).toLocaleString('default', { month: 'short' }) : '??'}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-black text-slate-700">{typeof date === 'string' ? new Date(date).toLocaleDateString('en-GB', { weekday: 'long' }) : 'Unknown Date'}</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{typeof date === 'string' ? new Date(date).getFullYear() : ''}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-black text-indigo-600 uppercase">Available</span>
+                    <span className="text-sm font-black text-slate-800">{trip.available_seats?.[date] || 0} Seats</span>
                   </div>
                 </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Estimated Departure</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Clock className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{trip.start_time}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Estimated Arrival</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Clock className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{trip.end_time}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Globe className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{trip.route}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Actual Destination</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
-                  <CheckCircle className="w-4 h-4 text-emerald-600" />
-                  <span className="font-bold text-emerald-700">{trip.actual_dest || trip.route}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8 pt-6 border-t border-slate-50">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Passenger Count</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Users className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{trip.total_pcount}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Miles</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200">
-                  <Navigation className="w-4 h-4 text-slate-500" />
-                  <span className="font-bold text-slate-800">{trip.miles || '0'} Miles</span>
-                </div>
-              </div>
-              
+              ))}
             </div>
           </div>
+
+          {/* Impact Stats */}
+          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
+                <Leaf className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-white text-sm uppercase tracking-tight">Environmental Impact</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 group hover:bg-white/10 transition-all duration-300">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">CO2 Footprint Reduced</span>
+                  <span className="text-xl font-black text-emerald-400">0.0 kg</span>
+                </div>
+                <TrendingUp className="w-8 h-8 text-white/5 group-hover:text-emerald-500/20 transition-colors" />
+              </div>
+            </div>
+          </div>
+
         </div>
-
-        <div>
-          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-            <div className="p-2 bg-indigo-50 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-indigo-600" />
-            </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Financial Summary</h3>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              <div className="space-y-1.5 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-0.5">Gross Revenue</label>
-                <p className="text-lg font-bold text-slate-900">{trip.price}</p>
-              </div>
-
-              <div className="space-y-1.5 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-0.5">Driver Cost</label>
-                <p className="text-lg font-bold text-red-600">-{trip.driver_cost || '₹0'}</p>
-              </div>
-
-              <div className="space-y-1.5 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-0.5">Fuel Economy</label>
-                <p className="text-lg font-bold text-slate-700">{trip.saved_money || '₹0'}</p>
-              </div>
-
-              <div className="space-y-1.5 px-4 py-3 rounded-xl bg-primary-50 border border-primary-100">
-                <label className="text-[11px] font-semibold text-primary-700 uppercase tracking-wider block mb-0.5">Net Profit</label>
-                <div className="flex items-center gap-3">
-                  <p className="text-xl font-extrabold text-primary-700">{trip.profit || '₹0'}</p>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
-                <label className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider block mb-0.5">CO2 Savings</label>
-                <div className="flex items-center gap-2">
-                  <Leaf className="w-4 h-4 text-emerald-600" />
-                  <p className="text-lg font-bold text-emerald-700">{trip.co2_saved || '0.0'} kg</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };
