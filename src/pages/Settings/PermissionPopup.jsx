@@ -4,8 +4,8 @@ import { addDoc, collection, onSnapshot, orderBy, query } from 'firebase/firesto
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../shared/services/firebase';
 import { useToast } from '../../shared/hooks/ToastContext';
-
 import { systemRoutes } from '../../app/routes';
+import DeleteModal from '../../shared/DeleteModal/DeleteModal';
 
 export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	const { showToast } = useToast();
@@ -16,6 +16,8 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	const [saving, setSaving] = React.useState(false);
 	const [departments, setDepartments] = React.useState([]);
 	const [designations, setDesignations] = React.useState([]);
+	const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+	const [showRevokeModal, setShowRevokeModal] = React.useState(false);
 	const functions = getFunctions(app, "asia-south1");
 
 	useEffect(() => {
@@ -126,9 +128,13 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	};
 
 	const handleDelete = () => {
+		setShowDeleteModal(true);
+	};
+
+	const confirmDelete = () => {
 		if (!editData?.id) return;
-		if (!window.confirm("Are you sure you want to delete this permission model?")) return;
 		
+		setShowDeleteModal(false);
 		setSaving(true);
 		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
 		
@@ -150,9 +156,13 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 	};
 
 	const handleRevoke = () => {
+		setShowRevokeModal(true);
+	};
+
+	const confirmRevoke = () => {
 		if (!editData?.id) return;
-		if (!window.confirm("Are you sure you want to revoke this permission from all assigned users?")) return;
 		
+		setShowRevokeModal(false);
 		setSaving(true);
 		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
 		
@@ -299,6 +309,27 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 					)}
 				</div>
 			</div>
+
+			<DeleteModal
+				isOpen={showDeleteModal}
+				onClose={() => setShowDeleteModal(false)}
+				onConfirm={confirmDelete}
+				title="Delete Permission Model?"
+				message="Are you sure you want to delete this permission model?"
+				itemName={permissionName}
+				loading={saving}
+			/>
+
+			<DeleteModal
+				isOpen={showRevokeModal}
+				onClose={() => setShowRevokeModal(false)}
+				onConfirm={confirmRevoke}
+				title="Revoke Permissions?"
+				message="Are you sure you want to revoke this permission model from all assigned admin users?"
+				itemName={permissionName}
+				loading={saving}
+				confirmText="Revoke"
+			/>
 		</div>
 	);
 };

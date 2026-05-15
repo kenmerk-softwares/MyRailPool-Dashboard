@@ -62,7 +62,7 @@ export const TripList = () => {
           renderRow={(trip, idx) => (
             <>
               <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
-              <td className="px-8 py-4 text-[13px] font-black text-slate-800">{trip.route_id || trip.id}</td>
+              <td className="px-8 py-4 text-[13px] font-black text-slate-800">{trip.tripId}</td>
               <td className="px-8 py-4">
                 <div className="flex flex-col">
                   <span className="text-[13px] font-black text-slate-800">{trip.driver || 'N/A'}</span>

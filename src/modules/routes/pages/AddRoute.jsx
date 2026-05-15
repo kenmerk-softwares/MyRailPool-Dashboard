@@ -249,7 +249,7 @@ export const AddRoute = () => {
                     <input
                       type="text"
                       name="routeName"
-                      className="w-full pl-4 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-400"
+                      className="w-full pl-4 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-400"
                       placeholder="Route Name"
                       defaultValue={initialData?.name}
                       onChange={handleInputChange}
@@ -263,7 +263,7 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       name="activationDate"
-                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
                       defaultValue={initialData?.activationDate}
                     />
                   </div>
@@ -275,7 +275,7 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       name="deactivationDate"
-                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
                       defaultValue={initialData?.deactivationDate}
                     />
                   </div>
@@ -285,7 +285,7 @@ export const AddRoute = () => {
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status</label>
                   <select
                     name="status"
-                    className="w-full px-5 py-2.5 rounded-2xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
+                    className="w-full px-5 py-1.5  rounded-2xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
                     defaultValue={initialData?.status || "Active"}
                   >
                     <option value="Active">Active Corridor</option>
@@ -309,7 +309,7 @@ export const AddRoute = () => {
               </div>
             </div>
 
-            <div className="p-8">
+            <div className="px-8 py-2">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Active Calendar Dates <span className="text-red-500"> *</span></label>
@@ -317,7 +317,7 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       onChange={handleAddDate}
-                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
                     />
 
                     {errors.selectedDates && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.selectedDates}</p>}
@@ -325,7 +325,7 @@ export const AddRoute = () => {
                 </div>
                 <div className="col-span-2 md:col-span-3 mt-2">
                   {selectedDates.length > 0 ? (
-                    <div className="mt-4 flex items-center gap-3 px-5 py-2.5 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
+                    <div className="mt-4 flex items-center gap-3 px-5 py-1.5  border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
                       <div className="flex flex-wrap gap-2">
                         {selectedDates.sort().map(date => {
                           const dateObj = new Date(date);
@@ -355,7 +355,7 @@ export const AddRoute = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-4 flex items-center gap-3 px-5 py-2.5 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
+                    <div className="mt-4 flex items-center gap-3 px-5 py-1.5  border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
                       <Calendar className="w-5 h-5 text-slate-200" />
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No operating dates selected</span>
                     </div>
@@ -400,7 +400,7 @@ export const AddRoute = () => {
                         value={currentPoint}
                         onChange={(e) => setCurrentPoint(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-300"
+                        className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-300"
                         placeholder="Search for a geographical node..."
                       />
                     </MapPlaces>
@@ -586,8 +586,6 @@ export const AddRoute = () => {
                                 value={fareMatrix[`${fromPoint}-${toPoint}`] || ''}
                                 onChange={(e) => updateFare(fromPoint, toPoint, e.target.value)}
                                 className="w-full pl-9 pr-4 py-2 bg-slate-100 rounded-xl border border-transparent focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-xs font-black text-slate-800 placeholder:text-slate-500"
-
-
                               />
                             </div>
                           </div>
@@ -604,14 +602,14 @@ export const AddRoute = () => {
           <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-4">
             <Link
               to="/routes"
-              className="w-full sm:w-auto text-center px-8 py-1.5 rounded-2xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all text-sm uppercase tracking-widest"
+              className="w-full sm:w-auto text-center px-8 py-3 rounded-2xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all text-sm uppercase tracking-widest"
             >
               Discard Changes
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto justify-center bg-slate-900 text-white px-12 py-1.5 rounded-2xl font-black text-sm hover:bg-primary-600 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto justify-center bg-emerald-600 text-white px-8 py-3 rounded-2xl font-black text-sm hover:bg-emerald-800 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
