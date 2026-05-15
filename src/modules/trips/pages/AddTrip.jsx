@@ -326,7 +326,7 @@ export const AddTrip = () => {
             <h3 className="font-bold text-slate-800 tracking-tight">Basic Information</h3>
           </div>
 
-          <div className="p-6">
+          <div className="px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
 
@@ -417,7 +417,7 @@ export const AddTrip = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Type</label>
                 <select
                   name="routeType"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
+                  className="w-full px-4 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer"
                   defaultValue={formData.route_type || "one_way"}
                 >
                   <option value="one_way">Core route</option>
@@ -426,9 +426,7 @@ export const AddTrip = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-50">
-
-
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-3 border-t border-slate-50">
               <div className="space-y-2 lg:col-span-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Remarks</label>
                 <div className="relative">
@@ -437,7 +435,7 @@ export const AddTrip = () => {
                     name="notes"
                     value={formData.notes}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all h-[46px] resize-none"
+                    className="w-full pl-10 pr-4 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none h-[40px] transition-all resize-none"
                     placeholder="Optional trip notes..."
                   ></textarea>
                 </div>
@@ -448,7 +446,7 @@ export const AddTrip = () => {
 
         {/* Route Timings Section */}
         <div>
-          <div className="px-8 py-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+          <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200">
                 <Milestone className="w-5 h-5 text-white" />
@@ -462,12 +460,12 @@ export const AddTrip = () => {
             <div className="flex items-start min-w-max px-4">
                 {formData.routes.map((stop, idx) => (
                   <div key={idx} className="flex items-start">
-                    <div className="flex flex-col items-center w-40">
+                    <div className="flex flex-col items-center w-32">
                       <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${formData.routeTiming[stop] ? 'bg-primary-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400'}`}>
                         <MapPin className="w-5 h-5" />
                       </div>
                       <div className="mt-4 text-center px-2">
-                        <p className="text-[11px] font-black text-slate-800 truncate w-32 uppercase tracking-tighter" title={stop}>
+                        <p className="text-[11px] font-black text-slate-800 truncate w-28 uppercase tracking-tighter" title={stop}>
                           {stop}
                         </p>
                         <div className="mt-2 relative">
@@ -486,7 +484,7 @@ export const AddTrip = () => {
 
                     {idx < formData.routes.length - 1 && (
                       <div className="flex flex-col items-center pt-5">
-                        <div className="w-12 h-[2px] bg-gradient-to-r from-slate-300 to-slate-300 group-hover:from-primary-300 group-hover:to-primary-300 transition-all"></div>
+                        <div className="w-8 h-[2px] bg-gradient-to-r from-slate-300 to-slate-300 group-hover:from-primary-300 group-hover:to-primary-300 transition-all"></div>
                       </div>
                     )}
                   </div>
@@ -494,11 +492,10 @@ export const AddTrip = () => {
               </div>
               </div>
 
-          <div className="p-8">
-            <div className="bg-slate-50/30 rounded-[2rem] p-6 border border-slate-100/50">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-
-                <div className="space-y-2.5 lg:col-span-2">
+          <div className="px-6">
+            <div className="rounded-[2rem] px-6 py-2 border border-slate-100/50">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                <div className="space-y-2.5">
                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Operational Date</label>
                   
                   {formData.selectedRoute?.selectedDates?.length > 0 && (
@@ -508,15 +505,14 @@ export const AddTrip = () => {
                           key={d}
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, date: d }))}
-                          className={`px-3 py-1.5 rounded-xl text-[10px] font-black border transition-all uppercase tracking-tighter ${formData.date === d ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white border-slate-200 text-slate-500 hover:border-emerald-400 hover:bg-emerald-50/30'}`}
+                          className={`px-3 py-2 rounded-xl text-[12px] font-black border transition-all uppercase tracking-tighter ${formData.date === d ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white border-slate-200 text-slate-500 hover:border-emerald-400 hover:bg-emerald-50/30'}`}
                         >
                           {new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', weekday: 'short' })}
                         </button>
                       ))}
                     </div>
                   )}
-
-                  <div className="relative group">
+                  {/* <div className="relative group">
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
                     <input
                       type="date"
@@ -525,7 +521,7 @@ export const AddTrip = () => {
                       onChange={handleChange}
                       className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
                     />
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="space-y-2.5">
@@ -537,20 +533,22 @@ export const AddTrip = () => {
                       name="total_pcount"
                       value={formData.total_pcount}
                       onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
+                      className="w-full pl-11 pr-4 py-1.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
                       placeholder="0"
                     />
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleAddSchedule}
-                  className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-primary-200"
-                >
-                  <Plus className="w-4 h-4" />
-                  Append Trip
-                </button>
+                <div className="space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={handleAddSchedule}
+                    className="w-[45%] bg-primary-600 hover:bg-primary-700 text-white px-4 py-1.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-primary-200 mt-8"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Trip
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -621,11 +619,11 @@ export const AddTrip = () => {
                 </table>
               </div>
             ) : (
-              <div className="mt-8 py-16 flex flex-col items-center justify-center bg-slate-50/30 rounded-[2.5rem] border-2 border-dashed border-slate-100 animate-in fade-in zoom-in duration-700">
-                <div className="w-20 h-20 bg-white rounded-3xl shadow-lg flex items-center justify-center mb-6">
-                  <Calendar className="w-10 h-10 text-slate-200" />
+              <div className="mt-4 py-2 flex flex-col items-center justify-center bg-slate-50/30 rounded-[2.5rem] border-2 border-dashed border-slate-100 animate-in fade-in zoom-in duration-700">
+                <div className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center mb-6">
+                  <Calendar className="w-4 h-4 text-slate-400" />
                 </div>
-                <h4 className="text-lg font-black text-slate-800 mb-1 uppercase tracking-widest">No Scheduled Trips</h4>
+                <h4 className="text-md font-black text-slate-800 mb-1 uppercase tracking-widest">No Scheduled Trips</h4>
                 <p className="text-slate-500 text-sm font-bold">Configure your first execution window using the form above.</p>
               </div>
             )}
