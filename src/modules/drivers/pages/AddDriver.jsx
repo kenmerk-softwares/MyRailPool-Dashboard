@@ -11,16 +11,15 @@ import {
   Shield,
   ShieldCheck,
   FileText,
-  Stethoscope,
   GraduationCap,
-  Bell,
   Activity,
   UserCheck,
-  Briefcase,
   AlertCircle,
-  Clock,
   Loader2,
-  ChevronLeft
+  Lock,
+  Bell,
+  Stethoscope,
+  Clock
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
@@ -65,13 +64,13 @@ export const AddDriver = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const { error } = DriverValidationSchema.validate(formData, { abortEarly: false, allowUnknown: true });
     if (error) {
       const newErrors = {};
       error.details.forEach(err => { newErrors[err.path[0]] = err.message; });
       setErrors(newErrors);
-      showToast("Verification failed. Please review all highlighted fields.", "error");
+      showToast("Please check mandatory fields", "error");
       return;
     }
 
@@ -79,13 +78,13 @@ export const AddDriver = () => {
     setLoading(true);
     try {
       const res = await FunctionsAPI.addDriver({
-        type: "add", 
+        type: "add",
         fields: {
           ...formData,
           searchKey: formData.name ? formData.name.toLowerCase() : ""
         }
       });
-      
+
       if (res.success) {
         showToast("Driver profile created successfully!", "success");
         navigate('/drivers');
@@ -99,342 +98,387 @@ export const AddDriver = () => {
     }
   };
 
+  // Shared input class builder
+  const inputCls = (field) =>
+    `w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm`;
+
   return (
-    <div className="max-w-6xl mx-auto pb-12 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div className="flex items-center gap-4">
-          <Link to="/drivers" className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-slate-600 rounded-xl transition-all hover:shadow-md">
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Onboard New Driver</h2>
-            <p className="text-slate-500 font-medium mt-1">Register a new driver and initialize their compliance dossier.</p>
-          </div>
-        </div>
-      </div>
+    <form onSubmit={handleSubmit} noValidate className="max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
 
-      <form noValidate onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Info Section */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Identity & Contact */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
-              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-                <div className="p-2 bg-indigo-50 rounded-xl">
-                  <User className="w-4 h-4 text-indigo-600" />
-                </div>
-                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Identity & Contact Profile</h3>
-              </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Full Legal Name</label>
-                    <div className="relative group">
-                      <UserCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                      <input 
-                        type="text" name="name" value={formData.name} onChange={handleChange}
-                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.name ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all placeholder:text-slate-300`} 
-                        placeholder="e.g. Alexander Hamilton" 
-                      />
-                    </div>
-                    {errors.name && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.name}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Primary Mobile</label>
-                    <div className="relative group">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                      <input 
-                        type="tel" name="mobile" value={formData.mobile} onChange={handleChange}
-                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.mobile ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all placeholder:text-slate-300`} 
-                        placeholder="+44 7000 000000" 
-                      />
-                    </div>
-                    {errors.mobile && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.mobile}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Email Address</label>
-                    <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                      <input 
-                        type="email" name="email" value={formData.email} onChange={handleChange}
-                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.email ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all placeholder:text-slate-300`} 
-                        placeholder="driver@myrailpool.com" 
-                      />
-                    </div>
-                    {errors.email && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.email}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Account Status</label>
-                    <select 
-                      name="status" value={formData.status} onChange={handleChange}
-                      className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-white text-indigo-700 font-black focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all cursor-pointer appearance-none shadow-sm"
-                    >
-                      <option value="active">🟢 Active Deployment</option>
-                      <option value="inactive">⚪ Inactive Profile</option>
-                      <option value="on_leave">🟡 Seasonal Leave</option>
-                      <option value="suspended">🔴 Suspended Duty</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Residential Address</label>
-                    <div className="relative group">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                      <input 
-                        type="text" name="address" value={formData.address} onChange={handleChange}
-                        className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.address ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all placeholder:text-slate-300`} 
-                        placeholder="Street, City, Postcode" 
-                      />
-                    </div>
-                    {errors.address && <p className="text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1.5 px-1"><AlertCircle className="w-3 h-3" /> {errors.address}</p>}
-                  </div>
-                </div>
-              </div>
-              {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.address}</p>}
+        {/* ── Section 1: Identity & Contact ── */}
+        <div className="space-y-4 mt-4">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+            <div className="p-2 bg-indigo-50 rounded-lg">
+              <User className="w-4 h-4 text-indigo-600" />
             </div>
-
-            {/* Compliance Documentation */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
-              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-                <div className="p-2 bg-emerald-50 rounded-xl">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                </div>
-                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Licensing & Regulatory Compliance</h3>
-              </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                  {/* PH License */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">PH License Number</label>
-                      <div className="relative group">
-                        <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                        <input 
-                          type="text" name="phLicenseNumber" value={formData.phLicenseNumber} onChange={handleChange}
-                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.phLicenseNumber ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
-                        />
-                      </div>
-                      {errors.phLicenseNumber && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phLicenseNumber}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">PH Expiry Date</label>
-                      <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input 
-                          type="date" name="phExpiryDate" value={formData.phExpiryDate} onChange={handleChange}
-                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.phExpiryDate ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
-                        />
-                      </div>
-                      {errors.phExpiryDate && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phExpiryDate}</p>}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">DVLA License Number</label>
-                      <div className="relative group">
-                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                        <input 
-                          type="text" name="dvlaLicenseNumber" value={formData.dvlaLicenseNumber} onChange={handleChange}
-                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dvlaLicenseNumber ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
-                        />
-                      </div>
-                      {errors.dvlaLicenseNumber && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaLicenseNumber}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">DVLA Expiry Date</label>
-                      <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input 
-                          type="date" name="dvlaExpiryDate" value={formData.dvlaExpiryDate} onChange={handleChange}
-                          className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dvlaExpiryDate ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
-                        />
-                      </div>
-                      {errors.dvlaExpiryDate && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaExpiryDate}</p>}
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-2">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">DBS Certificate Number</label>
-                        <div className="relative group">
-                          <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                          <input 
-                            type="text" name="dbsCertificateNumber" value={formData.dbsCertificateNumber} onChange={handleChange}
-                            className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dbsCertificateNumber ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
-                          />
-                        </div>
-                        {errors.dbsCertificateNumber && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dbsCertificateNumber}</p>}
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-emerald-600">DBS Date of Issue</label>
-                        <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input 
-                            type="date" name="dbsDateOfIssue" value={formData.dbsDateOfIssue} onChange={handleChange}
-                            className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border ${errors.dbsDateOfIssue ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all`} 
-                          />
-                        </div>
-                        {errors.dbsDateOfIssue && <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dbsDateOfIssue}</p>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Identity & Contact</h3>
           </div>
 
-          {/* Sidebar Section */}
-          <div className="space-y-6">
-            {/* Operational Metrics */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
-              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-                <div className="p-2 bg-amber-50 rounded-xl">
-                  <Activity className="w-4 h-4 text-amber-600" />
+          <div className="px-6 pb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+
+              {/* Full Name */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Full Legal Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <UserCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text" name="name" value={formData.name} onChange={handleChange}
+                    className={inputCls('name')} placeholder="e.g. Alexander Hamilton"
+                  />
                 </div>
-                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Deployment Metrics</h3>
+                {errors.name && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.name}</p>}
               </div>
-              <div className="p-8 space-y-5">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block text-amber-600">Service Start Date</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="date" name="serviceStartDate" value={formData.serviceStartDate} onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" 
-                    />
-                  </div>
+
+              {/* Email */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="email" name="email" value={formData.email} onChange={handleChange}
+                    className={inputCls('email')} placeholder="driver@myrailpool.com"
+                  />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Contract End Date</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="date" name="contractEndDate" value={formData.contractEndDate} onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" 
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">RTW Verified Date</label>
-                  <div className="relative">
-                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="date" name="rtwVerifiedDate" value={formData.rtwVerifiedDate} onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all" 
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Termination Reason</label>
-                  <div className="relative">
-                    <AlertCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="text" name="terminationReason" value={formData.terminationReason} onChange={handleChange} placeholder="Optional"
-                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-rose-500 focus:ring-4 focus:ring-rose-500/5 outline-none transition-all" 
-                    />
-                  </div>
-                </div>
+                {errors.email && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.email}</p>}
               </div>
-            </div>
 
-            {/* Compliance Checklist */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
-              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
-                <div className="p-2 bg-rose-50 rounded-xl">
-                  <GraduationCap className="w-4 h-4 text-rose-600" />
-                </div>
-                <h3 className="font-black text-slate-800 tracking-tight uppercase text-xs">Safety Checklist</h3>
+              {/* Status */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Status <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="status" value={formData.status} onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-indigo-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                >
+                  <option value="active">🟢 Active</option>
+                  <option value="inactive">⚪ Inactive</option>
+                  <option value="on_leave">🟡 On Leave</option>
+                  <option value="suspended">🔴 Suspended</option>
+                </select>
               </div>
-              <div className="p-8 space-y-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[12px] font-black text-slate-700">Medical Exemption</p>
-                    <p className="text-[10px] font-bold text-slate-400">Validated by authorities</p>
-                  </div>
-                  <select name="medicalExemption" value={formData.medicalExemption} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                  </select>
-                </div>
 
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <p className="text-[12px] font-black text-slate-700">Training Status</p>
-                    <p className="text-[10px] font-bold text-slate-400">Safety & Protocol induction</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="date" name="trainingSignedDate" value={formData.trainingSignedDate} onChange={handleChange}
-                      className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 px-3 outline-none" 
-                    />
-                    <select name="trainingStatus" value={formData.trainingStatus} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
-                      <option value="No">Pending</option>
-                      <option value="Yes">Inducted</option>
-                    </select>
-                  </div>
+              {/* Mobile */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Mobile <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="tel" name="mobile" value={formData.mobile} onChange={handleChange}
+                    className={inputCls('mobile')} placeholder="+44 7000 000000"
+                  />
                 </div>
+                {errors.mobile && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.mobile}</p>}
+              </div>
 
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[12px] font-black text-slate-700">Council Notified</p>
-                    <p className="text-[10px] font-bold text-slate-400">Formal registration sent</p>
-                  </div>
-                  <select name="councilNotified" value={formData.councilNotified} onChange={handleChange} className="bg-slate-50 border-none rounded-lg text-[11px] font-black text-slate-600 py-1.5 pl-3 pr-8 cursor-pointer">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-
-                <div className="pt-4 space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">RTW Verification Note</label>
-                  <textarea 
-                    name="rtwNote" value={formData.rtwNote} onChange={handleChange}
-                    className="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50/50 text-[12px] font-bold text-slate-600 focus:border-indigo-500 outline-none transition-all resize-none h-20"
-                    placeholder="Enter right-to-work validation details..."
+              {/* Address */}
+              <div className="md:col-span-3 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Residential Address
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text" name="address" value={formData.address} onChange={handleChange}
+                    className={inputCls('address')} placeholder="Street, City, Postcode"
                   />
                 </div>
               </div>
+
             </div>
 
-            {/* Confidential Section */}
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden col-span-full">
-              <div className="px-8 py-5 border-b border-slate-100 flex items-center gap-3 bg-slate-950">
-                <div className="p-2 bg-slate-800 rounded-xl">
-                  <Activity className="w-4 h-4 text-slate-200" />
+          </div>
+        </div>
+
+        {/* ── Section 2: Licensing & Compliance ── */}
+        <div className="mt-6">
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Licensing & Compliance</h3>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+
+              {/* PH License */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  PH License No <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text" name="phLicenseNumber" value={formData.phLicenseNumber} onChange={handleChange}
+                    className={inputCls('phLicenseNumber')} placeholder="PH-LIC-000"
+                  />
                 </div>
-                <h3 className="font-black text-slate-200 tracking-tight uppercase text-xs">Confidential Records</h3>
+                {errors.phLicenseNumber && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phLicenseNumber}</p>}
               </div>
-              <div className="p-8">
-                <textarea 
-                  name="confidentialNotes" value={formData.confidentialNotes} onChange={handleChange}
-                  className="w-full p-6 rounded-2xl border border-slate-200 bg-slate-50/50 text-[13px] font-medium text-slate-600 focus:border-indigo-500 outline-none transition-all h-32"
-                  placeholder="Enter secure internal annotations or performance reviews..."
-                />
+
+              {/* PH Expiry */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">
+                  PH Expiry <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="phExpiryDate" value={formData.phExpiryDate} onChange={handleChange}
+                    className={inputCls('phExpiryDate')}
+                  />
+                </div>
+                {errors.phExpiryDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phExpiryDate}</p>}
               </div>
+
+              {/* DVLA License */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  DVLA License No <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text" name="dvlaLicenseNumber" value={formData.dvlaLicenseNumber} onChange={handleChange}
+                    className={inputCls('dvlaLicenseNumber')} placeholder="DVLA-000"
+                  />
+                </div>
+                {errors.dvlaLicenseNumber && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaLicenseNumber}</p>}
+              </div>
+
+              {/* DVLA Expiry */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">
+                  DVLA Expiry <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="dvlaExpiryDate" value={formData.dvlaExpiryDate} onChange={handleChange}
+                    className={inputCls('dvlaExpiryDate')}
+                  />
+                </div>
+                {errors.dvlaExpiryDate && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.dvlaExpiryDate}</p>}
+              </div>
+
+              {/* DBS Certificate */}
+              <div className="md:col-span-3 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  DBS Certificate No
+                </label>
+                <div className="relative">
+                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text" name="dbsCertificateNumber" value={formData.dbsCertificateNumber} onChange={handleChange}
+                    className={inputCls('dbsCertificateNumber')} placeholder="DBS-000"
+                  />
+                </div>
+              </div>
+
+              {/* DBS Date of Issue */}
+              <div className="md:col-span-3 space-y-2">
+                <label className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">
+                  DBS Issue Date
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="dbsDateOfIssue" value={formData.dbsDateOfIssue} onChange={handleChange}
+                    className={inputCls('dbsDateOfIssue')}
+                  />
+                </div>
+              </div>
+
+
             </div>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 pt-6 border-t border-slate-100">
-          <Link to="/drivers" className="w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all text-center">
-            Discard Profile
+        {/* ── Section 3: Deployment & Safety ── */}
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
+            <div className="p-2 bg-amber-50 rounded-lg">
+              <Activity className="w-4 h-4 text-amber-600" />
+            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Deployment & Safety</h3>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+
+              {/* Service Start */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Service Start</label>
+                <div className="relative">
+                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="serviceStartDate" value={formData.serviceStartDate} onChange={handleChange}
+                    className={inputCls('serviceStartDate')}
+                  />
+                </div>
+              </div>
+
+              {/* Contract End */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Contract End</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="contractEndDate" value={formData.contractEndDate} onChange={handleChange}
+                    className={inputCls('contractEndDate')}
+                  />
+                </div>
+              </div>
+
+              {/* RTW Verified Date */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">RTW Verified</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="rtwVerifiedDate" value={formData.rtwVerifiedDate} onChange={handleChange}
+                    className={inputCls('rtwVerifiedDate')}
+                  />
+                </div>
+              </div>
+
+              {/* Training Signed Date */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Signed</label>
+                <div className="relative">
+                  <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="date" name="trainingSignedDate" value={formData.trainingSignedDate} onChange={handleChange}
+                    className={inputCls('trainingSignedDate')}
+                  />
+                </div>
+              </div>
+
+              {/* Medical Exemption */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Medical Exemption</label>
+                <select
+                  name="medicalExemption" value={formData.medicalExemption} onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                >
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+
+              {/* Training Status */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Status</label>
+                <select
+                  name="trainingStatus" value={formData.trainingStatus} onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                >
+                  <option value="No">Pending</option>
+                  <option value="Yes">Inducted</option>
+                </select>
+              </div>
+
+              {/* Council Notified */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Council Notified</label>
+                <select
+                  name="councilNotified" value={formData.councilNotified} onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+
+              {/* Termination Reason */}
+              <div className="md:col-span-5 space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Termination Reason</label>
+                <div className="relative">
+                  <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+                  <textarea
+                    rows="1" name="terminationReason" value={formData.terminationReason} onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none text-sm"
+                    placeholder="Leave blank if active..."
+                  />
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+
+        {/* ── Section 4: Confidential Records ── */}
+        <div>
+          <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-rose-50/30">
+            <div className="p-2 bg-rose-50 rounded-lg">
+              <Lock className="w-4 h-4 text-rose-600" />
+            </div>
+            <h3 className="font-bold text-slate-800 tracking-tight">Confidential Records</h3>
+            <span className="ml-auto text-[10px] font-black text-rose-400 uppercase tracking-widest">Internal Only</span>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* RTW Note */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">RTW Verification Note</label>
+                <div className="relative">
+                  <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+                  <textarea
+                    rows="3" name="rtwNote" value={formData.rtwNote} onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
+                    placeholder="Enter RTW validation logs..."
+                  />
+                </div>
+              </div>
+
+              {/* Confidential Notes */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Internal Performance Notes</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+                  <textarea
+                    rows="3" name="confidentialNotes" value={formData.confidentialNotes} onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
+                    placeholder="Secure operational documentation..."
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+        {/* ── Footer Actions ── */}
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
+          <Link
+            to="/drivers"
+            className="w-full sm:w-auto text-center px-6 py-1.5 rounded-xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all text-sm uppercase tracking-wider"
+          >
+            Cancel
           </Link>
-          <button 
-            type="submit" disabled={loading} 
-            className="w-full sm:w-auto px-12 py-3.5 bg-indigo-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 disabled:opacity-70"
+          <button
+            type="submit" disabled={loading}
+            className="w-full sm:w-auto justify-center bg-indigo-600 text-white px-10 py-1.5 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2.5 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {loading ? "Initializing..." : "Finalize Profile"}
+            {loading ? "Creating..." : "Add Driver"}
           </button>
         </div>
-      </form>
-    </div>
+
+      </div>
+    </form>
   );
 };
-
