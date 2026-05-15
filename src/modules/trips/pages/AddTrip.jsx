@@ -76,6 +76,7 @@ export const AddTrip = () => {
       fetchDrivers({ searchQuery: driverSearch });
     }, 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch]);
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export const AddTrip = () => {
       fetchVehicles({ searchQuery: vehicleSearch });
     }, 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleSearch]);
 
   const formatDate = (isoStr) => {
@@ -142,29 +144,25 @@ export const AddTrip = () => {
 
   const handleAddSchedule = () => {
     if (!formData.date) {
-      alert("Please select a date first.");
+      showToast("Please select a date first.", "error");
       return;
     }
 
-    if (!formData.start_time) {
-      alert("Please specify a trip starting time.");
-      return;
-    }
-
+    // Capture the current state of routeTiming for this specific date
     setSchedules(prev => [
       ...prev,
       {
         id: Date.now(),
         date: formData.date,
-        times: [formData.start_time],
+        routeTiming: { ...formData.routeTiming },
         passengerCount: formData.total_pcount || 0
       }
     ]);
 
+    // Reset date and pax count but keep routeTiming for potential reuse
     setFormData(prev => ({
       ...prev,
       date: '',
-      start_time: '',
       total_pcount: ''
     }));
   };
@@ -238,32 +236,37 @@ export const AddTrip = () => {
       return;
     }
 
-    if (schedules.length === 0 && !formData.date) {
+    const itemsToSave = schedules.length > 0 ? schedules : (formData.date ? [{
+        date: formData.date,
+        routeTiming: formData.routeTiming,
+        passengerCount: formData.total_pcount
+    }] : []);
+
+    if (itemsToSave.length === 0) {
       showToast("Please add at least one schedule date.", "error");
-      return;
-    }
-
-    let allDates = schedules.map(s => s.date);
-    if (formData.date && !allDates.includes(formData.date)) {
-      allDates.push(formData.date);
-    }
-
-    if (allDates.length === 0) {
-      showToast("Please specify trip dates.", "error");
       return;
     }
 
     const { selectedRoute, selectedVehicle } = formData;
     const capacity = parseInt(selectedVehicle?.seatingCapacity || 0);
-    const plannedPax = parseInt(formData.total_pcount || 0);
+
+    // Grouping all dates and available seats into a single document
+    const allDates = itemsToSave.map(item => item.date);
+    const availableSeatsMap = {};
+    itemsToSave.forEach(item => {
+      availableSeatsMap[item.date] = capacity - parseInt(item.passengerCount || 0);
+    });
+
+    // Use the routeTiming from the first schedule entry as the master timing
+    const finalRouteTiming = itemsToSave[0].routeTiming;
 
     const payload = {
-      available_seats: capacity - plannedPax,
+      available_seats: availableSeatsMap,
       createdAt: new Date(),
       fareMatrix: selectedRoute?.fareMatrix || {},
       order: selectedRoute?.order || 1,
       routePairs: selectedRoute?.routePairs || [],
-      routeTiming: formData.routeTiming || {},
+      routeTiming: finalRouteTiming,
       route_id: formData.routeId,
       route_name: formData.route,
       route_type: formData.routeType || 'core',
@@ -271,6 +274,10 @@ export const AddTrip = () => {
       selectedDates: allDates,
       status: "Active",
       total_seats: capacity,
+      driver_name: formData.driver,
+      driver_id: formData.driverId,
+      vehicle_id: formData.vehicleId,
+      vehicle_reg: formData.vehicle_reg
     };
 
     try {
@@ -440,19 +447,19 @@ export const AddTrip = () => {
         </div>
 
         {/* Route Timings Section */}
-        {formData.routes?.length > 0 && (
-          <div className="mt-2 px-6 border-t border-slate-100 pt-8 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-indigo-50 rounded-lg">
-                <Milestone className="w-4 h-4 text-indigo-600" />
+        <div>
+          <div className="px-8 py-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200">
+                <Milestone className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 tracking-tight">Route Timeline & Arrival Timings</h3>
+                <h3 className="font-bold text-slate-800 tracking-tight">Trip Execution & Multi-Date Scheduling</h3>
               </div>
             </div>
-
-            <div className="relative overflow-x-auto pb-6 scrollbar-hide">
-              <div className="flex items-start min-w-max px-4">
+          </div>
+          <div className="relative overflow-x-auto pb-6 scrollbar-hide">
+            <div className="flex items-start min-w-max px-4">
                 {formData.routes.map((stop, idx) => (
                   <div key={idx} className="flex items-start">
                     <div className="flex flex-col items-center w-40">
@@ -485,29 +492,30 @@ export const AddTrip = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
-
-        <div>
-          <div className="px-8 py-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200">
-                <Milestone className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-800 tracking-tight">Trip Execution & Multi-Date Scheduling</h3>
-              </div>
-            </div>
-          </div>
-
 
           <div className="p-8">
             <div className="bg-slate-50/30 rounded-[2rem] p-6 border border-slate-100/50">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
 
-                <div className="space-y-2.5">
+                <div className="space-y-2.5 lg:col-span-2">
                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Operational Date</label>
+                  
+                  {formData.selectedRoute?.selectedDates?.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {formData.selectedRoute.selectedDates.map(d => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, date: d }))}
+                          className={`px-3 py-1.5 rounded-xl text-[10px] font-black border transition-all uppercase tracking-tighter ${formData.date === d ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white border-slate-200 text-slate-500 hover:border-emerald-400 hover:bg-emerald-50/30'}`}
+                        >
+                          {new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', weekday: 'short' })}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="relative group">
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
                     <input
@@ -517,22 +525,6 @@ export const AddTrip = () => {
                       onChange={handleChange}
                       className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
                     />
-                  </div>
-                </div>
-
-                <div className="space-y-2.5">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Departure Window</label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1 group">
-                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
-                      <input
-                        type="time"
-                        name="start_time"
-                        value={formData.start_time}
-                        onChange={handleChange}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-sm text-sm"
-                      />
-                    </div>
                   </div>
                 </div>
 
@@ -554,10 +546,10 @@ export const AddTrip = () => {
                 <button
                   type="button"
                   onClick={handleAddSchedule}
-                  className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-primary-200"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-primary-200"
                 >
                   <Plus className="w-4 h-4" />
-                  Add Trip
+                  Append Trip
                 </button>
               </div>
 
@@ -592,12 +584,17 @@ export const AddTrip = () => {
                         </td>
                         <td className="px-8 py-5">
                           <div className="flex flex-wrap gap-2">
-                            {schedule.times.map(time => (
-                              <div key={time} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50/50 text-emerald-700 text-[10px] font-black rounded-lg border border-emerald-100 group-hover:bg-white transition-colors">
-                                <Clock className="w-3 h-3" />
-                                {time}
-                              </div>
-                            ))}
+                            {schedule.routeTiming && Object.entries(schedule.routeTiming).length > 0 ? (
+                              Object.entries(schedule.routeTiming).map(([stop, time]) => (
+                                <div key={stop} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50/50 text-emerald-700 text-[10px] font-black rounded-lg border border-emerald-100 group-hover:bg-white transition-colors">
+                                  <span className="opacity-60">{stop}:</span>
+                                  <Clock className="w-3 h-3" />
+                                  {time || '--:--'}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="text-slate-400 text-[10px] font-bold uppercase tracking-tight">Pending Assignment</span>
+                            )}
                           </div>
                         </td>
                         <td className="px-8 py-5">
