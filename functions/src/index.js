@@ -24,3 +24,11 @@ exports.addVehicle = addVehicle;
 // ================ TRIP MODULES ==================== //
 const {addTrip} = require("./modules/trip/trip.callable");
 exports.addTrip = addTrip;
+
+// ================ USER MODULES ==================== //
+const {tripBooking} = require("./modules/user/user.callable");
+exports.tripBooking = tripBooking;
+
+// ================ PAYMENT MODULES ==================== //
+const {stripeWebhook} = require("./modules/payment/payment.webhook");
+exports.stripeWebhook = stripeWebhook;
