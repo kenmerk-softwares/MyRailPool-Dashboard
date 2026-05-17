@@ -1,8 +1,7 @@
 const { FieldValue } = require("firebase-admin/firestore");
 const { db } = require("../../shared/config/firebase");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
 const bookTripService = async (data) => {
+    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
     const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
@@ -50,7 +49,7 @@ const bookTripService = async (data) => {
             line_items: [
                 {
                     price_data: {
-                        currency: "inr", 
+                        currency: "eur", 
                         product_data: {
                             name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
                             description: `Booking for ${bookingCount} passenger(s) on ${selectedDate}`,
@@ -74,24 +73,42 @@ const bookTripService = async (data) => {
         paymentUrl = session.url;
     }
 
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+
+    const userDetailsMap = {
+        userId,
+        name: userData.name || userData.displayName || "Unknown",
+        phone: userData.phone || userData.phoneNumber || "",
+        bookingCount,
+        paymentType,
+        startingPoint,
+        dropPoint,
+        totalFare,
+        status: bookingStatus,
+        createdAt: new Date(),
+        ...(sessionId && { stripeSessionId: sessionId })
+    };
+
     const bookingData = {
         bookingId: bookingRef.id,
         tripId: tripDoc.id,
         tripNo: tripData.tripId,
         driver_id: tripData.driver_id || "",
+        driver_name: tripData.driver_name || "",
         vehicle_id: tripData.vehicle_id || "",
-        bookingCount,
-        userId,
-        paymentType,
-        startingPoint,
-        dropPoint,
+        route_id: tripData.route_id || "",
+        route_name: tripData.route_name || "",
+        route_start: tripData.routes && tripData.routes.length > 0 ? tripData.routes[0] : "",
+        route_end: tripData.routes && tripData.routes.length > 0 ? tripData.routes[tripData.routes.length - 1] : "",
+        route_type: tripData.route_type || "",
         selectedDate,
-        totalFare,
-        createdAt: new Date(),
-        status: bookingStatus,
-        ...(sessionId && { stripeSessionId: sessionId })
+        updatedAt: new Date(),
+        totalSeats: tripData.total_seats,
+        bookedCount: FieldValue.increment(bookingCount),
+        users: FieldValue.arrayUnion(userDetailsMap)
     };
-    batch.set(bookingRef, bookingData);
+    batch.set(bookingRef, bookingData, { merge: true });
 
     const financeRef = db.collection("finance").doc();
     const financeData = {

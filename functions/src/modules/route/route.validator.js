@@ -4,6 +4,8 @@ const addRouteValidator = (req) => {
   let schema = null;
   if (action === "add") {
     schema = Joi.object({
+      action: Joi.string().required(),
+      id: Joi.string().optional().allow(null, ""),
       name: Joi.string().required(),
       status: Joi.string().required(),
       activationDate: Joi.date().required(),
@@ -18,6 +20,7 @@ const addRouteValidator = (req) => {
   }
   if (action === "edit") {
     schema = Joi.object({
+      action: Joi.string().required(),
       id: Joi.string().required(),
       name: Joi.string().required(),
       status: Joi.string().required(),

@@ -179,7 +179,7 @@ export const AddRoute = () => {
         action: initialData ? 'edit' : 'add',
         id: initialData?.id,
         name: data.routeName,
-        status: data.status,
+        status: data.status || 'Active',
         activationDate: data.activationDate,
         deactivationDate: data.deactivationDate,
         selectedDates: selectedDates,
@@ -249,35 +249,38 @@ export const AddRoute = () => {
                     <input
                       type="text"
                       name="routeName"
-                      className="w-full pl-4 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-400"
+                      className={`w-full pl-4 pr-4 py-2.5 rounded-2xl border ${errors.name ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-200 focus:border-primary-500 focus:ring-primary-500/10'} bg-white text-slate-800 font-bold focus:ring-4 outline-none transition-all placeholder:text-slate-400`}
                       placeholder="Route Name"
                       defaultValue={initialData?.name}
                       onChange={handleInputChange}
                     />
+                    {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.name}</p>}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date</label>
                   <div className="relative group">
-                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                    <Clock className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.activationDate ? 'text-red-400' : 'text-slate-400 group-focus-within:text-amber-500'} transition-colors`} />
                     <input
                       type="date"
                       name="activationDate"
-                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      className={`w-full pl-12 pr-4 py-2.5 rounded-2xl border ${errors.activationDate ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-200 focus:border-amber-500 focus:ring-amber-500/10'} bg-white text-slate-800 font-medium focus:ring-4 outline-none transition-all`}
                       defaultValue={initialData?.activationDate}
                     />
+                    {errors.activationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.activationDate}</p>}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date</label>
                   <div className="relative group">
-                    <ArrowRightLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                    <ArrowRightLeft className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.deactivationDate ? 'text-red-400' : 'text-slate-400 group-focus-within:text-amber-500'} transition-colors`} />
                     <input
                       type="date"
                       name="deactivationDate"
-                      className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      className={`w-full pl-12 pr-4 py-2.5 rounded-2xl border ${errors.deactivationDate ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-200 focus:border-amber-500 focus:ring-amber-500/10'} bg-white text-slate-800 font-medium focus:ring-4 outline-none transition-all`}
                       defaultValue={initialData?.deactivationDate}
                     />
+                    {errors.deactivationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.deactivationDate}</p>}
                   </div>
                 </div>
 

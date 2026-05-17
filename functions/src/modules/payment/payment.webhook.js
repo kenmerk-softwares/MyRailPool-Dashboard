@@ -1,9 +1,10 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db } = require("../../shared/config/firebase");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
 const stripeWebhook = onRequest(async (req, res) => {
+    // Initialize inside the function to ensure env vars are populated
+    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
     const sig = req.headers["stripe-signature"];
     let event;
 
