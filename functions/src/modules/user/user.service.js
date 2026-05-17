@@ -1,6 +1,6 @@
 const { FieldValue } = require("firebase-admin/firestore");
 const { db } = require("../../shared/config/firebase");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY || "sk_test_YOUR_STRIPE_SECRET_KEY");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const bookTripService = async (data) => {
     const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate } = data;
@@ -125,6 +125,4 @@ const bookTripService = async (data) => {
     };
 };
 
-module.exports = {
-  bookTripService,
-};
+module.exports = {bookTripService};
