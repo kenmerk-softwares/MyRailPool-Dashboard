@@ -118,7 +118,7 @@ export const AddVehicle = () => {
 
   // Shared input class builder for consistency
   const inputCls = (field) =>
-    `w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-sm`;
+    `w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-sm`;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -148,10 +148,11 @@ export const AddVehicle = () => {
           </div>
 
           <div className="px-6 pb-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="px-6 pb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* Make */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Manufacturer / Make <span className="text-red-500">*</span>
                 </label>
@@ -166,7 +167,7 @@ export const AddVehicle = () => {
               </div>
 
               {/* Model */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Model Series <span className="text-red-500">*</span>
                 </label>
@@ -196,13 +197,13 @@ export const AddVehicle = () => {
               </div>
 
               {/* Type */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Vehicle Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="type" value={formData.type} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="Sedan">Sedan</option>
                   <option value="SUV">SUV</option>
@@ -213,7 +214,7 @@ export const AddVehicle = () => {
               </div>
 
               {/* Seating */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Seating Capacity <span className="text-red-500">*</span>
                 </label>
@@ -234,7 +235,7 @@ export const AddVehicle = () => {
                 </label>
                 <select
                   name="operationalStatus" value={formData.operationalStatus} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-indigo-700 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-indigo-700 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="Active">🟢 Active</option>
                   <option value="Maintenance">🟡 Maintenance</option>
@@ -256,10 +257,10 @@ export const AddVehicle = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* Registration */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Registration No <span className="text-red-500">*</span>
                 </label>
@@ -274,7 +275,7 @@ export const AddVehicle = () => {
               </div>
 
               {/* PH License */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   PH Vehicle Licence <span className="text-red-500">*</span>
                 </label>
@@ -289,7 +290,7 @@ export const AddVehicle = () => {
               </div>
 
               {/* Licence Expiry */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">
                   Licence Expiry Date <span className="text-red-500">*</span>
                 </label>
@@ -317,10 +318,10 @@ export const AddVehicle = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* Provider */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Insurance Provider <span className="text-red-500">*</span>
                 </label>
@@ -335,7 +336,7 @@ export const AddVehicle = () => {
               </div>
 
               {/* Policy No */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Policy Number <span className="text-red-500">*</span>
                 </label>
@@ -350,7 +351,7 @@ export const AddVehicle = () => {
               </div>
 
               {/* Insurance Expiry */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider block">
                   Insurance Expiry <span className="text-red-500">*</span>
                 </label>
@@ -378,7 +379,7 @@ export const AddVehicle = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* Assigned Driver */}
               <div className="md:col-span-2 space-y-2">
@@ -433,12 +434,14 @@ export const AddVehicle = () => {
                 <div className="relative">
                   <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
                   <textarea
-                    rows="1" name="notes" value={formData.notes} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none text-sm"
+                    rows="2" name="notes" value={formData.notes} onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none text-sm"
                     placeholder="Enter any specific maintenance or status remarks..."
                   />
                 </div>
               </div>
+
+            </div>
 
             </div>
           </div>

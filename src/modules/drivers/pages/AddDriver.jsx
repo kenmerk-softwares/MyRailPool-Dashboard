@@ -100,7 +100,7 @@ export const AddDriver = () => {
 
   // Shared input class builder
   const inputCls = (field) =>
-    `w-full pl-11 pr-4 py-2.5 rounded-xl border ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm`;
+    `w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] ${errors[field] ? 'border-red-500 bg-red-50/10' : 'border-slate-200 bg-white'} text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all text-sm`;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
@@ -116,10 +116,10 @@ export const AddDriver = () => {
           </div>
 
           <div className="px-6 pb-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* Full Name */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Full Legal Name <span className="text-red-500">*</span>
                 </label>
@@ -134,7 +134,7 @@ export const AddDriver = () => {
               </div>
 
               {/* Email */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Email Address <span className="text-red-500">*</span>
                 </label>
@@ -148,24 +148,8 @@ export const AddDriver = () => {
                 {errors.email && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.email}</p>}
               </div>
 
-              {/* Status */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                  Status <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="status" value={formData.status} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-indigo-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
-                >
-                  <option value="active">🟢 Active</option>
-                  <option value="inactive">⚪ Inactive</option>
-                  <option value="on_leave">🟡 On Leave</option>
-                  <option value="suspended">🔴 Suspended</option>
-                </select>
-              </div>
-
               {/* Mobile */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Mobile <span className="text-red-500">*</span>
                 </label>
@@ -179,16 +163,32 @@ export const AddDriver = () => {
                 {errors.mobile && <p className="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.mobile}</p>}
               </div>
 
+              {/* Status */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Status <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="status" value={formData.status} onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-indigo-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                >
+                  <option value="active">🟢 Active</option>
+                  <option value="inactive">⚪ Inactive</option>
+                  <option value="on_leave">🟡 On Leave</option>
+                  <option value="suspended">🔴 Suspended</option>
+                </select>
+              </div>
+
               {/* Address */}
-              <div className="md:col-span-3 space-y-2">
+              <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Residential Address
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text" name="address" value={formData.address} onChange={handleChange}
-                    className={inputCls('address')} placeholder="Street, City, Postcode"
+                  <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                  <textarea
+                    rows="2" name="address" value={formData.address} onChange={handleChange}
+                    className={`${inputCls('address')} py-3 resize-none`} placeholder="Street, City, Postcode"
                   />
                 </div>
               </div>
@@ -208,10 +208,10 @@ export const AddDriver = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* PH License */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   PH License No <span className="text-red-500">*</span>
                 </label>
@@ -241,7 +241,7 @@ export const AddDriver = () => {
               </div>
 
               {/* DVLA License */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   DVLA License No <span className="text-red-500">*</span>
                 </label>
@@ -271,7 +271,7 @@ export const AddDriver = () => {
               </div>
 
               {/* DBS Certificate */}
-              <div className="md:col-span-3 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                   DBS Certificate No
                 </label>
@@ -285,7 +285,7 @@ export const AddDriver = () => {
               </div>
 
               {/* DBS Date of Issue */}
-              <div className="md:col-span-3 space-y-2">
+              <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">
                   DBS Issue Date
                 </label>
@@ -297,7 +297,6 @@ export const AddDriver = () => {
                   />
                 </div>
               </div>
-
 
             </div>
           </div>
@@ -313,7 +312,7 @@ export const AddDriver = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
               {/* Service Start */}
               <div className="space-y-2">
@@ -368,7 +367,7 @@ export const AddDriver = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Medical Exemption</label>
                 <select
                   name="medicalExemption" value={formData.medicalExemption} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="No">No</option>
                   <option value="Yes">Yes</option>
@@ -380,7 +379,7 @@ export const AddDriver = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Status</label>
                 <select
                   name="trainingStatus" value={formData.trainingStatus} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="No">Pending</option>
                   <option value="Yes">Inducted</option>
@@ -392,7 +391,7 @@ export const AddDriver = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Council Notified</label>
                 <select
                   name="councilNotified" value={formData.councilNotified} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="Yes">Yes</option>
                   <option value="No">No</option>
@@ -400,18 +399,17 @@ export const AddDriver = () => {
               </div>
 
               {/* Termination Reason */}
-              <div className="md:col-span-5 space-y-2">
+              <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Termination Reason</label>
                 <div className="relative">
                   <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
                   <textarea
-                    rows="1" name="terminationReason" value={formData.terminationReason} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none text-sm"
+                    rows="2" name="terminationReason" value={formData.terminationReason} onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none text-sm"
                     placeholder="Leave blank if active..."
                   />
                 </div>
               </div>
-
 
             </div>
           </div>
@@ -437,7 +435,7 @@ export const AddDriver = () => {
                   <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
                   <textarea
                     rows="3" name="rtwNote" value={formData.rtwNote} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
                     placeholder="Enter RTW validation logs..."
                   />
                 </div>
@@ -450,7 +448,7 @@ export const AddDriver = () => {
                   <Lock className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
                   <textarea
                     rows="3" name="confidentialNotes" value={formData.confidentialNotes} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
                     placeholder="Secure operational documentation..."
                   />
                 </div>

@@ -5,6 +5,7 @@ import { EditBooking } from '../modules/bookings/Pages/EditBooking';
 import { ViewBooking } from '../modules/bookings/Pages/ViewBooking';
 import { TripList } from '../modules/trips/pages/TripList';
 import { AddTrip } from '../modules/trips/pages/AddTrip';
+import { EditTrip } from '../modules/trips/pages/EditTrip';
 import { ViewTrip } from '../modules/trips/pages/ViewTrip';
 import { RouteList } from '../modules/routes/pages/RouteList';
 import { AddRoute } from '../modules/routes/pages/AddRoute';
@@ -37,7 +38,7 @@ export const routesConfig = [
   { path: '/bookings/view/:id', element: <ViewBooking />, permission: '/bookings' },
   { path: '/trips', element: <TripList />, permission: '/trips' },
   { path: '/trips/add', element: <AddTrip />, permission: '/trips' },
-  { path: '/trips/add/:id', element: <AddTrip />, permission: '/trips' },
+  { path: '/trips/edit/:id', element: <EditTrip />, permission: '/trips' },
   { path: '/trips/view/:id', element: <ViewTrip />, permission: '/trips' },
   { path: '/routes', element: <RouteList />, permission: '/routes' },
   { path: '/routes/add', element: <AddRoute />, permission: '/routes' },

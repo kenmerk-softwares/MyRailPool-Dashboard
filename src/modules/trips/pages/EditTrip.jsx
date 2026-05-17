@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Save,
   User,
   Car,
   Calendar,
-  Clock,
   FileText,
   Users,
   Hash,
@@ -15,22 +14,21 @@ import {
   MapPin,
   ChevronLeft,
   Loader2,
-  AlertCircle
+  Clock
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
 import { collection, getDocs, query, limit, doc, getDoc } from 'firebase/firestore';
 import { Autocomplete } from '../../../components/Shared';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 
-export const AddTrip = () => {
-  const location = useLocation();
-  const requestData = location.state || {};
+export const EditTrip = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
   // Local state for isolated autocompletes
@@ -41,6 +39,7 @@ export const AddTrip = () => {
   const [routesList, setRoutesList] = useState([]);
   const [routesLoadingLocal, setRoutesLoadingLocal] = useState(false);
 
+  // Autocomplete search states
   const [driverSearch, setDriverSearch] = useState('');
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [routeSearch, setRouteSearch] = useState('');
@@ -64,7 +63,61 @@ export const AddTrip = () => {
     routeTiming: {}
   });
 
-  // Isolated Fetchers to avoid Redux side-effects
+  // Load Edit Data
+  useEffect(() => {
+    const fetchTrip = async () => {
+      try {
+        const docId = String(id || '').replace('#', '');
+        const docRef = doc(db, "trips", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setFormData({
+            driver: data.driver_name || '',
+            driverId: data.driver_id || '',
+            vehicle_reg: data.vehicle_reg || '',
+            vehicleId: data.vehicle_id || '',
+            route: data.route_name || '',
+            routeId: data.route_id || '',
+            routeType: data.route_type || 'core',
+            status: data.status || 'Active',
+            notes: data.notes || '',
+            date: '',
+            total_pcount: '',
+            selectedRoute: { routes: data.routes, fareMatrix: data.fareMatrix, order: data.order, routePairs: data.routePairs },
+            selectedVehicle: { seatingCapacity: data.total_seats },
+            routes: data.routes || [],
+            routeTiming: data.routeTiming || {}
+          });
+          setDriverSearch(data.driver_name || '');
+          setVehicleSearch(data.vehicle_reg || '');
+          setRouteSearch(data.route_name || '');
+
+          const initialSchedules = Array.isArray(data.selectedDates) 
+            ? data.selectedDates.map((d, idx) => ({
+                id: idx,
+                date: typeof d === 'string' ? d : '',
+                routeTiming: data.routeTiming || {},
+                passengerCount: data.total_seats - (data.available_seats?.[d] || 0)
+              })).filter(s => s.date !== '')
+            : [];
+          setSchedules(initialSchedules);
+        } else {
+          showToast("Trip not found", "error");
+          navigate('/trips');
+        }
+      } catch (error) {
+        console.error("Error fetching trip:", error);
+        showToast("Failed to retrieve trip details", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrip();
+  }, [id, navigate, showToast]);
+
+  // Isolated Fetchers
   const fetchDriversLocal = async (queryStr) => {
     if (!queryStr || queryStr === formData.driver) return;
     setDriversLoadingLocal(true);
@@ -129,10 +182,61 @@ export const AddTrip = () => {
     return () => clearTimeout(timer);
   }, [routeSearch, formData.route]);
 
+  const handleSave = async () => {
+    if (!formData.routeId || !formData.vehicleId || !formData.driverId) {
+      showToast("Please select Route, Vehicle and Driver.", "error");
+      return;
+    }
+    if (schedules.length === 0) {
+      showToast("Please add at least one schedule date.", "error");
+      return;
+    }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setSaving(true);
+    const capacity = parseInt(formData.selectedVehicle?.seatingCapacity || 0);
+    const allDates = schedules.map(item => item.date);
+    const availableSeatsMap = {};
+    schedules.forEach(item => {
+      availableSeatsMap[item.date] = capacity - parseInt(item.passengerCount || 0);
+    });
+
+    const payload = {
+      available_seats: availableSeatsMap,
+      fareMatrix: formData.selectedRoute?.fareMatrix || {},
+      order: formData.selectedRoute?.order || 1,
+      routePairs: formData.selectedRoute?.routePairs || [],
+      routeTiming: schedules[0].routeTiming,
+      route_id: formData.routeId,
+      route_name: formData.route,
+      route_type: formData.routeType,
+      routes: formData.routes,
+      selectedDates: allDates,
+      status: formData.status,
+      total_seats: capacity,
+      driver_name: formData.driver,
+      driver_id: formData.driverId,
+      vehicle_id: formData.vehicleId,
+      vehicle_reg: formData.vehicle_reg,
+      notes: formData.notes
+    };
+
+    try {
+      const res = await FunctionsAPI.addTrip({
+        type: "edit",
+        id: id.replace('#', ''),
+        fields: payload
+      });
+      if (res.success) {
+        showToast("Trip updated successfully!", "success");
+        navigate('/trips');
+      } else {
+        showToast(res.error || "Failed to update trip", "error");
+      }
+    } catch (error) {
+      showToast(error.message || "An unexpected error occurred", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleAddSchedule = () => {
@@ -152,116 +256,40 @@ export const AddTrip = () => {
     setFormData(prev => ({ ...prev, date: '', total_pcount: '' }));
   };
 
-  const handleRemoveSchedule = (sid) => {
-    setSchedules(prev => prev.filter(s => s.id !== sid));
-  };
-
-  const handleSave = async () => {
-    if (!formData.routeId || !formData.vehicleId || !formData.driverId) {
-      showToast("Please select Route, Vehicle and Driver.", "error");
-      return;
-    }
-
-    const itemsToSave = schedules.length > 0 ? schedules : (formData.date ? [{
-        date: formData.date,
-        routeTiming: formData.routeTiming,
-        passengerCount: formData.total_pcount
-    }] : []);
-
-    if (itemsToSave.length === 0) {
-      showToast("Please add at least one schedule date.", "error");
-      return;
-    }
-
-    setSaving(true);
-    const capacity = parseInt(formData.selectedVehicle?.seatingCapacity || 0);
-    const allDates = itemsToSave.map(item => item.date);
-    const availableSeatsMap = {};
-    itemsToSave.forEach(item => {
-      availableSeatsMap[item.date] = capacity - parseInt(item.passengerCount || 0);
-    });
-
-    const payload = {
-      available_seats: availableSeatsMap,
-      fareMatrix: formData.selectedRoute?.fareMatrix || {},
-      order: formData.selectedRoute?.order || 1,
-      routePairs: formData.selectedRoute?.routePairs || [],
-      routeTiming: itemsToSave[0].routeTiming,
-      route_id: formData.routeId,
-      route_name: formData.route,
-      route_type: formData.routeType,
-      routes: formData.routes,
-      selectedDates: allDates,
-      status: formData.status,
-      total_seats: capacity,
-      driver_name: formData.driver,
-      driver_id: formData.driverId,
-      vehicle_id: formData.vehicleId,
-      vehicle_reg: formData.vehicle_reg,
-      notes: formData.notes
-    };
-
-    try {
-      const res = await FunctionsAPI.addTrip({
-        type: "add",
-        fields: payload
-      });
-      
-      if (res.success) {
-        showToast("Trip scheduled successfully!", "success");
-        navigate('/trips');
-      } else {
-        showToast(res.error || "Failed to process trip", "error");
-      }
-    } catch (error) {
-      showToast(error.message || "An unexpected error occurred", "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Preparing Trip Registry...</p>
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Trip Configuration...</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
-      {/* Header Bar */}
       <div className="flex items-center justify-between mb-6 px-2">
         <div className="flex items-center gap-4">
           <Link to="/trips" className="p-2 hover:bg-slate-100 rounded-xl transition-colors group">
             <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
           </Link>
           <div>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase">
-              Initialize New Trip
-            </h2>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase tracking-widest">Update Trip Schedule</h2>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Asset Allocation & Multi-Date Routing</p>
           </div>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        
-        {/* ── Section 1: Resource Allocation ── */}
         <div className="space-y-4 mt-4">
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-indigo-50 rounded-lg">
               <Hash className="w-4 h-4 text-indigo-600" />
             </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Resource Allocation</h3>
+            <h3 className="font-bold text-slate-800 tracking-tight uppercase text-xs">Resource Allocation</h3>
           </div>
 
           <div className="px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              
-              {/* Driver Autocomplete */}
               <div className="md:col-span-2">
                 <Autocomplete
                   label="Verified Operator"
@@ -284,7 +312,6 @@ export const AddTrip = () => {
                 />
               </div>
 
-              {/* Vehicle Autocomplete */}
               <div className="md:col-span-2">
                 <Autocomplete
                   label="Asset Assignment"
@@ -307,35 +334,32 @@ export const AddTrip = () => {
                 />
               </div>
 
-              {/* Status */}
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Status</label>
                 <select
-                  name="status" value={formData.status} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-indigo-700 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer text-sm"
+                  name="status" value={formData.status} onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-indigo-700 font-bold focus:border-indigo-500 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="Active">🟢 Active</option>
                   <option value="Completed">🔵 Completed</option>
                   <option value="Cancelled">🔴 Cancelled</option>
                 </select>
               </div>
-
             </div>
           </div>
         </div>
 
-        {/* ── Section 2: Route Intelligence ── */}
+        {/* Route Details */}
         <div className="mt-6">
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <Milestone className="w-4 h-4 text-emerald-600" />
             </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Route Intelligence</h3>
+            <h3 className="font-bold text-slate-800 tracking-tight uppercase text-xs">Route Intelligence</h3>
           </div>
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-              
               <div className="md:col-span-2">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Select Route Corridor</label>
@@ -350,7 +374,7 @@ export const AddTrip = () => {
                   )}
                 </div>
                 <Autocomplete
-                  placeholder="Search route name or starting point..."
+                  placeholder="Search route name..."
                   icon={Milestone}
                   value={routeSearch}
                   onChange={setRouteSearch}
@@ -383,7 +407,7 @@ export const AddTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Service Type</label>
                 <select
-                  name="routeType" value={formData.routeType} onChange={handleChange}
+                  name="routeType" value={formData.routeType} onChange={(e) => setFormData(prev => ({ ...prev, routeType: e.target.value }))}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 outline-none transition-all cursor-pointer text-sm"
                 >
                   <option value="core">Core Service</option>
@@ -396,9 +420,9 @@ export const AddTrip = () => {
                 <div className="relative">
                   <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
-                    type="text" name="notes" value={formData.notes} onChange={handleChange}
+                    type="text" name="notes" value={formData.notes} onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 outline-none transition-all text-sm"
-                    placeholder="Optional notes for the driver..."
+                    placeholder="Optional notes..."
                   />
                 </div>
               </div>
@@ -417,8 +441,8 @@ export const AddTrip = () => {
                         </div>
                         <div className="mt-4 text-center px-2">
                           <p className="text-[11px] font-black text-slate-800 truncate w-32 uppercase tracking-tighter" title={typeof stop === 'string' ? stop : ''}>
-                          {typeof stop === 'string' ? stop : 'Unknown Stop'}
-                        </p>
+                            {typeof stop === 'string' ? stop : 'Unknown Stop'}
+                          </p>
                           <div className="mt-2">
                             <input
                               type="time"
@@ -445,13 +469,13 @@ export const AddTrip = () => {
           </div>
         </div>
 
-        {/* ── Section 3: Scheduling ── */}
+        {/* Scheduling */}
         <div className="mt-6">
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
             <div className="p-2 bg-amber-50 rounded-lg">
               <Calendar className="w-4 h-4 text-amber-600" />
             </div>
-            <h3 className="font-bold text-slate-800 tracking-tight">Trip Execution & Multi-Date Scheduling</h3>
+            <h3 className="font-bold text-slate-800 tracking-tight uppercase text-xs">Trip Execution Scheduling</h3>
           </div>
 
           <div className="p-6">
@@ -461,7 +485,7 @@ export const AddTrip = () => {
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
-                    type="date" name="date" value={formData.date} onChange={handleChange}
+                    type="date" name="date" value={formData.date} onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
                   />
                 </div>
@@ -472,7 +496,7 @@ export const AddTrip = () => {
                 <div className="relative">
                   <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
-                    type="number" name="total_pcount" value={formData.total_pcount} onChange={handleChange}
+                    type="number" name="total_pcount" value={formData.total_pcount} onChange={(e) => setFormData(prev => ({ ...prev, total_pcount: e.target.value }))}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
                     placeholder="0"
                   />
@@ -504,10 +528,10 @@ export const AddTrip = () => {
                         <td className="px-8 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 bg-indigo-50 rounded-lg flex flex-col items-center justify-center border border-indigo-100 text-indigo-600">
-                              <span className="text-[13px] font-black leading-none">{new Date(schedule.date).getDate()}</span>
-                              <span className="text-[8px] font-bold uppercase">{new Date(schedule.date).toLocaleString('default', { month: 'short' })}</span>
+                              <span className="text-[13px] font-black leading-none">{typeof schedule.date === 'string' ? new Date(schedule.date).getDate() : '?'}</span>
+                              <span className="text-[8px] font-bold uppercase">{typeof schedule.date === 'string' ? new Date(schedule.date).toLocaleString('default', { month: 'short' }) : '??'}</span>
                             </div>
-                            <span className="text-sm font-bold text-slate-800">{new Date(schedule.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric' })}</span>
+                            <span className="text-sm font-bold text-slate-800">{typeof schedule.date === 'string' ? new Date(schedule.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric' }) : 'Unknown'}</span>
                           </div>
                         </td>
                         <td className="px-8 py-4">
@@ -515,7 +539,7 @@ export const AddTrip = () => {
                         </td>
                         <td className="px-8 py-4 text-center">
                           <button
-                            type="button" onClick={() => handleRemoveSchedule(schedule.id)}
+                            type="button" onClick={() => setSchedules(prev => prev.filter(s => s.id !== schedule.id))}
                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -526,32 +550,25 @@ export const AddTrip = () => {
                   </tbody>
                 </table>
               </div>
-            ) : (
-              <div className="mt-6 py-12 flex flex-col items-center justify-center bg-slate-50/30 rounded-2xl border-2 border-dashed border-slate-200">
-                <Calendar className="w-8 h-8 text-slate-200 mb-3" />
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">No Execution Windows Scheduled</p>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {/* ── Footer Actions ── */}
-        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end gap-4">
           <Link
             to="/trips"
-            className="w-full sm:w-auto text-center px-6 py-1.5 rounded-xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all text-sm uppercase tracking-wider"
+            className="px-6 py-1.5 rounded-xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 transition-all text-sm uppercase tracking-wider"
           >
-            Discard
+            Cancel
           </Link>
           <button
             type="button" onClick={handleSave} disabled={saving}
-            className="w-full sm:w-auto justify-center bg-indigo-600 text-white px-10 py-1.5 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2.5 disabled:opacity-70"
+            className="bg-indigo-600 text-white px-10 py-1.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2.5 disabled:opacity-70"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Confirm & Schedule
+            {saving ? "Updating..." : "Save Changes"}
           </button>
         </div>
-
       </div>
     </div>
   );
