@@ -5,6 +5,7 @@ import { collection, onSnapshot, query, orderBy, addDoc} from 'firebase/firestor
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../shared/services/firebase';
 import { useToast } from '../../shared/hooks/ToastContext';
+import DeleteModal from '../../shared/DeleteModal/DeleteModal';
 
 export const AdminSettings = () => {
 	const { showToast } = useToast();
@@ -235,68 +236,24 @@ export const AdminSettings = () => {
 				onClose={() => setShowDesigPopup(false)} 
 			/>
 
-			{/* Delete Permission Modal */}
-			{deletePermissionId && (
-				<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-					<div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
-						<div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-							<FaTrash className="text-xl" />
-						</div>
-						<h3 className="text-lg font-bold text-gray-900">Delete Permission Model?</h3>
-						<p className="text-gray-500 text-sm mt-2 mb-6">
-							Are you sure you want to delete this permission model?<br />
-							This action cannot be undone.
-						</p>
-						<div className="flex gap-3">
-							<button
-								onClick={() => setDeletePermissionId(null)}
-								disabled={loading}
-								className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
-							>
-								Cancel
-							</button>
-							<button
-								onClick={confirmDeletePermission}
-								disabled={loading}
-								className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-							>
-								{loading ? 'Deleting...' : 'Delete'}
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+			<DeleteModal 
+				isOpen={!!deletePermissionId}
+				onClose={() => setDeletePermissionId(null)}
+				onConfirm={confirmDeletePermission}
+				title="Delete Permission Model?"
+				message="Are you sure you want to delete this permission model?"
+				loading={loading}
+			/>
 
-			{/* Revoke Permission Modal */}
-			{revokePermissionId && (
-				<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-					<div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
-						<div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-							<FaUserSlash className="text-xl" />
-						</div>
-						<h3 className="text-lg font-bold text-gray-900">Revoke Permissions?</h3>
-						<p className="text-gray-500 text-sm mt-2 mb-6">
-							Are you sure you want to revoke this permission model from all assigned admin users?
-						</p>
-						<div className="flex gap-3">
-							<button
-								onClick={() => setRevokePermissionId(null)}
-								disabled={loading}
-								className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
-							>
-								Cancel
-							</button>
-							<button
-								onClick={confirmRevokePermission}
-								disabled={loading}
-								className="flex-1 px-4 py-2.5 rounded-xl bg-amber-500 text-white font-semibold text-sm hover:bg-amber-600 shadow-lg shadow-amber-200 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-							>
-								{loading ? 'Revoking...' : 'Revoke'}
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+			<DeleteModal 
+				isOpen={!!revokePermissionId}
+				onClose={() => setRevokePermissionId(null)}
+				onConfirm={confirmRevokePermission}
+				title="Revoke Permissions?"
+				message="Are you sure you want to revoke this permission model from all assigned admin users?"
+				loading={loading}
+				confirmText="Revoke"
+			/>
 		</div>
 	);
 };
@@ -506,37 +463,14 @@ function Designation({ isOpen, onClose }) {
 		  </div>
 		</div>
   
-		{isDeleteModalOpen && (
-		  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-			<div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
-			  <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-				<FaTrash className="text-xl" />
-			  </div>
-			  <h3 className="text-lg font-bold text-gray-900">Delete Designation?</h3>
-			  <p className="text-gray-500 text-sm mt-2 mb-6">
-				Are you sure you want to delete <br />
-				<span className="font-semibold text-gray-900">{designationToDelete?.designationName}</span>?<br />
-				This action cannot be undone.
-			  </p>
-			  <div className="flex gap-3">
-				<button
-				  onClick={() => setIsDeleteModalOpen(false)}
-				  disabled={loading}
-				  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
-				>
-				  Cancel
-				</button>
-				<button
-				  onClick={confirmDelete}
-				  disabled={loading}
-				  className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-				>
-				  {loading ? 'Deleting...' : 'Delete'}
-				</button>
-			  </div>
-			</div>
-		  </div>
-		)}
+		<DeleteModal 
+			isOpen={isDeleteModalOpen}
+			onClose={() => setIsDeleteModalOpen(false)}
+			onConfirm={confirmDelete}
+			title="Delete Designation?"
+			itemName={designationToDelete?.designationName}
+			loading={loading}
+		/>
 	  </>
 	);
   }
@@ -741,37 +675,14 @@ function DepartmentPopup({ isOpen, onClose }) {
 		  </div>
 		</div>
   
-		{isDeleteModalOpen && (
-		  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-			<div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
-			  <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-				<FaTrash className="text-xl" />
-			  </div>
-			  <h3 className="text-lg font-bold text-gray-900">Delete Department?</h3>
-			  <p className="text-gray-500 text-sm mt-2 mb-6">
-				Are you sure you want to delete <br />
-				<span className="font-semibold text-gray-900">{departmentToDelete?.departmentName}</span>?<br />
-				This action cannot be undone.
-			  </p>
-			  <div className="flex gap-3">
-				<button
-				  onClick={() => setIsDeleteModalOpen(false)}
-				  disabled={loading}
-				  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
-				>
-				  Cancel
-				</button>
-				<button
-				  onClick={confirmDelete}
-				  disabled={loading}
-				  className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-				>
-				  {loading ? 'Deleting...' : 'Delete'}
-				</button>
-			  </div>
-			</div>
-		  </div>
-		)}
+		<DeleteModal 
+			isOpen={isDeleteModalOpen}
+			onClose={() => setIsDeleteModalOpen(false)}
+			onConfirm={confirmDelete}
+			title="Delete Department?"
+			itemName={departmentToDelete?.departmentName}
+			loading={loading}
+		/>
 	  </>
 	);
   }

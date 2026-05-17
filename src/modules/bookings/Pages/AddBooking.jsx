@@ -28,22 +28,22 @@ export const AddBooking = () => {
             <Hash className="w-5 h-5 text-primary-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Core Request Basis</h3>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="px-6 py-3 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Req Ref</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="MRP-XXXXX" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="MRP-XXXXX" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Booking ID</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Auto-generated" disabled />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Auto-generated" disabled />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Request Date</label>
-              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
+              <input type="datetime-local" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Source Channel</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="Website">Website</option>
                 <option value="App">Mobile App</option>
                 <option value="Call">Phone Call</option>
@@ -52,7 +52,7 @@ export const AddBooking = () => {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white font-bold text-primary-700 uppercase">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white font-bold text-primary-700 uppercase">
                 <option value="PENDING">PENDING</option>
                 <option value="APPROVED">APPROVED</option>
                 <option value="IN TRANSIT">IN TRANSIT</option>
@@ -68,22 +68,22 @@ export const AddBooking = () => {
             <User className="w-5 h-5 text-indigo-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Passenger Details</h3>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="px-6 py-3 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider"> Name</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter name" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter name" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone</label>
-              <input type="tel" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter Phone Number" />
+              <input type="tel" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter Phone Number" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email</label>
-              <input type="email" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter Email Address" />
+              <input type="email" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter Email Address" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Passenger Count</label>
-              <input type="number" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter Passenger Count" />
+              <input type="number" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter Passenger Count" />
             </div>
           </div>
         </div>
@@ -93,32 +93,32 @@ export const AddBooking = () => {
             <Navigation className="w-5 h-5 text-emerald-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Journey Pathway</h3>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="px-6 py-2 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pickup Date/Time</label>
-              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
+              <input type="datetime-local" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pickup Location</label>
               <div className="relative">
                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input type="text" className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter location..." />
+                <input type="text" className="w-full pl-11 pr-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter location..." />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Destination</label>
               <div className="relative">
                 <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input type="text" className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter destination..." />
+                <input type="text" className="w-full pl-11 pr-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Enter destination..." />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Actual Dropoff (Ref)</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Location reference" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Location reference" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Drop Time</label>
-              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
+              <input type="datetime-local" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
             </div>
           </div>
         </div>
@@ -128,18 +128,18 @@ export const AddBooking = () => {
             <DollarSign className="w-5 h-5 text-amber-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Financial Logistics</h3>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="px-6 py-2 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare (₹)</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="0.00" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="0.00" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare Date</label>
-              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
+              <input type="datetime-local" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare Confirm</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
                 <option value="Pending">Pending</option>
@@ -147,11 +147,11 @@ export const AddBooking = () => {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare Confirm Date</label>
-              <input type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
+              <input type="datetime-local" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare Channel</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="Call">Phone Call</option>
                 <option value="WhatsApp Business">WhatsApp Business</option>
                 <option value="Email">Email</option>
@@ -160,7 +160,7 @@ export const AddBooking = () => {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Payment Method</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="Cash">Cash</option>
                 <option value="Bank Transfer">Bank Transfer</option>
                 <option value="Online">Online / Card</option>
@@ -168,7 +168,7 @@ export const AddBooking = () => {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Paid Amount (₹)</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="0.00" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="0.00" />
             </div>
           </div>
         </div>
@@ -181,25 +181,25 @@ export const AddBooking = () => {
           <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Access Needs?</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
               </select>
             </div>
             <div className="space-y-2 md:col-span-1">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Access Details</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Define needs..." />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Define needs..." />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">3rd Row Warning</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white font-bold text-amber-600">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white font-bold text-amber-600">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">PSV Consent</label>
-              <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
               </select>
@@ -215,31 +215,31 @@ export const AddBooking = () => {
           <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Accepted By</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Full name" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Full name" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dispatched By</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Dispatcher name" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Dispatcher name" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Primary Driver</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Driver name" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Driver name" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Driver License ref</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Ref code" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Ref code" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Vehicle NO.</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="KA-01-XXXX" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="KA-01-XXXX" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Vehicle License Ref</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="License code" />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="License code" />
             </div>
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Other Drivers / Multi-Asset</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Additional details..." />
+              <input type="text" className="w-full px-4 py-1.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" placeholder="Additional details..." />
             </div>
           </div>
         </div>
@@ -249,10 +249,10 @@ export const AddBooking = () => {
             <Handshake className="w-5 h-5 text-blue-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Lifecycle Exception Logic</h3>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="px-6 py-3 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2 bg-blue-50/30 p-4 rounded-2xl border border-blue-100 shadow-inner">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Subcontracted?</label>
-              <select className="w-full px-4 py-2.5 mt-1 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
+              <select className="w-full px-4 py-1.5mt-1 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
               </select>
@@ -268,7 +268,7 @@ export const AddBooking = () => {
 
             <div className="space-y-2 bg-red-50/30 p-4 rounded-2xl border border-red-100 shadow-inner">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cancelled?</label>
-              <select className="w-full px-4 py-2.5 mt-1 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white font-bold text-red-600">
+              <select className="w-full px-4 py-1.5mt-1 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all bg-white font-bold text-red-600">
                 <option value="No">No</option>
                 <option value="Yes">Yes</option>
               </select>
@@ -282,9 +282,9 @@ export const AddBooking = () => {
               </div>
             </div>
 
-            <div className="space-y-2 p-4">
+            <div className="space-y-2 px-4">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider"> Remarks</label>
-              <textarea className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all h-[155px]" placeholder="Detailed notes regarding this request..."></textarea>
+              <textarea className="w-full px-4 py-1.5 rounded-xl  border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all h-[155px]" placeholder="Detailed notes regarding this request..."></textarea>
             </div>
           </div>
         </div>
