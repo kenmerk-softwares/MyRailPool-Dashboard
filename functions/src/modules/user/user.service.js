@@ -116,6 +116,7 @@ const bookTripService = async (data) => {
         bookingId: bookingRef.id,
         amount: totalFare,
         userId,
+        bookingCount,
         paymentType,
         tripId: tripDoc.id,
         driverId: tripData.driver_id || "",
