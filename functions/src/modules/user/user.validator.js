@@ -30,6 +30,32 @@ const tripBookingValidation = (req) => {
   };
 };
 
+const cancelTripValidation = (req) => {
+  const fields = req.data;
+  const schema = Joi.object({
+    bookingId: Joi.string().required(),
+    userId: Joi.string().required(),
+  });
+
+  const {error, value} = schema.validate(fields, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.details.map((err) => err.message),
+    };
+  }
+
+  return {
+    success: true,
+    data: value,
+  };
+};
+
 module.exports = {
   tripBookingValidation,
+  cancelTripValidation,
 };

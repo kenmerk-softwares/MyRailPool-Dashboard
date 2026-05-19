@@ -28,7 +28,17 @@ const stripeWebhook = onRequest(async (req, res) => {
                     const bookingData = bookingDoc.data();
                     
                     const batch = db.batch();
-                    batch.update(bookingRef, { status: "Confirmed" });
+
+                    // Correctly update the user's status inside the aggregate bookings document
+                    const usersArray = bookingData.users || [];
+                    const updatedUsersArray = usersArray.map(user => {
+                        if (user.userId === userId && user.status === "Pending") {
+                            return { ...user, status: "Confirmed" };
+                        }
+                        return user;
+                    });
+                    batch.update(bookingRef, { users: updatedUsersArray });
+
                     const financeSnapshot = await db.collection("finance").where("bookingId", "==", bookingId).limit(1).get();
                     if (!financeSnapshot.empty) {
                         batch.update(financeSnapshot.docs[0].ref, { status: "Confirmed" });
@@ -41,24 +51,7 @@ const stripeWebhook = onRequest(async (req, res) => {
                     await batch.commit();
                     console.log(`Successfully confirmed booking ${bookingId}`);
 
-                    if (!financeSnapshot.empty) {
-                        const financeData = financeSnapshot.docs[0].data();
-                        const date = financeData.createdAt && typeof financeData.createdAt.toDate === "function" 
-                            ? financeData.createdAt.toDate() 
-                            : new Date();
-                        const { updateAnalyticsData } = require("./payment.analytics");
-                        await updateAnalyticsData(financeData.amount, financeData.bookingCount, date, true);
-                    }
-                    
-                    if (userId) {
-                        const userDetails = (bookingData.users || []).find(u => u.userId === userId);
-                        const startingPoint = userDetails ? userDetails.startingPoint : bookingData.route_start;
-                        const dropPoint = userDetails ? userDetails.dropPoint : bookingData.route_end;
-                        const selectedDate = bookingData.selectedDate;
-                        
-                        const { sendBookingConfirmationNotification } = require("../notifications/trip.notifications");
-                        await sendBookingConfirmationNotification(userId, bookingId, selectedDate, startingPoint, dropPoint);
-                    }
+
                 } else {
                     console.error(`Booking document not found for ID: ${bookingId}`);
                 }

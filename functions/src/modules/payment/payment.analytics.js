@@ -50,6 +50,38 @@ const updateAnalyticsData = async (amount, bookingCount, date = new Date(), isCo
     }
 };
 
+const { onDocumentWritten } = require("firebase-functions/v2/firestore");
+
+const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) => {
+    const change = event.data;
+    if (!change) return null;
+
+    const beforeData = change.before.exists ? change.before.data() : null;
+    const afterData = change.after.exists ? change.after.data() : null;
+
+    const wasConfirmed = beforeData && beforeData.status === "Confirmed";
+    const isConfirmed = afterData && afterData.status === "Confirmed";
+
+    if (!wasConfirmed && isConfirmed) {
+        // Payment is now confirmed. Increment analytics.
+        const date = afterData.createdAt && typeof afterData.createdAt.toDate === "function" 
+            ? afterData.createdAt.toDate() 
+            : new Date();
+        
+        await updateAnalyticsData(afterData.amount, afterData.bookingCount, date, true);
+    } else if (wasConfirmed && !isConfirmed) {
+        // Payment was confirmed, but is now cancelled/deleted. Decrement analytics.
+        const date = beforeData.createdAt && typeof beforeData.createdAt.toDate === "function" 
+            ? beforeData.createdAt.toDate() 
+            : new Date();
+            
+        await updateAnalyticsData(beforeData.amount, beforeData.bookingCount, date, false);
+    }
+    
+    return null;
+});
+
 module.exports = {
-    updateAnalyticsData
+    updateAnalyticsData,
+    onFinanceUpdated
 };
