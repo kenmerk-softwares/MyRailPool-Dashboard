@@ -17,7 +17,7 @@ const stripeWebhook = onRequest(async (req, res) => {
 
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
-        const { bookingId } = session.metadata;
+        const { bookingId, userId } = session.metadata;
 
         if (bookingId) {
             try {
@@ -26,7 +26,6 @@ const stripeWebhook = onRequest(async (req, res) => {
 
                 if (bookingDoc.exists) {
                     const bookingData = bookingDoc.data();
-                    const userId = bookingData.userId;
                     
                     const batch = db.batch();
                     batch.update(bookingRef, { status: "Confirmed" });
@@ -41,6 +40,25 @@ const stripeWebhook = onRequest(async (req, res) => {
 
                     await batch.commit();
                     console.log(`Successfully confirmed booking ${bookingId}`);
+
+                    if (!financeSnapshot.empty) {
+                        const financeData = financeSnapshot.docs[0].data();
+                        const date = financeData.createdAt && typeof financeData.createdAt.toDate === "function" 
+                            ? financeData.createdAt.toDate() 
+                            : new Date();
+                        const { updateAnalyticsData } = require("./payment.analytics");
+                        await updateAnalyticsData(financeData.amount, financeData.bookingCount, date, true);
+                    }
+                    
+                    if (userId) {
+                        const userDetails = (bookingData.users || []).find(u => u.userId === userId);
+                        const startingPoint = userDetails ? userDetails.startingPoint : bookingData.route_start;
+                        const dropPoint = userDetails ? userDetails.dropPoint : bookingData.route_end;
+                        const selectedDate = bookingData.selectedDate;
+                        
+                        const { sendBookingConfirmationNotification } = require("../notifications/trip.notifications");
+                        await sendBookingConfirmationNotification(userId, bookingId, selectedDate, startingPoint, dropPoint);
+                    }
                 } else {
                     console.error(`Booking document not found for ID: ${bookingId}`);
                 }

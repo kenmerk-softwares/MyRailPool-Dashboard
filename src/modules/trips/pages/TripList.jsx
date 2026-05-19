@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Eye, MapPin, Calendar, Clock, User, Car, Loader2, ArrowRight, Activity } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Edit, Trash2, Eye, MapPin, Calendar, User, Car, Loader2, ArrowRight } from 'lucide-react';
+import {   useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useTrips } from '../hooks/trip.useTrips';
@@ -56,7 +56,7 @@ export const TripList = () => {
             { label: 'Completed', value: 'Completed' },
             { label: 'Cancelled', value: 'Cancelled' },
           ]}
-          renderRow={(trip) => (
+          renderRow={(trip, idx) => (
             <>
               <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
               <td className="px-8 py-4 text-[13px] font-black text-slate-800">{trip.tripId}</td>
