@@ -9,6 +9,7 @@ const tripBooking = callableWrapper(async (req) => {
         return validateData;
     }
     return await bookTripService(validateData.data);
+    
 });
     
 module.exports = {
