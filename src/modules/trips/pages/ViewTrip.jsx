@@ -81,12 +81,12 @@ export const ViewTrip = () => {
       ]
     },
     {
-      title: 'Mission Configuration',
+      title: 'Trip Configuration',
       icon: Milestone,
       fields: [
-        { 
-          label: 'Route Corridor', 
-          value: trip.route_name, 
+        {
+          label: 'Route Corridor',
+          value: trip.route_name,
           icon: Globe,
           link: `/routes/view/${trip.route_id}`
         },
@@ -99,17 +99,17 @@ export const ViewTrip = () => {
 
   return (
     <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
+
       {/* ── Mission Hero Header ── */}
       <header className="mb-6">
         <div className="bg-white p-6 border border-slate-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -mr-32 -mt-32 z-0"></div>
-          
+
           <div className="flex items-center gap-6 relative z-10">
             <div className="w-20 h-20 bg-slate-900 text-white flex items-center justify-center rounded-2xl shadow-xl shadow-slate-200 ring-4 ring-slate-50 transition-transform hover:scale-105 duration-500">
               <Navigation className="w-10 h-10" />
             </div>
-            
+
             <div>
               <div className="flex items-center gap-3">
                 <Link to="/trips" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
@@ -118,15 +118,15 @@ export const ViewTrip = () => {
                 <Link to={`/routes/view/${trip.route_id}`} className="hover:text-indigo-600 transition-colors">
                   <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">{trip.route_name}</h1>
                 </Link>
-                <StatusBadge 
-                  status={trip.status} 
-                  statusColor={trip.status === 'Active' ? 'success' : trip.status === 'Completed' ? 'primary' : 'danger'} 
+                <StatusBadge
+                  status={trip.status}
+                  statusColor={trip.status === 'Active' ? 'success' : trip.status === 'Completed' ? 'primary' : 'danger'}
                 />
               </div>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2">
                 <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-lg border border-indigo-100">
                   <Hash className="w-3.5 h-3.5 text-indigo-600" />
-                  <span className="text-xs font-black text-indigo-700 tracking-wider">MISSION ID: {trip.tripId}</span>
+                  <span className="text-xs font-black text-indigo-700 tracking-wider">TRIP ID: {trip.tripId}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-400">
                   <Calendar className="w-3.5 h-3.5" />
@@ -145,14 +145,14 @@ export const ViewTrip = () => {
               to={`/trips/edit/${trip.docId}`}
               className="px-8 py-3 bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.15em] flex items-center gap-3 rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95"
             >
-              <Edit className="w-4 h-4" /> Update Mission
+              <Edit className="w-4 h-4" /> Update
             </Link>
           </div>
         </div>
       </header>
 
       <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left Column: Data Grids & Route Map */}
         <div className="lg:col-span-2 space-y-6">
           {sections.map((section, sIdx) => (
@@ -229,7 +229,7 @@ export const ViewTrip = () => {
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
                 <Activity className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mission Operational Remarks</h3>
+                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Trip Operational Remarks</h3>
               </div>
               <p className="text-slate-300 font-medium text-sm leading-relaxed italic pr-20">
                 "{trip.notes || "No specific operational notes or special remarks recorded for this trip."}"
@@ -248,7 +248,7 @@ export const ViewTrip = () => {
               </div>
               <h3 className="font-bold text-slate-800 text-sm uppercase tracking-tight">Execution Windows</h3>
             </div>
-            
+
             <div className="space-y-3">
               {Array.isArray(trip.selectedDates) && trip.selectedDates.map((date, idx) => (
                 <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-white hover:shadow-lg transition-all duration-300">
@@ -271,25 +271,7 @@ export const ViewTrip = () => {
             </div>
           </div>
 
-          {/* Impact Stats */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
-                <Leaf className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-white text-sm uppercase tracking-tight">Environmental Impact</h3>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 group hover:bg-white/10 transition-all duration-300">
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">CO2 Footprint Reduced</span>
-                  <span className="text-xl font-black text-emerald-400">0.0 kg</span>
-                </div>
-                <TrendingUp className="w-8 h-8 text-white/5 group-hover:text-emerald-500/20 transition-colors" />
-              </div>
-            </div>
-          </div>
+
 
         </div>
       </main>

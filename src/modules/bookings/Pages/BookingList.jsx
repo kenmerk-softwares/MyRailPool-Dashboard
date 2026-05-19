@@ -28,23 +28,6 @@ export const BookingList = () => {
         navigate(`/bookings/view/${encodeURIComponent(booking.id)}`);
     };
 
-    // check if any passenger is still pending — if yes the whole booking is pending
-    const getDocStatus = (booking) => {
-        const users = booking.users || [];
-        if (users.length === 0) return 'No Bookings';
-        return users.some((u) => u.status === 'Pending') ? 'Pending' : 'Confirmed';
-    };
-
-    // just maps status to a colour name for the badge
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Confirmed':   return 'success';
-            case 'Pending':     return 'warning';
-            case 'No Bookings': return 'slate';
-            default:            return 'slate';
-        }
-    };
-
     return (
         <>
             <SectionHeader
@@ -58,7 +41,7 @@ export const BookingList = () => {
                 <Table
                     headers={[
                         'Sl No', 'Trip No', 'Route', 'From', 'To',
-                        'Travel Date', 'Driver', 'Booked / Total', 'Status'
+                        'Travel Date', 'Driver', 'Booked / Total'
                     ]}
                     data={bookings}
                     searchQuery={searchQuery}
@@ -71,12 +54,7 @@ export const BookingList = () => {
                     toDate={toDate}
                     setToDate={setToDate}
                     searchPlaceholder="Search by trip no, route name, driver..."
-                    filterOptions={[
-                        { label: 'Pending',   value: 'Pending'   },
-                        { label: 'Confirmed', value: 'Confirmed' },
-                    ]}
                     renderRow={(booking, idx) => {
-                        const status = getDocStatus(booking);
                         return (
                             <>
                                 {/* Sl No */}
@@ -129,13 +107,6 @@ export const BookingList = () => {
                                     </span>
                                 </td>
 
-                                {/* Status */}
-                                <td className="px-6 py-4">
-                                    <StatusBadge
-                                        status={status}
-                                        statusColor={getStatusColor(status)}
-                                    />
-                                </td>
                             </>
                         );
                     }}
