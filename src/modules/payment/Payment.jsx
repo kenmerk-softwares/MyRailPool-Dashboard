@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   DollarSign, CheckCircle, Clock, XCircle, RefreshCcw, Download
 } from 'lucide-react';
-import { collection, getDocs, query, orderBy, where, Timestamp, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where, Timestamp, limit, doc, getDoc, getAggregateFromServer, sum, getCountFromServer } from 'firebase/firestore';
 import { db } from '../../shared/services/firebase';
 import { serialize } from '../../shared/utils/serialize';
 import StatCard from './StatCard';
@@ -24,12 +24,21 @@ const Payment = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [serverTotalRevenue, setServerTotalRevenue] = useState(0);
+  const [serverStats, setServerStats] = useState({
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+    online: 0
+  });
 
   const fetchPayments = useCallback(async () => {
     setLoading(true);
     try {
       const colRef = collection(db, 'finance');
       let docs = [];
+      let currentTotalRevenue = 0;
+      let newServerStats = { confirmed: 0, pending: 0, cancelled: 0, online: 0 };
 
       // if searching, run parallel queries for bookingId, tripId, and description
       if (searchTerm && searchTerm.trim() !== '') {
@@ -105,25 +114,55 @@ const Payment = () => {
           return timeB - timeA;
         });
 
+        currentTotalRevenue = docs.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+        newServerStats = {
+          confirmed: docs.filter(p => p.status === 'Confirmed').length,
+          pending: docs.filter(p => p.status === 'Pending').length,
+          cancelled: docs.filter(p => p.status === 'Cancelled').length,
+          online: docs.filter(p => p.paymentType === 'online').length
+        };
+
       } else {
         // BROWSE MODE — run single direct firestore query with compound filters
-        const constraints = [orderBy('createdAt', 'desc')];
+        const filterConstraints = [];
+        const dateConstraints = [];
 
         if (statusFilter) {
-          constraints.push(where('status', '==', statusFilter));
+          filterConstraints.push(where('status', '==', statusFilter));
         }
         if (fromDate) {
-          constraints.push(where('createdAt', '>=', Timestamp.fromDate(new Date(fromDate + 'T00:00:00'))));
+          const dFilter = where('createdAt', '>=', Timestamp.fromDate(new Date(fromDate + 'T00:00:00')));
+          filterConstraints.push(dFilter);
+          dateConstraints.push(dFilter);
         }
         if (toDate) {
-          constraints.push(where('createdAt', '<=', Timestamp.fromDate(new Date(toDate + 'T23:59:59'))));
+          const dFilter = where('createdAt', '<=', Timestamp.fromDate(new Date(toDate + 'T23:59:59')));
+          filterConstraints.push(dFilter);
+          dateConstraints.push(dFilter);
         }
 
-        const snap = await getDocs(query(colRef, ...constraints));
+        const [snap, aggSnap, cSnap, pSnap, cxSnap, oSnap] = await Promise.all([
+          getDocs(query(colRef, ...filterConstraints, orderBy('createdAt', 'desc'))),
+          getAggregateFromServer(query(colRef, ...filterConstraints), { total: sum('amount') }),
+          getCountFromServer(query(colRef, ...dateConstraints, where('status', '==', 'Confirmed'))),
+          getCountFromServer(query(colRef, ...dateConstraints, where('status', '==', 'Pending'))),
+          getCountFromServer(query(colRef, ...dateConstraints, where('status', '==', 'Cancelled'))),
+          getCountFromServer(query(colRef, ...dateConstraints, where('paymentType', '==', 'online')))
+        ]);
+        
         docs = snap.docs.map(d => serialize({ id: d.id, ...d.data() }));
+        currentTotalRevenue = aggSnap.data().total || 0;
+        newServerStats = {
+          confirmed: cSnap.data().count,
+          pending: pSnap.data().count,
+          cancelled: cxSnap.data().count,
+          online: oSnap.data().count
+        };
       }
 
       setPayments(docs);
+      setServerTotalRevenue(currentTotalRevenue);
+      setServerStats(newServerStats);
     } catch (e) {
       console.error('Error fetching finance:', e);
     } finally {
@@ -135,11 +174,11 @@ const Payment = () => {
     fetchPayments();
   }, [fetchPayments]);
 
-  const totalRevenue = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-  const confirmed = payments.filter(p => p.status === 'Confirmed').length;
-  const pending = payments.filter(p => p.status === 'Pending').length;
-  const cancelled = payments.filter(p => p.status === 'Cancelled').length;
-  const online = payments.filter(p => p.paymentType === 'online').length;
+  const totalRevenue = serverTotalRevenue;
+  const confirmed = serverStats.confirmed;
+  const pending = serverStats.pending;
+  const cancelled = serverStats.cancelled;
+  const online = serverStats.online;
 
   const handleExportCSV = async () => {
     if (payments.length === 0) return;
