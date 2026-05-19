@@ -98,7 +98,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 		if (editData) {
 			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
 			
-			editPermissionsFn({ id: editData.id, payload: payload, operation: "edit" })
+			editPermissionsFn({ id: editData.id, permissionId: editData.id, payload: payload, operation: "edit" })
 				.then((result) => {
 					setSaving(false);
 					if (result.data.success) {
@@ -138,7 +138,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 		setSaving(true);
 		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
 		
-		editPermissionsFn({ id: editData.id, operation: "delete" })
+		editPermissionsFn({ id: editData.id, permissionId: editData.id, operation: "delete" })
 			.then((result) => {
 				setSaving(false);
 				if (result.data.success) {
@@ -166,7 +166,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 		setSaving(true);
 		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
 		
-		editPermissionsFn({ id: editData.id, operation: "revoke" })
+		editPermissionsFn({ id: editData.id, permissionId: editData.id, operation: "revoke" })
 			.then((result) => {
 				setSaving(false);
 				if (result.data.success) {

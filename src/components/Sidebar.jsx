@@ -9,7 +9,8 @@ import {
   Settings,
   X,
   Bell,
-  Logs
+  Logs,
+  MessageSquare
 } from 'lucide-react';
 import { FaPaypal } from 'react-icons/fa';
 
@@ -50,6 +51,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/payment', label: 'Payment Status', icon: FaPaypal },
     { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: 2 },
     { path: '/notifications', label: 'Notifications', icon: Bell },
+    { path: '/notification-modals', label: 'Notification Modals', icon: MessageSquare },
     { path: '/settings', label: 'Settings', icon: Settings },
     { path: '/admin-logs', label: 'Admin Logs', icon: Logs },
 
