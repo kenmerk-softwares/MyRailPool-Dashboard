@@ -143,4 +143,123 @@ const bookTripService = async (data) => {
     };
 };
 
-module.exports = {bookTripService};
+// ==================== CREATE USER SERVICE ==================== //
+const createUserService = async (data) => {
+    const { uid, name, email, mobile, fcmToken, address, profileImage, platform } = data;
+    console.log(data);
+    const userRef = db.collection("users").doc(uid);
+    const userDoc = await userRef.get();
+
+    if (userDoc.exists) {
+        const updateData = {};
+
+        if (name !== undefined) {
+            updateData.name = name;
+            updateData.searchKey = name ? name.toLowerCase() : "";
+        }
+        if (email !== undefined) {
+            updateData.email = email;
+        }
+        if (mobile !== undefined) {
+            updateData.mobile = mobile;
+        }
+        if (address !== undefined) {
+            updateData.address = address;
+        }
+        if (profileImage !== undefined) {
+            updateData.profileImage = profileImage;
+        }
+
+        if (fcmToken !== undefined) {
+            const existingFcmToken = userDoc.data().fcmToken || {};
+            const fcmTokenMap = {
+                web: existingFcmToken.web || "",
+                android: existingFcmToken.android || "",
+                ios: existingFcmToken.ios || ""
+            };
+
+            if (typeof fcmToken === "string") {
+                if (platform) {
+                    fcmTokenMap[platform] = fcmToken;
+                }
+            } else if (typeof fcmToken === "object" && fcmToken !== null) {
+                Object.keys(fcmTokenMap).forEach(key => {
+                    if (fcmToken[key] !== undefined) {
+                        fcmTokenMap[key] = fcmToken[key];
+                    }
+                });
+            }
+            updateData.fcmToken = fcmTokenMap;
+        }
+
+        const existing = userDoc.data() || {};
+        let hasChanges = false;
+
+        for (const key of ["name", "searchKey", "email", "mobile", "address", "profileImage"]) {
+            if (updateData[key] !== undefined && updateData[key] !== existing[key]) {
+                hasChanges = true;
+                break;
+            }
+        }
+
+        if (!hasChanges && updateData.fcmToken !== undefined) {
+            const existingFcmToken = existing.fcmToken || {};
+            if (
+                updateData.fcmToken.web !== (existingFcmToken.web || "") ||
+                updateData.fcmToken.android !== (existingFcmToken.android || "") ||
+                updateData.fcmToken.ios !== (existingFcmToken.ios || "")
+            ) {
+                hasChanges = true;
+            }
+        }
+
+        if (!hasChanges) {
+            return { success: true, message: "No changes detected, update skipped" };
+        }
+
+        updateData.updatedAt = new Date();
+        await userRef.update(updateData);
+        return { success: true, message: "User updated successfully" };
+    }
+
+    const userData = {
+        mobile,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: "Active",
+    };
+
+    if (name) {
+        userData.name = name;
+        userData.searchKey = name.toLowerCase();
+    }
+    if (email) userData.email = email;
+    if (address) userData.address = address;
+    if (profileImage) userData.profileImage = profileImage;
+
+    const fcmTokenMap = {
+        web: "",
+        android: "",
+        ios: ""
+    };
+    if (fcmToken) {
+        if (typeof fcmToken === "string") {
+            if (platform) {
+                fcmTokenMap[platform] = fcmToken;
+            }
+        } else if (typeof fcmToken === "object" && fcmToken !== null) {
+            Object.keys(fcmTokenMap).forEach(key => {
+                if (fcmToken[key] !== undefined) {
+                    fcmTokenMap[key] = fcmToken[key];
+                }
+            });
+        }
+    }
+    userData.fcmToken = fcmTokenMap;
+
+    await userRef.set(userData);
+
+    return { success: true, message: "User created successfully" };
+};
+
+module.exports = {bookTripService, createUserService};

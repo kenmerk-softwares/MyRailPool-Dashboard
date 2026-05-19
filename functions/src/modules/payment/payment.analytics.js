@@ -63,14 +63,12 @@ const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) 
     const isConfirmed = afterData && afterData.status === "Confirmed";
 
     if (!wasConfirmed && isConfirmed) {
-        // Payment is now confirmed. Increment analytics.
         const date = afterData.createdAt && typeof afterData.createdAt.toDate === "function" 
             ? afterData.createdAt.toDate() 
             : new Date();
         
         await updateAnalyticsData(afterData.amount, afterData.bookingCount, date, true);
     } else if (wasConfirmed && !isConfirmed) {
-        // Payment was confirmed, but is now cancelled/deleted. Decrement analytics.
         const date = beforeData.createdAt && typeof beforeData.createdAt.toDate === "function" 
             ? beforeData.createdAt.toDate() 
             : new Date();

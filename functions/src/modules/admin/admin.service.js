@@ -243,86 +243,86 @@ const updateEmployeeSettingsService = async (req) => {
 };
 // ==================== CANCEL TRIP SERVICE ==================== //
 const cancelTripService = async (req) => {
-    const { FieldValue } = require("firebase-admin/firestore");
-    const { bookingId, userId } = req.data;
+    const { tripId } = req.data;
 
-    const bookingRef = db.collection("bookings").doc(bookingId);
-    const bookingDoc = await bookingRef.get();
-
-    if (!bookingDoc.exists) {
-        return { success: false, error: "Booking not found" };
-    }
-
-    const bookingData = bookingDoc.data();
-    const usersArray = bookingData.users || [];
-    
-    const userBookingIndex = usersArray.findIndex(u => u.userId === userId && (u.status === "Confirmed" || u.status === "Pending"));
-    if (userBookingIndex === -1) {
-        return { success: false, error: "Active user booking not found" };
-    }
-    
-    const userBookingDetails = usersArray[userBookingIndex];
-    const { bookingCount } = userBookingDetails;
-    const { tripId, selectedDate } = bookingData;
-
+    // 1. Fetch the trip
     const tripRef = db.collection("trips").doc(tripId);
     const tripDoc = await tripRef.get();
-    
+
     if (!tripDoc.exists) {
         return { success: false, error: "Trip not found" };
     }
-    
+
     const tripData = tripDoc.data();
-    const batch = db.batch();
-
-    // 1. Restore the seats in trips
-    const availableSeatsMap = tripData.available_seats || {};
-    const currentAvailableSeats = availableSeatsMap[selectedDate] ?? tripData.total_seats;
-    const updatedAvailableSeatsMap = {
-        ...availableSeatsMap,
-        [selectedDate]: currentAvailableSeats + bookingCount,
-    };
-    
-    batch.update(tripRef, {
-        available_seats: updatedAvailableSeatsMap,
-        total_bookings: FieldValue.increment(-bookingCount)
-    });
-
-    // 2. Update status in aggregate bookings doc
-    usersArray[userBookingIndex] = { ...userBookingDetails, status: "Cancelled", updatedAt: new Date() };
-    batch.update(bookingRef, {
-        users: usersArray,
-        bookedCount: FieldValue.increment(-bookingCount)
-    });
-
-    // 3. Update status in finance doc
-    const financeSnapshot = await db.collection("finance")
-        .where("bookingId", "==", bookingId)
-        .where("userId", "==", userId)
-        .limit(1)
-        .get();
-        
-    if (!financeSnapshot.empty) {
-        batch.update(financeSnapshot.docs[0].ref, { status: "Cancelled", updatedAt: new Date() });
+    if (tripData.status === "Cancelled") {
+        return { success: false, error: "Trip is already cancelled" };
     }
 
-    // 4. Update specific user booking doc
-    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
-    const userBookingDoc = await userBookingRef.get();
-    if (userBookingDoc.exists) {
-        batch.update(userBookingRef, { 
-            users: usersArray,
+    const batch = db.batch();
+
+    // 2. Mark the trip as Cancelled
+    batch.update(tripRef, {
+        status: "Cancelled",
+        updatedAt: new Date()
+    });
+
+    // 3. Fetch all bookings related to this trip
+    const bookingsSnapshot = await db.collection("bookings")
+        .where("tripId", "==", tripId)
+        .get();
+
+    for (const bookingDoc of bookingsSnapshot.docs) {
+        const bookingData = bookingDoc.data();
+        const usersArray = bookingData.users || [];
+        const bookingId = bookingDoc.id;
+
+        // 4. Cancel all active users in each booking
+        const updatedUsers = usersArray.map(user => {
+            if (user.status === "Confirmed" || user.status === "Pending") {
+                return { ...user, status: "Cancelled", updatedAt: new Date() };
+            }
+            return user;
+        });
+
+        batch.update(bookingDoc.ref, {
+            users: updatedUsers,
             status: "Cancelled",
             updatedAt: new Date()
         });
+
+        // 5. Cancel all finance records for this booking
+        const financeSnapshot = await db.collection("finance")
+            .where("bookingId", "==", bookingId)
+            .get();
+
+        for (const financeDoc of financeSnapshot.docs) {
+            if (financeDoc.data().status !== "Cancelled") {
+                batch.update(financeDoc.ref, { status: "Cancelled", updatedAt: new Date() });
+            }
+        }
+
+        // 6. Cancel each user's personal booking subcollection doc
+        for (const user of usersArray) {
+            if (user.status === "Confirmed" || user.status === "Pending") {
+                const userBookingRef = db.collection("users").doc(user.userId).collection("bookings").doc(bookingId);
+                const userBookingDoc = await userBookingRef.get();
+                if (userBookingDoc.exists) {
+                    batch.update(userBookingRef, {
+                        users: updatedUsers,
+                        status: "Cancelled",
+                        updatedAt: new Date()
+                    });
+                }
+            }
+        }
     }
 
     await batch.commit();
 
-    await adminLogs(req.auth.uid, req.auth.token.email, "Cancel Trip", `Cancelled booking ID: ${bookingId} for user ID: ${userId}`);
-    logInfo(`Booking ${bookingId} cancelled successfully by admin`);
+    await adminLogs(req.auth.uid, req.auth.token.email, "Cancel Trip", `Cancelled trip ID: ${tripId} (${tripData.tripId || ""})`);
+    logInfo(`Trip ${tripId} cancelled successfully by admin`);
 
-    return { status: 200, success: true, message: "Booking cancelled successfully" };
+    return { status: 200, success: true, message: "Trip cancelled successfully" };
 };
 
 module.exports = {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService, cancelTripService};

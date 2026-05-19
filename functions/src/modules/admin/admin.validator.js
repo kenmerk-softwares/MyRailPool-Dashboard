@@ -137,8 +137,7 @@ const cancelTripValidator = (req, data) => {
     return {success: false, error: "Missing required fields"};
   }
   const schema = Joi.object({
-    bookingId: Joi.string().required(),
-    userId: Joi.string().required(),
+    tripId: Joi.string().required(),
   });
 
   const {error, value} = schema.validate(data, {

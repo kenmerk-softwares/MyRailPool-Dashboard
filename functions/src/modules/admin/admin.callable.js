@@ -43,6 +43,7 @@ const updateEmployeeSettings = callableWrapper(async (req) => {
 const cancelTrip = callableWrapper(async (req) => {
   const validateData = cancelTripValidator(req, req.data);
   if (!validateData.success) {
+    console.log("Validation Failed: ", validateData);
     return validateData;
   }
   return await cancelTripService(req);
