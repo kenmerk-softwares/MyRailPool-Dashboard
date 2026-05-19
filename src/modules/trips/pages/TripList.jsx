@@ -5,8 +5,8 @@ import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useTrips } from '../hooks/trip.useTrips';
 import { useToast } from '../../../shared/hooks/ToastContext';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../shared/services/firebase';
+import { FunctionsAPI } from '../../../shared/services/functions.api';
+import DeleteModal from '../../../shared/DeleteModal/DeleteModal';
 
 export const TripList = () => {
   const { trips, hasMore, fetchTrips, loading } = useTrips();
@@ -15,6 +15,9 @@ export const TripList = () => {
 
   const [activeFilter, setActiveFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [cancelModal, setCancelModal] = useState({ isOpen: false, trip: null });
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     fetchTrips({ searchQuery, activeFilter });
@@ -35,6 +38,34 @@ export const TripList = () => {
     if (docId) navigate(`/trips/edit/${docId}`);
   };
 
+  const handleCancelClick = (trip) => {
+    setCancelModal({ isOpen: true, trip });
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelModal.trip) return;
+    setCancelling(true);
+    try {
+      const docId = String(cancelModal.trip.id || cancelModal.trip.docId || '').replace('#', '');
+      const response = await FunctionsAPI.cancelTrip({ tripId: docId });
+
+      console.log('Cancel Trip Response:', response);
+
+      if (response?.success === false) {
+        throw new Error(response.error || 'Failed to cancel trip');
+      }
+
+      showToast(response?.message || 'Trip cancelled successfully', 'success');
+      fetchTrips({ searchQuery, activeFilter });
+    } catch (error) {
+      console.error('Error cancelling trip:', error);
+      const errorMessage = error?.response?.data?.error || error?.message || 'Unknown error occurred';
+      showToast(`Error cancelling trip: ${errorMessage}`, 'error');
+    } finally {
+      setCancelling(false);
+      setCancelModal({ isOpen: false, trip: null });
+    }
+  };
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -140,17 +171,19 @@ export const TripList = () => {
           )}
           actions={(trip) => (
             <div className="flex items-center gap-2">
-              <button
-                // onClick={() => handleCancel(trip)}
-                disabled={trip.status === 'Cancelled'}
-                className={`p-2.5 bg-white border border-slate-200 text-slate-500 rounded-xl transition-all ${trip.status === 'Cancelled'
+              {trip.route_type === 'core' && (
+                <button
+                  onClick={() => handleCancelClick(trip)}
+                  disabled={trip.status === 'Cancelled'}
+                  className={`p-2.5 bg-white border border-slate-200 text-slate-500 rounded-xl transition-all ${trip.status === 'Cancelled'
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:text-red-500 hover:border-red-100 hover:shadow-lg active:scale-95'
-                  }`}
-                title="Cancel Trip"
-              >
-                {trip.status === 'Cancelled' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-              </button>
+                    }`}
+                  title="Cancel Trip"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              )}
               <button
                 onClick={() => handleView(trip)}
                 className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
@@ -188,6 +221,17 @@ export const TripList = () => {
           </div>
         )}
       </div>
+
+      <DeleteModal
+        isOpen={cancelModal.isOpen}
+        onClose={() => setCancelModal({ isOpen: false, trip: null })}
+        onConfirm={confirmCancel}
+        title="Cancel Trip"
+        message="Are you sure you want to cancel this trip?"
+        itemName={`Trip #${cancelModal.trip?.tripId || ''}`}
+        confirmText="Yes, Cancel Trip"
+        loading={cancelling}
+      />
     </div>
   );
 };

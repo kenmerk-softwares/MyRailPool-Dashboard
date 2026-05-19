@@ -1,11 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Image as ImageIcon, CheckCircle, XCircle } from 'lucide-react';
-import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Plus, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../shared/services/firebase';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { Table } from '../../shared/Table/Table';
 import { useToast } from '../../shared/hooks/ToastContext';
+
+const NOTIFICATION_TYPES = [
+  {
+    category: "Booking & Trips",
+    items: [
+      { id: "BOOKING_CONFIRMATION", label: "Booking Confirmation", variables: ["{{user_name}}", "{{booking_id}}", "{{pickup}}", "{{drop}}", "{{date}}", "{{amount}}"] },
+      { id: "DRIVER_ASSIGNED", label: "Driver Assigned", variables: ["{{user_name}}", "{{booking_id}}", "{{driver_name}}", "{{vehicle_number}}"] },
+      { id: "UPON_DOOR_STEP", label: "Upon Door Step", variables: ["{{user_name}}", "{{booking_id}}", "{{driver_name}}", "{{eta}}"] },
+      { id: "TRIP_STARTED", label: "Trip Started", variables: ["{{booking_id}}", "{{driver_name}}"] },
+      { id: "TRIP_COMPLETED", label: "Trip Completed", variables: ["{{user_name}}", "{{booking_id}}", "{{amount}}"] },
+      { id: "RIDE_CANCELLED", label: "Ride Cancelled", variables: ["{{user_name}}", "{{booking_id}}", "{{cancellation_reason}}", "{{refund_amount}}"] },
+      { id: "SYSTEM_RIDE_CANCELLATION", label: "System Ride Cancellation", variables: ["{{driver_name}}", "{{booking_id}}", "{{cancellation_reason}}"] }
+    ]
+  },
+  {
+    category: "Payments & Reminders",
+    items: [
+      { id: "PAYMENT_RECEIVED", label: "Payment Received", variables: ["{{user_name}}", "{{booking_id}}", "{{amount}}", "{{transaction_id}}"] },
+      { id: "PAYMENT_REMINDER", label: "Payment Reminder", variables: ["{{user_name}}", "{{booking_id}}", "{{amount}}", "{{due_date}}"] }
+    ]
+  },
+  {
+    category: "System",
+    items: [
+      { id: "WELCOME_MESSAGE", label: "Welcome Message", variables: ["{{user_name}}"] }
+    ]
+  }
+];
 
 export const NotificationModalList = () => {
   const [modals, setModals] = useState([]);
@@ -16,15 +44,14 @@ export const NotificationModalList = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModal, setCurrentModal] = useState(null);
-  
+
   const [formData, setFormData] = useState({
+    type: 'BOOKING_CONFIRMATION',
     title: '',
     message: '',
     status: 'Active',
-    targetAudience: 'All Users',
-    imageUrl: ''
+    targetAudience: 'All Users'
   });
-  const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const fetchModals = async () => {
@@ -49,25 +76,12 @@ export const NotificationModalList = () => {
     setSearchQuery('');
   };
 
-  const handleImageUpload = async (file) => {
-    if (!file) return null;
-    const storageRef = ref(storage, `modals/${Date.now()}_${file.name}`);
-    await uploadBytes(storageRef, file);
-    return getDownloadURL(storageRef);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploading(true);
     try {
-      let finalImageUrl = formData.imageUrl;
-      if (imageFile) {
-        finalImageUrl = await handleImageUpload(imageFile);
-      }
-
       const payload = {
         ...formData,
-        imageUrl: finalImageUrl,
         updatedAt: serverTimestamp()
       };
 
@@ -76,7 +90,7 @@ export const NotificationModalList = () => {
         showToast('Modal updated successfully', 'success');
       } else {
         payload.createdAt = serverTimestamp();
-        await addDoc(collection(db, 'notification_modals'), payload);
+        await setDoc(doc(db, 'notification_modals', formData.type), payload);
         showToast('Modal created successfully', 'success');
       }
 
@@ -103,21 +117,19 @@ export const NotificationModalList = () => {
 
   const openAddModal = () => {
     setCurrentModal(null);
-    setFormData({ title: '', message: '', status: 'Active', targetAudience: 'All Users', imageUrl: '' });
-    setImageFile(null);
+    setFormData({ type: 'BOOKING_CONFIRMATION', title: '', message: '', status: 'Active', targetAudience: 'All Users' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (modal) => {
     setCurrentModal(modal);
     setFormData({
+      type: modal.id || 'BOOKING_CONFIRMATION',
       title: modal.title || '',
       message: modal.message || '',
       status: modal.status || 'Active',
-      targetAudience: modal.targetAudience || 'All Users',
-      imageUrl: modal.imageUrl || ''
+      targetAudience: modal.targetAudience || 'All Users'
     });
-    setImageFile(null);
     setIsModalOpen(true);
   };
 
@@ -131,7 +143,7 @@ export const NotificationModalList = () => {
     <div className="animate-in fade-in duration-700">
       <SectionHeader
         title="Notification Modals"
-        subtitle="Manage popup modals and promotional banners shown to users."
+        subtitle="Manage Notification templates."
         actionLabel="Add Modal"
         actionIcon={Plus}
         onActionClick={openAddModal}
@@ -139,7 +151,7 @@ export const NotificationModalList = () => {
 
       <div className="pb-10">
         <Table
-          headers={['Modal Image', 'Details', 'Target Audience', 'Status']}
+          headers={['Details', 'Target Audience', 'Status']}
           data={filteredModals}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -154,16 +166,10 @@ export const NotificationModalList = () => {
           renderRow={(modal, idx) => (
             <>
               <td className="px-8 py-4">
-                <div className="w-16 h-16 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden">
-                  {modal.imageUrl ? (
-                    <img src={modal.imageUrl} alt={modal.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <ImageIcon className="w-6 h-6 text-slate-300" />
-                  )}
-                </div>
-              </td>
-              <td className="px-8 py-4">
                 <div className="flex flex-col">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">{modal.id}</span>
+                  </div>
                   <span className="text-[14px] font-black text-slate-800 tracking-tight">{modal.title}</span>
                   <span className="text-[12px] text-slate-500 mt-1 line-clamp-1 max-w-xs">{modal.message}</span>
                 </div>
@@ -213,26 +219,73 @@ export const NotificationModalList = () => {
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Notification Type</label>
+                <select
+                  required
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  disabled={!!currentModal}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {NOTIFICATION_TYPES.map(category => (
+                    <optgroup key={category.category} label={category.category}>
+                      {category.items.map(item => (
+                        <option key={item.id} value={item.id}>{item.label}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                {currentModal && <p className="text-[10px] text-slate-400 mt-1">Notification type cannot be changed after creation.</p>}
+              </div>
+
+              <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Title</label>
                 <input
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                   placeholder="Modal Title"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Message / Content</label>
                 <textarea
                   required
                   value={formData.message}
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all h-24 resize-none"
                   placeholder="Modal main message..."
                 />
+                {(() => {
+                  const selectedItem = NOTIFICATION_TYPES.flatMap(c => c.items).find(i => i.id === formData.type);
+                  if (selectedItem && selectedItem.variables.length > 0) {
+                    return (
+                      <div className="mt-3 p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
+                        <p className="text-[11px] font-bold text-indigo-800 uppercase tracking-wider mb-2">Available Variables (Click to copy)</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedItem.variables.map(v => (
+                            <button
+                              key={v}
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(v);
+                                showToast(`Copied ${v} to clipboard`, 'success');
+                              }}
+                              className="text-xs font-mono bg-white px-2.5 py-1.5 rounded-lg border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer shadow-sm"
+                            >
+                              {v}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-indigo-400 mt-2">These variables will be replaced with actual user data when sent.</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -240,7 +293,7 @@ export const NotificationModalList = () => {
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Target Audience</label>
                   <select
                     value={formData.targetAudience}
-                    onChange={(e) => setFormData({...formData, targetAudience: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                   >
                     <option value="All Users">All Users</option>
@@ -252,28 +305,13 @@ export const NotificationModalList = () => {
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Status</label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                   </select>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Banner Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files[0])}
-                  className="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-                />
-                {formData.imageUrl && !imageFile && (
-                  <div className="mt-3">
-                    <img src={formData.imageUrl} alt="Preview" className="h-20 rounded-lg object-cover" />
-                  </div>
-                )}
               </div>
 
               <div className="pt-4 flex justify-end gap-3">

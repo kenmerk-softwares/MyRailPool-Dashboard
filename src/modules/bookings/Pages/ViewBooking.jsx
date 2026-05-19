@@ -110,8 +110,6 @@ export const ViewBooking = () => {
   );
 
   const users = booking.users || [];
-  const hasPending = users.some(u => u.status === 'Pending');
-  const tripStatus = users.length === 0 ? 'No Bookings' : hasPending ? 'Pending' : 'Confirmed';
   const totalCollected = users.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
 
   return (
@@ -122,7 +120,6 @@ export const ViewBooking = () => {
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-bold text-slate-900">Trip Booking — <span className="text-primary-600">#{booking.tripNo}</span></h2>
-            <StatusBadge status={tripStatus} statusColor={getStatusColor(tripStatus)} />
           </div>
           <p className="text-slate-400 text-xs font-mono mt-1 break-all">{docId}</p>
         </div>
@@ -327,12 +324,6 @@ export const ViewBooking = () => {
                       <span className="text-slate-400 font-semibold uppercase tracking-wider">Booked At</span>
                       <p className="font-medium text-slate-500">{formatTs(u.createdAt)}</p>
                     </div>
-                    {u.stripeSessionId && (
-                      <div className="space-y-0.5 col-span-4">
-                        <span className="text-slate-400 font-semibold uppercase tracking-wider">Stripe Session</span>
-                        <p className="font-mono text-[10px] text-slate-400 break-all">{u.stripeSessionId}</p>
-                      </div>
-                    )}
                   </div>
 
                   {/* Status footer */}

@@ -6,7 +6,7 @@ const initialState = {
   role: null,
   permissions: null,
   isAuthenticated: false,
-  loading: false,
+  loading: true,
   error: null,
 };
 

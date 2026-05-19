@@ -29,6 +29,7 @@ import RouteReq from '../pages/RouteReq/RouteReq';
 import Settings from '../pages/Settings/Settings';
 import Company from '../pages/Settings/Company';
 import Payment from '../modules/payment/Payment';
+import { Reports } from '../modules/reports/pages/Reports';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -61,7 +62,8 @@ export const routesConfig = [
   { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
   { path: '/settings', element: <Settings />, permission: '/settings' },
   { path: '/company-settings', element: <Company />, permission: '/company-settings' },
-  { path: '/payment', element: <Payment />, permission: '/payment' }
+  { path: '/payment', element: <Payment />, permission: '/payment' },
+  { path: '/reports', element: <Reports />, permission: '/reports' }
 ];
 
 export const systemRoutes = [...new Map(
