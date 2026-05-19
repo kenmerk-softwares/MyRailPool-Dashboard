@@ -58,7 +58,9 @@ export const TripList = () => {
           ]}
           renderRow={(trip) => (
             <>
-              {/* Trip Registry */}
+              <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
+              <td className="px-8 py-4 text-[13px] font-black text-slate-800">{trip.tripId}</td>
+
               <td className="px-8 py-4">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5 mb-1">

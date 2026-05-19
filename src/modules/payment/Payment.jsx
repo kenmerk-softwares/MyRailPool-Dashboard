@@ -1,64 +1,232 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  DollarSign,
-  CheckCircle, 
-  Clock, 
-  XCircle, 
-  RefreshCcw,
-  Download, 
-  Calendar as CalendarIcon
+  DollarSign, CheckCircle, Clock, XCircle, RefreshCcw, Download
 } from 'lucide-react';
+import { collection, getDocs, query, orderBy, where, Timestamp, limit, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../shared/services/firebase';
+import { serialize } from '../../shared/utils/serialize';
 import StatCard from './StatCard';
 import PaymentTable from './PaymentTable';
 import PaymentCharts from './PaymentCharts';
 import PaymentDetailsModal from './PaymentDetailsModal';
-import RefundModal from './RefundModal';
-import { mockPayments, revenueChartData, methodDistributionData } from '../../data/mockData';
+import { revenueChartData, methodDistributionData } from '../../data/mockData';
+
+// this component manages transactions and tracks revenue
+// it uses live firestore queries for all search terms, status filters, and date filters
 
 const Payment = () => {
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All Status');
-  const [methodFilter, setMethodFilter] = useState('All Methods');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isRefundOpen, setIsRefundOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const fetchPayments = useCallback(async () => {
+    setLoading(true);
+    try {
+      const colRef = collection(db, 'finance');
+      let docs = [];
+
+      // if searching, run parallel queries for bookingId, tripId, and description
+      if (searchTerm && searchTerm.trim() !== '') {
+        const s = searchTerm.trim();
+        const queryPromises = [];
+
+        // bookingId prefix query
+        let q1 = query(
+          colRef,
+          where("bookingId", ">=", s),
+          where("bookingId", "<=", s + "\uf8ff"),
+          limit(30)
+        );
+        if (statusFilter) {
+          q1 = query(colRef, where("bookingId", ">=", s), where("bookingId", "<=", s + "\uf8ff"), where("status", "==", statusFilter), limit(30));
+        }
+        queryPromises.push(getDocs(q1));
+
+        // tripId prefix query
+        let q2 = query(
+          colRef,
+          where("tripId", ">=", s),
+          where("tripId", "<=", s + "\uf8ff"),
+          limit(30)
+        );
+        if (statusFilter) {
+          q2 = query(colRef, where("tripId", ">=", s), where("tripId", "<=", s + "\uf8ff"), where("status", "==", statusFilter), limit(30));
+        }
+        queryPromises.push(getDocs(q2));
+
+        // description prefix query
+        let q3 = query(
+          colRef,
+          where("description", ">=", s),
+          where("description", "<=", s + "\uf8ff"),
+          limit(30)
+        );
+        if (statusFilter) {
+          q3 = query(colRef, where("description", ">=", s), where("description", "<=", s + "\uf8ff"), where("status", "==", statusFilter), limit(30));
+        }
+        queryPromises.push(getDocs(q3));
+
+        const snapshots = await Promise.all(queryPromises);
+
+        const seen = new Set();
+        snapshots.forEach((snap) => {
+          snap.docs.forEach((d) => {
+            if (!seen.has(d.id)) {
+              const data = serialize({ id: d.id, ...d.data() });
+
+              // filter date range client-side since firestore doesn't allow inequality range on different fields
+              if (fromDate) {
+                const fromTime = new Date(fromDate + 'T00:00:00').getTime();
+                const createdTime = data.createdAt?.toDate ? data.createdAt.toDate().getTime() : new Date(data.createdAt).getTime();
+                if (createdTime < fromTime) return;
+              }
+              if (toDate) {
+                const toTime = new Date(toDate + 'T23:59:59').getTime();
+                const createdTime = data.createdAt?.toDate ? data.createdAt.toDate().getTime() : new Date(data.createdAt).getTime();
+                if (createdTime > toTime) return;
+              }
+
+              seen.add(d.id);
+              docs.push(data);
+            }
+          });
+        });
+
+        // sort results by date descending
+        docs.sort((a, b) => {
+          const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+          const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+          return timeB - timeA;
+        });
+
+      } else {
+        // BROWSE MODE — run single direct firestore query with compound filters
+        const constraints = [orderBy('createdAt', 'desc')];
+
+        if (statusFilter) {
+          constraints.push(where('status', '==', statusFilter));
+        }
+        if (fromDate) {
+          constraints.push(where('createdAt', '>=', Timestamp.fromDate(new Date(fromDate + 'T00:00:00'))));
+        }
+        if (toDate) {
+          constraints.push(where('createdAt', '<=', Timestamp.fromDate(new Date(toDate + 'T23:59:59'))));
+        }
+
+        const snap = await getDocs(query(colRef, ...constraints));
+        docs = snap.docs.map(d => serialize({ id: d.id, ...d.data() }));
+      }
+
+      setPayments(docs);
+    } catch (e) {
+      console.error('Error fetching finance:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchTerm, statusFilter, fromDate, toDate]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchPayments();
+  }, [fetchPayments]);
 
-  const filteredPayments = mockPayments.filter(payment => {
-    const matchesSearch =
-      payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase());
+  const totalRevenue = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const confirmed = payments.filter(p => p.status === 'Confirmed').length;
+  const pending = payments.filter(p => p.status === 'Pending').length;
+  const cancelled = payments.filter(p => p.status === 'Cancelled').length;
+  const online = payments.filter(p => p.paymentType === 'online').length;
 
-    const matchesStatus = statusFilter === 'All Status' || payment.status === statusFilter;
-    const matchesMethod = methodFilter === 'All Methods' || payment.method === methodFilter;
+  const handleExportCSV = async () => {
+    if (payments.length === 0) return;
+    setExporting(true);
+    try {
+      const uniqueBookingIds = Array.from(new Set(payments.map(p => p.bookingId).filter(Boolean)));
+      const bookingSnaps = await Promise.all(
+        uniqueBookingIds.map(id => getDoc(doc(db, 'bookings', id)))
+      );
 
-    return matchesSearch && matchesStatus && matchesMethod;
-  });
+      const bookingMap = {};
+      bookingSnaps.forEach(snap => {
+        if (snap.exists()) {
+          bookingMap[snap.id] = snap.data();
+        }
+      });
 
-  const handleViewDetails = (payment) => {
-    setSelectedPayment(payment);
-    setIsDetailsOpen(true);
+      const headers = [
+        'Sl No', 'Finance ID', 'Booking ID', 'Trip ID', 'User ID', 'Driver ID',
+        'Description', 'Amount', 'Transaction Type', 'Payment Method', 'Payment Status', 'Created At',
+        'Route Name', 'Route Points', 'Travel Date', 'Trip Number', 'Driver Name',
+        'Passenger Name', 'Passenger Phone', 'Passenger Start Point', 'Passenger Drop Point',
+        'Seats Booked', 'Passenger Fare', 'Passenger Status'
+      ];
+
+      const rows = payments.map((p, idx) => {
+        const booking = bookingMap[p.bookingId] || {};
+        const matchedUser = booking.users?.find(
+          u => String(u.userId || '').trim() === String(p.userId || '').trim()
+        ) || {};
+
+        return [
+          idx + 1,
+          p.financeId || '',
+          p.bookingId || '',
+          p.tripId || '',
+          p.userId || '',
+          p.driverId || '',
+          p.description || '',
+          p.amount || 0,
+          p.type || '',
+          p.paymentType || '',
+          p.status || '',
+          p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString('en-IN') : String(p.createdAt || ''),
+          booking.route_name || '',
+          booking.route_start && booking.route_end ? `${booking.route_start} - ${booking.route_end}` : '',
+          booking.selectedDate || '',
+          booking.tripNo ? `#${booking.tripNo}` : '',
+          booking.driver_name || '',
+          matchedUser.name || '',
+          matchedUser.phone || '',
+          matchedUser.startingPoint || '',
+          matchedUser.dropPoint || '',
+          matchedUser.bookingCount || '',
+          matchedUser.totalFare || '',
+          matchedUser.status || ''
+        ];
+      });
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Elaborated_Finance_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error('Error during report export:', e);
+    } finally {
+      setExporting(false);
+    }
   };
 
-  const handleInitiateRefund = (payment) => {
-    setSelectedPayment(payment);
-    setIsRefundOpen(true);
-  };
-
-  if (loading) {
+  if (loading && payments.length === 0) {
     return (
       <div className="p-8 space-y-8 animate-pulse">
         <div className="h-8 w-64 bg-slate-200 rounded-xl mb-10" />
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-32 bg-slate-100 rounded-2xl" />)}
         </div>
-        <div className="h-16 bg-slate-100 rounded-2xl" />
         <div className="h-96 bg-slate-100 rounded-2xl" />
       </div>
     );
@@ -69,72 +237,36 @@ const Payment = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Payment Dashboard</h2>
-          <p className="text-slate-500 font-medium mt-1">Monitor transactions, manage refunds, and track revenue.</p>
+          <p className="text-slate-500 font-medium mt-1">Monitor transactions and track revenue .</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
-            <CalendarIcon className="w-4 h-4" />
-            Apr 2024
-          </button>
-          <button className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
-            <Download className="w-4 h-4" />
-            Export Report
-          </button>
-        </div>
+        <button
+          onClick={handleExportCSV}
+          disabled={payments.length === 0 || exporting}
+          className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-100 shrink-0"
+        >
+          <Download className="w-4 h-4" />
+          {exporting ? 'Compiling Report...' : 'Export Elaborated CSV'}
+        </button>
       </div>
 
       <div className="space-y-10">
+        {/* stats cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          <StatCard
-            title="Total Revenue"
-            value="₹45,280"
-            icon={DollarSign}
-            trend="up"
-            trendValue="12.5%"
-            color="indigo"
-          />
-          <StatCard
-            title="Successful"
-            value="128"
-            icon={CheckCircle}
-            trend="up"
-            trendValue="8.2%"
-            color="emerald"
-          />
-          <StatCard
-            title="Pending"
-            value="14"
-            icon={Clock}
-            trend="down"
-            trendValue="3.1%"
-            color="amber"
-          />
-          <StatCard
-            title="Failed"
-            value="06"
-            icon={XCircle}
-            trend="up"
-            trendValue="0.5%"
-            color="rose"
-          />
-          <StatCard
-            title="Refunds"
-            value="₹2,400"
-            icon={RefreshCcw}
-            trend="down"
-            trendValue="1.2%"
-            color="blue"
-          />
+          <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString('en-IN')}`} icon={DollarSign} color="indigo" />
+          <StatCard title="Confirmed" value={confirmed} icon={CheckCircle} color="emerald" />
+          <StatCard title="Pending" value={pending} icon={Clock} color="amber" />
+          <StatCard title="Cancelled" value={cancelled} icon={XCircle} color="rose" />
+          <StatCard title="Online Payments" value={online} icon={RefreshCcw} color="blue" />
         </div>
 
-        <PaymentCharts
+        {/* <PaymentCharts
           revenueData={revenueChartData}
           methodData={methodDistributionData}
-        />
+        /> */}
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Transactions</h3>
+            <h3 className="text-xl font-black text-slate-900 tracking-tight">All Transactions</h3>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-lg text-[10px] font-black text-indigo-600 uppercase tracking-widest">
               Live Feed
               <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse ml-1" />
@@ -142,17 +274,22 @@ const Payment = () => {
           </div>
 
           <PaymentTable
-            payments={filteredPayments}
-            onView={handleViewDetails}
-            onRefund={handleInitiateRefund}
+            payments={payments}
+            loading={loading}
+            onView={(p) => { setSelectedPayment(p); setIsDetailsOpen(true); }}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
+            fromDate={fromDate}
+            setFromDate={setFromDate}
+            toDate={toDate}
+            setToDate={setToDate}
             onClear={() => {
               setSearchTerm('');
-              setStatusFilter('All Status');
-              setMethodFilter('All Methods');
+              setStatusFilter('');
+              setFromDate('');
+              setToDate('');
             }}
           />
         </div>
@@ -162,12 +299,6 @@ const Payment = () => {
         payment={selectedPayment}
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
-      />
-
-      <RefundModal
-        payment={selectedPayment}
-        isOpen={isRefundOpen}
-        onClose={() => setIsRefundOpen(false)}
       />
     </div>
   );
