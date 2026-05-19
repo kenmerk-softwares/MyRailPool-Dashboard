@@ -5,11 +5,9 @@ const { FieldValue } = require("firebase-admin/firestore");
 const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-    // Query finance collection for pending bookings to avoid needing a composite index
     const pendingBookingsSnapshot = await db.collection("finance")
         .where("status", "==", "Pending")
         .get();
-
     if (pendingBookingsSnapshot.empty) {
         return null;
     }
@@ -17,9 +15,7 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
     const expiredDocs = pendingBookingsSnapshot.docs.filter(doc => {
         const data = doc.data();
         if (data.paymentType !== "online") return false;
-        
-        // Handle both Firestore Timestamp and JS Date objects
-        const createdAt = data.createdAt && typeof data.createdAt.toDate === "function" 
+                const createdAt = data.createdAt && typeof data.createdAt.toDate === "function" 
             ? data.createdAt.toDate() 
             : new Date(data.createdAt);
             
@@ -39,10 +35,8 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
         const { bookingId, userId, tripId } = financeData;
         let { bookingCount } = financeData;
 
-        // 1. Mark finance document as Expired
-        batch.update(doc.ref, { status: "Expired" });
+        batch.delete(doc.ref);
 
-        // 2. Fetch the bookingData from bookings collection
         const bookingRef = db.collection("bookings").doc(bookingId);
         const bookingDoc = await bookingRef.get();
 
@@ -78,11 +72,8 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
 
                 batch.update(tripRef, {
                     available_seats: updatedAvailableSeatsMap,
-                    // total_bookings: FieldValue.increment(-bookingCount)
                 });
             }
-
-            // 4. Update the aggregate bookings document
             const usersArray = bookingData.users || [];
 
             const updatedUsersArray = usersArray.map(user => {

@@ -132,6 +132,14 @@ const bookTripService = async (data) => {
 
     await batch.commit();
 
+    if (bookingStatus === "Confirmed") {
+        const { updateAnalyticsData } = require("../payment/payment.analytics");
+        await updateAnalyticsData(totalFare, bookingCount, new Date(), true);
+        
+        const { sendBookingConfirmationNotification } = require("../notifications/trip.notifications");
+        await sendBookingConfirmationNotification(userId, bookingRef.id, selectedDate, startingPoint, dropPoint);
+    }
+
     return {
         success: true,
         data: {
