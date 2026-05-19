@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const {callableWrapper} = require("../../shared/utils/callable.wrapper");
-const {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService} = require("./admin.service");
-const {addAdminValidator, changePasswordValidator, editPermissionsValidator, updateEmployeeSettingsValidator} = require("./admin.validator");
+const {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService, cancelTripService} = require("./admin.service");
+const {addAdminValidator, changePasswordValidator, editPermissionsValidator, updateEmployeeSettingsValidator, cancelTripValidator} = require("./admin.validator");
 
 // ==================== ADD ADMIN USER ==================== //
 const addAdminUser = callableWrapper(async (req) => {
@@ -39,4 +39,13 @@ const updateEmployeeSettings = callableWrapper(async (req) => {
   return await updateEmployeeSettingsService(req);
 });
 
-module.exports = {addAdminUser, changePassword, editPermissions, updateEmployeeSettings};
+// ===================== CANCEL TRIP ==================== //
+const cancelTrip = callableWrapper(async (req) => {
+  const validateData = cancelTripValidator(req, req.data);
+  if (!validateData.success) {
+    return validateData;
+  }
+  return await cancelTripService(req);
+});
+
+module.exports = {addAdminUser, changePassword, editPermissions, updateEmployeeSettings, cancelTrip};

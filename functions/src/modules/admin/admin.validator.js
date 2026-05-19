@@ -131,9 +131,38 @@ const updateEmployeeSettingsValidator = (req, data) => {
   };
 };
 
+// ====================== CANCEL TRIP VALIDATOR ==================== //
+const cancelTripValidator = (req, data) => {
+  if (!data || Object.keys(data).length === 0) {
+    return {success: false, error: "Missing required fields"};
+  }
+  const schema = Joi.object({
+    bookingId: Joi.string().required(),
+    userId: Joi.string().required(),
+  });
+
+  const {error, value} = schema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.details.map((err) => err.message),
+    };
+  }
+
+  return {
+    success: true,
+    data: value,
+  };
+};
+
 module.exports = {
   addAdminValidator,
   changePasswordValidator,
   editPermissionsValidator,
   updateEmployeeSettingsValidator,
+  cancelTripValidator,
 };

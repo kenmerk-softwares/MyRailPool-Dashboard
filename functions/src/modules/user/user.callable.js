@@ -1,7 +1,7 @@
 const { callableWrapper } = require("../../shared/utils/callable.wrapper");
 
-const { tripBookingValidation, cancelTripValidation } = require("./user.validator");
-const { bookTripService, cancelTripService } = require("./user.service");
+const { tripBookingValidation } = require("./user.validator");
+const { bookTripService } = require("./user.service");
 
 const tripBooking = callableWrapper(async (req) => {
     const validateData = tripBookingValidation(req);
@@ -12,16 +12,6 @@ const tripBooking = callableWrapper(async (req) => {
     
 });
 
-const cancelTrip = callableWrapper(async (req) => {
-    const validateData = cancelTripValidation(req);
-    if (!validateData.success) {
-        return validateData;
-    }
-    return await cancelTripService(validateData.data);
-    
-});
-    
 module.exports = {
     tripBooking,
-    cancelTrip
 };
