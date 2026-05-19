@@ -2,23 +2,33 @@ import React from 'react';
 import { Clock, CheckCircle2, XCircle, Car, Users, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const StatCard = ({ title, value, icon: Icon, trend, trendUp, trendLabel = "vs last month" }) => (
+export const StatCard = ({ title, value, icon: Icon, trend, trendUp, trendLabel = "vs last month", loading = false }) => (
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start">
       <div>
         <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-        <h3 className="text-2xl md:text-3xl font-bold text-slate-800">{value}</h3>
+        {loading ? (
+          <div className="h-8 w-24 bg-slate-200 rounded-md animate-pulse mt-1"></div>
+        ) : (
+          <h3 className="text-2xl md:text-3xl font-bold text-slate-800">{value}</h3>
+        )}
       </div>
       <div className={`p-3 rounded-xl ${trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-        <Icon className="w-5 h-5 md:w-6 md:h-6" />
+        {Icon && <Icon className="w-5 h-5 md:w-6 md:h-6" />}
       </div>
     </div>
     {trend && (
       <div className="mt-4 flex items-center text-sm">
-        <span className={`font-medium ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-          {trend}
-        </span>
-        {trendLabel && <span className="text-slate-400 ml-2">{trendLabel}</span>}
+        {loading ? (
+          <div className="h-4 w-16 bg-slate-100 rounded animate-pulse"></div>
+        ) : (
+          <>
+            <span className={`font-medium ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
+              {trend}
+            </span>
+            {trendLabel && <span className="text-slate-400 ml-2">{trendLabel}</span>}
+          </>
+        )}
       </div>
     )}
   </div>

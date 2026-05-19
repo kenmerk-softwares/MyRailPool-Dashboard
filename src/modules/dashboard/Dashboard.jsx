@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarCheck, MapIcon, Users, Edit, Eye, Route, Car, UserCheck, DollarSign } from 'lucide-react';
-import { SectionHeader, StatCard, Activity, StatusBadge } from '../../components/Shared';
-import { Link, useNavigate } from 'react-router-dom';
+import { CalendarCheck, MapIcon, Users, Eye, Route, Car, UserCheck, DollarSign } from 'lucide-react';
+import { SectionHeader, StatCard, Activity } from '../../components/Shared';
+import { useNavigate } from 'react-router-dom';
 import { Table } from '../../shared/Table/Table';
 import { useBookings } from '../bookings/hooks/booking.useBookings';
 import { collection, getCountFromServer, getAggregateFromServer, sum } from 'firebase/firestore';
@@ -14,6 +14,7 @@ export const Dashboard = () => {
     const [activeFilter, setActiveFilter] = React.useState('');
     const [fromDate, setFromDate] = React.useState('');
     const [toDate, setToDate] = React.useState('');
+    const [statsLoading, setStatsLoading] = useState(true);
 
     const [stats, setStats] = useState({
         bookings: 0,
@@ -31,6 +32,7 @@ export const Dashboard = () => {
 
     useEffect(() => {
         const fetchStats = async () => {
+            setStatsLoading(true);
             try {
                 // Bookings Count
                 const bookingsSnap = await getCountFromServer(collection(db, 'bookings'));
@@ -78,6 +80,8 @@ export const Dashboard = () => {
                 });
             } catch (error) {
                 console.error("Error fetching dashboard stats:", error);
+            } finally {
+                setStatsLoading(false);
             }
         };
 
@@ -96,23 +100,6 @@ export const Dashboard = () => {
         navigate(`/bookings/view/${cleanId}`);
     };
 
-    // check if any passenger is still pending — if yes the whole booking is pending
-    const getDocStatus = (booking) => {
-        const users = booking.users || [];
-        if (users.length === 0) return 'No Bookings';
-        return users.some((u) => u.status === 'Pending') ? 'Pending' : 'Confirmed';
-    };
-
-    // just maps status to a colour name for the badge
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Confirmed':   return 'success';
-            case 'Pending':     return 'warning';
-            case 'No Bookings': return 'slate';
-            default:            return 'slate';
-        }
-    };
-  
   return(
   <>
     <SectionHeader 
@@ -123,19 +110,19 @@ export const Dashboard = () => {
       actionTo="/bookings/add"
     />
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-      <StatCard title="Total Revenue" value={`₹${(stats.revenue || 0).toLocaleString('en-IN')}`} icon={DollarSign} trend="Live" trendUp={true} trendLabel="" />
-      <StatCard title="Total Bookings" value={stats.bookings} icon={CalendarCheck} trend="Live" trendUp={true} trendLabel="" />
-      <StatCard title="Active Trips" value={stats.trips} icon={MapIcon} trend="Live" trendUp={true} trendLabel="" />
-      <StatCard title="Available Drivers" value={stats.drivers} icon={Users} trend="Live" trendUp={true} trendLabel="" />
-      <StatCard title="Total Routes" value={stats.routes} icon={Route} trend="Live" trendUp={true} trendLabel="" />
-      <StatCard title="Total Vehicles" value={stats.vehicles} icon={Car} trend="Live" trendUp={true} trendLabel="" />
-      <StatCard title="Admin Users" value={stats.admins} icon={UserCheck} trend="Live" trendUp={true} trendLabel="" />
+      <StatCard title="Total Revenue" value={`₹${(stats.revenue || 0).toLocaleString('en-IN')}`} icon={DollarSign} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+      <StatCard title="Total Bookings" value={stats.bookings} icon={CalendarCheck} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+      <StatCard title="Active Trips" value={stats.trips} icon={MapIcon} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+      <StatCard title="Available Drivers" value={stats.drivers} icon={Users} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+      <StatCard title="Total Routes" value={stats.routes} icon={Route} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+      <StatCard title="Total Vehicles" value={stats.vehicles} icon={Car} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+      <StatCard title="Admin Users" value={stats.admins} icon={UserCheck} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
     </div>
     <div className="pb-10">
         <Table
             headers={[
                 'Sl No', 'Trip No', 'Route', 'From', 'To',
-                'Travel Date', 'Driver', 'Booked / Total', 'Status'
+                'Travel Date', 'Driver', 'Booked / Total'
             ]}
             data={bookings}
             searchQuery={searchQuery}
@@ -148,12 +135,7 @@ export const Dashboard = () => {
             toDate={toDate}
             setToDate={setToDate}
             searchPlaceholder="Search by trip no, route name, driver..."
-            filterOptions={[
-                { label: 'Pending',   value: 'Pending'   },
-                { label: 'Confirmed', value: 'Confirmed' },
-            ]}
             renderRow={(booking, idx) => {
-                const status = getDocStatus(booking);
                 return (
                     <>
                         {/* Sl No */}
@@ -205,14 +187,6 @@ export const Dashboard = () => {
                                 </span>
                             </span>
                         </td>
-
-                        {/* Status */}
-                        <td className="px-6 py-4">
-                            <StatusBadge
-                                status={status}
-                                statusColor={getStatusColor(status)}
-                            />
-                        </td>
                     </>
                 );
             }}
@@ -221,17 +195,10 @@ export const Dashboard = () => {
                     <button 
                         onClick={() => handleView(booking)} 
                         className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
-                        title="Quick View"
+                        title="View Booking"
                     >
                         <Eye className="w-4 h-4" />
                     </button>
-                    <Link 
-                        to={`/bookings/edit/${String(booking?.booking_id || booking?.id || '').replace('#', '')}`}
-                        className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-amber-600 hover:border-amber-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
-                        title="Edit Booking"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </Link>
                 </div>
             )}
         />
