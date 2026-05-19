@@ -79,7 +79,7 @@ export const TripList = () => {
 
       <div className="pb-10">
         <Table
-          headers={['Sl No', 'Route ID', 'Date', 'Route Intelligence', ' Service Parameters', 'Operational Status']}
+          headers={['Sl No', 'Trip ID', 'Date', 'Asset & Operator', 'Route Intelligence', 'Operational Status']}
           data={trips}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
