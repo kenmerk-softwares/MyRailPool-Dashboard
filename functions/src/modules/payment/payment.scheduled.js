@@ -37,19 +37,28 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
     for (const doc of expiredDocs) {
         const financeData = doc.data();
         const { bookingId, userId, tripId } = financeData;
+        let { bookingCount } = financeData;
 
         // 1. Mark finance document as Expired
         batch.update(doc.ref, { status: "Expired" });
 
-        // 2. Fetch user's specific booking from users subcollection
-        const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
-        const userBookingDoc = await userBookingRef.get();
+        // 2. Fetch the bookingData from bookings collection
+        const bookingRef = db.collection("bookings").doc(bookingId);
+        const bookingDoc = await bookingRef.get();
 
-        if (userBookingDoc.exists) {
-            const bookingData = userBookingDoc.data();
-            const { bookingCount, selectedDate } = bookingData;
+        if (bookingDoc.exists) {
+            const bookingData = bookingDoc.data();
+            const { selectedDate } = bookingData;
+            
+            if (bookingCount === undefined) {
+                const userObj = bookingData.users?.find(u => u.userId === userId);
+                bookingCount = userObj ? userObj.bookingCount : 0;
+            }
+
+            console.log(`Restoring ${bookingCount} seats for trip ${tripId} on ${selectedDate}`);
 
             // Mark user's booking history as Expired
+            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
             batch.update(userBookingRef, { status: "Expired" });
 
             // 3. Restore seats in the trips collection
@@ -69,30 +78,24 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
 
                 batch.update(tripRef, {
                     available_seats: updatedAvailableSeatsMap,
-                    total_bookings: FieldValue.increment(-bookingCount)
+                    // total_bookings: FieldValue.increment(-bookingCount)
                 });
             }
 
             // 4. Update the aggregate bookings document
-            const aggregateBookingRef = db.collection("bookings").doc(bookingId);
-            const aggregateBookingDoc = await aggregateBookingRef.get();
+            const usersArray = bookingData.users || [];
 
-            if (aggregateBookingDoc.exists) {
-                const aggregateData = aggregateBookingDoc.data();
-                const usersArray = aggregateData.users || [];
+            const updatedUsersArray = usersArray.map(user => {
+                if (user.userId === userId && user.status === "Pending") {
+                    return { ...user, status: "Expired" };
+                }
+                return user;
+            });
 
-                const updatedUsersArray = usersArray.map(user => {
-                    if (user.userId === userId && user.status === "Pending") {
-                        return { ...user, status: "Expired" };
-                    }
-                    return user;
-                });
-
-                batch.update(aggregateBookingRef, {
-                    users: updatedUsersArray,
-                    bookedCount: FieldValue.increment(-bookingCount)
-                });
-            }
+            batch.update(bookingRef, {
+                users: updatedUsersArray,
+                bookedCount: FieldValue.increment(-bookingCount)
+            });
         }
     }
 
