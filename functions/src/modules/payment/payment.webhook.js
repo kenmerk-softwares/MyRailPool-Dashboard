@@ -41,11 +41,13 @@ const stripeWebhook = onRequest(async (req, res) => {
 
                     const financeSnapshot = await db.collection("finance").where("bookingId", "==", bookingId).limit(1).get();
                     if (!financeSnapshot.empty) {
-                        batch.update(financeSnapshot.docs[0].ref, { status: "Confirmed" });
-                    }
-                    if (userId) {
-                        const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
-                        batch.update(userBookingRef, { status: "Confirmed" });
+                        const financeDoc = financeSnapshot.docs[0];
+                        batch.update(financeDoc.ref, { status: "Confirmed" });
+                        
+                        if (userId) {
+                            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
+                            batch.update(userBookingRef, { status: "Confirmed" });
+                        }
                     }
 
                     await batch.commit();

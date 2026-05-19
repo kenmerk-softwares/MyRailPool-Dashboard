@@ -14,6 +14,7 @@ const addDriverService = async (data, req) => {
     const counterData = counterDoc.data();
     const counterId = counterData.counter || 0;
     const newCounterId = counterId + 1;
+    const driverId = "MRP/DVR/" + String(newCounterId).padStart(4, "0");
     const userRecord = await auth.createUser({
       email: fields.email,
       password: "password123",
@@ -23,7 +24,7 @@ const addDriverService = async (data, req) => {
     const driverRef = db.collection("drivers").doc(userRecord.uid);
     const driverData = {
       ...fields,
-      id: newCounterId,
+      id: driverId,
       uid: userRecord.uid,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),

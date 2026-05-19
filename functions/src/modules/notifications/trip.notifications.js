@@ -83,7 +83,7 @@ const sendBookingConfirmationNotification = async (user, bookingId, date) => {
             if (templateData.message) {
                 body = templateData.message
                     .replace(/{{user_name}}/g, user.name || "Customer")
-                    .replace(/{{booking_id}}/g, bookingId || "")
+                    .replace(/{{booking_id}}/g, user.bookingNo || "")
                     .replace(/{{date}}/g, date || "")
                     .replace(/{{pickup}}/g, user.startingPoint || "")
                     .replace(/{{drop}}/g, user.dropPoint || "")
@@ -156,7 +156,8 @@ const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event)
         const enrichedUser = {
             ...afterUser,
             startingPoint: afterUser.startingPoint || afterData.route_start,
-            dropPoint: afterUser.dropPoint || afterData.route_end
+            dropPoint: afterUser.dropPoint || afterData.route_end,
+            bookingNo: afterData.bookingNo || ""
         };
         const selectedDate = afterData.selectedDate;
 

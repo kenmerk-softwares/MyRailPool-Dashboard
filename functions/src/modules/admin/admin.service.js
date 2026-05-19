@@ -290,29 +290,24 @@ const cancelTripService = async (req) => {
             updatedAt: new Date()
         });
 
-        // 5. Cancel all finance records for this booking
+        // 5. Cancel all finance records for this booking and their corresponding user bookings
         const financeSnapshot = await db.collection("finance")
             .where("bookingId", "==", bookingId)
             .get();
 
         for (const financeDoc of financeSnapshot.docs) {
-            if (financeDoc.data().status !== "Cancelled") {
+            const financeData = financeDoc.data();
+            if (financeData.status !== "Cancelled") {
                 batch.update(financeDoc.ref, { status: "Cancelled", updatedAt: new Date() });
             }
-        }
 
-        // 6. Cancel each user's personal booking subcollection doc
-        for (const user of usersArray) {
-            if (user.status === "Confirmed" || user.status === "Pending") {
-                const userBookingRef = db.collection("users").doc(user.userId).collection("bookings").doc(bookingId);
-                const userBookingDoc = await userBookingRef.get();
-                if (userBookingDoc.exists) {
-                    batch.update(userBookingRef, {
-                        users: updatedUsers,
-                        status: "Cancelled",
-                        updatedAt: new Date()
-                    });
-                }
+            const userId = financeData.userId;
+            if (userId) {
+                const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
+                batch.update(userBookingRef, {
+                    status: "Cancelled",
+                    updatedAt: new Date()
+                });
             }
         }
     }
