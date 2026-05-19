@@ -33,6 +33,7 @@ const addRouteService = async (data, req) => {
           const placeRef = db.collection("places").doc(place.place_id);
           batch.set(placeRef, {
             ...placeData,
+            searchKey: place.name.toLowerCase(),
             updatedAt: new Date(),
           }, {merge: true});
         }
@@ -103,6 +104,7 @@ const addRouteService = async (data, req) => {
           const placeRef = db.collection("places").doc(place.place_id);
           batch.set(placeRef, {
             ...placeData,
+            searchKey: place.name.toLowerCase(),
             updatedAt: new Date(),
           }, {merge: true});
         }

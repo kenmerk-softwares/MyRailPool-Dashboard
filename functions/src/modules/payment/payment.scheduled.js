@@ -44,18 +44,25 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
             const bookingData = bookingDoc.data();
             const { selectedDate } = bookingData;
             
+            const userObj = bookingData.users?.find(u => u.userId === userId);
             if (bookingCount === undefined) {
-                const userObj = bookingData.users?.find(u => u.userId === userId);
                 bookingCount = userObj ? userObj.bookingCount : 0;
             }
 
-            console.log(`Restoring ${bookingCount} seats for trip ${tripId} on ${selectedDate}`);
+            if (userObj && userObj.stripeSessionId) {
+                try {
+                    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+                    await stripe.checkout.sessions.expire(userObj.stripeSessionId);
+                    console.log(`Expired Stripe session ${userObj.stripeSessionId} for booking ${bookingId}`);
+                } catch (stripeErr) {
+                    console.error(`Error expiring Stripe session ${userObj.stripeSessionId}:`, stripeErr);
+                }
+            }
 
-            // Mark user's booking history as Expired
+            console.log(`Restoring ${bookingCount} seats for trip ${tripId} on ${selectedDate}`);
             const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
             batch.update(userBookingRef, { status: "Expired" });
 
-            // 3. Restore seats in the trips collection
             const tripRef = db.collection("trips").doc(tripId);
             const tripDoc = await tripRef.get();
 

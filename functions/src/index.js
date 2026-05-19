@@ -27,8 +27,9 @@ const {addTrip} = require("./modules/trip/trip.callable");
 exports.addTrip = addTrip;
 
 // ================ USER MODULES ==================== //
-const {tripBooking} = require("./modules/user/user.callable");
+const {tripBooking, createUser} = require("./modules/user/user.callable");
 exports.tripBooking = tripBooking;
+exports.createUser = createUser;
 
 // ================ PAYMENT MODULES ==================== //
 const {stripeWebhook} = require("./modules/payment/payment.webhook");
@@ -41,5 +42,6 @@ const {onFinanceUpdated} = require("./modules/payment/payment.analytics");
 exports.onFinanceUpdated = onFinanceUpdated;
 
 // ================ NOTIFICATION MODULES ==================== //
-const {onBookingConfirmed} = require("./modules/notifications/trip.notifications");
-exports.onBookingConfirmed = onBookingConfirmed;
+const {onBookingUpdated} = require("./modules/notifications/trip.notifications");
+exports.onBookingUpdated = onBookingUpdated;
+
