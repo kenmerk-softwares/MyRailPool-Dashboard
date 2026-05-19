@@ -10,6 +10,7 @@ const tripBookingValidation = (req) => {
     startingPoint: Joi.string().required(),
     dropPoint: Joi.string().required(),
     selectedDate: Joi.string().required(),
+    passengers: Joi.array().required(),
   });
 
   const {error, value} = schema.validate(fields, {

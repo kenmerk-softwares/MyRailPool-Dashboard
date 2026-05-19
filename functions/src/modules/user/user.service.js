@@ -11,6 +11,14 @@ const bookTripService = async (data) => {
     
     const tripData = tripDoc.data();
 
+    const counterRef = db.collection("configurations").doc("booking-settings");
+    const counterDoc = await counterRef.get();
+    let counterId = 1;
+    if (counterDoc.exists && counterDoc.data().counter) {
+        counterId = counterDoc.data().counter + 1;
+    }
+    const bookingNo = `MRP/TB/${counterId}`;
+
     const availableSeatsMap = tripData.available_seats || {};
     const currentAvailableSeats = availableSeatsMap[selectedDate] ?? tripData.total_seats;
     if (currentAvailableSeats < bookingCount) {
@@ -92,6 +100,7 @@ const bookTripService = async (data) => {
 
     const bookingData = {
         bookingId: bookingRef.id,
+        bookingNo: bookingNo,
         tripId: tripDoc.id,
         tripNo: tripData.tripId,
         driver_id: tripData.driver_id || "",
@@ -106,7 +115,9 @@ const bookTripService = async (data) => {
         updatedAt: new Date(),
         totalSeats: tripData.total_seats,
         bookedCount: FieldValue.increment(bookingCount),
-        users: FieldValue.arrayUnion(userDetailsMap)
+        users: FieldValue.arrayUnion(userDetailsMap),
+        passengers: FieldValue.arrayUnion(...data.passengers),
+        userIds: FieldValue.arrayUnion(userId),
     };
     batch.set(bookingRef, bookingData, { merge: true });
 
@@ -123,12 +134,47 @@ const bookTripService = async (data) => {
         createdAt: new Date(),
         type: "Credit",
         description: `Booking for trip ${tripData.tripId || tripDoc.id}`,
-        status: bookingStatus
+        status: bookingStatus,
+        tripStatus: "Not Started",
     };
     batch.set(financeRef, financeData);
 
-    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingRef.id);
-    batch.set(userBookingRef, bookingData);
+    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeRef.id);
+
+    const userBookingData = {
+        bookingId: userBookingRef.id,
+        bookingsDocId: bookingRef.id,
+        bookingNo: bookingNo,
+        tripId: tripDoc.id,
+        tripNo: tripData.tripId,
+        driver_id: tripData.driver_id || "",
+        driver_name: tripData.driver_name || "",
+        vehicle_id: tripData.vehicle_id || "",
+        route_id: tripData.route_id || "",
+        route_name: tripData.route_name || "",
+        route_start: tripData.routes && tripData.routes.length > 0 ? tripData.routes[0] : "",
+        route_end: tripData.routes && tripData.routes.length > 0 ? tripData.routes[tripData.routes.length - 1] : "",
+        route_type: tripData.route_type || "",
+        selectedDate,
+        updatedAt: new Date(),
+        totalSeats: tripData.total_seats,
+        passengers: data.passengers,
+        name: userData.name || userData.displayName || "Unknown",
+        phone: userData.phone || userData.phoneNumber || "",
+        bookingCount,
+        paymentType,
+        startingPoint,
+        dropPoint,
+        totalFare,
+        status: bookingStatus,
+        createdAt: new Date(),
+        tripStatus: "Not Started",
+        ...(sessionId && { stripeSessionId: sessionId })
+    };
+
+    batch.set(userBookingRef, userBookingData);
+
+    batch.set(counterRef, { counter: counterId }, { merge: true });
 
     await batch.commit();
 

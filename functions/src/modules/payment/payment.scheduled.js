@@ -60,8 +60,10 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
             }
 
             console.log(`Restoring ${bookingCount} seats for trip ${tripId} on ${selectedDate}`);
-            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
-            batch.update(userBookingRef, { status: "Expired" });
+            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(doc.id);
+            batch.update(userBookingRef, {
+                status: "Expired"
+            });
 
             const tripRef = db.collection("trips").doc(tripId);
             const tripDoc = await tripRef.get();
@@ -92,7 +94,8 @@ const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
 
             batch.update(bookingRef, {
                 users: updatedUsersArray,
-                bookedCount: FieldValue.increment(-bookingCount)
+                bookedCount: FieldValue.increment(-bookingCount),
+                userIds: FieldValue.arrayRemove(userId)
             });
         }
     }
