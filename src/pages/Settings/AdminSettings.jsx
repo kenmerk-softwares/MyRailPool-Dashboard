@@ -40,6 +40,7 @@ export const AdminSettings = () => {
 			
 			const result = await editPermissionsFn({ 
 				id: deletePermissionId, 
+				permissionId: deletePermissionId,
 				operation: "delete" 
 			});
 
@@ -66,6 +67,7 @@ export const AdminSettings = () => {
 			
 			const result = await editPermissionsFn({ 
 				id: revokePermissionId, 
+				permissionId: revokePermissionId,
 				operation: "revoke" 
 			});
 

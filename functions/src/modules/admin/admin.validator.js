@@ -75,10 +75,10 @@ const editPermissionsValidator = (req, data) => {
   }
   const schema = Joi.object({
     id: Joi.string().required(),
-    permissionId: Joi.string().required(),
     operation: Joi.string()
         .required()
         .valid("edit", "delete", "revoke", "restore"),
+    payload: Joi.object().optional(),
   });
 
   const {error, value} = schema.validate(data, {
