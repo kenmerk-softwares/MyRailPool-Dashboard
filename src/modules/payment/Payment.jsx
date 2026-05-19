@@ -259,10 +259,10 @@ const Payment = () => {
           <StatCard title="Online Payments" value={online} icon={RefreshCcw} color="blue" />
         </div>
 
-        <PaymentCharts
+        {/* <PaymentCharts
           revenueData={revenueChartData}
           methodData={methodDistributionData}
-        />
+        /> */}
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
