@@ -2,7 +2,7 @@ import React from 'react';
 import { Clock, CheckCircle2, XCircle, Car, Users, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const StatCard = ({ title, value, icon: Icon, trend, trendUp }) => (
+export const StatCard = ({ title, value, icon: Icon, trend, trendUp, trendLabel = "vs last month" }) => (
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start">
       <div>
@@ -13,12 +13,14 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendUp }) => (
         <Icon className="w-5 h-5 md:w-6 md:h-6" />
       </div>
     </div>
-    <div className="mt-4 flex items-center text-sm">
-      <span className={`font-medium ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-        {trend}
-      </span>
-      <span className="text-slate-400 ml-2">vs last month</span>
-    </div>
+    {trend && (
+      <div className="mt-4 flex items-center text-sm">
+        <span className={`font-medium ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
+          {trend}
+        </span>
+        {trendLabel && <span className="text-slate-400 ml-2">{trendLabel}</span>}
+      </div>
+    )}
   </div>
 );
 
