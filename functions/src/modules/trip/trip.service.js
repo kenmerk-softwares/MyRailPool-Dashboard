@@ -1,4 +1,3 @@
-const {FieldValue} = require("firebase-admin/firestore");
 const {db} = require("../../shared/config/firebase");
 const {adminLogs} = require("../../logs/logs.service");
 
@@ -18,8 +17,8 @@ const addTripService = async (data, req) => {
     const payload = {
       ...fields,
       tripId: tripNo,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       total_bookings: 0,
       createdBy: req.auth.uid,
     };
@@ -37,7 +36,7 @@ const addTripService = async (data, req) => {
     const tripRef = db.collection("trips").doc(id);
     const updatePayload = {
       ...fields,
-      updatedAt: FieldValue.serverTimestamp(),
+      updatedAt: new Date(),
     };
 
     batch.update(tripRef, updatePayload);

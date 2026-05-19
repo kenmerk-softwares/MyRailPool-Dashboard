@@ -1,0 +1,111 @@
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { db } = require("../../shared/config/firebase");
+const { FieldValue } = require("firebase-admin/firestore");
+
+const cleanupExpiredBookings = onSchedule("every 5 minutes", async (event) => {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+    // Query finance collection for pending bookings to avoid needing a composite index
+    const pendingBookingsSnapshot = await db.collection("finance")
+        .where("status", "==", "Pending")
+        .get();
+
+    if (pendingBookingsSnapshot.empty) {
+        return null;
+    }
+
+    const expiredDocs = pendingBookingsSnapshot.docs.filter(doc => {
+        const data = doc.data();
+        if (data.paymentType !== "online") return false;
+        
+        // Handle both Firestore Timestamp and JS Date objects
+        const createdAt = data.createdAt && typeof data.createdAt.toDate === "function" 
+            ? data.createdAt.toDate() 
+            : new Date(data.createdAt);
+            
+        return createdAt <= tenMinutesAgo;
+    });
+
+    if (expiredDocs.length === 0) {
+        return null;
+    }
+
+    console.log(`Found ${expiredDocs.length} expired booking(s). Cleaning up...`);
+
+    const batch = db.batch();
+
+    for (const doc of expiredDocs) {
+        const financeData = doc.data();
+        const { bookingId, userId, tripId } = financeData;
+
+        // 1. Mark finance document as Expired
+        batch.update(doc.ref, { status: "Expired" });
+
+        // 2. Fetch user's specific booking from users subcollection
+        const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingId);
+        const userBookingDoc = await userBookingRef.get();
+
+        if (userBookingDoc.exists) {
+            const bookingData = userBookingDoc.data();
+            const { bookingCount, selectedDate } = bookingData;
+
+            // Mark user's booking history as Expired
+            batch.update(userBookingRef, { status: "Expired" });
+
+            // 3. Restore seats in the trips collection
+            const tripRef = db.collection("trips").doc(tripId);
+            const tripDoc = await tripRef.get();
+
+            if (tripDoc.exists) {
+                const tripData = tripDoc.data();
+                const availableSeatsMap = tripData.available_seats || {};
+                const currentAvailableSeats = availableSeatsMap[selectedDate] ?? tripData.total_seats;
+
+                const newAvailableSeats = currentAvailableSeats + bookingCount;
+                const updatedAvailableSeatsMap = {
+                    ...availableSeatsMap,
+                    [selectedDate]: newAvailableSeats,
+                };
+
+                batch.update(tripRef, {
+                    available_seats: updatedAvailableSeatsMap,
+                    total_bookings: FieldValue.increment(-bookingCount)
+                });
+            }
+
+            // 4. Update the aggregate bookings document
+            const aggregateBookingRef = db.collection("bookings").doc(bookingId);
+            const aggregateBookingDoc = await aggregateBookingRef.get();
+
+            if (aggregateBookingDoc.exists) {
+                const aggregateData = aggregateBookingDoc.data();
+                const usersArray = aggregateData.users || [];
+
+                const updatedUsersArray = usersArray.map(user => {
+                    if (user.userId === userId && user.status === "Pending") {
+                        return { ...user, status: "Expired" };
+                    }
+                    return user;
+                });
+
+                batch.update(aggregateBookingRef, {
+                    users: updatedUsersArray,
+                    bookedCount: FieldValue.increment(-bookingCount)
+                });
+            }
+        }
+    }
+
+    try {
+        await batch.commit();
+        console.log("Successfully cleaned up expired bookings.");
+    } catch (error) {
+        console.error("Error committing batch for expired bookings:", error);
+    }
+
+    return null;
+});
+
+module.exports = {
+    cleanupExpiredBookings
+};

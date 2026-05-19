@@ -32,3 +32,6 @@ exports.tripBooking = tripBooking;
 // ================ PAYMENT MODULES ==================== //
 const {stripeWebhook} = require("./modules/payment/payment.webhook");
 exports.stripeWebhook = stripeWebhook;
+
+const {cleanupExpiredBookings} = require("./modules/payment/payment.scheduled");
+exports.cleanupExpiredBookings = cleanupExpiredBookings;

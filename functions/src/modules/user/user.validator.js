@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const tripBookingValidation = (req) => {
-  const fields = req.data.fields;
+  const fields = req.data;
   const schema = Joi.object({
     tripId: Joi.string().required(),
     bookingCount: Joi.number().required(),
