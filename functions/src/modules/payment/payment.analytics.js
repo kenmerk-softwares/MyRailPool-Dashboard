@@ -28,7 +28,6 @@ const updateAnalyticsData = async (amount, bookingCount, date = new Date(), isCo
     const yearlyRef = db.collection("yearly_analytics").doc(year);
     const weeklyDocId = `${year}_W${week.padStart(2, "0")}`;
     const weeklyRef = db.collection("weekly_analytics").doc(weeklyDocId);
-    
     const totalRef = db.collection("analytics").doc("total");
 
     try {
@@ -75,7 +74,6 @@ const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) 
             
         await updateAnalyticsData(beforeData.amount, beforeData.bookingCount, date, false);
     }
-    
     return null;
 });
 

@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const {callableWrapper} = require("../../shared/utils/callable.wrapper");
-const {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService, cancelTripService} = require("./admin.service");
-const {addAdminValidator, changePasswordValidator, editPermissionsValidator, updateEmployeeSettingsValidator, cancelTripValidator} = require("./admin.validator");
+const {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService, cancelTripService, cancelBookingService} = require("./admin.service");
+const {addAdminValidator, changePasswordValidator, editPermissionsValidator, updateEmployeeSettingsValidator, cancelTripValidator, cancelBookingValidator} = require("./admin.validator");
 
 // ==================== ADD ADMIN USER ==================== //
 const addAdminUser = callableWrapper(async (req) => {
@@ -49,4 +49,14 @@ const cancelTrip = callableWrapper(async (req) => {
   return await cancelTripService(req);
 });
 
-module.exports = {addAdminUser, changePassword, editPermissions, updateEmployeeSettings, cancelTrip};
+// ============== CANCEL BOOKING ==================== //
+const cancelBooking = callableWrapper(async (req) => {
+  const validateData = cancelBookingValidator(req, req.data);
+  if (!validateData.success) {
+    console.log("Validation Failed: ", validateData);
+    return validateData;
+  }
+  return await cancelBookingService(req);
+});
+
+module.exports = {addAdminUser, changePassword, editPermissions, updateEmployeeSettings, cancelTrip, cancelBooking};

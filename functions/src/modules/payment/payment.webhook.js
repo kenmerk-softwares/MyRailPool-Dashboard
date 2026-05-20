@@ -17,7 +17,7 @@ const stripeWebhook = onRequest(async (req, res) => {
 
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
-        const { bookingId, userId } = session.metadata;
+        const { bookingId, userId, financeId } = session.metadata;
 
         if (bookingId) {
             try {
@@ -26,33 +26,43 @@ const stripeWebhook = onRequest(async (req, res) => {
 
                 if (bookingDoc.exists) {
                     const bookingData = bookingDoc.data();
-                    
                     const batch = db.batch();
+                    const paymentIntentId = session.payment_intent;
 
-                    // Correctly update the user's status inside the aggregate bookings document
                     const usersArray = bookingData.users || [];
                     const updatedUsersArray = usersArray.map(user => {
                         if (user.userId === userId && user.status === "Pending") {
-                            return { ...user, status: "Confirmed" };
+                            const updatedUser = { ...user, status: "Confirmed", paymentStatus: "complete" };
+                            if (paymentIntentId) {
+                                updatedUser.paymentIntentId = paymentIntentId;
+                            }
+                            return updatedUser;
                         }
                         return user;
                     });
                     batch.update(bookingRef, { users: updatedUsersArray });
 
-                    const financeSnapshot = await db.collection("finance").where("bookingId", "==", bookingId).limit(1).get();
-                    if (!financeSnapshot.empty) {
-                        const financeDoc = financeSnapshot.docs[0];
-                        batch.update(financeDoc.ref, { status: "Confirmed" });
+                    const financeRef = db.collection("finance").doc(financeId);
+                    const financeDoc = await financeRef.get();
+                    if (financeDoc.exists) {
+                        const financeUpdate = { status: "Confirmed", paymentStatus: "complete" };
+                        if (paymentIntentId) {
+                            financeUpdate.paymentIntentId = paymentIntentId;
+                        }
+                        batch.update(financeRef, financeUpdate);
                         
                         if (userId) {
                             const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
-                            batch.update(userBookingRef, { status: "Confirmed" });
+                            const userBookingUpdate = { status: "Confirmed", paymentStatus: "complete" };
+                            if (paymentIntentId) {
+                                userBookingUpdate.paymentIntentId = paymentIntentId;
+                            }
+                            batch.update(userBookingRef, userBookingUpdate);
                         }
                     }
 
                     await batch.commit();
                     console.log(`Successfully confirmed booking ${bookingId}`);
-
 
                 } else {
                     console.error(`Booking document not found for ID: ${bookingId}`);
@@ -60,6 +70,50 @@ const stripeWebhook = onRequest(async (req, res) => {
             } catch (error) {
                 console.error(`Error updating booking ${bookingId}:`, error);
                 return res.status(500).send("Internal Server Error updating database");
+            }
+        }
+    } else if (event.type === "charge.refunded") {
+        const charge = event.data.object;
+        const paymentIntentId = charge.payment_intent;
+        const stripeRefundId = charge.id;
+        const { financeId, userId, bookingId } = charge.metadata;
+
+        if (paymentIntentId) {
+            try {
+                const financeDoc = await db.collection("finance").doc(financeId).get();
+
+                if (financeDoc.exists) {
+                    const batch = db.batch();
+                    batch.update(financeDoc.ref, { paymentStatus: "refunded", stripeRefundId: stripeRefundId });
+                    if (userId) {
+                        const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeId);
+                        const userBookingUpdate = { paymentStatus: "refunded", stripeRefundId: stripeRefundId };
+                        if (paymentIntentId) {
+                            userBookingUpdate.paymentIntentId = paymentIntentId;
+                        }
+                        batch.update(userBookingRef, userBookingUpdate);
+                    }
+                    if (bookingId) {
+                        const bookingRef = db.collection("bookings").doc(bookingId);
+                        const bookingDoc = await bookingRef.get();
+                        if (bookingDoc.exists) {
+                            const bookingData = bookingDoc.data();
+                            const usersArray = bookingData.users || [];
+                            const updatedUsersArray = usersArray.map(user => {
+                                if (user.userId === userId) {
+                                    return { ...user, paymentStatus: "refunded" };
+                                }
+                                return user;
+                            });
+                            batch.update(bookingRef, { users: updatedUsersArray });
+                        }
+                    }
+                    await batch.commit();
+                    console.log(`Successfully processed refund event for payment intent ${paymentIntentId}`);
+                }
+            } catch (error) {
+                console.error(`Error processing refund event for payment intent ${paymentIntentId}:`, error);
+                return res.status(500).send("Internal Server Error processing refund");
             }
         }
     }
