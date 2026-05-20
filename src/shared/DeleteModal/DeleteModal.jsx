@@ -9,7 +9,8 @@ const DeleteModal = ({
   message = "Are you sure you want to delete this item?", 
   itemName = "",
   loading = false,
-  confirmText = "Delete"
+  confirmText = "Delete",
+  children
 }) => {
   if (!isOpen) return null;
 
@@ -31,6 +32,7 @@ const DeleteModal = ({
           <br />
           This action cannot be undone.
         </p>
+        {children}
         <div className="flex gap-3">
           <button
             onClick={onClose}
