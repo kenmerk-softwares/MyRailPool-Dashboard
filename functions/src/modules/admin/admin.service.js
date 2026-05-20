@@ -369,7 +369,7 @@ const cancelTripService = async (req) => {
 
 // ==================== CANCEL BOOKING SERVICE ==================== //
 const cancelBookingService = async (req) => {
-    const { bookingId, userId } = req.data;
+    const { bookingId, userId, refund } = req.data;
     const bookingRef = db.collection("bookings").doc(bookingId);
     const bookingDoc = await bookingRef.get();
     if (!bookingDoc.exists) {
@@ -411,7 +411,7 @@ const cancelBookingService = async (req) => {
 
     let stripeRefundId = null;
     let paymentStatus = null;
-    if (stripeSessionId && financeData.paymentStatus !== "refunded" && financeData.paymentStatus !== "initiated") {
+    if (refund === true && stripeSessionId && financeData.paymentStatus !== "refunded" && financeData.paymentStatus !== "initiated") {
         try {
             const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
             const session = await stripe.checkout.sessions.retrieve(stripeSessionId);

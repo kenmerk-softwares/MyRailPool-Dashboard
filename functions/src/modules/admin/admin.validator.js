@@ -138,6 +138,7 @@ const cancelTripValidator = (req, data) => {
   }
   const schema = Joi.object({
     tripId: Joi.string().required(),
+    refund: Joi.boolean().required(),
   });
 
   const {error, value} = schema.validate(data, {
@@ -166,6 +167,7 @@ const cancelBookingValidator = (req, data) => {
   const schema = Joi.object({
     bookingId: Joi.string().required(),
     userId: Joi.string().required(),
+    refund: Joi.boolean().required(),
   });
 
   const {error, value} = schema.validate(data, {
