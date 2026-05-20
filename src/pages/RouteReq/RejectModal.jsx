@@ -22,7 +22,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
         onClick={onClose}
       />
 
-      <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="relative bg-white w-[92%] sm:w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 mx-auto">
         <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-between bg-rose-50/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-rose-100 rounded-xl">
@@ -40,9 +40,8 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
 
         <div className="p-6 space-y-6">
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Requesting Customer</span>
-            <p className="text-sm font-bold text-slate-800">{request?.customerName || 'N/A'}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{request?.id || 'N/A'}</p>
+            <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Request ID</span>
+            <p className="text-sm font-bold text-slate-800">{request?.id || 'N/A'}</p>
           </div>
 
           <div className="space-y-2">
@@ -71,17 +70,17 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
           </div>
         </div>
 
-        <div className="px-6 py-6 bg-slate-50 border-t border-slate-100 flex items-center gap-4">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           <button 
             onClick={onClose}
-            className="flex-1 px-4 py-3 rounded-xl text-sm font-black text-slate-500 hover:bg-slate-200 transition-all"
+            className="px-4 py-3 rounded-xl text-sm font-black text-slate-500 hover:bg-slate-200 transition-all w-full sm:flex-1 order-2 sm:order-1"
           >
             Cancel
           </button>
           <button 
             onClick={() => onConfirm(reason, comment)}
             disabled={!reason}
-            className="flex-[2] px-4 py-3 bg-rose-600 text-white rounded-xl text-sm font-black hover:bg-rose-700 transition-all shadow-lg shadow-rose-100 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
+            className="px-4 py-3 bg-rose-600 text-white rounded-xl text-sm font-black hover:bg-rose-700 transition-all shadow-lg shadow-rose-100 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2 w-full sm:flex-[2] order-1 sm:order-2"
           >
             Confirm Rejection
             <Send className="w-4 h-4" />

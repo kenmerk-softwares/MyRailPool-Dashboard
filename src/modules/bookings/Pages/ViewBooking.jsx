@@ -10,6 +10,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { StatusBadge } from '../../../components/Shared';
 import { useDocument } from '../../../shared/hooks/useDocument';
+import { FunctionsAPI } from '../../../shared/services/functions.api';
+import { useToast } from '../../../shared/hooks/ToastContext';
 
 // small reusable field box — label on top, value below
 const Field = ({ label, value, mono = false, highlight }) => (
@@ -37,6 +39,64 @@ const Card = ({ icon: Icon, iconBg = 'bg-primary-50', iconColor = 'text-primary-
   </div>
 );
 
+// Beautiful modal styled identically to DeleteModal for passenger booking cancellation
+const CancelBookingModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  passengerName,
+  refund,
+  setRefund,
+  loading = false,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center animate-in fade-in zoom-in duration-200">
+        <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <XCircle className="w-7 h-7 text-red-500" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900">Cancel Booking</h3>
+        <p className="text-slate-400 text-sm mt-2 mb-4">
+          Are you sure you want to cancel the booking for <span className="font-semibold text-gray-900">{passengerName || 'this passenger'}</span>?
+        </p>
+
+        {/* Refund Checkbox */}
+        <div className="mb-6 flex items-center justify-center gap-2.5 bg-slate-50 border border-slate-100 rounded-xl py-3 px-4">
+          <input
+            type="checkbox"
+            id="refund-modal-checkbox"
+            checked={refund}
+            onChange={(e) => setRefund(e.target.checked)}
+            className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-colors cursor-pointer"
+          />
+          <label htmlFor="refund-modal-checkbox" className="text-xs font-bold text-slate-600 select-none cursor-pointer hover:text-slate-800 transition-colors">
+            Refund booking amount
+          </label>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            Close
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+          >
+            {loading ? 'Cancelling...' : 'Yes, Cancel Booking'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ViewBooking = () => {
   const { id } = useParams();
   const docId = decodeURIComponent(id || '');
@@ -46,6 +106,38 @@ export const ViewBooking = () => {
   const [driver, setDriver] = useState(null);
   const [vehicle, setVehicle] = useState(null);
   const [linkedLoading, setLinkedLoading] = useState(false);
+
+  const { showToast } = useToast();
+  const [cancelModal, setCancelModal] = useState({ isOpen: false, passenger: null });
+  const [refund, setRefund] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  const confirmCancelBooking = async () => {
+    if (!cancelModal.passenger) return;
+    setCancelling(true);
+    try {
+      const response = await FunctionsAPI.cancelBooking({
+        bookingId: booking.bookingId,
+        userId: cancelModal.passenger.userId,
+        refund
+      });
+      if (response?.success === false) {
+        throw new Error(response.error || 'Failed to cancel booking');
+      }
+
+      showToast(response?.message || 'Booking cancelled successfully', 'success');
+
+      // Close modal and refresh the document
+      setCancelModal({ isOpen: false, passenger: null });
+      fetchDocument(docId);
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      const errorMessage = error?.response?.data?.error || error?.message || 'Unknown error occurred';
+      showToast(`Error cancelling booking: ${errorMessage}`, 'error');
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   // load the booking doc when the page opens
   useEffect(() => {
@@ -327,13 +419,27 @@ export const ViewBooking = () => {
                   </div>
 
                   {/* Status footer */}
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
-                    {u.status === 'Confirmed'
-                      ? <><CheckCircle2 className="w-4 h-4 text-emerald-500" /><span className="text-xs font-bold text-emerald-600">Payment Confirmed</span></>
-                      : u.status === 'Cancelled'
-                        ? <><XCircle className="w-4 h-4 text-red-500" /><span className="text-xs font-bold text-red-600">Booking Cancelled</span></>
-                        : <><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs font-bold text-amber-600">Awaiting Payment</span></>
-                    }
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      {u.status === 'Confirmed'
+                        ? <><CheckCircle2 className="w-4 h-4 text-emerald-500" /><span className="text-xs font-bold text-emerald-600">Payment Confirmed</span></>
+                        : u.status === 'Cancelled'
+                          ? <><XCircle className="w-4 h-4 text-red-500" /><span className="text-xs font-bold text-red-600">Booking Cancelled</span></>
+                          : <><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs font-bold text-amber-600">Awaiting Payment</span></>
+                      }
+                    </div>
+
+                    {u.status !== 'Cancelled' && (
+                      <button
+                        onClick={() => {
+                          setRefund(false); // Reset refund selection for safety on open
+                          setCancelModal({ isOpen: true, passenger: u });
+                        }}
+                        className="px-3 py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold text-xs transition-all hover:shadow-sm active:scale-95 flex items-center gap-1.5"
+                      >
+                        <XCircle className="w-3.5 h-3.5" /> Cancel Booking
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -342,6 +448,16 @@ export const ViewBooking = () => {
         </div>
 
       </div>
+
+      <CancelBookingModal
+        isOpen={cancelModal.isOpen}
+        onClose={() => setCancelModal({ isOpen: false, passenger: null })}
+        onConfirm={confirmCancelBooking}
+        passengerName={cancelModal.passenger?.name}
+        refund={refund}
+        setRefund={setRefund}
+        loading={cancelling}
+      />
     </div>
   );
 };
