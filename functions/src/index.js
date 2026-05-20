@@ -3,12 +3,13 @@
 const {setGlobalOptions} = require("firebase-functions");
 setGlobalOptions({region: "asia-south1"});
 // ================ ADMIN MODULES ==================== //
-const {addAdminUser, changePassword, editPermissions, updateEmployeeSettings, cancelTrip} = require("./modules/admin/admin.callable");
+const {addAdminUser, changePassword, editPermissions, updateEmployeeSettings, cancelTrip, cancelBooking} = require("./modules/admin/admin.callable");
 exports.addAdminUser = addAdminUser;
 exports.changePassword = changePassword;
 exports.editPermissions = editPermissions;
 exports.updateEmployeeSettings = updateEmployeeSettings;
 exports.cancelTrip = cancelTrip;
+exports.cancelBooking = cancelBooking;
 
 // ================ ROUTE MODULES ==================== //
 const {addRoute} = require("./modules/route/route.callable");

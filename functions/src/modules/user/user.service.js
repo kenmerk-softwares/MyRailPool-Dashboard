@@ -33,6 +33,7 @@ const bookTripService = async (data) => {
     const totalFare = Number(fare) * bookingCount;
 
     const batch = db.batch();
+    const financeRef = db.collection("finance").doc();
 
     const newAvailableSeats = currentAvailableSeats - bookingCount;
     const updatedAvailableSeatsMap = {
@@ -50,6 +51,7 @@ const bookTripService = async (data) => {
     let sessionId = null;
     let paymentUrl = null;
     const bookingStatus = paymentType === "online" ? "Pending" : "Confirmed";
+    const paymentStatus = bookingStatus === "Pending" ? "pending" : "complete";
 
     if (paymentType === "online") {
         const session = await stripe.checkout.sessions.create({
@@ -74,6 +76,7 @@ const bookTripService = async (data) => {
                 bookingId: bookingRef.id,
                 userId: userId,
                 tripId: tripDoc.id,
+                financeId: financeRef.id,
                 selectedDate: selectedDate
             }
         });
@@ -86,6 +89,7 @@ const bookTripService = async (data) => {
 
     const userDetailsMap = {
         userId,
+        financeId: financeRef.id,
         name: userData.name || userData.displayName || "Unknown",
         phone: userData.phone || userData.phoneNumber || "",
         bookingCount,
@@ -94,6 +98,7 @@ const bookTripService = async (data) => {
         dropPoint,
         totalFare,
         status: bookingStatus,
+        paymentStatus,
         createdAt: new Date(),
         ...(sessionId && { stripeSessionId: sessionId })
     };
@@ -121,7 +126,6 @@ const bookTripService = async (data) => {
     };
     batch.set(bookingRef, bookingData, { merge: true });
 
-    const financeRef = db.collection("finance").doc();
     const financeData = {
         financeId: financeRef.id,
         bookingId: bookingRef.id,
@@ -135,6 +139,7 @@ const bookTripService = async (data) => {
         type: "Credit",
         description: `Booking for trip ${tripData.tripId || tripDoc.id}`,
         status: bookingStatus,
+        paymentStatus,
         tripStatus: "Not Started",
     };
     batch.set(financeRef, financeData);
@@ -167,6 +172,7 @@ const bookTripService = async (data) => {
         dropPoint,
         totalFare,
         status: bookingStatus,
+        paymentStatus,
         createdAt: new Date(),
         tripStatus: "Not Started",
         ...(sessionId && { stripeSessionId: sessionId })

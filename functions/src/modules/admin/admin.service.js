@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 const {db, auth} = require("../../shared/config/firebase");
+const { FieldValue } = require("firebase-admin/firestore");
 const {adminLogs} = require("../../logs/logs.service");
 const {logInfo, logError} = require("../../shared/utils/logger");
 const addAdminUserService = async (payLoad, req) => {
@@ -244,8 +245,6 @@ const updateEmployeeSettingsService = async (req) => {
 // ==================== CANCEL TRIP SERVICE ==================== //
 const cancelTripService = async (req) => {
     const { tripId } = req.data;
-
-    // 1. Fetch the trip
     const tripRef = db.collection("trips").doc(tripId);
     const tripDoc = await tripRef.get();
 
@@ -257,67 +256,268 @@ const cancelTripService = async (req) => {
     if (tripData.status === "Cancelled") {
         return { success: false, error: "Trip is already cancelled" };
     }
-
     const batch = db.batch();
-
-    // 2. Mark the trip as Cancelled
     batch.update(tripRef, {
         status: "Cancelled",
         updatedAt: new Date()
     });
-
-    // 3. Fetch all bookings related to this trip
     const bookingsSnapshot = await db.collection("bookings")
         .where("tripId", "==", tripId)
         .get();
 
     for (const bookingDoc of bookingsSnapshot.docs) {
         const bookingData = bookingDoc.data();
-        const usersArray = bookingData.users || [];
         const bookingId = bookingDoc.id;
+        const usersArray = bookingData.users || [];
+        let updatedUsers = [...usersArray];
 
-        // 4. Cancel all active users in each booking
-        const updatedUsers = usersArray.map(user => {
-            if (user.status === "Confirmed" || user.status === "Pending") {
-                return { ...user, status: "Cancelled", updatedAt: new Date() };
-            }
-            return user;
-        });
-
-        batch.update(bookingDoc.ref, {
-            users: updatedUsers,
-            status: "Cancelled",
-            updatedAt: new Date()
-        });
-
-        // 5. Cancel all finance records for this booking and their corresponding user bookings
         const financeSnapshot = await db.collection("finance")
             .where("bookingId", "==", bookingId)
             .get();
 
         for (const financeDoc of financeSnapshot.docs) {
             const financeData = financeDoc.data();
-            if (financeData.status !== "Cancelled") {
-                batch.update(financeDoc.ref, { status: "Cancelled", updatedAt: new Date() });
+            if (financeData.status === "Cancelled") {
+                continue;
             }
 
             const userId = financeData.userId;
+            let stripeSessionId = null;
+            let stripeRefundId = null;
+            let userBookingRef = null;
+
             if (userId) {
-                const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
-                batch.update(userBookingRef, {
-                    status: "Cancelled",
-                    updatedAt: new Date()
-                });
+                userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
+                const userBookingDoc = await userBookingRef.get();
+                if (userBookingDoc.exists) {
+                    stripeSessionId = userBookingDoc.data().stripeSessionId;
+                }
+            }
+
+            let paymentStatus = null;
+            if (stripeSessionId && financeData.paymentStatus !== "refunded" && financeData.paymentStatus !== "initiated") {
+                try {
+                    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+                    const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+                    if (session && session.payment_intent) {
+                        const refund = await stripe.refunds.create({
+                            payment_intent: session.payment_intent,
+                            metadata: {
+                                financeId: financeDoc.id,
+                                userId,
+                                bookingId
+                            }
+                        });
+                        stripeRefundId = refund.id;
+                        paymentStatus = "initiated";
+                        console.log(`Successfully refunded Stripe payment intent ${session.payment_intent} for trip cancellation`);
+                    } else {
+                        paymentStatus = "refund failed";
+                    }
+                } catch (stripeErr) {
+                    paymentStatus = "refund failed";
+                    console.error(`Stripe refund failed for session ${stripeSessionId}:`, stripeErr.message);
+                }
+            }
+
+            updatedUsers = updatedUsers.map(user => {
+                if (user.userId === userId && (user.status === "Confirmed" || user.status === "Pending")) {
+                    const updatedUser = { ...user, status: "Cancelled", updatedAt: new Date() };
+                    if (paymentStatus) {
+                        updatedUser.paymentStatus = paymentStatus;
+                    }
+                    return updatedUser;
+                }
+                return user;
+            });
+
+            if (financeData.status !== "Cancelled") {
+                const financeUpdate = { status: "Cancelled", updatedAt: new Date() };
+                if (stripeRefundId) {
+                    financeUpdate.stripeRefundId = stripeRefundId;
+                }
+                if (paymentStatus) {
+                    financeUpdate.paymentStatus = paymentStatus;
+                }
+                batch.update(financeDoc.ref, financeUpdate);
+            }
+
+            if (userBookingRef) {
+                const userBookingUpdate = { status: "Cancelled", updatedAt: new Date() };
+                if (stripeRefundId) {
+                    userBookingUpdate.stripeRefundId = stripeRefundId;
+                }
+                if (paymentStatus) {
+                    userBookingUpdate.paymentStatus = paymentStatus;
+                }
+                batch.update(userBookingRef, userBookingUpdate);
             }
         }
+
+        batch.update(bookingDoc.ref, {
+            users: updatedUsers,
+            status: "Cancelled",
+            updatedAt: new Date()
+        });
     }
 
     await batch.commit();
-
     await adminLogs(req.auth.uid, req.auth.token.email, "Cancel Trip", `Cancelled trip ID: ${tripId} (${tripData.tripId || ""})`);
     logInfo(`Trip ${tripId} cancelled successfully by admin`);
-
     return { status: 200, success: true, message: "Trip cancelled successfully" };
 };
 
-module.exports = {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService, cancelTripService};
+// ==================== CANCEL BOOKING SERVICE ==================== //
+const cancelBookingService = async (req) => {
+    const { bookingId, userId } = req.data;
+    const bookingRef = db.collection("bookings").doc(bookingId);
+    const bookingDoc = await bookingRef.get();
+    if (!bookingDoc.exists) {
+        return { success: false, error: "Booking not found" };
+    }
+    const bookingData = bookingDoc.data();
+    const usersArray = bookingData.users || [];
+    const userObj = usersArray.find(u => u.userId === userId && u.status !== "Cancelled");
+    if (!userObj || !userObj.financeId) {
+        return { success: false, error: "Active user booking not found" };
+    }
+    const financeId = userObj.financeId;
+    const financeRef = db.collection("finance").doc(financeId);
+    const financeDoc = await financeRef.get();
+
+    if (!financeDoc.exists) {
+        return { success: false, error: "Booking transaction not found" };
+    }
+
+    const financeData = financeDoc.data();
+    if (financeData.status === "Cancelled") {
+        return { success: false, error: "Booking is already cancelled" };
+    }
+
+    const bookingCount = financeData.bookingCount;
+
+    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeId);
+    const userBookingDoc = await userBookingRef.get();
+    let passengersToRemove = [];
+    let selectedDate = null;
+    let stripeSessionId = null;
+    
+    if (userBookingDoc.exists) {
+        const userBookingData = userBookingDoc.data();
+        passengersToRemove = userBookingData.passengers || [];
+        selectedDate = userBookingData.selectedDate;
+        stripeSessionId = userBookingData.stripeSessionId;
+    }
+
+    let stripeRefundId = null;
+    let paymentStatus = null;
+    if (stripeSessionId && financeData.paymentStatus !== "refunded" && financeData.paymentStatus !== "initiated") {
+        try {
+            const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+            const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+            if (session && session.payment_intent) {
+                const refund = await stripe.refunds.create({
+                    payment_intent: session.payment_intent,
+                    metadata: {
+                        financeId,
+                        userId,
+                        bookingId
+                    }
+                });
+                stripeRefundId = refund.id;
+                paymentStatus = "initiated";
+                console.log(`Successfully refunded Stripe payment intent ${session.payment_intent} for booking ${bookingId}`);
+            } else {
+                paymentStatus = "refund failed";
+            }
+        } catch (stripeErr) {
+            paymentStatus = "refund failed";
+            console.error(`Stripe refund failed for session ${stripeSessionId}:`, stripeErr.message);
+        }
+    }
+
+    const batch = db.batch();
+    
+    const financeUpdate = {
+        status: "Cancelled",
+        updatedAt: new Date()
+    };
+    if (stripeRefundId) {
+        financeUpdate.stripeRefundId = stripeRefundId;
+    }
+    if (paymentStatus) {
+        financeUpdate.paymentStatus = paymentStatus;
+    }
+    batch.update(financeRef, financeUpdate);
+
+    const userBookingUpdate = {
+        status: "Cancelled",
+        updatedAt: new Date()
+    };
+    if (stripeRefundId) {
+        userBookingUpdate.stripeRefundId = stripeRefundId;
+    }
+    if (paymentStatus) {
+        userBookingUpdate.paymentStatus = paymentStatus;
+    }
+    batch.update(userBookingRef, userBookingUpdate);
+
+    if (!selectedDate) {
+        selectedDate = bookingData.selectedDate;
+    }
+
+    const updatedUsers = usersArray.map(user => {
+        if (user.userId === userId && user.financeId === financeId) {
+            const updatedUser = { ...user, status: "Cancelled", updatedAt: new Date() };
+            if (paymentStatus) {
+                updatedUser.paymentStatus = paymentStatus;
+            }
+            return updatedUser;
+        }
+        return user;
+    });
+
+    const activeUsersCount = updatedUsers.filter(u => u.status !== "Cancelled" && u.status !== "Expired").length;
+    const newStatus = activeUsersCount === 0 ? "Cancelled" : (bookingData.status || "Confirmed");
+
+    const bookingUpdate = {
+        users: updatedUsers,
+        bookedCount: FieldValue.increment(-bookingCount),
+        userIds: FieldValue.arrayRemove(userId),
+        status: newStatus,
+        updatedAt: new Date()
+    };
+
+    if (passengersToRemove.length > 0) {
+        bookingUpdate.passengers = FieldValue.arrayRemove(...passengersToRemove);
+    }
+
+    batch.update(bookingRef, bookingUpdate);
+    if (selectedDate) {
+        const tripRef = db.collection("trips").doc(financeData.tripId);
+        const tripDoc = await tripRef.get();
+
+        if (tripDoc.exists) {
+            const tripData = tripDoc.data();
+            const availableSeatsMap = tripData.available_seats || {};
+            const currentAvailableSeats = availableSeatsMap[selectedDate] ?? tripData.total_seats;
+
+            const newAvailableSeats = currentAvailableSeats + bookingCount;
+            const updatedAvailableSeatsMap = {
+                ...availableSeatsMap,
+                [selectedDate]: newAvailableSeats,
+            };
+
+            batch.update(tripRef, {
+                available_seats: updatedAvailableSeatsMap,
+                updatedAt: new Date()
+            });
+        }
+    }
+    await batch.commit();
+    await adminLogs(req.auth.uid, req.auth.token.email, "Cancel Booking", `Cancelled booking ID: ${bookingId} (financeId: ${financeId}) for user ${userId}`);
+    logInfo(`Booking ${bookingId} for user ${userId} cancelled successfully by admin`);
+    return { status: 200, success: true, message: "Booking cancelled successfully" };
+};
+
+module.exports = {addAdminUserService, changePasswordService, editPermissionsService, updateEmployeeSettingsService, cancelTripService, cancelBookingService};
