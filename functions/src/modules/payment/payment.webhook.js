@@ -1,7 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db } = require("../../shared/config/firebase");
 const stripeWebhook = onRequest(async (req, res) => {
-    // Initialize inside the function to ensure env vars are populated
     const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -84,7 +83,7 @@ const stripeWebhook = onRequest(async (req, res) => {
 
                 if (financeDoc.exists) {
                     const batch = db.batch();
-                    batch.update(financeDoc.ref, { paymentStatus: "refunded", stripeRefundId: stripeRefundId });
+                    batch.update(financeDoc.ref, { paymentStatus: "refunded", stripeRefundId: stripeRefundId, refundDate: new Date() });
                     if (userId) {
                         const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeId);
                         const userBookingUpdate = { paymentStatus: "refunded", stripeRefundId: stripeRefundId };
