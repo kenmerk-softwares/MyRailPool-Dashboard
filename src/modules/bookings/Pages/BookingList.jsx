@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Eye, Plus } from 'lucide-react';
-import { SectionHeader, StatusBadge } from '../../../components/Shared';
+import { SectionHeader } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useNavigate } from 'react-router-dom';
 import { useBookings } from '../hooks/booking.useBookings';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Eye, MapPin, Calendar, User, Car, Loader2, ArrowRight, XCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, MapPin, Calendar, Loader2, ArrowRight, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';

@@ -2,13 +2,13 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { db } = require("../../shared/config/firebase");
 const bookTripService = async (data) => {
     const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate } = data;
+    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
     if (!tripDoc.exists) {
         return { success: false, message: "Trip not found" };
     }
-    
+
     const tripData = tripDoc.data();
 
     const counterRef = db.collection("configurations").doc("booking-settings");
@@ -47,7 +47,7 @@ const bookTripService = async (data) => {
 
     const bookingDocId = `${tripId}_${selectedDate}`;
     const bookingRef = db.collection("bookings").doc(bookingDocId);
-    
+
     let sessionId = null;
     let paymentUrl = null;
     const bookingStatus = paymentType === "online" ? "Pending" : "Confirmed";
@@ -59,7 +59,7 @@ const bookTripService = async (data) => {
             line_items: [
                 {
                     price_data: {
-                        currency: "eur", 
+                        currency: "eur",
                         product_data: {
                             name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
                             description: `Booking for ${bookingCount} passenger(s) on ${selectedDate}`,
@@ -98,6 +98,8 @@ const bookTripService = async (data) => {
         dropPoint,
         totalFare,
         status: bookingStatus,
+        boardingPoint,
+        dropOffPoint,
         paymentStatus,
         createdAt: new Date(),
         ...(sessionId && { stripeSessionId: sessionId })
@@ -162,16 +164,15 @@ const bookTripService = async (data) => {
         route_type: tripData.route_type || "",
         selectedDate,
         updatedAt: new Date(),
-        totalSeats: tripData.total_seats,
         passengers: data.passengers,
-        name: userData.name || userData.displayName || "Unknown",
-        phone: userData.phone || userData.phoneNumber || "",
         bookingCount,
         paymentType,
         startingPoint,
         dropPoint,
         totalFare,
         status: bookingStatus,
+        boardingPoint,
+        dropOffPoint,
         paymentStatus,
         createdAt: new Date(),
         tripStatus: "Not Started",
@@ -314,4 +315,4 @@ const createUserService = async (data) => {
     return { success: true, message: "User created successfully" };
 };
 
-module.exports = {bookTripService, createUserService};
+module.exports = { bookTripService, createUserService };

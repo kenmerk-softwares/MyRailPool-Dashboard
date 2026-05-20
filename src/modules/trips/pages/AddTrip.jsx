@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Save,
   User,
   Car,
   Calendar,
-  Clock,
   FileText,
   Users,
   Hash,
@@ -15,22 +14,18 @@ import {
   MapPin,
   ChevronLeft,
   Loader2,
-  AlertCircle
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
-import { collection, getDocs, query, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { Autocomplete } from '../../../components/Shared';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import {  useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 
 export const AddTrip = () => {
-  const location = useLocation();
-  const requestData = location.state || {};
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   
   // Local state for isolated autocompletes
@@ -117,16 +112,19 @@ export const AddTrip = () => {
   useEffect(() => {
     const timer = setTimeout(() => fetchDriversLocal(driverSearch), 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch, formData.driver]);
 
   useEffect(() => {
     const timer = setTimeout(() => fetchVehiclesLocal(vehicleSearch), 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleSearch, formData.vehicle_reg]);
 
   useEffect(() => {
     const timer = setTimeout(() => fetchRoutesLocal(routeSearch), 400);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeSearch, formData.route]);
 
 
@@ -220,14 +218,7 @@ export const AddTrip = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Preparing Trip Registry...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">

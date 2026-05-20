@@ -11,9 +11,11 @@ const tripBookingValidation = (req) => {
     dropPoint: Joi.string().required(),
     selectedDate: Joi.string().required(),
     passengers: Joi.array().required(),
+    boardingPoint: Joi.object().required(),
+    dropOffPoint: Joi.object().required(),
   });
 
-  const {error, value} = schema.validate(fields, {
+  const { error, value } = schema.validate(fields, {
     abortEarly: false,
     stripUnknown: true,
   });
@@ -49,7 +51,7 @@ const createUserValidation = (req) => {
     profileImage: Joi.string().allow("").optional(),
   });
 
-  const {error, value} = schema.validate(fields, {
+  const { error, value } = schema.validate(fields, {
     abortEarly: false,
     stripUnknown: true,
   });
