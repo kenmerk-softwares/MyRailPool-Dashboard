@@ -13,15 +13,26 @@ const NotificationItem = ({ notification, onClick }) => {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h4 className="text-sm font-bold text-slate-900 truncate">{notification.customerName}</h4>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{notification.requestSentTime}</span>
+            <h4 className="text-sm font-bold text-slate-900 truncate">Route Request {notification.id ? `#${notification.id.slice(-4)}` : ''}</h4>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{notification.createdAt ? new Date(notification.createdAt).toLocaleDateString() : notification.requestSentTime}</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
             <MapPin className="w-3 h-3 flex-shrink-0" />
-            <span className="truncate">{notification.pickup} → {notification.drop}</span>
+            <span className="truncate">{notification.from || notification.pickup} → {notification.to || notification.drop}</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {notification.routeDates.map((date, idx) => (
+            {notification.schedules ? notification.schedules.map((sched, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-medium text-slate-600">
+                <Calendar className="w-2.5 h-2.5" />
+                <span>{sched.date}</span>
+                {sched.time && sched.time.length > 0 && (
+                  <>
+                    <Clock className="w-2.5 h-2.5 ml-1" />
+                    <span>{sched.time[0]}</span>
+                  </>
+                )}
+              </div>
+            )) : notification.routeDates?.map((date, idx) => (
               <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-medium text-slate-600">
                 <Calendar className="w-2.5 h-2.5" />
                 <span>{new Date(date).toLocaleDateString()}</span>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -14,6 +14,8 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { FaPaypal } from 'react-icons/fa';
+import { getCountFromServer, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../shared/services/firebase';
 
 const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile, badge }) => {
   const location = useLocation();
@@ -41,7 +43,25 @@ const SidebarItem = ({ icon: Icon, label, path, onClick, isMobile, badge }) => {
   );
 };
 
+export const RequestCount = () => {
+  const [requestCount, setRequestCount] = useState(0);
+
+  useEffect(() => {
+    const requestsRef = collection(db, "route_request");
+    const q = query(requestsRef, where("status", "==", "Pending"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setRequestCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return requestCount;
+};
+
 export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
+  const requestCount = RequestCount();
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/bookings', label: 'Bookings', icon: CalendarCheck },
@@ -50,7 +70,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/drivers', label: 'Drivers', icon: Users },
     { path: '/vehicles', label: 'Vehicles', icon: Car },
     { path: '/payment', label: 'Payment Status', icon: FaPaypal },
-    { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: 2 },
+    { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: requestCount },
     { path: '/notifications', label: 'Notifications', icon: Bell },
     { path: '/notification-modals', label: 'Notification Modals', icon: MessageSquare },
     { path: '/reports', label: 'Reports & Analytics', icon: TrendingUp },
