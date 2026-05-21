@@ -95,7 +95,7 @@ const sendBookingConfirmationNotification = async (user, bookingId, date) => {
             type: type,
             bookingId: bookingId,
         };
-        
+
         return await sendPushNotification(user.userId, title, body, dataPayload);
     } catch (error) {
         console.error("Error sending booking confirmation notification:", error);
@@ -129,7 +129,7 @@ const sendTripCancellationNotification = async (user, bookingId, date) => {
             type: type,
             bookingId: bookingId,
         };
-        
+
         return await sendPushNotification(user.userId, title, body, dataPayload);
     } catch (error) {
         console.error("Error sending trip cancellation notification:", error);
@@ -147,11 +147,20 @@ const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event)
     const beforeUsers = beforeData ? (beforeData.users || []) : [];
     const afterUsers = afterData.users || [];
 
+    // Deduplicate by (userId + financeId) to avoid sending multiple notifications
+    // when a multi-date booking creates separate booking docs with the same financeId.
+    const notifiedConfirmationKeys = new Set();
+    const notifiedCancellationKeys = new Set();
+
     for (const afterUser of afterUsers) {
         const wasConfirmedBefore = beforeUsers.some(u => u.userId === afterUser.userId && u.status === "Confirmed");
         const wasPendingBefore = beforeUsers.some(u => u.userId === afterUser.userId && u.status === "Pending");
         const isConfirmedNow = afterUser.status === "Confirmed";
         const isCancelledNow = afterUser.status === "Cancelled";
+
+        const financeId = afterUser.financeId || null;
+        // Dedup key: prefer financeId (groups all dates of a multi-booking), fall back to userId alone.
+        const dedupKey = financeId ? `${afterUser.userId}:${financeId}` : afterUser.userId;
 
         const enrichedUser = {
             ...afterUser,
@@ -161,17 +170,20 @@ const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event)
         };
         const selectedDate = afterData.selectedDate;
 
-        // Confirmation Notification
         if (!wasConfirmedBefore && isConfirmedNow) {
-            await sendBookingConfirmationNotification(enrichedUser, event.params.bookingId, selectedDate);
+            if (!notifiedConfirmationKeys.has(dedupKey)) {
+                notifiedConfirmationKeys.add(dedupKey);
+                await sendBookingConfirmationNotification(enrichedUser, event.params.bookingId, selectedDate);
+            }
         }
-
-        // Cancellation Notification
         if ((wasConfirmedBefore || wasPendingBefore) && isCancelledNow) {
-            await sendTripCancellationNotification(enrichedUser, event.params.bookingId, selectedDate);
+            if (!notifiedCancellationKeys.has(dedupKey)) {
+                notifiedCancellationKeys.add(dedupKey);
+                await sendTripCancellationNotification(enrichedUser, event.params.bookingId, selectedDate);
+            }
         }
     }
-    
+
     return null;
 });
 
