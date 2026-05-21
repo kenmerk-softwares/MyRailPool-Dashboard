@@ -16,42 +16,67 @@ const stripeWebhook = onRequest(async (req, res) => {
 
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
-        const { bookingId, userId, financeId } = session.metadata;
-
+        const { bookingId, userId, financeId, bookingNos } = session.metadata;
+        let bookingIds = [];
         if (bookingId) {
+            bookingIds = bookingId.split(",");
+        }
+        let finalBookingNos = bookingNos ? bookingNos.split(",") : [];
+
+        if (financeId || bookingIds.length > 0) {
             try {
-                const bookingRef = db.collection("bookings").doc(bookingId);
-                const bookingDoc = await bookingRef.get();
+                let finalBookingIds = [...bookingIds];
 
-                if (bookingDoc.exists) {
-                    const bookingData = bookingDoc.data();
-                    const batch = db.batch();
-                    const paymentIntentId = session.payment_intent;
-
-                    const usersArray = bookingData.users || [];
-                    const updatedUsersArray = usersArray.map(user => {
-                        if (user.userId === userId && user.status === "Pending") {
-                            const updatedUser = { ...user, status: "Confirmed", paymentStatus: "complete" };
-                            if (paymentIntentId) {
-                                updatedUser.paymentIntentId = paymentIntentId;
-                            }
-                            return updatedUser;
-                        }
-                        return user;
-                    });
-                    batch.update(bookingRef, { users: updatedUsersArray });
-
-                    const financeRef = db.collection("finance").doc(financeId);
-                    const financeDoc = await financeRef.get();
+                if (financeId) {
+                    const financeDoc = await db.collection("finance").doc(financeId).get();
                     if (financeDoc.exists) {
-                        const financeUpdate = { status: "Confirmed", paymentStatus: "complete" };
-                        if (paymentIntentId) {
-                            financeUpdate.paymentIntentId = paymentIntentId;
+                        const bookingIdVal = financeDoc.data().bookingId;
+                        if (bookingIdVal) {
+                            finalBookingIds = Array.isArray(bookingIdVal) ? bookingIdVal : [bookingIdVal];
                         }
-                        batch.update(financeRef, financeUpdate);
-                        
-                        if (userId) {
-                            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
+                        const bookingNosVal = financeDoc.data().bookingNos;
+                        if (bookingNosVal) {
+                            finalBookingNos = Array.isArray(bookingNosVal) ? bookingNosVal : [bookingNosVal];
+                        }
+                    }
+                }
+
+                const batch = db.batch();
+                const paymentIntentId = session.payment_intent;
+
+                for (const bid of finalBookingIds) {
+                    const bookingRef = db.collection("bookings").doc(bid);
+                    const bookingDoc = await bookingRef.get();
+
+                    if (bookingDoc.exists) {
+                        const bookingData = bookingDoc.data();
+                        const usersArray = bookingData.users || [];
+                        const updatedUsersArray = usersArray.map(user => {
+                            if (user.userId === userId && user.status === "Pending") {
+                                const updatedUser = { ...user, status: "Confirmed", paymentStatus: "complete" };
+                                if (paymentIntentId) {
+                                    updatedUser.paymentIntentId = paymentIntentId;
+                                }
+                                return updatedUser;
+                            }
+                            return user;
+                        });
+                        batch.update(bookingRef, { users: updatedUsersArray });
+                    }
+                }
+
+                if (financeId) {
+                    const financeRef = db.collection("finance").doc(financeId);
+                    const financeUpdate = { status: "Confirmed", paymentStatus: "complete" };
+                    if (paymentIntentId) {
+                        financeUpdate.paymentIntentId = paymentIntentId;
+                    }
+                    batch.update(financeRef, financeUpdate);
+
+                    if (userId) {
+                        for (const bNo of finalBookingNos) {
+                            const bookingNoSafe = bNo.replace(/\//g, "-");
+                            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingNoSafe);
                             const userBookingUpdate = { status: "Confirmed", paymentStatus: "complete" };
                             if (paymentIntentId) {
                                 userBookingUpdate.paymentIntentId = paymentIntentId;
@@ -59,15 +84,12 @@ const stripeWebhook = onRequest(async (req, res) => {
                             batch.update(userBookingRef, userBookingUpdate);
                         }
                     }
-
-                    await batch.commit();
-                    console.log(`Successfully confirmed booking ${bookingId}`);
-
-                } else {
-                    console.error(`Booking document not found for ID: ${bookingId}`);
                 }
+
+                await batch.commit();
+                console.log(`Successfully confirmed bookings: ${finalBookingIds.join(", ")}`);
             } catch (error) {
-                console.error(`Error updating booking ${bookingId}:`, error);
+                console.error(`Error updating bookings:`, error);
                 return res.status(500).send("Internal Server Error updating database");
             }
         }
@@ -84,16 +106,27 @@ const stripeWebhook = onRequest(async (req, res) => {
                 if (financeDoc.exists) {
                     const batch = db.batch();
                     batch.update(financeDoc.ref, { paymentStatus: "refunded", stripeRefundId: stripeRefundId, refundDate: new Date() });
+                    
+                    const financeData = financeDoc.data();
+                    const bookingNosVal = financeData.bookingNos;
+                    const bookingNosList = Array.isArray(bookingNosVal) ? bookingNosVal : (typeof bookingNosVal === "string" ? bookingNosVal.split(",") : []);
+
                     if (userId) {
-                        const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeId);
-                        const userBookingUpdate = { paymentStatus: "refunded", stripeRefundId: stripeRefundId };
-                        if (paymentIntentId) {
-                            userBookingUpdate.paymentIntentId = paymentIntentId;
+                        for (const bNo of bookingNosList) {
+                            const bookingNoSafe = bNo.replace(/\//g, "-");
+                            const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingNoSafe);
+                            const userBookingUpdate = { paymentStatus: "refunded", stripeRefundId: stripeRefundId };
+                            if (paymentIntentId) {
+                                userBookingUpdate.paymentIntentId = paymentIntentId;
+                            }
+                            batch.update(userBookingRef, userBookingUpdate);
                         }
-                        batch.update(userBookingRef, userBookingUpdate);
                     }
-                    if (bookingId) {
-                        const bookingRef = db.collection("bookings").doc(bookingId);
+                    const bookingIdVal = financeData.bookingId || bookingId;
+                    const bookingIdsList = Array.isArray(bookingIdVal) ? bookingIdVal : (typeof bookingIdVal === "string" ? bookingIdVal.split(",") : [bookingIdVal]);
+
+                    for (const bid of bookingIdsList) {
+                        const bookingRef = db.collection("bookings").doc(bid);
                         const bookingDoc = await bookingRef.get();
                         if (bookingDoc.exists) {
                             const bookingData = bookingDoc.data();
@@ -116,7 +149,7 @@ const stripeWebhook = onRequest(async (req, res) => {
             }
         }
     }
-    res.json({received: true});
+    res.json({ received: true });
 });
 
 module.exports = {
