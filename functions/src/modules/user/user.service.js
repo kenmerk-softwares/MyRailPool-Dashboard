@@ -13,16 +13,16 @@ const bookTripService = async (data) => {
 
     const counterRef = db.collection("configurations").doc("booking-settings");
     const counterDoc = await counterRef.get();
-    let counterId = 1;
-    if (counterDoc.exists && counterDoc.data().counter) {
-        counterId = counterDoc.data().counter + 1;
-    }
-    const bookingNo = `MRP/TB/${counterId}`;
+    const baseCounter = (counterDoc.exists && counterDoc.data().counter) ? counterDoc.data().counter : 0;
+    let counterId = baseCounter + 1;
 
     const availableSeatsMap = tripData.available_seats || {};
-    const currentAvailableSeats = availableSeatsMap[selectedDate] ?? tripData.total_seats;
-    if (currentAvailableSeats < bookingCount) {
-        return { success: false, message: "Not enough seats available for the selected date" };
+    const dates = Array.isArray(selectedDate) ? selectedDate : [selectedDate];
+    for (const date of dates) {
+        const currentAvailableSeats = availableSeatsMap[date] ?? tripData.total_seats;
+        if (currentAvailableSeats < bookingCount) {
+            return { success: false, message: `Not enough seats available for the date ${date}` };
+        }
     }
 
     const routeKey = `${startingPoint}-${dropPoint}`;
@@ -30,23 +30,33 @@ const bookTripService = async (data) => {
     if (!fare) {
         return { success: false, message: "Fare not configured for the selected route" };
     }
-    const totalFare = Number(fare) * bookingCount;
+    const totalFare = Number(fare) * bookingCount * dates.length;
 
     const batch = db.batch();
     const financeRef = db.collection("finance").doc();
 
-    const newAvailableSeats = currentAvailableSeats - bookingCount;
-    const updatedAvailableSeatsMap = {
-        ...availableSeatsMap,
-        [selectedDate]: newAvailableSeats,
-    };
+    const updatedAvailableSeatsMap = { ...availableSeatsMap };
+    for (const date of dates) {
+        const currentAvailableSeats = updatedAvailableSeatsMap[date] ?? tripData.total_seats;
+        updatedAvailableSeatsMap[date] = currentAvailableSeats - bookingCount;
+    }
     batch.update(tripDoc.ref, {
         available_seats: updatedAvailableSeatsMap,
-        total_bookings: FieldValue.increment(bookingCount),
+        total_bookings: FieldValue.increment(bookingCount * dates.length),
     });
 
-    const bookingDocId = `${tripId}_${selectedDate}`;
-    const bookingRef = db.collection("bookings").doc(bookingDocId);
+    const bookingIds = [];
+    const bookingNos = [];
+    const now = new Date();
+    const pad = (num) => String(num).padStart(2, "0");
+    const bookingTime = `${pad(now.getHours())}${pad(now.getMinutes())}`;
+
+    for (let i = 0; i < dates.length; i++) {
+        const date = dates[i];
+        const bookingDocId = `${tripId}_${date}`;
+        bookingIds.push(bookingDocId);
+        bookingNos.push(`MRP/TB/${date}/${bookingTime}/${counterId + i}`);
+    }
 
     let sessionId = null;
     let paymentUrl = null;
@@ -62,7 +72,7 @@ const bookTripService = async (data) => {
                         currency: "eur",
                         product_data: {
                             name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
-                            description: `Booking for ${bookingCount} passenger(s) on ${selectedDate}`,
+                            description: `Booking for ${bookingCount} passenger(s) on ${dates.join(", ")}`,
                         },
                         unit_amount: Math.round(totalFare * 100),
                     },
@@ -73,11 +83,12 @@ const bookTripService = async (data) => {
             success_url: `http://localhost:5173/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `http://localhost:5173/payment/cancel`,
             metadata: {
-                bookingId: bookingRef.id,
+                bookingId: bookingIds.slice(0, 5).join(","),
+                bookingNos: bookingNos.join(","),
                 userId: userId,
                 tripId: tripDoc.id,
                 financeId: financeRef.id,
-                selectedDate: selectedDate
+                selectedDate: dates.slice(0, 5).join(",")
             }
         });
         sessionId = session.id;
@@ -87,50 +98,61 @@ const bookTripService = async (data) => {
     const userDoc = await db.collection("users").doc(userId).get();
     const userData = userDoc.exists ? userDoc.data() : {};
 
-    const userDetailsMap = {
-        userId,
-        financeId: financeRef.id,
-        name: userData.name || userData.displayName || "Unknown",
-        phone: userData.phone || userData.phoneNumber || "",
-        bookingCount,
-        paymentType,
-        startingPoint,
-        dropPoint,
-        totalFare,
-        status: bookingStatus,
-        boardingPoint,
-        dropOffPoint,
-        paymentStatus,
-        createdAt: new Date(),
-        ...(sessionId && { stripeSessionId: sessionId })
-    };
+    const singleBookingFare = Number(fare) * bookingCount;
 
-    const bookingData = {
-        bookingId: bookingRef.id,
-        bookingNo: bookingNo,
-        tripId: tripDoc.id,
-        tripNo: tripData.tripId,
-        driver_id: tripData.driver_id || "",
-        driver_name: tripData.driver_name || "",
-        vehicle_id: tripData.vehicle_id || "",
-        route_id: tripData.route_id || "",
-        route_name: tripData.route_name || "",
-        route_start: tripData.routes && tripData.routes.length > 0 ? tripData.routes[0] : "",
-        route_end: tripData.routes && tripData.routes.length > 0 ? tripData.routes[tripData.routes.length - 1] : "",
-        route_type: tripData.route_type || "",
-        selectedDate,
-        updatedAt: new Date(),
-        totalSeats: tripData.total_seats,
-        bookedCount: FieldValue.increment(bookingCount),
-        users: FieldValue.arrayUnion(userDetailsMap),
-        passengers: FieldValue.arrayUnion(...data.passengers),
-        userIds: FieldValue.arrayUnion(userId),
-    };
-    batch.set(bookingRef, bookingData, { merge: true });
+    for (let i = 0; i < dates.length; i++) {
+        const date = dates[i];
+        const bookingDocId = bookingIds[i];
+        const bookingRef = db.collection("bookings").doc(bookingDocId);
+        const bookingNo = bookingNos[i];
+
+        const userDetailsMap = {
+            userId,
+            financeId: financeRef.id,
+            bookingNo,
+            name: userData.name || userData.displayName || "Unknown",
+            phone: userData.phone || userData.phoneNumber || "",
+            bookingCount,
+            paymentType,
+            startingPoint,
+            dropPoint,
+            totalFare: singleBookingFare,
+            status: bookingStatus,
+            boardingPoint,
+            dropOffPoint,
+            paymentStatus,
+            createdAt: new Date(),
+            ...(sessionId && { stripeSessionId: sessionId })
+        };
+
+        const bookingData = {
+            bookingId: bookingRef.id,
+            bookingNo: bookingNo,
+            tripId: tripDoc.id,
+            tripNo: tripData.tripId,
+            driver_id: tripData.driver_id || "",
+            driver_name: tripData.driver_name || "",
+            vehicle_id: tripData.vehicle_id || "",
+            route_id: tripData.route_id || "",
+            route_name: tripData.route_name || "",
+            route_start: tripData.routes && tripData.routes.length > 0 ? tripData.routes[0] : "",
+            route_end: tripData.routes && tripData.routes.length > 0 ? tripData.routes[tripData.routes.length - 1] : "",
+            route_type: tripData.route_type || "",
+            selectedDate: date,
+            updatedAt: new Date(),
+            totalSeats: tripData.total_seats,
+            bookedCount: FieldValue.increment(bookingCount),
+            users: FieldValue.arrayUnion(userDetailsMap),
+            passengers: FieldValue.arrayUnion(...data.passengers),
+            userIds: FieldValue.arrayUnion(userId),
+        };
+        batch.set(bookingRef, bookingData, { merge: true });
+    }
 
     const financeData = {
         financeId: financeRef.id,
-        bookingId: bookingRef.id,
+        bookingId: bookingIds,
+        bookingNos: bookingNos,
         amount: totalFare,
         userId,
         bookingCount,
@@ -143,52 +165,61 @@ const bookTripService = async (data) => {
         status: bookingStatus,
         paymentStatus,
         tripStatus: "Not Started",
+        multiBookings: data.multiBookings || false,
     };
     batch.set(financeRef, financeData);
 
-    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeRef.id);
+    for (let i = 0; i < dates.length; i++) {
+        const date = dates[i];
+        const bookingDocId = bookingIds[i];
+        const bookingNo = bookingNos[i];
+        const bookingNoSafe = bookingNo.replace(/\//g, "-");
+        const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingNoSafe);
 
-    const userBookingData = {
-        bookingId: userBookingRef.id,
-        bookingsDocId: bookingRef.id,
-        bookingNo: bookingNo,
-        tripId: tripDoc.id,
-        tripNo: tripData.tripId,
-        driver_id: tripData.driver_id || "",
-        driver_name: tripData.driver_name || "",
-        vehicle_id: tripData.vehicle_id || "",
-        route_id: tripData.route_id || "",
-        route_name: tripData.route_name || "",
-        route_start: tripData.routes && tripData.routes.length > 0 ? tripData.routes[0] : "",
-        route_end: tripData.routes && tripData.routes.length > 0 ? tripData.routes[tripData.routes.length - 1] : "",
-        route_type: tripData.route_type || "",
-        selectedDate,
-        updatedAt: new Date(),
-        passengers: data.passengers,
-        bookingCount,
-        paymentType,
-        startingPoint,
-        dropPoint,
-        totalFare,
-        status: bookingStatus,
-        boardingPoint,
-        dropOffPoint,
-        paymentStatus,
-        createdAt: new Date(),
-        tripStatus: "Not Started",
-        ...(sessionId && { stripeSessionId: sessionId })
-    };
+        const userBookingData = {
+            bookingId: bookingNoSafe,
+            bookingsDocId: [bookingDocId],
+            bookingNo: bookingNo,
+            tripId: tripDoc.id,
+            tripNo: tripData.tripId,
+            driver_id: tripData.driver_id || "",
+            driver_name: tripData.driver_name || "",
+            vehicle_id: tripData.vehicle_id || "",
+            route_id: tripData.route_id || "",
+            route_name: tripData.route_name || "",
+            route_start: tripData.routes && tripData.routes.length > 0 ? tripData.routes[0] : "",
+            route_end: tripData.routes && tripData.routes.length > 0 ? tripData.routes[tripData.routes.length - 1] : "",
+            route_type: tripData.route_type || "",
+            selectedDate: date,
+            updatedAt: new Date(),
+            passengers: data.passengers,
+            bookingCount,
+            paymentType,
+            startingPoint,
+            dropPoint,
+            totalFare: singleBookingFare,
+            status: bookingStatus,
+            boardingPoint,
+            dropOffPoint,
+            paymentStatus,
+            createdAt: new Date(),
+            tripStatus: "Not Started",
+            multiBookings: data.multiBookings || false,
+            financeId: financeRef.id,
+            ...(sessionId && { stripeSessionId: sessionId })
+        };
 
-    batch.set(userBookingRef, userBookingData);
+        batch.set(userBookingRef, userBookingData);
+    }
 
-    batch.set(counterRef, { counter: counterId }, { merge: true });
+    batch.set(counterRef, { counter: baseCounter + dates.length }, { merge: true });
 
     await batch.commit();
 
     return {
         success: true,
         data: {
-            id: bookingRef.id,
+            id: bookingIds,
             totalFare,
             status: bookingStatus,
             ...(paymentUrl && { paymentUrl })

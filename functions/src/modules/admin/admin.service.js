@@ -271,9 +271,15 @@ const cancelTripService = async (req) => {
         const usersArray = bookingData.users || [];
         let updatedUsers = [...usersArray];
 
-        const financeSnapshot = await db.collection("finance")
-            .where("bookingId", "==", bookingId)
+        let financeSnapshot = await db.collection("finance")
+            .where("bookingId", "array-contains", bookingId)
             .get();
+
+        if (financeSnapshot.empty) {
+            financeSnapshot = await db.collection("finance")
+                .where("bookingId", "==", bookingId)
+                .get();
+        }
 
         for (const financeDoc of financeSnapshot.docs) {
             const financeData = financeDoc.data();
@@ -284,13 +290,30 @@ const cancelTripService = async (req) => {
             const userId = financeData.userId;
             let stripeSessionId = null;
             let stripeRefundId = null;
-            let userBookingRef = null;
+            
+            const bookingNosList = financeData.bookingNos || [];
+            const userBookingRefs = [];
 
             if (userId) {
-                userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
-                const userBookingDoc = await userBookingRef.get();
-                if (userBookingDoc.exists) {
-                    stripeSessionId = userBookingDoc.data().stripeSessionId;
+                if (bookingNosList.length > 0) {
+                    for (const bNo of bookingNosList) {
+                        const bookingNoSafe = bNo.replace(/\//g, "-");
+                        const uRef = db.collection("users").doc(userId).collection("bookings").doc(bookingNoSafe);
+                        userBookingRefs.push(uRef);
+                        if (!stripeSessionId) {
+                            const userBookingDoc = await uRef.get();
+                            if (userBookingDoc.exists) {
+                                stripeSessionId = userBookingDoc.data().stripeSessionId;
+                            }
+                        }
+                    }
+                } else {
+                    const uRef = db.collection("users").doc(userId).collection("bookings").doc(financeDoc.id);
+                    userBookingRefs.push(uRef);
+                    const userBookingDoc = await uRef.get();
+                    if (userBookingDoc.exists) {
+                        stripeSessionId = userBookingDoc.data().stripeSessionId;
+                    }
                 }
             }
 
@@ -342,7 +365,7 @@ const cancelTripService = async (req) => {
                 batch.update(financeDoc.ref, financeUpdate);
             }
 
-            if (userBookingRef) {
+            for (const uRef of userBookingRefs) {
                 const userBookingUpdate = { status: "Cancelled", updatedAt: new Date() };
                 if (stripeRefundId) {
                     userBookingUpdate.stripeRefundId = stripeRefundId;
@@ -350,7 +373,7 @@ const cancelTripService = async (req) => {
                 if (paymentStatus) {
                     userBookingUpdate.paymentStatus = paymentStatus;
                 }
-                batch.update(userBookingRef, userBookingUpdate);
+                batch.update(uRef, userBookingUpdate);
             }
         }
 
@@ -396,7 +419,11 @@ const cancelBookingService = async (req) => {
 
     const bookingCount = financeData.bookingCount;
 
-    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(financeId);
+    const bookingNo = bookingData.bookingNo;
+    const bookingNoSafe = bookingNo ? bookingNo.replace(/\//g, "-") : null;
+    const userBookingRefId = bookingNoSafe || financeId;
+
+    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(userBookingRefId);
     const userBookingDoc = await userBookingRef.get();
     let passengersToRemove = [];
     let selectedDate = null;
@@ -500,13 +527,13 @@ const cancelBookingService = async (req) => {
         if (tripDoc.exists) {
             const tripData = tripDoc.data();
             const availableSeatsMap = tripData.available_seats || {};
-            const currentAvailableSeats = availableSeatsMap[selectedDate] ?? tripData.total_seats;
+            const updatedAvailableSeatsMap = { ...availableSeatsMap };
 
-            const newAvailableSeats = currentAvailableSeats + bookingCount;
-            const updatedAvailableSeatsMap = {
-                ...availableSeatsMap,
-                [selectedDate]: newAvailableSeats,
-            };
+            const dates = Array.isArray(selectedDate) ? selectedDate : [selectedDate];
+            for (const date of dates) {
+                const currentAvailableSeats = updatedAvailableSeatsMap[date] ?? tripData.total_seats;
+                updatedAvailableSeatsMap[date] = currentAvailableSeats + bookingCount;
+            }
 
             batch.update(tripRef, {
                 available_seats: updatedAvailableSeatsMap,
