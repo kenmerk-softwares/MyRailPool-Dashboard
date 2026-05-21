@@ -95,16 +95,16 @@ export const TripList = () => {
         ).replace('#', '');
 
         const colRef = collection(db, 'finance');
-
+        console.log(docId)
         const q = query(
           collection(db, 'finance'),
           where('status', '==', 'Confirmed'),
-          where('tripId', '==', cancelModal.trip.tripId),
-          where('paymentStatus', '==', 'Complete')
+          where('tripId', '==', docId),
+          where('paymentStatus', '==', 'complete')
         );
 
         const snapshot = await getCountFromServer(q);
-
+        console.log(snapshot.data().count)
         setConfirmedPaymentsCount(snapshot.data().count);
 
       } catch (error) {
@@ -225,7 +225,7 @@ export const TripList = () => {
           )}
           actions={(trip) => (
             <div className="flex items-center gap-2">
-              {trip.route_type === 'core' && (
+              {trip.route_type === 'flexi' && (
                 <button
                   onClick={() => handleCancelClick(trip)}
                   disabled={trip.status === 'Cancelled'}

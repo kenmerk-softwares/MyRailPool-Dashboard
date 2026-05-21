@@ -6,7 +6,7 @@ import {
   XCircle, Clock, Phone, Bus, UserCheck, Route, Mail,
   Activity, Shield
 } from 'lucide-react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { StatusBadge } from '../../../components/Shared';
 import { useDocument } from '../../../shared/hooks/useDocument';
@@ -47,7 +47,11 @@ const CancelBookingModal = ({
   passengerName,
   refund,
   setRefund,
+  reason,
+  setReason,
   loading = false,
+  confirmedPaymentsCount = 0,
+  loadingPaymentsCount = false,
 }) => {
   if (!isOpen) return null;
 
@@ -62,18 +66,45 @@ const CancelBookingModal = ({
           Are you sure you want to cancel the booking for <span className="font-semibold text-gray-900">{passengerName || 'this passenger'}</span>?
         </p>
 
+        {loadingPaymentsCount ? (
+          <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 rounded-xl py-2 px-3">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" /> Checking confirmed payments...
+          </div>
+        ) : confirmedPaymentsCount > 0 ? (
+          <div className="mb-4 text-xs font-bold text-red-500 bg-red-50 border border-red-100 rounded-xl py-2 px-3">
+            There are {confirmedPaymentsCount} confirmed payment(s) for this booking.
+          </div>
+        ) : null}
+
         {/* Refund Checkbox */}
-        <div className="mb-6 flex items-center justify-center gap-2.5 bg-slate-50 border border-slate-100 rounded-xl py-3 px-4">
-          <input
-            type="checkbox"
-            id="refund-modal-checkbox"
-            checked={refund}
-            onChange={(e) => setRefund(e.target.checked)}
-            className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-colors cursor-pointer"
-          />
-          <label htmlFor="refund-modal-checkbox" className="text-xs font-bold text-slate-600 select-none cursor-pointer hover:text-slate-800 transition-colors">
-            Refund booking amount
+        {confirmedPaymentsCount > 0 && !loadingPaymentsCount && (
+          <div className="mb-6 flex items-center justify-center gap-2.5 bg-slate-50 border border-slate-100 rounded-xl py-3 px-4">
+            <input
+              type="checkbox"
+              id="refund-modal-checkbox"
+              checked={refund}
+              onChange={(e) => setRefund(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-colors cursor-pointer"
+            />
+            <label htmlFor="refund-modal-checkbox" className="text-xs font-bold text-slate-600 select-none cursor-pointer hover:text-slate-800 transition-colors">
+              Refund booking amount
+            </label>
+          </div>
+        )}
+
+        {/* Optional Cancellation Reason */}
+        <div className="mb-6 space-y-1.5 text-left">
+          <label htmlFor="cancel-reason-textarea" className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+            Cancellation Reason (Optional)
           </label>
+          <textarea
+            id="cancel-reason-textarea"
+            rows="3"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="e.g. Passenger requested cancellation..."
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+          />
         </div>
 
         <div className="flex gap-3">
@@ -111,6 +142,9 @@ export const ViewBooking = () => {
   const [cancelModal, setCancelModal] = useState({ isOpen: false, passenger: null });
   const [refund, setRefund] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [confirmedPaymentsCount, setConfirmedPaymentsCount] = useState(0);
+  const [loadingPaymentsCount, setLoadingPaymentsCount] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
 
   const confirmCancelBooking = async () => {
     if (!cancelModal.passenger) return;
@@ -119,7 +153,8 @@ export const ViewBooking = () => {
       const response = await FunctionsAPI.cancelBooking({
         bookingId: booking.bookingId,
         userId: cancelModal.passenger.userId,
-        refund
+        refund,
+        reason: cancellationReason
       });
       if (response?.success === false) {
         throw new Error(response.error || 'Failed to cancel booking');
@@ -129,6 +164,7 @@ export const ViewBooking = () => {
 
       // Close modal and refresh the document
       setCancelModal({ isOpen: false, passenger: null });
+      setCancellationReason('');
       fetchDocument(docId);
     } catch (error) {
       console.error('Error cancelling booking:', error);
@@ -143,6 +179,37 @@ export const ViewBooking = () => {
   useEffect(() => {
     if (docId) fetchDocument(docId);
   }, [docId, fetchDocument]);
+
+  useEffect(() => {
+    if (!cancelModal.isOpen || !booking) {
+      setConfirmedPaymentsCount(0);
+      return;
+    }
+
+    const fetchConfirmedCount = async () => {
+      setLoadingPaymentsCount(true);
+      try {
+        const colRef = collection(db, 'finance');
+        const q = query(
+          colRef,
+          where('status', '==', 'Confirmed'),
+          where('tripId', '==', booking.tripId),
+          where('bookingId', '==', booking.bookingId),
+          where('paymentStatus', '==', 'complete')
+        );
+
+        const snapshot = await getCountFromServer(q);
+        setConfirmedPaymentsCount(snapshot.data().count);
+        console.log(snapshot.data().count);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingPaymentsCount(false);
+      }
+    };
+
+    fetchConfirmedCount();
+  }, [cancelModal.isOpen, booking]);
 
   // once we have the booking, go fetch the trip, driver and vehicle too
   useEffect(() => {
@@ -433,6 +500,7 @@ export const ViewBooking = () => {
                       <button
                         onClick={() => {
                           setRefund(false); // Reset refund selection for safety on open
+                          setCancellationReason(''); // Reset reason on open
                           setCancelModal({ isOpen: true, passenger: u });
                         }}
                         className="px-3 py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold text-xs transition-all hover:shadow-sm active:scale-95 flex items-center gap-1.5"
@@ -451,12 +519,19 @@ export const ViewBooking = () => {
 
       <CancelBookingModal
         isOpen={cancelModal.isOpen}
-        onClose={() => setCancelModal({ isOpen: false, passenger: null })}
+        onClose={() => {
+          setCancelModal({ isOpen: false, passenger: null });
+          setCancellationReason('');
+        }}
         onConfirm={confirmCancelBooking}
         passengerName={cancelModal.passenger?.name}
         refund={refund}
         setRefund={setRefund}
+        reason={cancellationReason}
+        setReason={setCancellationReason}
         loading={cancelling}
+        confirmedPaymentsCount={confirmedPaymentsCount}
+        loadingPaymentsCount={loadingPaymentsCount}
       />
     </div>
   );
