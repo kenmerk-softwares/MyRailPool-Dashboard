@@ -7,9 +7,12 @@ import { useTrips } from '../hooks/trip.useTrips';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 import DeleteModal from '../../../shared/DeleteModal/DeleteModal';
+import { collection, query, where, getCountFromServer } from 'firebase/firestore';
+
+import { db } from '../../../shared/services/firebase';
+
 
 export const TripList = () => {
-  const { trips, hasMore, fetchTrips, loading } = useTrips();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -18,6 +21,10 @@ export const TripList = () => {
 
   const [cancelModal, setCancelModal] = useState({ isOpen: false, trip: null });
   const [cancelling, setCancelling] = useState(false);
+  const [confirmedPaymentsCount, setConfirmedPaymentsCount] = useState(0);
+  const [loadingPaymentsCount, setLoadingPaymentsCount] = useState(false);
+  const [initiateRefund, setInitiateRefund] = useState(false);
+  const { trips, hasMore, fetchTrips, loading } = useTrips();
 
   useEffect(() => {
     fetchTrips({ searchQuery, activeFilter });
@@ -47,7 +54,10 @@ export const TripList = () => {
     setCancelling(true);
     try {
       const docId = String(cancelModal.trip.id || cancelModal.trip.docId || '').replace('#', '');
-      const response = await FunctionsAPI.cancelTrip({ tripId: docId });
+      const response = await FunctionsAPI.cancelTrip({
+        tripId: docId,
+        refund: initiateRefund
+      });
 
       console.log('Cancel Trip Response:', response);
 
@@ -66,6 +76,50 @@ export const TripList = () => {
       setCancelModal({ isOpen: false, trip: null });
     }
   };
+
+  useEffect(() => {
+    if (!cancelModal.isOpen || !cancelModal.trip) {
+      setConfirmedPaymentsCount(0);
+      setInitiateRefund(false);
+      return;
+    }
+
+    const fetchConfirmedCount = async () => {
+      setLoadingPaymentsCount(true);
+
+      try {
+        const docId = String(
+          cancelModal.trip.id ||
+          cancelModal.trip.docId ||
+          ''
+        ).replace('#', '');
+
+        const colRef = collection(db, 'finance');
+
+        const q = query(
+          collection(db, 'finance'),
+          where('status', '==', 'Confirmed'),
+          where('tripId', '==', cancelModal.trip.tripId),
+          where('paymentStatus', '==', 'Complete')
+        );
+
+        const snapshot = await getCountFromServer(q);
+
+        setConfirmedPaymentsCount(snapshot.data().count);
+
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingPaymentsCount(false);
+      }
+    };
+
+    fetchConfirmedCount();
+  }, [cancelModal.isOpen, cancelModal.trip]);
+
+
+
+
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -183,6 +237,8 @@ export const TripList = () => {
                 >
                   <XCircle className="w-4 h-4" />
                 </button>
+
+
               )}
               <button
                 onClick={() => handleView(trip)}
@@ -227,11 +283,41 @@ export const TripList = () => {
         onClose={() => setCancelModal({ isOpen: false, trip: null })}
         onConfirm={confirmCancel}
         title="Cancel Trip"
-        message="Are you sure you want to cancel this trip?"
+        message={
+          loadingPaymentsCount
+            ? "Checking active bookings..."
+            : confirmedPaymentsCount > 0
+              ? `There are ${confirmedPaymentsCount} confirmed booking(s) for this trip.`
+              : "Are you sure you want to cancel this trip?"
+        }
         itemName={`Trip #${cancelModal.trip?.tripId || ''}`}
         confirmText="Yes, Cancel Trip"
         loading={cancelling}
-      />
+      >
+        {confirmedPaymentsCount > 0 &&
+          !loadingPaymentsCount && (
+            <div className="flex items-center gap-3 bg-red-50 border border-red-100 rounded-2xl p-4 mb-6">
+
+              <input
+                type="checkbox"
+                id="initiateRefundCheckbox"
+                checked={initiateRefund}
+                onChange={(e) =>
+                  setInitiateRefund(e.target.checked)
+                }
+                className="w-4 h-4 text-red-600 border-slate-300 rounded"
+              />
+
+              <label
+                htmlFor="initiateRefundCheckbox"
+                className="text-xs font-bold text-slate-700 cursor-pointer"
+              >
+                Initiate refund for confirmed customers
+              </label>
+
+            </div>
+          )}
+      </DeleteModal>
     </div>
   );
 };
