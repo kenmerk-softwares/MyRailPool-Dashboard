@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../shared/services/firebase';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { useToast } from '../../shared/hooks/ToastContext';
-import { Building2, MapPin, Phone, Tag, Save, Plus, Trash2, Sparkles } from 'lucide-react';
+import { Building2, MapPin, Phone, Tag, Save, Plus, Trash2, Sparkles, Instagram, Linkedin, Youtube } from 'lucide-react';
 
 const Company = () => {
 	const { showToast } = useToast();
@@ -14,7 +14,10 @@ const Company = () => {
 		companyName: '',
 		address: '',
 		contact: [],
-		tag: ''
+		tag: '',
+		instagram: '',
+		linkedin: '',
+		youTube: ''
 	});
 
 	const fetchCompanyDetails = async () => {
@@ -33,7 +36,10 @@ const Company = () => {
 					companyName: company.companyName || '',
 					address: company.address || '',
 					contact: Array.isArray(company.contact) ? company.contact : (company.contact ? [company.contact] : []),
-					tag: company.tag || ''
+					tag: company.tag || '',
+					instagram: company.instagram || '',
+					linkedin: company.linkedin || '',
+					youTube: company.youTube || ''
 				});
 				setShowAddForm(false);
 			} else {
@@ -107,6 +113,9 @@ const Company = () => {
 				address: formData.address,
 				contact: filteredContact,
 				tag: formData.tag,
+				instagram: formData.instagram,
+				linkedin: formData.linkedin,
+				youTube: formData.youTube,
 				updatedAt: new Date(),
 			};
 			if (!companyData) {
@@ -253,6 +262,57 @@ const Company = () => {
 										))}
 									</div>
 								</div>
+								<div>
+									<label className="block text-xs font-semibold uppercase text-slate-500 mb-2 text-start">
+										Instagram Link
+									</label>
+									<div className="relative">
+										<Instagram className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<input
+											type="text"
+											name="instagram"
+											value={formData.instagram}
+											onChange={handleInputChange}
+											placeholder="Instagram Link"
+											className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+											required
+										/>
+									</div>
+								</div>
+								<div>
+									<label className="block text-xs font-semibold uppercase text-slate-500 mb-2 text-start">
+										LinkedIn Link
+									</label>
+									<div className="relative">
+										<Linkedin className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<input
+											type="text"
+											name="linkedin"
+											value={formData.linkedin}
+											onChange={handleInputChange}
+											placeholder="LinkedIn Link"
+											className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+											required
+										/>
+									</div>
+								</div>
+								<div>
+									<label className="block text-xs font-semibold uppercase text-slate-500 mb-2 text-start">
+										Youtube Link
+									</label>
+									<div className="relative">
+										<Youtube className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<input
+											type="text"
+											name="youTube"
+											value={formData.youTube}
+											onChange={handleInputChange}
+											placeholder="Youtube Link"
+											className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+											required
+										/>
+									</div>
+								</div>
 							</div>
 						</div>
 						<button
@@ -331,6 +391,30 @@ const Company = () => {
 										</div>
 									)}
 								</div>
+							</div>
+							<div>
+								<p className="text-xs uppercase font-semibold text-slate-700 mb-2 text-start">
+									Instagram Link
+								</p>
+								<h2 className="text-xl font-bold text-slate-900 text-start">
+									{companyData.instagram}
+								</h2>
+							</div>
+							<div>
+								<p className="text-xs uppercase font-semibold text-slate-700 mb-2 text-start">
+									LinkedIn Link
+								</p>
+								<h2 className="text-xl font-bold text-slate-900 text-start">
+									{companyData.linkedin}
+								</h2>
+							</div>
+							<div>
+								<p className="text-xs uppercase font-semibold text-slate-700 mb-2 text-start">
+									Youtube Link
+								</p>
+								<h2 className="text-xl font-bold text-slate-900 text-start">
+									{companyData.youTube}
+								</h2>
 							</div>
 						</div>
 						<div className="mt-8 pt-6 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">

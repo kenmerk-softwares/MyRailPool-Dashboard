@@ -30,6 +30,7 @@ import Settings from '../pages/Settings/Settings';
 import Company from '../pages/Settings/Company';
 import Payment from '../modules/payment/Payment';
 import { Reports } from '../modules/reports/pages/Reports';
+import { CustomerReq } from '../modules/CustomerRequest/Pages/CustomerReq';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -63,7 +64,8 @@ export const routesConfig = [
   { path: '/settings', element: <Settings />, permission: '/settings' },
   { path: '/company-settings', element: <Company />, permission: '/company-settings' },
   { path: '/payment', element: <Payment />, permission: '/payment' },
-  { path: '/reports', element: <Reports />, permission: '/reports' }
+  { path: '/reports', element: <Reports />, permission: '/reports' },
+  { path: '/customer-req', element: <CustomerReq />, permission: '/customer-req' }
 ];
 
 export const systemRoutes = [...new Map(
