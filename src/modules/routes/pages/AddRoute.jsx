@@ -25,6 +25,43 @@ import { routeValidation } from '../../../shared/utils/Validations/RouteValidati
 
 
 
+const formatToInputDate = (d) => {
+  if (!d) return '';
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    return d;
+  }
+  let dateObj = null;
+  if (d instanceof Date) {
+    dateObj = d;
+  } else if (typeof d === 'object' && d.toDate && typeof d.toDate === 'function') {
+    dateObj = d.toDate();
+  } else if (typeof d === 'object' && typeof d.seconds === 'number') {
+    dateObj = new Date(d.seconds * 1000);
+  } else if (typeof d === 'number') {
+    dateObj = new Date(d);
+  } else if (typeof d === 'string') {
+    const parts = d.split('/');
+    if (parts.length === 3 && parts[0].length <= 2 && parts[1].length <= 2 && parts[2].length === 4) {
+      const day = parts[0].padStart(2, '0');
+      const month = parts[1].padStart(2, '0');
+      const year = parts[2];
+      return `${year}-${month}-${day}`;
+    }
+    const parsed = new Date(d);
+    if (parsed instanceof Date && !isNaN(parsed)) {
+      dateObj = parsed;
+    }
+  }
+
+  if (dateObj && !isNaN(dateObj.getTime())) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return '';
+};
+
 export const AddRoute = () => {
 
 
@@ -75,7 +112,10 @@ export const AddRoute = () => {
 
 
 
-  const [selectedDates, setSelectedDates] = useState(initialData?.operating_dates || []);
+  const [selectedDates, setSelectedDates] = useState(() => {
+    const rawDates = initialData?.selectedDates || initialData?.operating_dates || initialData?.selected_dates || [];
+    return rawDates.map(d => formatToInputDate(d)).filter(Boolean);
+  });
 
   const handleAddDate = (e) => {
     const date = e.target.value;
@@ -265,7 +305,7 @@ export const AddRoute = () => {
                       type="date"
                       name="activationDate"
                       className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
-                      defaultValue={initialData?.activationDate}
+                      defaultValue={formatToInputDate(initialData?.activationDate)}
                     />
                     {errors.activationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.activationDate}</p>}
                   </div>
@@ -278,7 +318,7 @@ export const AddRoute = () => {
                       type="date"
                       name="deactivationDate"
                       className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
-                      defaultValue={initialData?.deactivationDate}
+                      defaultValue={formatToInputDate(initialData?.deactivationDate)}
                     />
                     {errors.deactivationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.deactivationDate}</p>}
                   </div>
