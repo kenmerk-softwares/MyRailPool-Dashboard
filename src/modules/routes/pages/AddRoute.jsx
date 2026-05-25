@@ -216,7 +216,7 @@ export const AddRoute = () => {
       }
 
       const payload = {
-        action: initialData ? 'edit' : 'add',
+        action: initialData && initialData.id ? 'edit' : 'add',
         id: initialData?.id,
         name: data.routeName,
         status: data.status || 'Active',
@@ -247,7 +247,7 @@ export const AddRoute = () => {
       const result = await addRouteFn(payload);
 
       if (result.data.success) {
-        showToast(initialData ? 'Route corridor synchronized successfully' : 'New route corridor established', 'success');
+        showToast(initialData && initialData.id ? 'Route corridor synchronized successfully' : 'New route corridor established', 'success');
         navigate('/routes');
       } else {
         showToast(result.data.error || 'Failed to save route corridor', 'error');
@@ -276,8 +276,7 @@ export const AddRoute = () => {
                 <RouteIcon className="w-5 h-5 text-primary-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-800">Add Route</h3>
-
+                <h3 className="text-lg font-bold text-slate-800">{initialData && initialData.id ? 'Edit Route' : 'Add Route'}</h3>
               </div>
             </div>
 
@@ -659,7 +658,7 @@ export const AddRoute = () => {
               ) : (
                 <Save className="w-5 h-5 text-primary-400" />
               )}
-              {loading ? 'Processing...' : (initialData ? 'Synchronize Route' : 'Establish Corridor')}
+              {loading ? 'Processing...' : (initialData && initialData.id ? 'Synchronize Route' : 'Establish Corridor')}
             </button>
           </div>
         </div>

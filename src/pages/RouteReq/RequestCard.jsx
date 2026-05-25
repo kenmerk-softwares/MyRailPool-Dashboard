@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock4,
-  Phone
+  Phone,
+  Plus
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
@@ -76,7 +77,7 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
               <Phone className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
               <div className="text-xs">
                 <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Phone Number</span>
-                <p className="text-slate-700 font-bold leading-tight">{request.phoneNumber || 'N/A'}</p>
+                <p className="text-slate-700 font-bold leading-tight">{request.phone || 'N/A'}</p>
               </div>
             </div>
             <div className="relative">
@@ -152,6 +153,18 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
                 className="flex-1 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 transition-all active:scale-95"
               >
                 Accept
+              </button>
+            </div>
+          )}
+
+          {request.status === 'Accepted' && (
+            <div className="flex gap-2 sm:gap-3 order-1 sm:order-2 flex-1">
+              <button
+                onClick={() => onAccept(request)}
+                className="flex-1 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-100 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add Route
               </button>
             </div>
           )}
