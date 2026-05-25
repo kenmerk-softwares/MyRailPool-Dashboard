@@ -57,8 +57,6 @@ const RouteReq = () => {
 
   const handleAccept = async (req) => {
     await updateRequestStatus(req.id, 'Accepted');
-
-    // Convert schedules back to ISO strings for compatibility with /trips/add
     const routeDates = req.schedules ? req.schedules.map(s => {
       try {
         const dateParts = s.date.split('-');
@@ -84,7 +82,6 @@ const RouteReq = () => {
       }
     }) : (req.routeDates || []);
 
-    // Convert schedules to YYYY-MM-DD format for the date picker in AddRoute
     const operatingDates = req.schedules ? req.schedules.map(s => {
       try {
         const parts = s.date.split('-');
