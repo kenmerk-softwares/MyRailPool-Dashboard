@@ -22,12 +22,9 @@ export const useRouteReqs = () => {
             const colRef = collection(db, "route_request");
             const constraints = [];
 
-            // Apply status filter if it is not "All Status"
             if (statusFilter && statusFilter !== "All Status") {
                 constraints.push(where("status", "==", statusFilter));
             }
-
-            // Order by createdAt descending
             constraints.push(orderBy("createdAt", "desc"));
 
             if (isLoadMore && lastVisibleRef.current) {
@@ -45,7 +42,6 @@ export const useRouteReqs = () => {
                 ...doc.data()
             }));
 
-            // Client-side filtering for search term to support contains searches
             if (searchTerm && searchTerm.trim() !== "") {
                 const term = searchTerm.toLowerCase().trim();
                 docs = docs.filter(req =>
@@ -54,7 +50,6 @@ export const useRouteReqs = () => {
                 );
             }
 
-            // Client-side filtering for date
             if (dateFilter) {
                 const parts = dateFilter.split("-");
                 if (parts.length === 3) {

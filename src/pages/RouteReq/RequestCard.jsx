@@ -8,7 +8,8 @@ import {
   ChevronRight,
   CheckCircle2,
   XCircle,
-  Clock4
+  Clock4,
+  Phone
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
@@ -61,9 +62,23 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
         </div>
 
         <div className="space-y-4 mb-8">
-          <div className="relative pl-6 space-y-4">
+          <div className="relative grid grid-cols-2 gap-3 pl-6">
             <div className="absolute left-1 top-1 bottom-1 w-0.5 bg-dashed border-l-2 border-slate-100 border-dashed" />
 
+            <div className="relative">
+              <User className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
+              <div className="text-xs">
+                <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Name</span>
+                <p className="text-slate-700 font-bold leading-tight">{request.name || 'N/A'}</p>
+              </div>
+            </div>
+            <div className="relative">
+              <Phone className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
+              <div className="text-xs">
+                <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Phone Number</span>
+                <p className="text-slate-700 font-bold leading-tight">{request.phoneNumber || 'N/A'}</p>
+              </div>
+            </div>
             <div className="relative">
               <MapPin className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
               <div className="text-xs">

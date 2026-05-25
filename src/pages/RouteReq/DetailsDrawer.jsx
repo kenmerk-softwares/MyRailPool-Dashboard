@@ -17,17 +17,15 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
   if (!request) return null;
 
   return (
-    <div className={`fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-500 ${
-      isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-    }`}>
-      <div 
+    <div className={`fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-500 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}>
+      <div
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div 
-        className={`relative w-full sm:max-w-4xl h-[85vh] sm:h-auto sm:max-h-[90vh] bg-white shadow-2xl rounded-t-[2rem] sm:rounded-[2.5rem] overflow-hidden transition-all duration-500 transform ${
-          isOpen ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-full sm:translate-y-12 sm:scale-95 opacity-0'
-        }`}
+      <div
+        className={`relative w-full sm:max-w-4xl h-[85vh] sm:h-auto sm:max-h-[90vh] bg-white shadow-2xl rounded-t-[2rem] sm:rounded-[2.5rem] overflow-hidden transition-all duration-500 transform ${isOpen ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-full sm:translate-y-12 sm:scale-95 opacity-0'
+          }`}
       >
         <div className="h-full flex flex-col max-h-[90vh]">
           {/* Mobile sheet drag handle */}
@@ -38,21 +36,20 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
             <div>
               <h2 className="text-xl font-black text-slate-900 tracking-tight mb-1">Request Details</h2>
               <div className='flex items-center gap-2'>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{request.id}</p>
-              <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${
-                request.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                request.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                'bg-rose-50 text-rose-600 border-rose-200'
-              }`}>
-                {request.status}
-              </div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">{request.id}</p>
+                <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${request.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                  request.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                    'bg-rose-50 text-rose-600 border-rose-200'
+                  }`}>
+                  {request.status}
+                </div>
               </div>
               <span className="text-xs text-slate-700">
-                    {new Date(request.createdAt || request.requestSentAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                  </span>
+                {new Date(request.createdAt || request.requestSentAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+              </span>
             </div>
-            
-            <button 
+
+            <button
               onClick={onClose}
               className="p-2 hover:bg-slate-200 rounded-xl transition-colors"
             >
@@ -62,27 +59,56 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
 
           <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
 
+            <section className="space-y-2">
+              <div className="flex items-center gap-2 px-1">
+                <div className="w-1 h-3 bg-emerald-500 rounded-full" />
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">User Information</h3>
+              </div>
+              <div className="border border-slate-100 rounded-[2rem] space-y-6">
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
+                    <div className="p-2 bg-emerald-50 rounded-xl flex items-center justify-center self-start">
+                      <User className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5"> Name</span>
+                      <p className="text-sm font-bold text-slate-800 leading-snug">{request.name || 'N/A'}</p>
+                    </div>
+                  </div>
 
-            <section className="space-y-4">
+                  <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
+                    <div className="p-2 bg-rose-50 rounded-xl flex items-center justify-center self-start">
+                      <Phone className="w-5 h-5 text-rose-600" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Phone Number</span>
+                      <p className="text-sm font-bold text-slate-800 leading-snug">{request.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+            <section className="space-y-2">
               <div className="flex items-center gap-2 px-1">
                 <div className="w-1 h-3 bg-emerald-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Trip Information</h3>
               </div>
-              <div className="p-6 bg-slate-50 border border-slate-100 rounded-[2rem] space-y-6">
+              <div className="border border-slate-100 rounded-[2rem] space-y-6">
                 <div className="flex flex-col md:flex-row items-center gap-6">
                   <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
                     <div className="p-2 bg-emerald-50 rounded-xl flex items-center justify-center self-start">
                       <MapPin className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
-                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Pickup Location</span>
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Pickup Location</span>
                       <p className="text-sm font-bold text-slate-800 leading-snug">{request.from || request.pickup || 'N/A'}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-col items-center justify-center opacity-30">
                     <div className="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center">
-                      <ArrowRight className="w-3 h-3 text-slate-400" />
+                      <ArrowRight className="w-3 h-3 text-slate-500" />
                     </div>
                   </div>
 
@@ -91,7 +117,7 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
                       <MapPin className="w-5 h-5 text-rose-600" />
                     </div>
                     <div>
-                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Drop-off Location</span>
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Drop-off Location</span>
                       <p className="text-sm font-bold text-slate-800 leading-snug">{request.to || request.drop || 'N/A'}</p>
                     </div>
                   </div>
@@ -144,7 +170,7 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
 
           {request.status === 'Pending' && (
             <div className="p-4 sm:p-6 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 bg-slate-50/50">
-              <button 
+              <button
                 onClick={() => {
                   onReject(request);
                   onClose();
@@ -153,7 +179,7 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
               >
                 Reject Request
               </button>
-              <button 
+              <button
                 onClick={() => {
                   onAccept(request);
                   onClose();
