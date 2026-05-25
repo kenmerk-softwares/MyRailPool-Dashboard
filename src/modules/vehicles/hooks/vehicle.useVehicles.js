@@ -12,7 +12,7 @@ export const useVehicles = () => {
     const [lastVisible, setLastVisible] = useState(null);
     const [hasMore, setHasMore] = useState(true);
 
-    const fetchVehicles = useCallback(async ({ searchQuery = "", isLoadMore = false } = {}) => {
+    const fetchVehicles = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false } = {}) => {
         dispatch(setLoading(true));
         try {
             const vehiclesCollection = collection(db, "vehicles");
@@ -36,10 +36,30 @@ export const useVehicles = () => {
             }
 
             const querySnapshot = await getDocs(q);
-            const vehiclesData = serialize(querySnapshot.docs.map((doc) => ({
+            let vehiclesData = serialize(querySnapshot.docs.map((doc) => ({
                 ...doc.data(),
                 docId: doc.id
             })));
+
+            if (fromDate || toDate) {
+                vehiclesData = vehiclesData.filter((vehicle) => {
+                    let vehicleDate = null;
+                    if (vehicle.createdAt) {
+                        vehicleDate = new Date(vehicle.createdAt);
+                    }
+
+                    if (!vehicleDate || isNaN(vehicleDate.getTime())) return true;
+
+                    const vehicleTime = vehicleDate.getTime();
+                    const fromTime = fromDate ? new Date(fromDate).setHours(0, 0, 0, 0) : null;
+                    const toTime = toDate ? new Date(toDate).setHours(23, 59, 59, 999) : null;
+
+                    if (fromTime && vehicleTime < fromTime) return false;
+                    if (toTime && vehicleTime > toTime) return false;
+
+                    return true;
+                });
+            }
 
             if (isLoadMore) {
                 dispatch(setVehicles([...vehicles, ...vehiclesData]));

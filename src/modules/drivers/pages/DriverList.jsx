@@ -10,6 +10,8 @@ export const DriverList = () => {
   const { drivers, loading, hasMore, fetchDrivers } = useDrivers();
   const [activeFilter, setActiveFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [fromDate, setFromDate] = React.useState('');
+  const [toDate, setToDate] = React.useState('');
 
   const handleView = (driver) => {
     const Id = String(driver?.docId || '').replace('#', '');
@@ -17,13 +19,15 @@ export const DriverList = () => {
   };
 
   const handleClear = () => {
+    setFromDate('');
+    setToDate('');
     setActiveFilter('');
     setSearchQuery('');
   };
 
   useEffect(() => {
-    fetchDrivers({ searchQuery, activeFilter });
-  }, [searchQuery, activeFilter, fetchDrivers]);
+    fetchDrivers({ searchQuery, activeFilter, fromDate, toDate });
+  }, [searchQuery, activeFilter, fromDate, toDate, fetchDrivers]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -44,6 +48,10 @@ export const DriverList = () => {
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           onClear={handleClear}
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
           searchPlaceholder="Search by name, email, or license..."
           filterOptions={[
             { label: 'Active', value: 'active' },
