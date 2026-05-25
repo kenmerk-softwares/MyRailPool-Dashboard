@@ -11,12 +11,16 @@ export const VehicleList = () => {
 
   const [activeFilter, setActiveFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   useEffect(() => {
-    fetchVehicles({ searchQuery, activeFilter });
-  }, [searchQuery, activeFilter, fetchVehicles]);
+    fetchVehicles({ searchQuery, activeFilter, fromDate, toDate });
+  }, [searchQuery, activeFilter, fromDate, toDate, fetchVehicles]);
 
   const handleClear = () => {
+    setFromDate('');
+    setToDate('');
     setActiveFilter('');
     setSearchQuery('');
   };
@@ -50,6 +54,10 @@ export const VehicleList = () => {
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           onClear={handleClear}
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
           searchPlaceholder="Search fleet assets (Plate, Model, Make)..."
           filterOptions={[
             { label: 'Active', value: 'Active' },
@@ -164,7 +172,7 @@ export const VehicleList = () => {
         {hasMore && (
           <div className="mt-8 flex justify-center">
             <button
-              onClick={() => fetchVehicles({ searchQuery, activeFilter, isLoadMore: true })}
+              onClick={() => fetchVehicles({ searchQuery, activeFilter, fromDate, toDate, isLoadMore: true })}
               disabled={loading}
               className="px-10 py-3 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm active:scale-95 disabled:opacity-50 flex items-center gap-3"
             >

@@ -12,15 +12,15 @@ export const useDrivers = () => {
     const [lastVisible, setLastVisible] = useState(null);
     const [hasMore, setHasMore] = useState(true);
 
-    const fetchDrivers = useCallback(async ({ searchQuery = "", activeFilter = "", isLoadMore = false } = {}) => {
+    const fetchDrivers = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false } = {}) => {
         dispatch(setLoading(true));
         try {
             const driversCollection = collection(db, "drivers");
             let q;
             if (searchQuery) {
                 const searchLower = searchQuery.toLowerCase();
-                q = query(driversCollection, 
-                    where("searchKey", ">=", searchLower), 
+                q = query(driversCollection,
+                    where("searchKey", ">=", searchLower),
                     where("searchKey", "<=", searchLower + "\uf8ff"),
                     orderBy("searchKey")
                 );
@@ -39,11 +39,31 @@ export const useDrivers = () => {
             }
 
             const querySnapshot = await getDocs(q);
-            const driversData = serialize(querySnapshot.docs.map((doc) => ({
+            let driversData = serialize(querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
                 docId: doc.id
             })));
+
+            if (fromDate || toDate) {
+                driversData = driversData.filter((driver) => {
+                    let driverJoinDate = null;
+                    if (driver.createdAt) {
+                        driverJoinDate = new Date(driver.createdAt);
+                    }
+
+                    if (!driverJoinDate || isNaN(driverJoinDate.getTime())) return true;
+
+                    const driverJoinTime = driverJoinDate.getTime();
+                    const fromTime = fromDate ? new Date(fromDate).setHours(0, 0, 0, 0) : null;
+                    const toTime = toDate ? new Date(toDate).setHours(23, 59, 59, 999) : null;
+
+                    if (fromTime && driverJoinTime < fromTime) return false;
+                    if (toTime && driverJoinTime > toTime) return false;
+
+                    return true;
+                });
+            }
 
             if (isLoadMore) {
                 dispatch(setDrivers([...drivers, ...driversData]));
@@ -60,7 +80,7 @@ export const useDrivers = () => {
         } finally {
             dispatch(setLoading(false));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dispatch, lastVisible]);
 
     const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);

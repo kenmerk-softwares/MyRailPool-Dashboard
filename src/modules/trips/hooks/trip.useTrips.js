@@ -39,28 +39,10 @@ export const useTrips = () => {
 				...doc.data()
 			})));
 
-			// Date filtering logic
 			if (fromDate || toDate) {
 				tripsData = tripsData.filter((trip) => {
-					// We check the first date in selectedDates if available, or createdAt.
-					// Let's assume dates in selectedDates might be YYYY-MM-DD or DD-MM-YYYY
 					let tripDate = null;
-					if (trip.selectedDates && trip.selectedDates.length > 0) {
-						// Extract a comparable date string from selectedDates
-						let sDate = trip.selectedDates[0];
-						if (sDate.includes('-')) {
-							const parts = sDate.split('-');
-							if (parts[2]?.length === 4) { // DD-MM-YYYY
-								sDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-							}
-						} else if (sDate.includes('/')) {
-							const parts = sDate.split('/');
-							if (parts[2]?.length === 4) {
-								sDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-							}
-						}
-						tripDate = new Date(sDate);
-					} else if (trip.createdAt) {
+					if (trip.createdAt) {
 						tripDate = new Date(trip.createdAt);
 					}
 
