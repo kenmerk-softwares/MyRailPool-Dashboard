@@ -12,7 +12,7 @@ export const useTrips = () => {
 	const [hasMore, setHasMore] = useState(true);
 	const lastVisibleRef = useRef(null);
 
-	const fetchTrips = useCallback(async ({ searchQuery = "", activeFilter = "", isLoadMore = false } = {}) => {
+	const fetchTrips = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false } = {}) => {
 		dispatch(setLoading(true));
 		try {
 			const tripsCollection = collection(db, "trips");
@@ -34,10 +34,48 @@ export const useTrips = () => {
 			}
 
 			const querySnapshot = await getDocs(q);
-			const tripsData = serialize(querySnapshot.docs.map((doc) => ({
+			let tripsData = serialize(querySnapshot.docs.map((doc) => ({
 				id: doc.id,
 				...doc.data()
 			})));
+
+			// Date filtering logic
+			if (fromDate || toDate) {
+				tripsData = tripsData.filter((trip) => {
+					// We check the first date in selectedDates if available, or createdAt.
+					// Let's assume dates in selectedDates might be YYYY-MM-DD or DD-MM-YYYY
+					let tripDate = null;
+					if (trip.selectedDates && trip.selectedDates.length > 0) {
+						// Extract a comparable date string from selectedDates
+						let sDate = trip.selectedDates[0];
+						if (sDate.includes('-')) {
+							const parts = sDate.split('-');
+							if (parts[2]?.length === 4) { // DD-MM-YYYY
+								sDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+							}
+						} else if (sDate.includes('/')) {
+							const parts = sDate.split('/');
+							if (parts[2]?.length === 4) {
+								sDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+							}
+						}
+						tripDate = new Date(sDate);
+					} else if (trip.createdAt) {
+						tripDate = new Date(trip.createdAt);
+					}
+
+					if (!tripDate || isNaN(tripDate.getTime())) return true;
+
+					const tripTime = tripDate.getTime();
+					const fromTime = fromDate ? new Date(fromDate).setHours(0, 0, 0, 0) : null;
+					const toTime = toDate ? new Date(toDate).setHours(23, 59, 59, 999) : null;
+
+					if (fromTime && tripTime < fromTime) return false;
+					if (toTime && tripTime > toTime) return false;
+
+					return true;
+				});
+			}
 
 			if (isLoadMore) {
 				dispatch(setTrips([...trips, ...tripsData]));

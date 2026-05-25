@@ -25,12 +25,15 @@ export const TripList = () => {
   const [loadingPaymentsCount, setLoadingPaymentsCount] = useState(false);
   const [initiateRefund, setInitiateRefund] = useState(false);
   const { trips, hasMore, fetchTrips, loading } = useTrips();
-
+  const [fromDate, setFromDate] = React.useState('');
+  const [toDate, setToDate] = React.useState('');
   useEffect(() => {
-    fetchTrips({ searchQuery, activeFilter });
-  }, [searchQuery, activeFilter, fetchTrips]);
+    fetchTrips({ searchQuery, activeFilter, fromDate, toDate });
+  }, [searchQuery, activeFilter, fromDate, toDate, fetchTrips]);
 
   const handleClear = () => {
+    setFromDate('');
+    setToDate('');
     setActiveFilter('');
     setSearchQuery('');
   };
@@ -140,6 +143,10 @@ export const TripList = () => {
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           onClear={handleClear}
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
           searchPlaceholder="Search operations (ID, Driver, Registration)..."
           filterOptions={[
             { label: 'Active', value: 'Active' },
