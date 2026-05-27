@@ -69,7 +69,7 @@ const bookTripService = async (data) => {
             line_items: [
                 {
                     price_data: {
-                        currency: "eur",
+                        currency: "gbp",
                         product_data: {
                             name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
                             description: `Booking for ${bookingCount} passenger(s) on ${dates.join(", ")}`,
