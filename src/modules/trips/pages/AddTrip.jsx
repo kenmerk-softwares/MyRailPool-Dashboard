@@ -176,7 +176,7 @@ export const AddTrip = () => {
     const allDates = itemsToSave.map(item => item.date);
     const availableSeatsMap = {};
     itemsToSave.forEach(item => {
-      availableSeatsMap[item.date] = capacity - parseInt(item.passengerCount || 0);
+      availableSeatsMap[item.date] = parseInt(item.passengerCount || 0);
     });
 
     const payload = {

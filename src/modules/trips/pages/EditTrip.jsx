@@ -99,7 +99,7 @@ export const EditTrip = () => {
                 id: idx,
                 date: typeof d === 'string' ? d : '',
                 routeTiming: data.routeTiming || {},
-                passengerCount: data.total_seats - (data.available_seats?.[d] || 0)
+                passengerCount: data.available_seats?.[d] || 0
               })).filter(s => s.date !== '')
             : [];
           setSchedules(initialSchedules);
@@ -197,7 +197,7 @@ export const EditTrip = () => {
     const allDates = schedules.map(item => item.date);
     const availableSeatsMap = {};
     schedules.forEach(item => {
-      availableSeatsMap[item.date] = capacity - parseInt(item.passengerCount || 0);
+      availableSeatsMap[item.date] = parseInt(item.passengerCount || 0);
     });
 
     const payload = {
