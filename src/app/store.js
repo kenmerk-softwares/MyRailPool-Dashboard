@@ -7,6 +7,7 @@ import vehicleReducer from "../modules/vehicles/vehicle.slice";
 import bookingReducer from "../modules/bookings/booking.slice";
 import routeReducer from "../modules/routes/route.slice";
 import tripReducer from "../modules/trips/trip.slice";
+import requestReducer from "../modules/CustomerRequest/request.slice";
 
 export const store = configureStore({
   reducer: {
@@ -17,5 +18,6 @@ export const store = configureStore({
     booking: bookingReducer,
     route: routeReducer,
     trip: tripReducer,
+    request: requestReducer,
   },
 });

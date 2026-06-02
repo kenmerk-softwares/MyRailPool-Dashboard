@@ -32,6 +32,7 @@ import TermsCondition from '../pages/Settings/TermsCondition';
 import PrivacyPolicy from '../pages/Settings/PrivacyPolicy';
 import Payment from '../modules/payment/Payment';
 import { Reports } from '../modules/reports/pages/Reports';
+import { CustomerReq } from '../modules/CustomerRequest/Pages/CustomerReq';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -67,7 +68,8 @@ export const routesConfig = [
   { path: '/terms-conditions', element: <TermsCondition />, permission: '/terms-conditions' },
   { path: '/privacy-policy', element: <PrivacyPolicy />, permission: '/privacy-policy' },
   { path: '/payment', element: <Payment />, permission: '/payment' },
-  { path: '/reports', element: <Reports />, permission: '/reports' }
+  { path: '/reports', element: <Reports />, permission: '/reports' },
+  { path: '/customer-req', element: <CustomerReq />, permission: '/customer-req' }
 ];
 
 export const systemRoutes = [...new Map(

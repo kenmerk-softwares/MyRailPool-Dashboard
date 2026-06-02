@@ -11,7 +11,8 @@ import {
   Bell,
   Logs,
   MessageSquare,
-  TrendingUp
+  TrendingUp,
+  UserPlus
 } from 'lucide-react';
 import { FaPaypal } from 'react-icons/fa';
 import { getCountFromServer, collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -73,6 +74,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: requestCount },
     { path: '/notifications', label: 'Notifications', icon: Bell },
     { path: '/notification-modals', label: 'Notification Modals', icon: MessageSquare },
+    { path: '/customer-req', label: 'Pilot Requests', icon: UserPlus },
     { path: '/reports', label: 'Reports & Analytics', icon: TrendingUp },
     { path: '/settings', label: 'Settings', icon: Settings },
     { path: '/admin-logs', label: 'Admin Logs', icon: Logs },
