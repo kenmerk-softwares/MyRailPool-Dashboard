@@ -4,6 +4,7 @@ import {
   ShieldAlert, 
   Building2, 
   ChevronRight,
+  FileText,
   Settings as SettingsIcon,
   Users
 } from 'lucide-react';
@@ -33,6 +34,20 @@ export default function Settings() {
       description: 'Update company information, business addresses, and official contact details.',
       icon: <Building2 className="w-7 h-7" />,
       path: '/company-settings',
+      color: 'orange'
+    },
+    {
+      title: 'Terms&Conditions',
+      description: 'Update terms and conditions.',
+      icon: <FileText className="w-7 h-7" />,
+      path: '/terms-conditions',
+      color: 'orange'
+    },
+    {
+      title: 'Privacy Policy',
+      description: 'Update privacy policy.',
+      icon: <FileText className="w-7 h-7" />,
+      path: '/privacy-policy',
       color: 'orange'
     }
   ];

@@ -28,6 +28,8 @@ import AdminLogs from '../modules/admin/pages/AdminLogs';
 import RouteReq from '../pages/RouteReq/RouteReq';
 import Settings from '../pages/Settings/Settings';
 import Company from '../pages/Settings/Company';
+import TermsCondition from '../pages/Settings/TermsCondition';
+import PrivacyPolicy from '../pages/Settings/PrivacyPolicy';
 import Payment from '../modules/payment/Payment';
 import { Reports } from '../modules/reports/pages/Reports';
 
@@ -62,6 +64,8 @@ export const routesConfig = [
   { path: '/admin-logs', element: <AdminLogs />, permission: '/admin-logs' },
   { path: '/settings', element: <Settings />, permission: '/settings' },
   { path: '/company-settings', element: <Company />, permission: '/company-settings' },
+  { path: '/terms-conditions', element: <TermsCondition />, permission: '/terms-conditions' },
+  { path: '/privacy-policy', element: <PrivacyPolicy />, permission: '/privacy-policy' },
   { path: '/payment', element: <Payment />, permission: '/payment' },
   { path: '/reports', element: <Reports />, permission: '/reports' }
 ];
