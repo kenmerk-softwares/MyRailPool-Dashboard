@@ -122,12 +122,12 @@ export const DriverList = () => {
               >
                 <Edit className="w-4 h-4 transition-transform group-hover:scale-110" />
               </Link>
-              <button
+              {/* <button
                 className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-100 hover:bg-rose-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group"
                 title="Remove Driver"
               >
                 <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
-              </button>
+              </button> */}
             </div>
           )}
         />

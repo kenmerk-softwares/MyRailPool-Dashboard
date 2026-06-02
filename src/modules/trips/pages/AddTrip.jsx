@@ -56,7 +56,8 @@ export const AddTrip = () => {
     selectedRoute: null,
     selectedVehicle: null,
     routes: [],
-    routeTiming: {}
+    routeTiming: {},
+    seatingCapacity: ''
   });
 
   // Isolated Fetchers to avoid Redux side-effects
@@ -172,8 +173,7 @@ export const AddTrip = () => {
     }
 
     setSaving(true);
-    const rawcapacity = formData.selectedVehicle?.seatingCapacity || 0
-    const capacity = parseInt(rawcapacity);
+    const capacity = parseInt(formData.seatingCapacity || 0);
     const allDates = itemsToSave.map(item => item.date);
     const availableSeatsMap = {};
     itemsToSave.forEach(item => {
@@ -251,7 +251,7 @@ export const AddTrip = () => {
           </div>
 
           <div className="px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
 
               {/* Driver Autocomplete */}
               <div className="md:col-span-2">
@@ -287,7 +287,7 @@ export const AddTrip = () => {
                   loading={vehiclesLoadingLocal}
                   results={vehiclesList}
                   onSelect={(vehicle) => {
-                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle }));
+                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle, seatingCapacity: vehicle.seatingCapacity || '' }));
                     setVehicleSearch(vehicle.registrationNo);
                   }}
                   renderItem={(vehicle) => (
@@ -297,6 +297,19 @@ export const AddTrip = () => {
                     </div>
                   )}
                 />
+              </div>
+
+              {/* Seating Capacity */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
+                <div className="relative">
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="number" name="seatingCapacity" value={formData.seatingCapacity} onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                    placeholder="0"
+                  />
+                </div>
               </div>
 
               {/* Status */}

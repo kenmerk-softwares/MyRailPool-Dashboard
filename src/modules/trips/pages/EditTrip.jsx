@@ -60,7 +60,8 @@ export const EditTrip = () => {
     selectedRoute: null,
     selectedVehicle: null,
     routes: [],
-    routeTiming: {}
+    routeTiming: {},
+    seatingCapacity: ''
   });
 
   // Load Edit Data
@@ -101,7 +102,8 @@ export const EditTrip = () => {
             selectedRoute: { routes: data.routes, fareMatrix: data.fareMatrix, order: data.order, routePairs: data.routePairs },
             selectedVehicle: { seatingCapacity: vehicleSeatingCapacity },
             routes: data.routes || [],
-            routeTiming: data.routeTiming || {}
+            routeTiming: data.routeTiming || {},
+            seatingCapacity: vehicleSeatingCapacity || ''
           });
           setDriverSearch(data.driver_name || '');
           setVehicleSearch(data.vehicle_reg || '');
@@ -206,7 +208,7 @@ export const EditTrip = () => {
     }
 
     setSaving(true);
-    const capacity = parseInt(formData.selectedVehicle?.seatingCapacity || 0);
+    const capacity = parseInt(formData.seatingCapacity || 0);
     const allDates = schedules.map(item => item.date);
     const availableSeatsMap = {};
     schedules.forEach(item => {
@@ -302,7 +304,7 @@ export const EditTrip = () => {
           </div>
 
           <div className="px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               <div className="md:col-span-2">
                 <Autocomplete
                   label="Verified Operator"
@@ -335,7 +337,7 @@ export const EditTrip = () => {
                   loading={vehiclesLoadingLocal}
                   results={vehiclesList}
                   onSelect={(vehicle) => {
-                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle }));
+                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle, seatingCapacity: vehicle.seatingCapacity || '' }));
                     setVehicleSearch(vehicle.registrationNo);
                   }}
                   renderItem={(vehicle) => (
@@ -345,6 +347,22 @@ export const EditTrip = () => {
                     </div>
                   )}
                 />
+              </div>
+
+              {/* Seating Capacity */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
+                <div className="relative">
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="number"
+                    name="seatingCapacity"
+                    value={formData.seatingCapacity}
+                    onChange={(e) => setFormData(prev => ({ ...prev, seatingCapacity: e.target.value }))}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                    placeholder="0"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
