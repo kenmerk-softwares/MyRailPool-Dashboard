@@ -27,6 +27,9 @@ exports.addVehicle = addVehicle;
 const {addTrip} = require("./modules/trip/trip.callable");
 exports.addTrip = addTrip;
 
+const {autoCompleteExpiredTrips} = require("./modules/trip/trip.scheduled");
+exports.autoCompleteExpiredTrips = autoCompleteExpiredTrips;
+
 // ================ USER MODULES ==================== //
 const {tripBooking, createUser} = require("./modules/user/user.callable");
 exports.tripBooking = tripBooking;
