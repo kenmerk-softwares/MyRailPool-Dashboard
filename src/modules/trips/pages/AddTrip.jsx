@@ -18,7 +18,7 @@ import {
 import { db } from '../../../shared/services/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { Autocomplete } from '../../../components/Shared';
-import {  useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 
@@ -27,7 +27,7 @@ export const AddTrip = () => {
   const { showToast } = useToast();
 
   const [saving, setSaving] = useState(false);
-  
+
   // Local state for isolated autocompletes
   const [driversList, setDriversList] = useState([]);
   const [driversLoadingLocal, setDriversLoadingLocal] = useState(false);
@@ -68,8 +68,8 @@ export const AddTrip = () => {
       const q = query(colRef, limit(20));
       const snap = await getDocs(q);
       const list = snap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-      const filtered = list.filter(d => 
-        d.name?.toLowerCase().includes(queryStr.toLowerCase()) || 
+      const filtered = list.filter(d =>
+        d.name?.toLowerCase().includes(queryStr.toLowerCase()) ||
         d.mobile?.toLowerCase().includes(queryStr.toLowerCase())
       );
       setDriversList(filtered);
@@ -84,8 +84,8 @@ export const AddTrip = () => {
       const q = query(colRef, limit(20));
       const snap = await getDocs(q);
       const list = snap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-      const filtered = list.filter(v => 
-        v.registrationNo?.toLowerCase().includes(queryStr.toLowerCase()) || 
+      const filtered = list.filter(v =>
+        v.registrationNo?.toLowerCase().includes(queryStr.toLowerCase()) ||
         v.make?.toLowerCase().includes(queryStr.toLowerCase())
       );
       setVehiclesList(filtered);
@@ -112,19 +112,19 @@ export const AddTrip = () => {
   useEffect(() => {
     const timer = setTimeout(() => fetchDriversLocal(driverSearch), 400);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverSearch, formData.driver]);
 
   useEffect(() => {
     const timer = setTimeout(() => fetchVehiclesLocal(vehicleSearch), 400);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleSearch, formData.vehicle_reg]);
 
   useEffect(() => {
     const timer = setTimeout(() => fetchRoutesLocal(routeSearch), 400);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeSearch, formData.route]);
 
 
@@ -161,9 +161,9 @@ export const AddTrip = () => {
     }
 
     const itemsToSave = schedules.length > 0 ? schedules : (formData.date ? [{
-        date: formData.date,
-        routeTiming: formData.routeTiming,
-        passengerCount: formData.total_pcount
+      date: formData.date,
+      routeTiming: formData.routeTiming,
+      passengerCount: formData.total_pcount
     }] : []);
 
     if (itemsToSave.length === 0) {
@@ -172,7 +172,8 @@ export const AddTrip = () => {
     }
 
     setSaving(true);
-    const capacity = parseInt(formData.selectedVehicle?.seatingCapacity || 0);
+    const rawcapacity = formData.selectedVehicle?.seatingCapacity || 0
+    const capacity = parseInt(rawcapacity);
     const allDates = itemsToSave.map(item => item.date);
     const availableSeatsMap = {};
     itemsToSave.forEach(item => {
@@ -204,7 +205,7 @@ export const AddTrip = () => {
         type: "add",
         fields: payload
       });
-      
+
       if (res.success) {
         showToast("Trip scheduled successfully!", "success");
         navigate('/trips');
@@ -222,7 +223,7 @@ export const AddTrip = () => {
 
   return (
     <div className="max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
+
       {/* Header Bar */}
       <div className="flex items-center justify-between mb-6 px-2">
         <div className="flex items-center gap-4">
@@ -239,7 +240,7 @@ export const AddTrip = () => {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        
+
         {/* ── Section 1: Resource Allocation ── */}
         <div className="space-y-4 mt-4">
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
@@ -251,7 +252,7 @@ export const AddTrip = () => {
 
           <div className="px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              
+
               {/* Driver Autocomplete */}
               <div className="md:col-span-2">
                 <Autocomplete
@@ -326,13 +327,13 @@ export const AddTrip = () => {
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-              
+
               <div className="md:col-span-2">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Select Route Corridor</label>
                   {formData.routeId && (
-                    <Link 
-                      to={`/routes/view/${formData.routeId}`} 
+                    <Link
+                      to={`/routes/view/${formData.routeId}`}
                       target="_blank"
                       className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 flex items-center gap-1 uppercase tracking-widest transition-colors"
                     >
@@ -408,8 +409,8 @@ export const AddTrip = () => {
                         </div>
                         <div className="mt-4 text-center px-2">
                           <p className="text-[11px] font-black text-slate-800 truncate w-32 uppercase tracking-tighter" title={typeof stop === 'string' ? stop : ''}>
-                          {typeof stop === 'string' ? stop : 'Unknown Stop'}
-                        </p>
+                            {typeof stop === 'string' ? stop : 'Unknown Stop'}
+                          </p>
                           <div className="mt-2">
                             <input
                               type="time"
