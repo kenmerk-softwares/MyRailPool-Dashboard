@@ -172,7 +172,8 @@ export const AddTrip = () => {
     }
 
     setSaving(true);
-    const capacity = parseInt(formData.selectedVehicle?.seatingCapacity || 0);
+    const rawCapacity = formData.selectedVehicle?.seatingCapacity || 0;
+    const capacity = parseInt(rawCapacity) || 0;
     const allDates = itemsToSave.map(item => item.date);
     const availableSeatsMap = {};
     itemsToSave.forEach(item => {
@@ -286,7 +287,13 @@ export const AddTrip = () => {
                   loading={vehiclesLoadingLocal}
                   results={vehiclesList}
                   onSelect={(vehicle) => {
-                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle }));
+                    setFormData(prev => ({ 
+                      ...prev, 
+                      vehicle_reg: vehicle.registrationNo, 
+                      vehicleId: vehicle.docId, 
+                      selectedVehicle: vehicle,
+                      total_pcount: vehicle.seatingCapacity || ''
+                    }));
                     setVehicleSearch(vehicle.registrationNo);
                   }}
                   renderItem={(vehicle) => (
@@ -464,8 +471,9 @@ export const AddTrip = () => {
                   <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="number" name="total_pcount" value={formData.total_pcount} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
-                    placeholder="0"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold focus:border-indigo-500 outline-none transition-all text-sm cursor-not-allowed"
+                    placeholder="Auto-filled"
+                    readOnly
                   />
                 </div>
               </div>
