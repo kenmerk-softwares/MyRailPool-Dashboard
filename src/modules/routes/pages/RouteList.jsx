@@ -100,12 +100,12 @@ export const RouteList = () => {
               >
                 <Edit className="w-4 h-4" />
               </Link>
-              <button 
+              {/* <button 
                 className="p-2 bg-white border border-red-100 text-red-500 hover:text-red-700 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Delete Route"
               >
                 <Trash2 className="w-4 h-4" />
-              </button>
+              </button> */}
             </div>
           )}
         />

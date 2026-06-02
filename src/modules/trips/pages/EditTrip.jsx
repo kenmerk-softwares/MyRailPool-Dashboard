@@ -30,7 +30,7 @@ export const EditTrip = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   // Local state for isolated autocompletes
   const [driversList, setDriversList] = useState([]);
   const [driversLoadingLocal, setDriversLoadingLocal] = useState(false);
@@ -60,7 +60,8 @@ export const EditTrip = () => {
     selectedRoute: null,
     selectedVehicle: null,
     routes: [],
-    routeTiming: {}
+    routeTiming: {},
+    seatingCapacity: ''
   });
 
   // Load Edit Data
@@ -73,6 +74,19 @@ export const EditTrip = () => {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
+
+          let vehicleSeatingCapacity = data.total_seats;
+          if (data.vehicle_id) {
+            try {
+              const vehicleRef = doc(db, "vehicles", data.vehicle_id);
+              const vehicleSnap = await getDoc(vehicleRef);
+              if (vehicleSnap.exists()) {
+                vehicleSeatingCapacity = vehicleSnap.data().seatingCapacity || data.total_seats;
+              }
+            } catch (err) {
+              console.error("Error fetching vehicle seating capacity:", err);
+            }
+          }
           setFormData({
             driver: data.driver_name || '',
             driverId: data.driver_id || '',
@@ -86,21 +100,22 @@ export const EditTrip = () => {
             date: '',
             total_pcount: '',
             selectedRoute: { routes: data.routes, fareMatrix: data.fareMatrix, order: data.order, routePairs: data.routePairs },
-            selectedVehicle: { seatingCapacity: data.total_seats },
+            selectedVehicle: { seatingCapacity: vehicleSeatingCapacity },
             routes: data.routes || [],
-            routeTiming: data.routeTiming || {}
+            routeTiming: data.routeTiming || {},
+            seatingCapacity: vehicleSeatingCapacity || ''
           });
           setDriverSearch(data.driver_name || '');
           setVehicleSearch(data.vehicle_reg || '');
           setRouteSearch(data.route_name || '');
 
-          const initialSchedules = Array.isArray(data.selectedDates) 
+          const initialSchedules = Array.isArray(data.selectedDates)
             ? data.selectedDates.map((d, idx) => ({
-                id: idx,
-                date: typeof d === 'string' ? d : '',
-                routeTiming: data.routeTiming || {},
-                passengerCount: data.available_seats?.[d] || 0
-              })).filter(s => s.date !== '')
+              id: idx,
+              date: typeof d === 'string' ? d : '',
+              routeTiming: data.routeTiming || {},
+              passengerCount: data.available_seats?.[d] || 0
+            })).filter(s => s.date !== '')
             : [];
           setSchedules(initialSchedules);
         } else {
@@ -126,8 +141,8 @@ export const EditTrip = () => {
       const q = query(colRef, limit(20));
       const snap = await getDocs(q);
       const list = snap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-      const filtered = list.filter(d => 
-        d.name?.toLowerCase().includes(queryStr.toLowerCase()) || 
+      const filtered = list.filter(d =>
+        d.name?.toLowerCase().includes(queryStr.toLowerCase()) ||
         d.mobile?.toLowerCase().includes(queryStr.toLowerCase())
       );
       setDriversList(filtered);
@@ -142,8 +157,8 @@ export const EditTrip = () => {
       const q = query(colRef, limit(20));
       const snap = await getDocs(q);
       const list = snap.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-      const filtered = list.filter(v => 
-        v.registrationNo?.toLowerCase().includes(queryStr.toLowerCase()) || 
+      const filtered = list.filter(v =>
+        v.registrationNo?.toLowerCase().includes(queryStr.toLowerCase()) ||
         v.make?.toLowerCase().includes(queryStr.toLowerCase())
       );
       setVehiclesList(filtered);
@@ -193,7 +208,7 @@ export const EditTrip = () => {
     }
 
     setSaving(true);
-    const capacity = parseInt(formData.selectedVehicle?.seatingCapacity || 0);
+    const capacity = parseInt(formData.seatingCapacity || 0);
     const allDates = schedules.map(item => item.date);
     const availableSeatsMap = {};
     schedules.forEach(item => {
@@ -289,7 +304,7 @@ export const EditTrip = () => {
           </div>
 
           <div className="px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               <div className="md:col-span-2">
                 <Autocomplete
                   label="Verified Operator"
@@ -322,7 +337,7 @@ export const EditTrip = () => {
                   loading={vehiclesLoadingLocal}
                   results={vehiclesList}
                   onSelect={(vehicle) => {
-                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle }));
+                    setFormData(prev => ({ ...prev, vehicle_reg: vehicle.registrationNo, vehicleId: vehicle.docId, selectedVehicle: vehicle, seatingCapacity: vehicle.seatingCapacity || '' }));
                     setVehicleSearch(vehicle.registrationNo);
                   }}
                   renderItem={(vehicle) => (
@@ -332,6 +347,22 @@ export const EditTrip = () => {
                     </div>
                   )}
                 />
+              </div>
+
+              {/* Seating Capacity */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
+                <div className="relative">
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="number"
+                    name="seatingCapacity"
+                    value={formData.seatingCapacity}
+                    onChange={(e) => setFormData(prev => ({ ...prev, seatingCapacity: e.target.value }))}
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                    placeholder="0"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -364,8 +395,8 @@ export const EditTrip = () => {
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Select Route Corridor</label>
                   {formData.routeId && (
-                    <Link 
-                      to={`/routes/view/${formData.routeId}`} 
+                    <Link
+                      to={`/routes/view/${formData.routeId}`}
                       target="_blank"
                       className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 flex items-center gap-1 uppercase tracking-widest transition-colors"
                     >

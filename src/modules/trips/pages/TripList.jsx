@@ -261,12 +261,12 @@ export const TripList = () => {
               >
                 <Edit className="w-4 h-4" />
               </button>
-              <button
+              {/* <button
                 className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Terminate Trip"
               >
                 <Trash2 className="w-4 h-4" />
-              </button>
+              </button> */}
             </div>
           )}
         />
