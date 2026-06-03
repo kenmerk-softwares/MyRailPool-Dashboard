@@ -182,7 +182,8 @@ export const AddDriver = () => {
               {/* Address */}
               <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                  Residential Address
+                  Residential Address 
+                  <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />

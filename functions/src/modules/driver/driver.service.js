@@ -1,13 +1,13 @@
-const {db, auth} = require("../../shared/config/firebase");
-const {FieldValue} = require("firebase-admin/firestore");
+const { db, auth } = require("../../shared/config/firebase");
+const { FieldValue } = require("firebase-admin/firestore");
 
 const addDriverService = async (data, req) => {
-  const {fields} = data;
+  const { fields } = data;
   const counterRef = db.collection("configurations").doc("driver-settings");
   const counterDoc = await counterRef.get();
 
   if (!counterDoc.exists) {
-    return {success: false, error: "Driver settings not found"};
+    return { success: false, error: "Driver settings not found" };
   }
   const batch = db.batch();
   if (data.type === "add") {
@@ -20,7 +20,7 @@ const addDriverService = async (data, req) => {
       password: "password123",
       displayName: fields.name,
     });
-    batch.update(counterRef, {counter: newCounterId});
+    batch.update(counterRef, { counter: newCounterId });
     const driverRef = db.collection("drivers").doc(userRecord.uid);
     const driverData = {
       ...fields,
@@ -45,7 +45,7 @@ const addDriverService = async (data, req) => {
     batch.update(driverRef, driverData);
   }
   await batch.commit();
-  return {success: true, message: `Driver ${data.type === "add" ? "added" : "updated"} successfully`};
+  return { success: true, message: `Driver ${data.type === "add" ? "added" : "updated"} successfully` };
 };
 
-module.exports = {addDriverService};
+module.exports = { addDriverService };

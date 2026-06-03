@@ -175,7 +175,7 @@ export const EditVehicle = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
         
         {/* ── Section 1: Asset Identity ── */}
         <div className="space-y-4 mt-4">
@@ -319,26 +319,50 @@ export const EditVehicle = () => {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               <div className="md:col-span-2 space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Assigned Driver</label>
-                <div className="relative" ref={dropdownRef}>
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text" value={driverSearch}
-                    onChange={(e) => { setDriverSearch(e.target.value); setShowDriverResults(true); }}
-                    onFocus={() => setShowDriverResults(true)} className={inputCls('assignedDriver')}
-                  />
-                  {showDriverResults && drivers.length > 0 && (
-                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2">
-                      {drivers.map(driver => (
-                        <button key={driver.id} type="button" onClick={() => { setFormData(p => ({ ...p, assignedDriver: driver.name, driverId: driver.docId })); setDriverSearch(driver.name); setShowDriverResults(false); }} className="w-full text-left px-4 py-2 hover:bg-indigo-50 flex flex-col gap-0.5 border-b border-slate-50 last:border-0">
-                          <span className="font-bold text-slate-800 text-sm">{driver.name}</span>
-                          <span className="text-[10px] text-slate-500 uppercase">{driver.mobile}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                                Assigned Driver
+                              </label>
+                              <div className="relative" ref={dropdownRef}>
+                                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                  type="text"
+                                  placeholder="Search active drivers..."
+                                  value={driverSearch}
+                                  onChange={(e) => {
+                                    setDriverSearch(e.target.value);
+                                    setShowDriverResults(true);
+                                    if (!e.target.value) {
+                                      setFormData(prev => ({ ...prev, assignedDriver: '', driverId: '' }));
+                                    }
+                                  }}
+                                  onFocus={() => setShowDriverResults(true)}
+                                  className={inputCls('assignedDriver')}
+                                />
+                                {showDriverResults && drivers.length > 0 && (
+                                  <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2">
+                                    {drivers.map(driver => (
+                                      <button
+                                        key={driver.id}
+                                        type="button"
+                                        onClick={() => {
+                                          setFormData(prev => ({ 
+                                            ...prev, 
+                                            assignedDriver: driver.name,
+                                            driverId: driver.docId
+                                          }));
+                                          setDriverSearch(driver.name);
+                                          setShowDriverResults(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2 hover:bg-indigo-50 transition-colors flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
+                                      >
+                                        <span className="font-bold text-slate-800 text-sm">{driver.name}</span>
+                                        <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{driver.mobile || 'No Mobile'}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
               <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Internal Remarks</label>
                 <textarea rows="1" name="notes" value={formData.notes} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none resize-none" placeholder="Notes..." />
@@ -348,7 +372,7 @@ export const EditVehicle = () => {
         </div>
 
         {/* ── Footer Actions ── */}
-        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 rounded-b-2xl">
           <Link to="/vehicles" className="w-full sm:w-auto text-center px-6 py-1.5 rounded-xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 transition-all text-sm uppercase tracking-wider">Cancel</Link>
           <button type="submit" disabled={updating} className="w-full sm:w-auto justify-center bg-indigo-600 text-white px-10 py-1.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2.5">
             {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
