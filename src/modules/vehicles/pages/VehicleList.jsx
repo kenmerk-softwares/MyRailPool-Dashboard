@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useVehicles } from '../hooks/vehicle.useVehicles';
+import { exportToExcel } from '../../../shared/utils/export';
 
 export const VehicleList = () => {
   const { vehicles, loading, hasMore, fetchVehicles } = useVehicles();
@@ -35,6 +36,21 @@ export const VehicleList = () => {
     navigate(`edit/${docId}`);
   };
 
+  const handleExport = () => {
+    exportToExcel(vehicles, {
+      registrationNo: 'Registration No',
+      make: 'Make',
+      model: 'Model',
+      colour: 'Colour',
+      seatingCapacity: 'Seating Capacity',
+      phVehicleLicence: 'PH Licence',
+      licenceExpiry: 'Licence Expiry',
+      driverName: 'Assigned Driver',
+      status: 'Status',
+      createdAt: 'Added Date'
+    }, 'Vehicles');
+  };
+
   return (
     <div className="animate-in fade-in duration-700">
       <SectionHeader
@@ -43,6 +59,7 @@ export const VehicleList = () => {
         actionLabel="Add Vehicle"
         actionIcon={Plus}
         actionTo="/vehicles/add"
+        onExportClick={handleExport}
       />
 
       <div className="pb-10">

@@ -6,6 +6,7 @@ import { db, storage } from '../../shared/services/firebase';
 import { SectionHeader, StatusBadge } from '../../components/Shared';
 import { Table } from '../../shared/Table/Table';
 import { useToast } from '../../shared/hooks/ToastContext';
+import { exportToExcel } from '../../shared/utils/export';
 
 const NOTIFICATION_TYPES = [
   {
@@ -139,6 +140,16 @@ export const NotificationModalList = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const handleExport = () => {
+    exportToExcel(filteredModals, {
+      id: 'Type ID',
+      title: 'Title',
+      message: 'Message Content',
+      targetAudience: 'Target Audience',
+      status: 'Status'
+    }, 'NotificationModals');
+  };
+
   return (
     <div className="animate-in fade-in duration-700">
       <SectionHeader
@@ -147,6 +158,7 @@ export const NotificationModalList = () => {
         actionLabel="Add Modal"
         actionIcon={Plus}
         onActionClick={openAddModal}
+        onExportClick={handleExport}
       />
 
       <div className="pb-10">

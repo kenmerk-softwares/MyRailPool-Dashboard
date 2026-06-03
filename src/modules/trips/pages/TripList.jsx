@@ -5,6 +5,7 @@ import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useTrips } from '../hooks/trip.useTrips';
 import { useToast } from '../../../shared/hooks/ToastContext';
+import { exportToExcel } from '../../../shared/utils/export';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 import DeleteModal from '../../../shared/DeleteModal/DeleteModal';
 import { collection, query, where, getCountFromServer } from 'firebase/firestore';
@@ -120,9 +121,19 @@ export const TripList = () => {
     fetchConfirmedCount();
   }, [cancelModal.isOpen, cancelModal.trip]);
 
-
-
-
+  const handleExport = () => {
+    exportToExcel(trips, {
+      tripNo: 'Trip Number',
+      route_name: 'Route Name',
+      route_type: 'Route Type',
+      total_seats: 'Total Seats',
+      driver_name: 'Driver Name',
+      vehicle_reg: 'Vehicle Registration',
+      status: 'Status',
+      total_bookings: 'Total Bookings',
+      createdAt: 'Scheduled Date'
+    }, 'Trips');
+  };
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -132,6 +143,7 @@ export const TripList = () => {
         actionLabel="Schedule Trip"
         actionIcon={Plus}
         actionTo="/trips/add"
+        onExportClick={handleExport}
       />
 
       <div className="pb-10">

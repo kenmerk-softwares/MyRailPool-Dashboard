@@ -34,30 +34,39 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendUp, trendLabel 
   </div>
 );
 
-export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, actionTo, onActionClick }) => (
+export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, actionTo, onActionClick, onExportClick }) => (
   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 md:mb-8 gap-4 sm:gap-0">
     <div>
       <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">{title}</h2>
       <p className="text-sm md:text-base text-slate-500 mt-1">{subtitle}</p>
     </div>
-    {actionLabel && (
+    {(actionLabel || onExportClick) && (
       <div className="flex flex-wrap gap-2 md:gap-3">
-        <button className="bg-white border text-slate-700 border-slate-200 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm flex-1 sm:flex-none text-center justify-center">
-          Export
-        </button>
-        {actionTo ? (
-          <Link to={actionTo} className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none">
-            {Icon && <Icon className="w-4 h-4" />}
-            {actionLabel}
-          </Link>
-        ) : (
+        {onExportClick && (
           <button 
-            onClick={onActionClick}
-            className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none"
+            onClick={onExportClick}
+            className="bg-white border text-slate-700 border-slate-200 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm flex-1 sm:flex-none text-center justify-center"
           >
-            {Icon && <Icon className="w-4 h-4" />}
-            {actionLabel}
+            Export
           </button>
+        )}
+        {actionLabel && (
+          <>
+            {actionTo ? (
+              <Link to={actionTo} className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none">
+                {Icon && <Icon className="w-4 h-4" />}
+                {actionLabel}
+              </Link>
+            ) : (
+              <button 
+                onClick={onActionClick}
+                className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none"
+              >
+                {Icon && <Icon className="w-4 h-4" />}
+                {actionLabel}
+              </button>
+            )}
+          </>
         )}
       </div>
     )}

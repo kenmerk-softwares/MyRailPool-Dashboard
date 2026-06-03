@@ -8,6 +8,7 @@ import { useUsers } from '../hooks/user.useUsers';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 import { Table } from '../../../shared/Table/Table';
 import { StatusBadge } from '../../../components/Shared';
+import { exportToExcel } from '../../../shared/utils/export';
 
 export const AdminUserList = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -95,6 +96,16 @@ export const AdminUserList = () => {
     }
   };
 
+  const handleExport = () => {
+    exportToExcel(users, {
+      name: 'Name',
+      email: 'Email',
+      role: 'Role',
+      status: 'Status',
+      createdAt: 'Created At'
+    }, 'AdminUsers');
+  };
+
   return (
     <>
       <SectionHeader
@@ -106,6 +117,7 @@ export const AdminUserList = () => {
           setSelectedUser(null);
           setIsAddModalOpen(true);
         }}
+        onExportClick={handleExport}
       />
 
       <div className="pb-10">

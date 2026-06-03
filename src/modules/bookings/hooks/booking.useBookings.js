@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { collection, getDocs, query, where, limit, startAfter, orderBy, Timestamp } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
 import { setBookings, setLoading } from "../booking.slice";
 import { serialize } from "../../../shared/utils/serialize";
@@ -12,8 +12,10 @@ export const useBookings = () => {
     const dispatch = useDispatch();
     const bookings = useSelector((state) => state.booking.list);
     const loading = useSelector((state) => state.booking.loading);
-    const [lastVisible, setLastVisible] = useState(null);
     const [hasMore, setHasMore] = useState(true);
+
+    const allBookingsRef = useRef([]);
+    const visibleCountRef = useRef(15);
 
     const fetchBookings = useCallback(async ({
         searchQuery = "",
@@ -24,110 +26,80 @@ export const useBookings = () => {
     } = {}) => {
         dispatch(setLoading(true));
         try {
-            const colRef = collection(db, "bookings");
-            let docs = [];
-            let lastDoc = null;
+            let rawData = allBookingsRef.current;
 
-            // if user typed something in the search box
+            if (!isLoadMore || rawData.length === 0) {
+                const colRef = collection(db, "bookings");
+                const q = query(colRef, orderBy("updatedAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                rawData = serialize(querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data()
+                })));
+                allBookingsRef.current = rawData;
+            }
+
+            // Apply search filter client-side (case-insensitive)
+            let filtered = rawData;
             if (searchQuery && searchQuery.trim() !== "") {
-                const s = searchQuery.trim();
-
-                // run 3 queries at the same time for route name and driver name
-                const queryPromises = [
-                    getDocs(query(
-                        colRef,
-                        where("route_name", ">=", s),
-                        where("route_name", "<=", s + "\uf8ff"),
-                        limit(15)
-                    )),
-                    getDocs(query(
-                        colRef,
-                        where("driver_name", ">=", s),
-                        where("driver_name", "<=", s + "\uf8ff"),
-                        limit(15)
-                    )),
-                ];
-
-                // also search by trip number if the input looks like a number
-                if (!isNaN(s) && s !== "") {
-                    queryPromises.push(
-                        getDocs(query(
-                            colRef,
-                            where("tripNo", "==", Number(s)),
-                            limit(5)
-                        ))
+                const s = searchQuery.toLowerCase().trim();
+                filtered = filtered.filter(booking => {
+                    const tripNoStr = booking.tripNo !== undefined ? String(booking.tripNo) : "";
+                    return (
+                        tripNoStr.includes(s) ||
+                        (booking.route_name && booking.route_name.toLowerCase().includes(s)) ||
+                        (booking.driver_name && booking.driver_name.toLowerCase().includes(s)) ||
+                        (booking.route_start && booking.route_start.toLowerCase().includes(s)) ||
+                        (booking.route_end && booking.route_end.toLowerCase().includes(s)) ||
+                        (booking.id && booking.id.toLowerCase().includes(s))
                     );
-                }
-
-                const snapshots = await Promise.all(queryPromises);
-
-                // merge all results and remove duplicates
-                const seen = new Set();
-                snapshots.forEach((snap) => {
-                    snap.docs.forEach((d) => {
-                        if (!seen.has(d.id)) {
-                            const data = serialize({ id: d.id, ...d.data() });
-
-                            // check status filter — status is inside users[] so we do it here
-                            if (activeFilter) {
-                                const users = data.users || [];
-                                const hasPending = users.some((u) => u.status === "Pending");
-                                const docStatus = hasPending ? "Pending" : "Confirmed";
-                                if (docStatus !== activeFilter) return;
-                            }
-
-                            seen.add(d.id);
-                            docs.push(data);
-                        }
-                    });
                 });
-
-                // no pagination when searching
-                setHasMore(false);
-                setLastVisible(null);
-
-            // normal browse — just fetch latest bookings
-            } else {
-                const constraints = [orderBy("updatedAt", "desc")];
-
-                // filter by date range if the user picked dates
-                if (fromDate) {
-                    constraints.push(where("updatedAt", ">=", Timestamp.fromDate(new Date(fromDate + "T00:00:00"))));
-                }
-                if (toDate) {
-                    constraints.push(where("updatedAt", "<=", Timestamp.fromDate(new Date(toDate + "T23:59:59"))));
-                }
-
-                // load more uses cursor to continue from where we left off
-                if (isLoadMore && lastVisible) {
-                    constraints.push(startAfter(lastVisible));
-                }
-                constraints.push(limit(15));
-
-                const snapshot = await getDocs(query(colRef, ...constraints));
-                docs = snapshot.docs.map((d) => serialize({ id: d.id, ...d.data() }));
-
-                // status is inside users[] so we filter it here manually
-                if (activeFilter) {
-                    docs = docs.filter((d) => {
-                        const users = d.users || [];
-                        if (users.length === 0) return false;
-                        const hasPending = users.some((u) => u.status === "Pending");
-                        return (hasPending ? "Pending" : "Confirmed") === activeFilter;
-                    });
-                }
-
-                lastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
-                setLastVisible(lastDoc);
-                setHasMore(snapshot.docs.length === 15);
             }
 
-            // if loading more, add to existing list, else replace
-            if (isLoadMore && !searchQuery) {
-                dispatch(setBookings([...bookings, ...docs]));
-            } else {
-                dispatch(setBookings(docs));
+            // Apply status filter client-side
+            if (activeFilter && activeFilter.trim() !== "") {
+                filtered = filtered.filter((booking) => {
+                    const users = booking.users || [];
+                    const hasPending = users.some((u) => u.status === "Pending");
+                    const docStatus = hasPending ? "Pending" : "Confirmed";
+                    return docStatus.toLowerCase() === activeFilter.toLowerCase();
+                });
             }
+
+            // Apply date filters client-side
+            if (fromDate || toDate) {
+                const fromTime = fromDate ? new Date(fromDate + "T00:00:00").getTime() : null;
+                const toTime = toDate ? new Date(toDate + "T23:59:59").getTime() : null;
+
+                filtered = filtered.filter(booking => {
+                    let bookingTime = null;
+                    if (booking.updatedAt) {
+                        bookingTime = new Date(booking.updatedAt).getTime();
+                    } else if (booking.createdAt) {
+                        bookingTime = new Date(booking.createdAt).getTime();
+                    }
+
+                    const timeMatches = bookingTime && (!fromTime || bookingTime >= fromTime) && (!toTime || bookingTime <= toTime);
+
+                    const selectedMatches = booking.selectedDate && (() => {
+                        const dTime = new Date(booking.selectedDate + "T00:00:00").getTime();
+                        return (!fromTime || dTime >= fromTime) && (!toTime || dTime <= toTime);
+                    })();
+
+                    return timeMatches || selectedMatches;
+                });
+            }
+
+            // Handle pagination slicing client-side
+            if (!isLoadMore) {
+                visibleCountRef.current = 15;
+            } else {
+                visibleCountRef.current += 15;
+            }
+
+            const sliced = filtered.slice(0, visibleCountRef.current);
+            dispatch(setBookings(sliced));
+            setHasMore(visibleCountRef.current < filtered.length);
 
         } catch (error) {
             console.error("Error fetching bookings:", error);
@@ -135,7 +107,7 @@ export const useBookings = () => {
             dispatch(setLoading(false));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dispatch, lastVisible]);
+    }, [dispatch]);
 
     const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);
 

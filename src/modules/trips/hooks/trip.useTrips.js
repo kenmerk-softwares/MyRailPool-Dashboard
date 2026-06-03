@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { collection, getDocs, query, where, limit, startAfter, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
 import { setTrips, setLoading } from "../trip.slice";
 import { serialize } from "../../../shared/utils/serialize";
@@ -10,71 +10,87 @@ export const useTrips = () => {
 	const trips = useSelector((state) => state.trip.list);
 	const loading = useSelector((state) => state.trip.loading);
 	const [hasMore, setHasMore] = useState(true);
-	const lastVisibleRef = useRef(null);
+
+	const allTripsRef = useRef([]);
+	const visibleCountRef = useRef(10);
 
 	const fetchTrips = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false } = {}) => {
 		dispatch(setLoading(true));
 		try {
-			const tripsCollection = collection(db, "trips");
-			let q = query(tripsCollection, orderBy("createdAt", "desc"), limit(10));
+			let rawData = allTripsRef.current;
 
-			if (activeFilter && activeFilter !== "" && activeFilter !== "All Status") {
-				q = query(q, where("status", "==", activeFilter));
+			if (!isLoadMore || rawData.length === 0) {
+				const tripsCollection = collection(db, "trips");
+				const q = query(tripsCollection, orderBy("createdAt", "desc"));
+				const querySnapshot = await getDocs(q);
+				rawData = serialize(querySnapshot.docs.map((doc) => ({
+					id: doc.id,
+					...doc.data()
+				})));
+				allTripsRef.current = rawData;
 			}
 
-			if (searchQuery) {
-				q = query(q,
-					where("route_name", ">=", searchQuery),
-					where("route_name", "<=", searchQuery + "\uf8ff")
+			// Apply search filter client-side (case-insensitive)
+			let filtered = rawData;
+			if (searchQuery && searchQuery.trim() !== "") {
+				const s = searchQuery.toLowerCase();
+				filtered = filtered.filter(trip => 
+					(trip.tripId && trip.tripId.toLowerCase().includes(s)) ||
+					(trip.driver_name && trip.driver_name.toLowerCase().includes(s)) ||
+					(trip.vehicle_reg && trip.vehicle_reg.toLowerCase().includes(s)) ||
+					(trip.route_name && trip.route_name.toLowerCase().includes(s)) ||
+					(trip.id && trip.id.toLowerCase().includes(s))
 				);
 			}
 
-			if (isLoadMore && lastVisibleRef.current) {
-				q = query(q, startAfter(lastVisibleRef.current));
+			// Apply status filter client-side (case-insensitive)
+			if (activeFilter && activeFilter.trim() !== "" && activeFilter !== "All Status") {
+				filtered = filtered.filter(trip => 
+					trip.status && trip.status.toLowerCase() === activeFilter.toLowerCase()
+				);
 			}
 
-			const querySnapshot = await getDocs(q);
-			let tripsData = serialize(querySnapshot.docs.map((doc) => ({
-				id: doc.id,
-				...doc.data()
-			})));
-
+			// Apply date filters client-side (check both creation date and scheduled dates)
 			if (fromDate || toDate) {
-				tripsData = tripsData.filter((trip) => {
-					let tripDate = null;
+				const fromTime = fromDate ? new Date(fromDate + "T00:00:00").getTime() : null;
+				const toTime = toDate ? new Date(toDate + "T23:59:59").getTime() : null;
+
+				filtered = filtered.filter(trip => {
+					let tripTime = null;
 					if (trip.createdAt) {
-						tripDate = new Date(trip.createdAt);
+						tripTime = new Date(trip.createdAt).getTime();
 					}
 
-					if (!tripDate || isNaN(tripDate.getTime())) return true;
+					// Check if creation date falls in range
+					const createdMatches = tripTime && (!fromTime || tripTime >= fromTime) && (!toTime || tripTime <= toTime);
 
-					const tripTime = tripDate.getTime();
-					const fromTime = fromDate ? new Date(fromDate).setHours(0, 0, 0, 0) : null;
-					const toTime = toDate ? new Date(toDate).setHours(23, 59, 59, 999) : null;
+					// Check if any selected dates fall in range
+					const selectedDateMatches = Array.isArray(trip.selectedDates) && trip.selectedDates.some(d => {
+						const dTime = new Date(d + "T00:00:00").getTime();
+						return (!fromTime || dTime >= fromTime) && (!toTime || dTime <= toTime);
+					});
 
-					if (fromTime && tripTime < fromTime) return false;
-					if (toTime && tripTime > toTime) return false;
-
-					return true;
+					return createdMatches || selectedDateMatches;
 				});
 			}
 
-			if (isLoadMore) {
-				dispatch(setTrips([...trips, ...tripsData]));
+			// Handle pagination slicing client-side
+			if (!isLoadMore) {
+				visibleCountRef.current = 10;
 			} else {
-				dispatch(setTrips(tripsData));
+				visibleCountRef.current += 10;
 			}
 
-			const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-			lastVisibleRef.current = lastDoc;
-			setHasMore(querySnapshot.docs.length === 10);
+			const sliced = filtered.slice(0, visibleCountRef.current);
+			dispatch(setTrips(sliced));
+			setHasMore(visibleCountRef.current < filtered.length);
 		} catch (error) {
 			console.error("Error fetching trips:", error);
 		} finally {
 			dispatch(setLoading(false));
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, trips]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch]);
 
 	const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);
 
