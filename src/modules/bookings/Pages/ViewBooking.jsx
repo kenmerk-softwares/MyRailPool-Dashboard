@@ -128,6 +128,81 @@ const CancelBookingModal = ({
   );
 };
 
+// Beautiful modal styled identically to CancelBookingModal for passenger details
+const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
+  if (!isOpen || !user) return null;
+
+  const passengerList = passengers || [];
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100 animate-in fade-in zoom-in duration-200">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center">
+              <Users className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">Passenger Details</h3>
+              <p className="text-xs text-slate-500 font-medium">Booked under: {user.name || 'Unknown'}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <XCircle className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="max-h-[350px] overflow-y-auto pr-1 space-y-3">
+          {passengerList.length === 0 ? (
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 shrink-0">
+                  <User className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-700 truncate">{user.name || 'Unknown'}</p>
+                  <p className="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
+                    <Phone className="w-3 h-3 text-slate-400" /> {user.phone || '—'}
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Primary</span>
+              </div>
+            </div>
+          ) : (
+            passengerList.map((p, idx) => (
+              <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-extrabold text-xs shrink-0">
+                    {idx + 1}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-700 truncate">{p.name || 'Unknown'}</p>
+                    <p className="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
+                      <Phone className="w-3 h-3 text-slate-400" /> {p.mobile || p.phone || '—'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ViewBooking = () => {
   const { id } = useParams();
   const docId = decodeURIComponent(id || '');
@@ -140,6 +215,7 @@ export const ViewBooking = () => {
 
   const { showToast } = useToast();
   const [cancelModal, setCancelModal] = useState({ isOpen: false, passenger: null });
+  const [passengerModal, setPassengerModal] = useState({ isOpen: false, user: null });
   const [refund, setRefund] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [confirmedPaymentsCount, setConfirmedPaymentsCount] = useState(0);
@@ -162,7 +238,6 @@ export const ViewBooking = () => {
 
       showToast(response?.message || 'Booking cancelled successfully', 'success');
 
-      // Close modal and refresh the document
       setCancelModal({ isOpen: false, passenger: null });
       setCancellationReason('');
       fetchDocument(docId);
@@ -416,17 +491,9 @@ export const ViewBooking = () => {
 
         {/* ===== 6. PASSENGERS ===== */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
-          <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-slate-50/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-50 rounded-lg"><Users className="w-4 h-4 text-indigo-600" /></div>
-              <h3 className="font-bold text-slate-800">
-                Passengers
-                <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-[11px] font-extrabold">{users.length}</span>
-              </h3>
-            </div>
-            <p className="text-xs text-slate-500">
-              Total: <span className="font-black text-emerald-600">₹{totalCollected}</span>
-            </p>
+          <div className="px-6 py-4 flex items-center gap-3 border-b border-slate-100 bg-slate-50/50">
+            <div className="p-2 bg-indigo-50 rounded-lg"><Users className="w-4 h-4 text-indigo-600" /></div>
+            <h3 className="font-bold text-slate-800">User Details</h3>
           </div>
 
           {users.length === 0 ? (
@@ -486,28 +553,46 @@ export const ViewBooking = () => {
                   </div>
 
                   {/* Status footer */}
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      {u.status === 'Confirmed'
-                        ? <><CheckCircle2 className="w-4 h-4 text-emerald-500" /><span className="text-xs font-bold text-emerald-600">Payment Confirmed</span></>
-                        : u.status === 'Cancelled'
-                          ? <><XCircle className="w-4 h-4 text-red-500" /><span className="text-xs font-bold text-red-600">Booking Cancelled</span></>
-                          : <><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs font-bold text-amber-600">Awaiting Payment</span></>
-                      }
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        {u.status === 'Confirmed'
+                          ? <><CheckCircle2 className="w-4 h-4 text-emerald-500" /><span className="text-xs font-bold text-emerald-600">Payment Confirmed</span></>
+                          : u.status === 'Cancelled'
+                            ? <><XCircle className="w-4 h-4 text-red-500" /><span className="text-xs font-bold text-red-600">Booking Cancelled</span></>
+                            : <><Clock className="w-4 h-4 text-amber-500" /><span className="text-xs font-bold text-amber-600">Awaiting Payment</span></>
+                        }
+                      </div>
+
+                      <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
+
+                      <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold">
+                        <span>Passenger Count: <span className="font-bold text-slate-800">{booking?.passengers?.length || u.bookingCount || 0}</span></span>
+                        <span>Total: <span className="font-bold text-emerald-600">₹{u.totalFare || 0}</span></span>
+                      </div>
                     </div>
 
-                    {u.status !== 'Cancelled' && (
+                    <div className="flex items-center gap-2 shrink-0">
                       <button
-                        onClick={() => {
-                          setRefund(false); // Reset refund selection for safety on open
-                          setCancellationReason(''); // Reset reason on open
-                          setCancelModal({ isOpen: true, passenger: u });
-                        }}
-                        className="px-3 py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold text-xs transition-all hover:shadow-sm active:scale-95 flex items-center gap-1.5"
+                        onClick={() => setPassengerModal({ isOpen: true, user: u })}
+                        className="px-3 py-1.5 bg-white border border-indigo-200 text-indigo-500 hover:bg-indigo-50 rounded-xl font-bold text-xs transition-all hover:shadow-sm active:scale-95 flex items-center gap-1.5"
                       >
-                        <XCircle className="w-3.5 h-3.5" /> Cancel Booking
+                        View Passenger Details
                       </button>
-                    )}
+
+                      {u.status !== 'Cancelled' && (
+                        <button
+                          onClick={() => {
+                            setRefund(false); // Reset refund selection for safety on open
+                            setCancellationReason(''); // Reset reason on open
+                            setCancelModal({ isOpen: true, passenger: u });
+                          }}
+                          className="px-3 py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold text-xs transition-all hover:shadow-sm active:scale-95 flex items-center gap-1.5"
+                        >
+                          <XCircle className="w-3.5 h-3.5" /> Cancel Booking
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -532,6 +617,13 @@ export const ViewBooking = () => {
         loading={cancelling}
         confirmedPaymentsCount={confirmedPaymentsCount}
         loadingPaymentsCount={loadingPaymentsCount}
+      />
+
+      <PassengerDetailsModal
+        isOpen={passengerModal.isOpen}
+        onClose={() => setPassengerModal({ isOpen: false, user: null })}
+        user={passengerModal.user}
+        passengers={booking?.passengers}
       />
     </div>
   );
