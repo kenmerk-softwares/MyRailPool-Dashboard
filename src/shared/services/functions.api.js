@@ -17,4 +17,5 @@ export const FunctionsAPI = {
   addTrip: (data) => callFunction("addTrip", data),
   cancelTrip: (data) => callFunction("cancelTrip", data),
   cancelBooking: (data) => callFunction("cancelBooking", data),
+  tripBooking: (data) => callFunction("tripBooking", data),
 };
