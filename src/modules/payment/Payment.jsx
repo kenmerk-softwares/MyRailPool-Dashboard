@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   DollarSign, CheckCircle, Clock, XCircle, RefreshCcw, Download
 } from 'lucide-react';
-import { collection, getDocs, query, orderBy, where, Timestamp, limit, doc, getDoc, getAggregateFromServer, sum, getCountFromServer } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../shared/services/firebase';
 import { serialize } from '../../shared/utils/serialize';
 import StatCard from './StatCard';
@@ -36,131 +36,58 @@ const Payment = () => {
     setLoading(true);
     try {
       const colRef = collection(db, 'finance');
-      let docs = [];
-      let currentTotalRevenue = 0;
-      let newServerStats = { confirmed: 0, pending: 0, cancelled: 0, online: 0 };
+      const snap = await getDocs(query(colRef, orderBy('createdAt', 'desc')));
+      const allDocs = snap.docs.map(d => serialize({ id: d.id, ...d.data() }));
 
-      // if searching, run parallel queries for bookingId, tripId, and description
-      if (searchTerm && searchTerm.trim() !== '') {
-        const s = searchTerm.trim();
-        const queryPromises = [];
+      // 1. Apply date filters to compute date-based aggregates
+      let dateFilteredDocs = allDocs;
+      if (fromDate || toDate) {
+        const fromTime = fromDate ? new Date(fromDate + 'T00:00:00').getTime() : null;
+        const toTime = toDate ? new Date(toDate + 'T23:59:59').getTime() : null;
 
-        // bookingId prefix query
-        let q1 = query(
-          colRef,
-          where("bookingId", ">=", s),
-          where("bookingId", "<=", s + "\uf8ff"),
-          limit(30)
-        );
-        if (statusFilter) {
-          q1 = query(colRef, where("bookingId", ">=", s), where("bookingId", "<=", s + "\uf8ff"), where("status", "==", statusFilter), limit(30));
-        }
-        queryPromises.push(getDocs(q1));
+        dateFilteredDocs = allDocs.filter(d => {
+          const createdTime = typeof d.createdAt === 'number' 
+            ? d.createdAt 
+            : (d.createdAt?.toDate ? d.createdAt.toDate().getTime() : new Date(d.createdAt).getTime());
 
-        // tripId prefix query
-        let q2 = query(
-          colRef,
-          where("tripId", ">=", s),
-          where("tripId", "<=", s + "\uf8ff"),
-          limit(30)
-        );
-        if (statusFilter) {
-          q2 = query(colRef, where("tripId", ">=", s), where("tripId", "<=", s + "\uf8ff"), where("status", "==", statusFilter), limit(30));
-        }
-        queryPromises.push(getDocs(q2));
-
-        // description prefix query
-        let q3 = query(
-          colRef,
-          where("description", ">=", s),
-          where("description", "<=", s + "\uf8ff"),
-          limit(30)
-        );
-        if (statusFilter) {
-          q3 = query(colRef, where("description", ">=", s), where("description", "<=", s + "\uf8ff"), where("status", "==", statusFilter), limit(30));
-        }
-        queryPromises.push(getDocs(q3));
-
-        const snapshots = await Promise.all(queryPromises);
-
-        const seen = new Set();
-        snapshots.forEach((snap) => {
-          snap.docs.forEach((d) => {
-            if (!seen.has(d.id)) {
-              const data = serialize({ id: d.id, ...d.data() });
-
-              // filter date range client-side since firestore doesn't allow inequality range on different fields
-              if (fromDate) {
-                const fromTime = new Date(fromDate + 'T00:00:00').getTime();
-                const createdTime = data.createdAt?.toDate ? data.createdAt.toDate().getTime() : new Date(data.createdAt).getTime();
-                if (createdTime < fromTime) return;
-              }
-              if (toDate) {
-                const toTime = new Date(toDate + 'T23:59:59').getTime();
-                const createdTime = data.createdAt?.toDate ? data.createdAt.toDate().getTime() : new Date(data.createdAt).getTime();
-                if (createdTime > toTime) return;
-              }
-
-              seen.add(d.id);
-              docs.push(data);
-            }
-          });
+          if (!createdTime || isNaN(createdTime)) return true;
+          if (fromTime && createdTime < fromTime) return false;
+          if (toTime && createdTime > toTime) return false;
+          return true;
         });
-
-        // sort results by date descending
-        docs.sort((a, b) => {
-          const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
-          const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
-          return timeB - timeA;
-        });
-
-        currentTotalRevenue = docs.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-        newServerStats = {
-          confirmed: docs.filter(p => p.status === 'Confirmed').length,
-          pending: docs.filter(p => p.status === 'Pending').length,
-          cancelled: docs.filter(p => p.status === 'Cancelled').length,
-          online: docs.filter(p => p.paymentType === 'online').length
-        };
-
-      } else {
-        // BROWSE MODE — run single direct firestore query with compound filters
-        const filterConstraints = [];
-        const dateConstraints = [];
-
-        if (statusFilter) {
-          filterConstraints.push(where('status', '==', statusFilter));
-        }
-        if (fromDate) {
-          const dFilter = where('createdAt', '>=', Timestamp.fromDate(new Date(fromDate + 'T00:00:00')));
-          filterConstraints.push(dFilter);
-          dateConstraints.push(dFilter);
-        }
-        if (toDate) {
-          const dFilter = where('createdAt', '<=', Timestamp.fromDate(new Date(toDate + 'T23:59:59')));
-          filterConstraints.push(dFilter);
-          dateConstraints.push(dFilter);
-        }
-
-        const [snap, aggSnap, cSnap, pSnap, cxSnap, oSnap] = await Promise.all([
-          getDocs(query(colRef, ...filterConstraints, orderBy('createdAt', 'desc'))),
-          getAggregateFromServer(query(colRef, ...filterConstraints), { total: sum('amount') }),
-          getCountFromServer(query(colRef, ...dateConstraints, where('status', '==', 'Confirmed'))),
-          getCountFromServer(query(colRef, ...dateConstraints, where('status', '==', 'Pending'))),
-          getCountFromServer(query(colRef, ...dateConstraints, where('status', '==', 'Cancelled'))),
-          getCountFromServer(query(colRef, ...dateConstraints, where('paymentType', '==', 'online')))
-        ]);
-        
-        docs = snap.docs.map(d => serialize({ id: d.id, ...d.data() }));
-        currentTotalRevenue = aggSnap.data().total || 0;
-        newServerStats = {
-          confirmed: cSnap.data().count,
-          pending: pSnap.data().count,
-          cancelled: cxSnap.data().count,
-          online: oSnap.data().count
-        };
       }
 
-      setPayments(docs);
+      // Compute statistics based on dateFilteredDocs
+      const newServerStats = {
+        confirmed: dateFilteredDocs.filter(p => p.status && p.status.toLowerCase() === 'confirmed').length,
+        pending: dateFilteredDocs.filter(p => p.status && p.status.toLowerCase() === 'pending').length,
+        cancelled: dateFilteredDocs.filter(p => p.status && p.status.toLowerCase() === 'cancelled').length,
+        online: dateFilteredDocs.filter(p => p.paymentType && p.paymentType.toLowerCase() === 'online').length
+      };
+
+      // 2. Apply status filter
+      let finalFilteredDocs = dateFilteredDocs;
+      if (statusFilter && statusFilter.trim() !== '') {
+        finalFilteredDocs = finalFilteredDocs.filter(d => 
+          d.status && d.status.toLowerCase() === statusFilter.toLowerCase()
+        );
+      }
+
+      // 3. Apply search query (bookingId, tripId, description)
+      if (searchTerm && searchTerm.trim() !== '') {
+        const s = searchTerm.toLowerCase().trim();
+        finalFilteredDocs = finalFilteredDocs.filter(d => 
+          (d.bookingId && d.bookingId.toLowerCase().includes(s)) ||
+          (d.tripId && d.tripId.toLowerCase().includes(s)) ||
+          (d.description && d.description.toLowerCase().includes(s)) ||
+          (d.id && d.id.toLowerCase().includes(s))
+        );
+      }
+
+      // Compute total revenue from final filtered transactions
+      const currentTotalRevenue = finalFilteredDocs.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+
+      setPayments(finalFilteredDocs);
       setServerTotalRevenue(currentTotalRevenue);
       setServerStats(newServerStats);
     } catch (e) {

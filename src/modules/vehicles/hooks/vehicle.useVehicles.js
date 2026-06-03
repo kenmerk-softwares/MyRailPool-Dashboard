@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { collection, getDocs, query, where, limit, startAfter, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
 import { setVehicles, setLoading } from "../vehicle.slice";
 import { serialize } from "../../../shared/utils/serialize";
@@ -9,75 +9,82 @@ export const useVehicles = () => {
     const dispatch = useDispatch();
     const vehicles = useSelector((state) => state.vehicle.list);
     const loading = useSelector((state) => state.vehicle.loading);
-    const [lastVisible, setLastVisible] = useState(null);
     const [hasMore, setHasMore] = useState(true);
+
+    const allVehiclesRef = useRef([]);
+    const visibleCountRef = useRef(50);
 
     const fetchVehicles = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false } = {}) => {
         dispatch(setLoading(true));
         try {
-            const vehiclesCollection = collection(db, "vehicles");
-            let q;
-            if (searchQuery) {
-                // Assuming we search by registration number or similar
-                const searchUpper = searchQuery.toUpperCase();
-                q = query(vehiclesCollection, 
-                    where("registrationNo", ">=", searchUpper), 
-                    where("registrationNo", "<=", searchUpper + "\uf8ff"),
-                    orderBy("registrationNo")
+            let rawData = allVehiclesRef.current;
+
+            if (!isLoadMore || rawData.length === 0) {
+                const vehiclesCollection = collection(db, "vehicles");
+                const q = query(vehiclesCollection, orderBy("registrationNo"));
+                const querySnapshot = await getDocs(q);
+                rawData = serialize(querySnapshot.docs.map((doc) => ({
+                    ...doc.data(),
+                    docId: doc.id
+                })));
+                allVehiclesRef.current = rawData;
+            }
+
+            // Apply search filter client-side (case-insensitive)
+            let filtered = rawData;
+            if (searchQuery && searchQuery.trim() !== "") {
+                const s = searchQuery.toLowerCase();
+                filtered = filtered.filter(vehicle => 
+                    (vehicle.registrationNo && vehicle.registrationNo.toLowerCase().includes(s)) ||
+                    (vehicle.model && vehicle.model.toLowerCase().includes(s)) ||
+                    (vehicle.make && vehicle.make.toLowerCase().includes(s)) ||
+                    (vehicle.type && vehicle.type.toLowerCase().includes(s)) ||
+                    (vehicle.assignedDriver && vehicle.assignedDriver.toLowerCase().includes(s)) ||
+                    (vehicle.id && vehicle.id.toLowerCase().includes(s))
                 );
-            } else {
-                q = query(vehiclesCollection, orderBy("registrationNo"));
             }
 
-            q = query(q, limit(50));
-
-            if (isLoadMore && lastVisible) {
-                q = query(q, startAfter(lastVisible));
+            // Apply status filter client-side (operationalStatus, case-insensitive)
+            if (activeFilter && activeFilter.trim() !== "") {
+                filtered = filtered.filter(vehicle => 
+                    vehicle.operationalStatus && vehicle.operationalStatus.toLowerCase() === activeFilter.toLowerCase()
+                );
             }
 
-            const querySnapshot = await getDocs(q);
-            let vehiclesData = serialize(querySnapshot.docs.map((doc) => ({
-                ...doc.data(),
-                docId: doc.id
-            })));
-
+            // Apply date filters client-side
             if (fromDate || toDate) {
-                vehiclesData = vehiclesData.filter((vehicle) => {
-                    let vehicleDate = null;
-                    if (vehicle.createdAt) {
-                        vehicleDate = new Date(vehicle.createdAt);
-                    }
+                const fromTime = fromDate ? new Date(fromDate + "T00:00:00").getTime() : null;
+                const toTime = toDate ? new Date(toDate + "T23:59:59").getTime() : null;
 
-                    if (!vehicleDate || isNaN(vehicleDate.getTime())) return true;
+                filtered = filtered.filter(vehicle => {
+                    const vehicleTime = vehicle.createdAt 
+                        ? new Date(vehicle.createdAt).getTime() 
+                        : (vehicle.updatedAt ? new Date(vehicle.updatedAt).getTime() : null);
 
-                    const vehicleTime = vehicleDate.getTime();
-                    const fromTime = fromDate ? new Date(fromDate).setHours(0, 0, 0, 0) : null;
-                    const toTime = toDate ? new Date(toDate).setHours(23, 59, 59, 999) : null;
-
+                    if (!vehicleTime) return true; // keep if no date is set or fallback
                     if (fromTime && vehicleTime < fromTime) return false;
                     if (toTime && vehicleTime > toTime) return false;
-
                     return true;
                 });
             }
 
-            if (isLoadMore) {
-                dispatch(setVehicles([...vehicles, ...vehiclesData]));
+            // Handle pagination slicing client-side
+            if (!isLoadMore) {
+                visibleCountRef.current = 50;
             } else {
-                dispatch(setVehicles(vehiclesData));
-                setLastVisible(null);
+                visibleCountRef.current += 50;
             }
 
-            const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
-            setLastVisible(lastDoc);
-            setHasMore(querySnapshot.docs.length === 50);
+            const sliced = filtered.slice(0, visibleCountRef.current);
+            dispatch(setVehicles(sliced));
+            setHasMore(visibleCountRef.current < filtered.length);
         } catch (error) {
             console.error("Error fetching vehicles:", error);
         } finally {
             dispatch(setLoading(false));
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dispatch, lastVisible]);
+    }, [dispatch]);
 
     const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);
 

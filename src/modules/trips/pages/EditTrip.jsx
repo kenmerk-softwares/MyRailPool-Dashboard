@@ -17,7 +17,7 @@ import {
   Clock
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
-import { collection, getDocs, query, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, limit, doc, getDoc, where } from 'firebase/firestore';
 import { Autocomplete } from '../../../components/Shared';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
@@ -207,6 +207,13 @@ export const EditTrip = () => {
       return;
     }
 
+    const maxCapacity = parseInt(formData.seatingCapacity || 0);
+    const exceedsCapacity = schedules.some(item => parseInt(item.passengerCount || 0) > maxCapacity);
+    if (maxCapacity && exceedsCapacity) {
+      showToast(`Planned Pax Count in schedule exceeds seating capacity of ${maxCapacity}.`, "error");
+      return;
+    }
+
     setSaving(true);
     const capacity = parseInt(formData.seatingCapacity || 0);
     const allDates = schedules.map(item => item.date);
@@ -257,6 +264,10 @@ export const EditTrip = () => {
   const handleAddSchedule = () => {
     if (!formData.date) {
       showToast("Please select a date first.", "error");
+      return;
+    }
+    if (formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)) {
+      showToast(`Planned Pax Count cannot exceed seating capacity of ${formData.seatingCapacity}.`, "error");
       return;
     }
     setSchedules(prev => [
@@ -314,9 +325,29 @@ export const EditTrip = () => {
                   onChange={setDriverSearch}
                   loading={driversLoadingLocal}
                   results={driversList}
-                  onSelect={(driver) => {
+                  onSelect={async (driver) => {
                     setFormData(prev => ({ ...prev, driver: driver.name, driverId: driver.docId }));
                     setDriverSearch(driver.name);
+                    try {
+                      const vehiclesCollection = collection(db, 'vehicles');
+                      const q = query(vehiclesCollection, where('driverId', '==', driver.docId));
+                      const snap = await getDocs(q);
+                      if (!snap.empty) {
+                        const vehicleDoc = snap.docs[0];
+                        const vehicle = { docId: vehicleDoc.id, ...vehicleDoc.data() };
+                        const searchKeyUpper = (vehicle.searchKey || vehicle.registrationNo || '').toUpperCase();
+                        setVehicleSearch(searchKeyUpper);
+                        setFormData(prev => ({
+                          ...prev,
+                          vehicle_reg: vehicle.registrationNo || '',
+                          vehicleId: vehicle.docId,
+                          selectedVehicle: vehicle,
+                          seatingCapacity: vehicle.seatingCapacity || ''
+                        }));
+                      }
+                    } catch (err) {
+                      console.error("Error auto-filling vehicle:", err);
+                    }
                   }}
                   renderItem={(driver) => (
                     <div className="flex flex-col gap-0.5">
@@ -528,10 +559,19 @@ export const EditTrip = () => {
                   <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="number" name="total_pcount" value={formData.total_pcount} onChange={(e) => setFormData(prev => ({ ...prev, total_pcount: e.target.value }))}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border bg-white font-bold outline-none transition-all text-sm ${
+                      formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-slate-200 focus:border-indigo-500'
+                    }`}
                     placeholder="0"
                   />
                 </div>
+                {formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity) && (
+                  <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
+                    Pax count cannot exceed seating capacity of {formData.seatingCapacity}
+                  </p>
+                )}
               </div>
 
               <button

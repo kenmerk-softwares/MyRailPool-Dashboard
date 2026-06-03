@@ -14,9 +14,9 @@ import { FunctionsAPI } from '../../../shared/services/functions.api';
 import { useToast } from '../../../shared/hooks/ToastContext';
 
 // small reusable field box — label on top, value below
-const Field = ({ label, value, mono = false, highlight }) => (
-  <div className="space-y-1.5">
-    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">{label}</label>
+const Field = ({ label, value, mono = false, highlight, className = '' }) => (
+  <div className={`space-y-1.5 ${className}`}>
+    <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">{label}</label>
     <p className={`px-4 py-3 rounded-xl border text-sm font-bold ${highlight
       ? 'bg-primary-50 text-primary-700 border-primary-100'
       : 'bg-white text-slate-700 border-slate-200'
@@ -62,16 +62,16 @@ const CancelBookingModal = ({
           <XCircle className="w-7 h-7 text-red-500" />
         </div>
         <h3 className="text-lg font-bold text-gray-900">Cancel Booking</h3>
-        <p className="text-slate-400 text-sm mt-2 mb-4">
+        <p className="text-slate-600 text-sm mt-2 mb-4">
           Are you sure you want to cancel the booking for <span className="font-semibold text-gray-900">{passengerName || 'this passenger'}</span>?
         </p>
 
         {loadingPaymentsCount ? (
-          <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 rounded-xl py-2 px-3">
+          <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-100 rounded-xl py-2 px-3">
             <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" /> Checking confirmed payments...
           </div>
         ) : confirmedPaymentsCount > 0 ? (
-          <div className="mb-4 text-xs font-bold text-red-500 bg-red-50 border border-red-100 rounded-xl py-2 px-3">
+          <div className="mb-4 text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-xl py-2 px-3">
             There are {confirmedPaymentsCount} confirmed payment(s) for this booking.
           </div>
         ) : null}
@@ -94,7 +94,7 @@ const CancelBookingModal = ({
 
         {/* Optional Cancellation Reason */}
         <div className="mb-6 space-y-1.5 text-left">
-          <label htmlFor="cancel-reason-textarea" className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+          <label htmlFor="cancel-reason-textarea" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
             Cancellation Reason (Optional)
           </label>
           <textarea
@@ -280,7 +280,7 @@ export const ViewBooking = () => {
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-bold text-slate-900">Trip Booking — <span className="text-primary-600">#{booking.tripNo}</span></h2>
           </div>
-          <p className="text-slate-400 text-xs font-mono mt-1 break-all">{docId}</p>
+          <p className="text-slate-500 text-xs font-mono mt-1 break-all">{docId}</p>
         </div>
         <Link to="/bookings" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-sm shrink-0">
           <ArrowLeft className="w-4 h-4" /> Back to Bookings
@@ -308,13 +308,13 @@ export const ViewBooking = () => {
             <Field label="Route Type" value={booking.route_type} />
             <Field label="Route ID" value={booking.route_id} mono />
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Start Point</label>
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Start Point</label>
               <p className="px-4 py-3 rounded-xl bg-white border border-slate-200 font-bold text-slate-700 flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" /> {booking.route_start || '—'}
               </p>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">End Point</label>
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">End Point</label>
               <p className="px-4 py-3 rounded-xl bg-indigo-50/40 border border-indigo-100 font-bold text-slate-700 flex items-center gap-2">
                 <Navigation className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> {booking.route_end || '—'}
               </p>
@@ -322,12 +322,12 @@ export const ViewBooking = () => {
             {/* Route stops from trips collection */}
             {trip?.routes?.length > 0 && (
               <div className="col-span-2 md:col-span-3 space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Route Stops</label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Route Stops</label>
                 <div className="flex flex-wrap gap-2">
                   {trip.routes.map((stop, i) => (
                     <span key={i} className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600">
                       <MapPin className="w-3 h-3 text-primary-400" /> {stop}
-                      {trip.routeTiming?.[stop] && <span className="text-slate-400 font-medium ml-1">({trip.routeTiming[stop]})</span>}
+                      {trip.routeTiming?.[stop] && <span className="text-slate-500 font-medium ml-1">({trip.routeTiming[stop]})</span>}
                     </span>
                   ))}
                 </div>
@@ -340,7 +340,7 @@ export const ViewBooking = () => {
         {(linkedLoading || trip) && (
           <Card icon={Activity} iconBg="bg-violet-50" iconColor="text-violet-600" title="Trip Details">
             {linkedLoading && !trip ? (
-              <div className="flex items-center gap-3 text-slate-400 text-sm">
+              <div className="flex items-center gap-3 text-slate-500 text-sm">
                 <Loader2 className="w-4 h-4 animate-spin" /> Loading trip details...
               </div>
             ) : (
@@ -349,9 +349,9 @@ export const ViewBooking = () => {
                 <Field label="Total Seats" value={trip?.total_seats} />
                 <Field label="Route Type" value={trip?.route_type} />
                 <Field label="Total Bookings" value={trip?.total_bookings} />
-                <Field label="Fare Matrix" value={trip?.fareMatrix ? Object.entries(trip.fareMatrix).map(([k, v]) => `${k}: ₹${v}`).join(' | ') : '—'} />
+                <Field label="Fare Matrix" value={trip?.fareMatrix ? Object.entries(trip.fareMatrix).map(([k, v]) => `${k}: ₹${v}`).join('  |  ') : '—'} className="col-span-2 md:col-span-3" />
                 {trip?.notes && <div className="col-span-2 md:col-span-4 space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Notes</label>
+                  <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Notes</label>
                   <p className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 italic text-sm">{trip.notes}</p>
                 </div>}
               </div>
@@ -362,7 +362,7 @@ export const ViewBooking = () => {
         {/* ===== 4. DRIVER DETAILS (from drivers collection) ===== */}
         <Card icon={UserCheck} iconBg="bg-amber-50" iconColor="text-amber-600" title="Driver Details">
           {linkedLoading && !driver ? (
-            <div className="flex items-center gap-3 text-slate-400 text-sm">
+            <div className="flex items-center gap-3 text-slate-500 text-sm">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading driver details...
             </div>
           ) : (
@@ -380,7 +380,7 @@ export const ViewBooking = () => {
                 <Field label="Training Status" value={driver.trainingStatus} />
               </>}
               {!driver && !linkedLoading && (
-                <p className="col-span-2 text-slate-400 text-xs italic">Driver document not available.</p>
+                <p className="col-span-2 text-slate-500 text-xs italic">Driver document not available.</p>
               )}
             </div>
           )}
@@ -389,7 +389,7 @@ export const ViewBooking = () => {
         {/* ===== 5. VEHICLE DETAILS (from vehicles collection) ===== */}
         <Card icon={Car} iconBg="bg-blue-50" iconColor="text-blue-600" title="Vehicle Details">
           {linkedLoading && !vehicle ? (
-            <div className="flex items-center gap-3 text-slate-400 text-sm">
+            <div className="flex items-center gap-3 text-slate-500 text-sm">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading vehicle details...
             </div>
           ) : vehicle ? (
@@ -408,7 +408,7 @@ export const ViewBooking = () => {
               <Field label="Vehicle ID" value={vehicle.id} mono />
             </div>
           ) : (
-            <p className="text-slate-400 text-xs italic">
+            <p className="text-slate-500 text-xs italic">
               {users.find(u => u.vehicle_id) ? 'Vehicle document not found.' : 'No vehicle assigned to this booking.'}
             </p>
           )}
@@ -424,13 +424,13 @@ export const ViewBooking = () => {
                 <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-[11px] font-extrabold">{users.length}</span>
               </h3>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Total: <span className="font-black text-emerald-600">₹{totalCollected}</span>
             </p>
           </div>
 
           {users.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">
+            <div className="p-12 text-center text-slate-500">
               <Users className="w-8 h-8 mx-auto mb-3 opacity-30" />
               <p className="font-medium text-sm">No passenger records.</p>
             </div>
@@ -446,7 +446,7 @@ export const ViewBooking = () => {
                       </div>
                       <div>
                         <p className="font-bold text-slate-800">{u.name || 'Unknown'}</p>
-                        <p className="text-[11px] text-slate-400 font-mono break-all">{u.userId}</p>
+                        <p className="text-[11px] text-slate-500 font-mono break-all">{u.userId}</p>
                       </div>
                     </div>
                     <StatusBadge status={u.status} statusColor={getStatusColor(u.status)} />
@@ -455,32 +455,32 @@ export const ViewBooking = () => {
                   {/* Passenger details grid */}
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-xs">
                     <div className="space-y-0.5">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">Phone</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">Phone</span>
                       <p className="font-bold text-slate-700 flex items-center gap-1"><Phone className="w-3 h-3 shrink-0" />{u.phone || '—'}</p>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">From</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">From</span>
                       <p className="font-bold text-slate-700 flex items-center gap-1"><MapPin className="w-3 h-3 text-primary-500 shrink-0" />{u.startingPoint || '—'}</p>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">Drop</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">Drop</span>
                       <p className="font-bold text-slate-700 flex items-center gap-1"><Navigation className="w-3 h-3 text-indigo-500 shrink-0" />{u.dropPoint || '—'}</p>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">Seats</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">Seats</span>
                       <p className="font-black text-slate-800">{u.bookingCount ?? '—'}</p>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">Fare</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">Fare</span>
                       <p className="font-black text-emerald-600">₹{u.totalFare ?? '—'}</p>
                     </div>
                     <div className="space-y-0.5">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">Payment</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">Payment</span>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-extrabold uppercase tracking-widest ${u.paymentType === 'online' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}><CreditCard className="w-2.5 h-2.5" />{u.paymentType || '—'}</span>
                     </div>
                     <div className="space-y-0.5 col-span-2">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider">Booked At</span>
+                      <span className="text-slate-500 font-semibold uppercase tracking-wider">Booked At</span>
                       <p className="font-medium text-slate-500">{formatTs(u.createdAt)}</p>
                     </div>
                   </div>

@@ -5,6 +5,7 @@ import { adminDb } from '../../../shared/services/firebase';
 import { where, orderBy } from 'firebase/firestore';
 import { useCollection } from '../../../shared/hooks/useCollection';
 import { Table } from '../../../shared/Table/Table';
+import { exportToExcel } from '../../../shared/utils/export';
 
 export default function AdminLogs() {
     const [fromDate, setFromDate] = useState('');
@@ -17,15 +18,21 @@ export default function AdminLogs() {
     });
 
     const getConstraints = useCallback(() => {
-        const constraints = [orderBy('createdAt', 'desc')];
-        if (fromDate) {
-            constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
-        }
-        if (toDate) {
-            constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
-        }
+        const constraints = [];
         if (searchQuery) {
+            // Search query (email) takes precedence in DB query to narrow down logs
             constraints.push(where('email', '==', searchQuery.trim()));
+            // We do NOT add orderBy('createdAt') or date range constraints here
+            // to avoid needing a composite index!
+        } else {
+            // Normal browse/date filter mode
+            constraints.push(orderBy('createdAt', 'desc'));
+            if (fromDate) {
+                constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
+            }
+            if (toDate) {
+                constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
+            }
         }
         return constraints;
     }, [fromDate, toDate, searchQuery]);
@@ -33,6 +40,35 @@ export default function AdminLogs() {
     useEffect(() => {
         fetchData({ constraints: getConstraints() });
     }, [fetchData, getConstraints]);
+
+    // Filter and sort logs on the client side if searchQuery is active
+    const processedLogs = React.useMemo(() => {
+        let result = [...logs];
+        if (searchQuery) {
+            // Apply date filters client-side
+            if (fromDate) {
+                const start = new Date(fromDate + "T00:00:00").getTime();
+                result = result.filter(log => {
+                    const time = log.createdAt?.seconds ? log.createdAt.seconds * 1000 : new Date(log.createdAt).getTime();
+                    return time >= start;
+                });
+            }
+            if (toDate) {
+                const end = new Date(toDate + "T23:59:59").getTime();
+                result = result.filter(log => {
+                    const time = log.createdAt?.seconds ? log.createdAt.seconds * 1000 : new Date(log.createdAt).getTime();
+                    return time <= end;
+                });
+            }
+            // Sort by createdAt descending client-side
+            result.sort((a, b) => {
+                const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt).getTime();
+                const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt).getTime();
+                return timeB - timeA;
+            });
+        }
+        return result;
+    }, [logs, searchQuery, fromDate, toDate]);
 
     const handleLoadMore = () => {
         fetchData({ 
@@ -50,19 +86,28 @@ export default function AdminLogs() {
         };
     };
 
+    const handleExport = () => {
+        exportToExcel(processedLogs, {
+            adminName: 'Administrator Name',
+            email: 'Email Address',
+            action: 'Action Type',
+            details: 'Description',
+            timestamp: 'Timestamp'
+        }, 'AdminLogs');
+    };
+
     return (
         <div className="p-4 md:p-6 lg:p-8">
             <SectionHeader
                 title="Admin Logs"
                 subtitle="Monitor system activities, configuration changes, and administrator actions."
-            // actionLabel="Export Logs"
-            // actionIcon={ShieldCheck}
+                onExportClick={handleExport}
             />
 
       <div className="pb-10">
         <Table
           headers={['Sl No', 'Administrator', 'Email Address', 'Action Type', 'Description', 'Timestamp']}
-          data={logs}
+          data={processedLogs}
           searchQuery={searchTerm}
           setSearchQuery={setSearchTerm}
           activeFilter={searchQuery} // We'll use searchQuery as a dummy to trigger the search button logic if needed, or just sync them

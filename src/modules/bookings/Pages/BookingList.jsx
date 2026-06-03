@@ -4,6 +4,7 @@ import { SectionHeader } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useNavigate } from 'react-router-dom';
 import { useBookings } from '../hooks/booking.useBookings';
+import { exportToExcel } from '../../../shared/utils/export';
 
 export const BookingList = () => {
     const navigate = useNavigate();
@@ -28,6 +29,23 @@ export const BookingList = () => {
         navigate(`/bookings/view/${encodeURIComponent(booking.id)}`);
     };
 
+    const handleExport = () => {
+        exportToExcel(bookings, {
+            bookingId: 'Booking ID',
+            tripNo: 'Trip Number',
+            route_name: 'Route Name',
+            pickupPoint: 'From',
+            dropoffPoint: 'To',
+            travelDate: 'Travel Date',
+            driver_name: 'Driver Name',
+            passengerCount: 'Passenger Count',
+            total_fare: 'Total Fare',
+            paymentStatus: 'Payment Status',
+            status: 'Booking Status',
+            createdAt: 'Created At'
+        }, 'Bookings');
+    };
+
     return (
         <>
             <SectionHeader
@@ -36,6 +54,7 @@ export const BookingList = () => {
                 actionLabel="Create Booking"
                 actionIcon={Plus}
                 actionTo="/bookings/add"
+                onExportClick={handleExport}
             />
             <div className="pb-10">
                 <Table

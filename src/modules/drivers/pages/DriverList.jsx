@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useDrivers } from '../hooks/driver.useDrivers';
+import { exportToExcel } from '../../../shared/utils/export';
 
 export const DriverList = () => {
   const navigate = useNavigate();
@@ -29,6 +30,20 @@ export const DriverList = () => {
     fetchDrivers({ searchQuery, activeFilter, fromDate, toDate });
   }, [searchQuery, activeFilter, fromDate, toDate, fetchDrivers]);
 
+  const handleExport = () => {
+    exportToExcel(drivers, {
+      name: 'Name',
+      mobile: 'Mobile',
+      email: 'Email',
+      phLicenseNumber: 'PH License',
+      phExpiryDate: 'PH Expiry',
+      dvlaLicenseNumber: 'DVLA License',
+      trainingStatus: 'Training Status',
+      status: 'Status',
+      createdAt: 'Joined Date'
+    }, 'Drivers');
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <SectionHeader
@@ -37,6 +52,7 @@ export const DriverList = () => {
         actionLabel="Add New Driver"
         actionIcon={UserPlus}
         actionTo="/drivers/add"
+        onExportClick={handleExport}
       />
 
       <div className="pb-10">

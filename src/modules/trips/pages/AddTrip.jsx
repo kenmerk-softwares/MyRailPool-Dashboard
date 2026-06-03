@@ -16,7 +16,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
-import { collection, getDocs, query, limit } from 'firebase/firestore';
+import { collection, getDocs, query, limit, where } from 'firebase/firestore';
 import { Autocomplete } from '../../../components/Shared';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
@@ -139,6 +139,10 @@ export const AddTrip = () => {
       showToast("Please select a date first.", "error");
       return;
     }
+    if (formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)) {
+      showToast(`Planned Pax Count cannot exceed seating capacity of ${formData.seatingCapacity}.`, "error");
+      return;
+    }
     setSchedules(prev => [
       ...prev,
       {
@@ -169,6 +173,13 @@ export const AddTrip = () => {
 
     if (itemsToSave.length === 0) {
       showToast("Please add at least one schedule date.", "error");
+      return;
+    }
+
+    const maxCapacity = parseInt(formData.seatingCapacity || 0);
+    const exceedsCapacity = itemsToSave.some(item => parseInt(item.passengerCount || 0) > maxCapacity);
+    if (maxCapacity && exceedsCapacity) {
+      showToast(`Planned Pax Count in schedule exceeds seating capacity of ${maxCapacity}.`, "error");
       return;
     }
 
@@ -228,13 +239,13 @@ export const AddTrip = () => {
       <div className="flex items-center justify-between mb-6 px-2">
         <div className="flex items-center gap-4">
           <Link to="/trips" className="p-2 hover:bg-slate-100 rounded-xl transition-colors group">
-            <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+            <ChevronLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-600" />
           </Link>
           <div>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase">
               Initialize New Trip
             </h2>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Asset Allocation & Multi-Date Routing</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Asset Allocation & Multi-Date Routing</p>
           </div>
         </div>
       </div>
@@ -263,9 +274,29 @@ export const AddTrip = () => {
                   onChange={setDriverSearch}
                   loading={driversLoadingLocal}
                   results={driversList}
-                  onSelect={(driver) => {
+                  onSelect={async (driver) => {
                     setFormData(prev => ({ ...prev, driver: driver.name, driverId: driver.docId }));
                     setDriverSearch(driver.name);
+                    try {
+                      const vehiclesCollection = collection(db, 'vehicles');
+                      const q = query(vehiclesCollection, where('driverId', '==', driver.docId));
+                      const snap = await getDocs(q);
+                      if (!snap.empty) {
+                        const vehicleDoc = snap.docs[0];
+                        const vehicle = { docId: vehicleDoc.id, ...vehicleDoc.data() };
+                        const searchKeyUpper = (vehicle.searchKey || vehicle.registrationNo || '').toUpperCase();
+                        setVehicleSearch(searchKeyUpper);
+                        setFormData(prev => ({
+                          ...prev,
+                          vehicle_reg: vehicle.registrationNo || '',
+                          vehicleId: vehicle.docId,
+                          selectedVehicle: vehicle,
+                          seatingCapacity: vehicle.seatingCapacity || ''
+                        }));
+                      }
+                    } catch (err) {
+                      console.error("Error auto-filling vehicle:", err);
+                    }
                   }}
                   renderItem={(driver) => (
                     <div className="flex flex-col gap-0.5">
@@ -303,7 +334,7 @@ export const AddTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
                 <div className="relative">
-                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="number" name="seatingCapacity" value={formData.seatingCapacity} onChange={handleChange}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
@@ -377,7 +408,7 @@ export const AddTrip = () => {
                       <span className="font-bold text-slate-800 text-sm">{route.name}</span>
                       <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium uppercase tracking-tight">
                         <span>{route.startingPoint}</span>
-                        <ArrowRight className="w-3 h-3 text-slate-400" />
+                        <ArrowRight className="w-3 h-3 text-slate-500" />
                         <span>{route.endPoint}</span>
                       </div>
                     </div>
@@ -399,7 +430,7 @@ export const AddTrip = () => {
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Remarks</label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text" name="notes" value={formData.notes} onChange={handleChange}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 outline-none transition-all text-sm"
@@ -412,12 +443,12 @@ export const AddTrip = () => {
             {/* Stop Timings Visualizer */}
             {formData.routes.length > 0 && (
               <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-500">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 ml-1">Arrival Sequence Configuration</h4>
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6 ml-1">Arrival Sequence Configuration</h4>
                 <div className="flex items-start overflow-x-auto pb-4 scrollbar-hide gap-0">
                   {formData.routes.map((stop, idx) => (
                     <div key={idx} className="flex items-start">
                       <div className="flex flex-col items-center w-36">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${formData.routeTiming[stop] ? 'bg-indigo-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400'}`}>
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${formData.routeTiming[stop] ? 'bg-indigo-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-500'}`}>
                           <MapPin className="w-5 h-5" />
                         </div>
                         <div className="mt-4 text-center px-2">
@@ -464,7 +495,7 @@ export const AddTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Date</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="date" value={formData.date} onChange={handleChange}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
@@ -475,14 +506,23 @@ export const AddTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Planned Pax Count</label>
                 <div className="relative">
-                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="number" name="total_pcount" value={formData.total_pcount} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold focus:border-indigo-500 outline-none transition-all text-sm cursor-not-allowed"
-                    placeholder="Auto-filled"
-                    readOnly
+                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border bg-white font-bold outline-none transition-all text-sm ${
+                      formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-slate-200 focus:border-indigo-500'
+                    }`}
+                    placeholder="Pax Count"
+                    max={formData.seatingCapacity}
                   />
                 </div>
+                {formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity) && (
+                  <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
+                    Pax count cannot exceed seating capacity of {formData.seatingCapacity}
+                  </p>
+                )}
               </div>
 
               <button
@@ -499,9 +539,9 @@ export const AddTrip = () => {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50">
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Execution Date</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Deployment Pax</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Controls</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Execution Date</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Deployment Pax</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Controls</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -517,12 +557,12 @@ export const AddTrip = () => {
                           </div>
                         </td>
                         <td className="px-8 py-4">
-                          <span className="text-sm font-black text-slate-800">{schedule.passengerCount} <span className="text-slate-400 font-bold ml-1 uppercase text-[10px]">Seats Reserved</span></span>
+                          <span className="text-sm font-black text-slate-800">{schedule.passengerCount} <span className="text-slate-500 font-bold ml-1 uppercase text-[10px]">Seats Reserved</span></span>
                         </td>
                         <td className="px-8 py-4 text-center">
                           <button
                             type="button" onClick={() => handleRemoveSchedule(schedule.id)}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -535,7 +575,7 @@ export const AddTrip = () => {
             ) : (
               <div className="mt-6 py-12 flex flex-col items-center justify-center bg-slate-50/30 rounded-2xl border-2 border-dashed border-slate-200">
                 <Calendar className="w-8 h-8 text-slate-200 mb-3" />
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">No Execution Windows Scheduled</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-widest">No Execution Windows Scheduled</p>
               </div>
             )}
           </div>

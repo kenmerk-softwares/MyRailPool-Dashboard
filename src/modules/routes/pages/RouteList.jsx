@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, ArrowRight } from 'lucide-react';
+import { Plus, Edit, Eye, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useRoutes } from '../hooks/route.useRoute';
+import { exportToExcel } from '../../../shared/utils/export';
 
 export const RouteList = () => {
   const { routes, loading, hasMore, fetchRoutes } = useRoutes();
@@ -19,14 +20,25 @@ export const RouteList = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   const handleClear = () => {
+    setFromDate('');
+    setToDate('');
     setActiveFilter('');
     setSearchQuery('');
   };
 
- useEffect(() => {
-    fetchRoutes({ searchQuery, activeFilter });
-      }, [searchQuery, activeFilter, fetchRoutes]);
+  useEffect(() => {
+    fetchRoutes({ searchQuery, activeFilter, fromDate, toDate });
+  }, [searchQuery, activeFilter, fromDate, toDate, fetchRoutes]);
 
+  const handleExport = () => {
+    exportToExcel(routes, {
+      name: 'Route Name',
+      startingPoint: 'Starting Point',
+      endPoint: 'End Point',
+      status: 'Status',
+      createdAt: 'Created At'
+    }, 'Routes');
+  };
   
   return (
     <>
@@ -36,6 +48,7 @@ export const RouteList = () => {
         actionLabel="Create Route"
         actionIcon={Plus}
         actionTo="/routes/add"
+        onExportClick={handleExport}
       />
       <div className="pb-10">
         <Table

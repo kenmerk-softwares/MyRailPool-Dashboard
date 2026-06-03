@@ -10,10 +10,8 @@ import {
   Globe,
   ArrowRight,
   AlertCircle,
-  Hash,
   MapPin,
   Loader2,
-  Calendar,
   Milestone
 } from 'lucide-react';
 import { StatusBadge } from '../../../components/Shared';
@@ -88,7 +86,7 @@ export default function ViewRoute() {
 
   const totalDistance = routesDataList.reduce((sum, r) => sum + (Number(r.distanceFromStart) || 0), 0);
 
-  const startEndKey = `${route.start}-${route.end}`;
+  const startEndKey = `${route.startingPoint}-${route.endPoint}`;
   const estPrice = fareMatrix[startEndKey] ? `£${fareMatrix[startEndKey]}` : '—';
   const fareEntries = Object.entries(fareMatrix).map(([key, value]) => {
     const [fromPoint, toPoint] = key.split('-');
@@ -220,7 +218,7 @@ export default function ViewRoute() {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Primary Origin</p>
-                  <p className="text-lg font-bold text-slate-900">{route.start || '—'}</p>
+                  <p className="text-lg font-bold text-slate-900">{route.startingPoint || '—'}</p>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <div className="h-px w-24 sm:w-48 bg-gradient-to-r from-primary-200 via-primary-500 to-emerald-200 relative mb-2">
@@ -232,7 +230,7 @@ export default function ViewRoute() {
                 </div>
                 <div className="flex-1 text-right">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Termination Point</p>
-                  <p className="text-lg font-bold text-slate-900">{route.end || '—'}</p>
+                  <p className="text-lg font-bold text-slate-900">{route.endPoint || '—'}</p>
                 </div>
               </div>
             </div>
