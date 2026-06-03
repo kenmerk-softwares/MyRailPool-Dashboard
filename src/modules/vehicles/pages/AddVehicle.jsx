@@ -136,7 +136,7 @@ export const AddVehicle = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
         
         {/* ── Section 1: Asset Identity ── */}
         <div className="space-y-4 mt-4">
@@ -448,7 +448,7 @@ export const AddVehicle = () => {
         </div>
 
         {/* ── Footer Actions ── */}
-        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4">
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 rounded-b-2xl">
           <Link
             to="/vehicles"
             className="w-full sm:w-auto text-center px-6 py-1.5 rounded-xl font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all text-sm uppercase tracking-wider"

@@ -12,7 +12,8 @@ const PrivacyPolicy = () => {
 
 	const [formData, setFormData] = useState({
 		introduction: '',
-		dataPoints: [''],
+		dataPointsHeading: '',
+		dataPoints: [{ title: '', descriptions: [''] }],
 		sections: [
 			{
 				title: '',
@@ -27,7 +28,7 @@ const PrivacyPolicy = () => {
 	const fetchPolicy = async () => {
 		try {
 			setLoading(true);
-			const policyRef = doc(db, 'pages', 'settings', 'privacypolicy', 'data');
+			const policyRef = doc(db, 'privacypolicy', 'data');
 			const policySnap = await getDoc(policyRef);
 
 			if (policySnap.exists()) {
@@ -35,7 +36,14 @@ const PrivacyPolicy = () => {
 				setExistingData(data);
 				setFormData({
 					introduction: data.introduction || '',
-					dataPoints: Array.isArray(data.dataPoints) && data.dataPoints.length > 0 ? data.dataPoints : [''],
+					dataPointsHeading: data.dataPointsHeading || '',
+					dataPoints: Array.isArray(data.dataPoints) && data.dataPoints.length > 0
+						? data.dataPoints.map(d => {
+							if (typeof d === 'string') return { title: '', descriptions: [d] };
+							if (d.description !== undefined && !d.descriptions) return { title: d.title || '', descriptions: [d.description] };
+							return { title: d.title || '', descriptions: Array.isArray(d.descriptions) ? d.descriptions : [''] };
+						})
+						: [{ title: '', descriptions: [''] }],
 					sections: Array.isArray(data.sections) && data.sections.length > 0
 						? data.sections
 						: [{ title: '', description: '' }],
@@ -58,12 +66,33 @@ const PrivacyPolicy = () => {
 
 	// --- Data Point helpers ---
 	const addDataPoint = () => {
-		setFormData({ ...formData, dataPoints: [...formData.dataPoints, ''] });
+		setFormData({ ...formData, dataPoints: [...formData.dataPoints, { title: '', descriptions: [''] }] });
 	};
 
-	const updateDataPoint = (index, value) => {
+	const updateDataPoint = (index, field, value) => {
 		const updated = [...formData.dataPoints];
-		updated[index] = value;
+		updated[index] = { ...updated[index], [field]: value };
+		setFormData({ ...formData, dataPoints: updated });
+	};
+
+	const addDescription = (dpIndex) => {
+		const updated = [...formData.dataPoints];
+		updated[dpIndex] = { ...updated[dpIndex], descriptions: [...(updated[dpIndex].descriptions || ['']), ''] };
+		setFormData({ ...formData, dataPoints: updated });
+	};
+
+	const updateDescription = (dpIndex, descIndex, value) => {
+		const updated = [...formData.dataPoints];
+		const descs = [...(updated[dpIndex].descriptions || [''])];
+		descs[descIndex] = value;
+		updated[dpIndex] = { ...updated[dpIndex], descriptions: descs };
+		setFormData({ ...formData, dataPoints: updated });
+	};
+
+	const removeDescription = (dpIndex, descIndex) => {
+		const updated = [...formData.dataPoints];
+		const descs = (updated[dpIndex].descriptions || ['']).filter((_, i) => i !== descIndex);
+		updated[dpIndex] = { ...updated[dpIndex], descriptions: descs.length > 0 ? descs : [''] };
 		setFormData({ ...formData, dataPoints: updated });
 	};
 
@@ -101,16 +130,19 @@ const PrivacyPolicy = () => {
 		setSaving(true);
 
 		try {
-			const filteredDataPoints = formData.dataPoints.filter((d) => d.trim() !== '');
+			const filteredDataPoints = formData.dataPoints.filter(
+				(d) => d.title.trim() !== '' || (d.descriptions || []).some(desc => desc.trim() !== '')
+			);
 			const filteredSections = formData.sections.filter(
 				(s) => s.title.trim() !== '' || s.description.trim() !== ''
 			);
 
-			const policyRef = doc(db, 'pages', 'settings', 'privacypolicy', 'data');
+			const policyRef = doc(db, 'privacypolicy', 'data');
 			await setDoc(
 				policyRef,
 				{
 					introduction: formData.introduction,
+					dataPointsHeading: formData.dataPointsHeading,
 					dataPoints: filteredDataPoints,
 					sections: filteredSections,
 					footerDescription: formData.footerDescription,
@@ -145,226 +177,172 @@ const PrivacyPolicy = () => {
 	}
 
 	return (
-		<div className="w-full min-h-screen bg-slate-50 relative overflow-hidden py-10 px-4 md:px-10">
-			{/* Background blobs */}
-			<div className="absolute -top-40 -left-40 w-[420px] h-[420px] bg-indigo-200 opacity-30 blur-[120px] rounded-full"></div>
-			<div className="absolute -bottom-40 -right-40 w-[420px] h-[420px] bg-violet-200 opacity-30 blur-[120px] rounded-full"></div>
+		<div className="w-full min-h-screen bg-slate-50 p-6 md:p-10">
+			<div className="max-w-4xl mx-auto">
+				<h1 className="text-3xl font-extrabold text-slate-800 mb-8">Privacy Policy Settings</h1>
 
-			{/* Header */}
-			<div className="max-w-5xl mx-auto mb-12 relative z-10">
-				<p className="text-sm font-semibold text-emerald-700 uppercase tracking-wider">
-					Legal Documents
-				</p>
-				<h1 className="text-3xl md:text-4xl font-extrabold text-emerald-900 mt-1">
-					Privacy <span className="text-emerald-900">Policy</span>
-				</h1>
-			</div>
+				<form onSubmit={handleSave} className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 md:p-8 space-y-8">
+					<section>
+						<h2 className="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
+							<AlignLeft className="w-5 h-5 text-indigo-500" /> Introduction
+						</h2>
+						<textarea
+							rows="4"
+							value={formData.introduction}
+							onChange={(e) => setFormData({ ...formData, introduction: e.target.value })}
+							className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+							placeholder="Introduction paragraph..."
+						/>
+					</section>
 
-			{/* Form */}
-			<form
-				onSubmit={handleSave}
-				className="max-w-5xl mx-auto relative z-10 space-y-8"
-			>
-				{/* Introduction */}
-				<div className="bg-white/80 backdrop-blur-xl border border-slate-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)] rounded-3xl p-8">
-					<div className="flex items-center gap-2 mb-5">
-						<AlignLeft className="w-5 h-5 text-indigo-600" />
-						<h2 className="text-xl font-bold text-slate-800">Introduction</h2>
-					</div>
-					<textarea
-						rows="5"
-						value={formData.introduction}
-						onChange={(e) => setFormData({ ...formData, introduction: e.target.value })}
-						className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none transition"
-						placeholder="Enter the introduction paragraph for your privacy policy..."
-					/>
-				</div>
-
-				{/* Data Points Collected */}
-				<div className="bg-white/80 backdrop-blur-xl border border-slate-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)] rounded-3xl p-8">
-					<div className="flex justify-between items-center mb-5">
-						<div className="flex items-center gap-2">
-							<List className="w-5 h-5 text-emerald-600" />
-							<h2 className="text-xl font-bold text-slate-800">Data We Collect</h2>
-						</div>
-						<button
-							type="button"
-							onClick={addDataPoint}
-							className="flex items-center gap-1 px-4 py-2 text-sm font-medium bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-700 hover:text-white transition"
-						>
-							<Plus className="w-4 h-4" />
-							Add Data Point
-						</button>
-					</div>
-
-					<div className="space-y-3">
-						{formData.dataPoints.map((point, index) => (
-							<div key={index} className="flex gap-2 items-center">
-								<span className="text-xs font-bold text-slate-400 w-6 text-center shrink-0">
-									{index + 1}.
-								</span>
+					<section>
+						{/* <div className="flex justify-between items-center mb-3">
+							<div className="flex items-center gap-2 flex-1 mr-4">
+								<List className="w-5 h-5 text-emerald-500 shrink-0" />
 								<input
 									type="text"
-									value={point}
-									onChange={(e) => updateDataPoint(index, e.target.value)}
-									placeholder={`Data point ${index + 1} (e.g. "Name and email address")`}
-									className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
+									value={formData.dataPointsHeading}
+									onChange={(e) => setFormData({ ...formData, dataPointsHeading: e.target.value })}
+									className="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-base font-bold text-slate-700 focus:ring-2 focus:ring-emerald-400 outline-none"
+									placeholder="Section heading (e.g. Data We Collect)"
 								/>
-								{formData.dataPoints.length > 1 && (
-									<button
-										type="button"
-										onClick={() => removeDataPoint(index)}
-										className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-									>
-										<Trash2 className="w-4 h-4" />
-									</button>
-								)}
 							</div>
-						))}
-					</div>
-				</div>
-
-				{/* Sections */}
-				<div className="bg-white/80 backdrop-blur-xl border border-slate-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)] rounded-3xl p-8">
-					<div className="flex justify-between items-center mb-5">
-						<div className="flex items-center gap-2">
-							<Layers className="w-5 h-5 text-violet-600" />
-							<h2 className="text-xl font-bold text-slate-800">Policy Sections</h2>
-						</div>
-						<button
-							type="button"
-							onClick={addSection}
-							className="flex items-center gap-1 px-4 py-2 text-sm font-medium bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-700 hover:text-white transition"
-						>
-							<Plus className="w-4 h-4" />
-							Add Section
-						</button>
-					</div>
-
-					<div className="space-y-5">
-						{formData.sections.map((section, index) => (
-							<div
-								key={index}
-								className="bg-slate-50 border border-slate-200 rounded-2xl p-5"
-							>
-								<div className="flex justify-between items-center mb-3">
-									<span className="text-xs font-bold uppercase text-slate-500">
-										Section {index + 1}
-									</span>
-									{formData.sections.length > 1 && (
-										<button
-											type="button"
-											onClick={() => removeSection(index)}
-											className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition"
-										>
-											<Trash2 className="w-3 h-3" />
-											Remove
+							<button type="button" onClick={addDataPoint} className="text-sm text-emerald-600 font-medium flex items-center gap-1 hover:text-emerald-700 shrink-0">
+								<Plus className="w-4 h-4" /> Add Card
+							</button>
+						</div> */}
+						{/* <div className="space-y-4">
+							{formData.dataPoints.map((point, index) => (
+								<div key={index} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+									<div className="flex justify-between mb-2">
+										<span className="text-sm font-bold text-slate-600">Card {index + 1}</span>
+										{formData.dataPoints.length > 1 && (
+											<button type="button" onClick={() => removeDataPoint(index)} className="text-red-500 text-sm flex items-center gap-1">
+												<Trash2 className="w-3 h-3" /> Remove Card
+											</button>
+										)}
+									</div>
+									<input
+										type="text"
+										value={point.title || ''}
+										onChange={(e) => updateDataPoint(index, 'title', e.target.value)}
+										className="w-full border border-slate-300 rounded-lg p-3 text-sm mb-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+										placeholder="Card title (e.g. REGISTRATION FORMS)"
+									/>
+									<div className="space-y-2">
+										{(point.descriptions || ['']).map((desc, dIdx) => (
+											<div key={dIdx} className="flex gap-2 items-start">
+												<textarea
+													rows="2"
+													value={desc}
+													onChange={(e) => updateDescription(index, dIdx, e.target.value)}
+													className="flex-1 border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+													placeholder="Description line..."
+												/>
+												{(point.descriptions || ['']).length > 1 && (
+													<button type="button" onClick={() => removeDescription(index, dIdx)} className="text-red-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 mt-1">
+														<Trash2 className="w-3 h-3" />
+													</button>
+												)}
+											</div>
+										))}
+										<button type="button" onClick={() => addDescription(index)} className="text-xs text-indigo-500 font-medium flex items-center gap-1 hover:text-indigo-700 mt-1">
+											<Plus className="w-3 h-3" /> Add Description Line
 										</button>
-									)}
+									</div>
 								</div>
-								<input
-									type="text"
-									value={section.title}
-									placeholder="Section Heading (e.g. How We Use Your Data)"
-									onChange={(e) => updateSection(index, 'title', e.target.value)}
-									className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 mb-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
-								/>
-								<textarea
-									rows="4"
-									value={section.description}
-									placeholder="Section description..."
-									onChange={(e) => updateSection(index, 'description', e.target.value)}
-									className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none transition"
-								/>
-							</div>
-						))}
-					</div>
-				</div>
+							))}
+						</div> */}
+					</section>
 
-				{/* Footer / Company Info */}
-				<div className="bg-white/80 backdrop-blur-xl border border-slate-200 shadow-[0_15px_40px_rgba(0,0,0,0.05)] rounded-3xl p-8">
-					<div className="flex items-center gap-2 mb-5">
-						<Sparkles className="w-5 h-5 text-amber-600" />
-						<h2 className="text-xl font-bold text-slate-800">Company Information</h2>
-					</div>
+					<section>
+						<div className="flex justify-between items-center mb-3">
+							<h2 className="text-lg font-bold text-slate-700 flex items-center gap-2">
+								<Layers className="w-5 h-5 text-violet-500" /> Policy Sections
+							</h2>
+							<button type="button" onClick={addSection} className="text-sm text-indigo-600 font-medium flex items-center gap-1 hover:text-indigo-700">
+								<Plus className="w-4 h-4" /> Add Section
+							</button>
+						</div>
+						<div className="space-y-4">
+							{formData.sections.map((section, index) => (
+								<div key={index} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+									<div className="flex justify-between mb-2">
+										<span className="text-sm font-bold text-slate-600">Section {index + 1}</span>
+										{formData.sections.length > 1 && (
+											<button type="button" onClick={() => removeSection(index)} className="text-red-500 text-sm flex items-center gap-1">
+												<Trash2 className="w-3 h-3" /> Remove
+											</button>
+										)}
+									</div>
+									<input
+										type="text"
+										value={section.title}
+										onChange={(e) => updateSection(index, 'title', e.target.value)}
+										className="w-full border border-slate-300 rounded-lg p-3 text-sm mb-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+										placeholder="Section Heading"
+									/>
+									<textarea
+										rows="3"
+										value={section.description}
+										onChange={(e) => updateSection(index, 'description', e.target.value)}
+										className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+										placeholder="Section description..."
+									/>
+								</div>
+							))}
+						</div>
+					</section>
 
-					<div className="space-y-4">
-						<div>
-							<label className="block text-xs font-semibold uppercase text-slate-500 mb-2 text-start">
-								Footer Description
-							</label>
+					<section>
+						<h2 className="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
+							<Sparkles className="w-5 h-5 text-amber-500" /> Company Info
+						</h2>
+						<div className="space-y-4">
 							<textarea
-								rows="4"
+								rows="2"
 								value={formData.footerDescription}
 								onChange={(e) => setFormData({ ...formData, footerDescription: e.target.value })}
-								placeholder="Company description for the footer..."
-								className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none transition"
+								className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+								placeholder="Footer Description"
 							/>
-						</div>
-
-						<div>
-							<label className="block text-xs font-semibold uppercase text-slate-500 mb-2 text-start">
-								Email Address
-							</label>
-							<div className="relative">
-								<Mail className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
-								<input
-									type="email"
-									value={formData.email}
-									onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-									placeholder="privacy@company.com"
-									className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
-								/>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="relative">
+									<Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+									<input
+										type="email"
+										value={formData.email}
+										onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+										className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+										placeholder="privacy@company.com"
+									/>
+								</div>
+								<div className="relative">
+									<Globe className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+									<input
+										type="text"
+										value={formData.website}
+										onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+										className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+										placeholder="www.company.com"
+									/>
+								</div>
 							</div>
 						</div>
+					</section>
 
-						<div>
-							<label className="block text-xs font-semibold uppercase text-slate-500 mb-2 text-start">
-								Website URL
-							</label>
-							<div className="relative">
-								<Globe className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
-								<input
-									type="text"
-									value={formData.website}
-									onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-									placeholder="https://www.company.com"
-									className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition"
-								/>
-							</div>
-						</div>
+					<div>
+						<button type="submit" disabled={saving} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex justify-center items-center gap-2">
+							{saving ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : <><Save className="w-5 h-5" /> Save Changes</>}
+						</button>
+						{existingData?.updatedAt && (
+							<p className="text-center text-xs text-slate-400 mt-3">
+								Last updated: {new Date(existingData.updatedAt.toDate?.() || existingData.updatedAt).toLocaleDateString()}
+							</p>
+						)}
 					</div>
-				</div>
-
-				{/* Save Button */}
-				<button
-					type="submit"
-					disabled={saving}
-					className="w-full py-4 rounded-xl bg-emerald-600 text-white font-semibold shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-2"
-				>
-					{saving ? (
-						<div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-					) : (
-						<>
-							<Save className="w-5 h-5" />
-							Save Privacy Policy
-						</>
-					)}
-				</button>
-
-				{/* Last updated info */}
-				{existingData?.updatedAt && (
-					<div className="flex justify-center items-center gap-1 text-xs text-slate-400 pb-4">
-						<Sparkles className="w-3 h-3 text-amber-500" />
-						<span>
-							Last updated:{' '}
-							{new Date(
-								existingData.updatedAt.toDate?.() || existingData.updatedAt
-							).toLocaleDateString()}
-						</span>
-					</div>
-				)}
-			</form>
+				</form>
+			</div>
 		</div>
 	);
 };
