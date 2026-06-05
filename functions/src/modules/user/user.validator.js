@@ -3,6 +3,7 @@ const Joi = require("joi");
 const tripBookingValidation = (req) => {
   const fields = req.data;
   const schema = Joi.object({
+    platform: Joi.string().optional().allow(""),
     tripId: Joi.string().required(),
     bookingCount: Joi.number().required(),
     userId: Joi.string().required(),

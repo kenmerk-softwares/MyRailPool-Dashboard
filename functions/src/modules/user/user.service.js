@@ -63,6 +63,9 @@ const bookTripService = async (data) => {
     const bookingStatus = paymentType === "online" ? "Pending" : "Confirmed";
     const paymentStatus = bookingStatus === "Pending" ? "pending" : "complete";
 
+    const successUrl = data?.platform === "web" ? `https://myrailpool-4150a.web.app/payment/success?session_id={CHECKOUT_SESSION_ID}` : "myrailpool://payment-success";
+    const cancelUrl = data?.platform === "web" ? "https://myrailpool-4150a.web.app/payment/cancel" : "myrailpool://payment-cancel";
+
     if (paymentType === "online") {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
@@ -80,8 +83,8 @@ const bookTripService = async (data) => {
                 },
             ],
             mode: "payment",
-            success_url: `https://myrailpool-4150a.web.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `https://myrailpool-4150a.web.app/payment/cancel`,
+            success_url: successUrl,
+            cancel_url: cancelUrl,
             metadata: {
                 bookingId: bookingIds.slice(0, 5).join(","),
                 bookingNos: bookingNos.join(","),
