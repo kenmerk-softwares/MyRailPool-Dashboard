@@ -80,8 +80,8 @@ const bookTripService = async (data) => {
                 },
             ],
             mode: "payment",
-            success_url: `http://localhost:5173/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `http://localhost:5173/payment/cancel`,
+            success_url: `https://myrailpool-4150a.web.app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `https://myrailpool-4150a.web.app/payment/cancel`,
             metadata: {
                 bookingId: bookingIds.slice(0, 5).join(","),
                 bookingNos: bookingNos.join(","),
