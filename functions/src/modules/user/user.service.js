@@ -11,6 +11,50 @@ const bookTripService = async (data) => {
 
     const tripData = tripDoc.data();
 
+    // ==================== PRE-BOOKING VALIDATIONS ==================== //
+
+    // 1. Check trip status
+    if (tripData.status !== "Active") {
+        return { success: false, message: `Booking not allowed — trip is ${tripData.status || "unavailable"}` };
+    }
+
+    // 2. Check route status
+    if (tripData.route_id) {
+        const routeDoc = await db.collection("routes").doc(tripData.route_id).get();
+        if (!routeDoc.exists) {
+            return { success: false, message: "Booking not allowed — associated route not found" };
+        }
+        const routeData = routeDoc.data();
+        if (routeData.status !== "Active") {
+            return { success: false, message: `Booking not allowed — route is ${routeData.status || "unavailable"}` };
+        }
+    }
+
+    // 3. Check if selected date & departure time have passed
+    const currentTime = new Date();
+    const departureDates = Array.isArray(selectedDate) ? selectedDate : [selectedDate];
+    for (const date of departureDates) {
+        // Build a full Date from the selected date + departure time at the boarding point
+        const departureTime = tripData.routeTiming ? (tripData.routeTiming[startingPoint] || tripData.routeTiming[boardingPoint]) : null;
+        let departureDateTime;
+        if (departureTime) {
+            // departureTime is expected as "HH:mm" (e.g. "08:30")
+            departureDateTime = new Date(`${date}T${departureTime}:00`);
+        } else {
+            // No specific time — treat the entire date as the cutoff (end of day)
+            departureDateTime = new Date(`${date}T23:59:59`);
+        }
+
+        if (departureDateTime < currentTime) {
+            return {
+                success: false,
+                message: `Booking not allowed — departure on ${date}${departureTime ? ` at ${departureTime}` : ""} has already passed`,
+            };
+        }
+    }
+
+    // ================================================================= //
+
     const counterRef = db.collection("configurations").doc("booking-settings");
     const counterDoc = await counterRef.get();
     const baseCounter = (counterDoc.exists && counterDoc.data().counter) ? counterDoc.data().counter : 0;
