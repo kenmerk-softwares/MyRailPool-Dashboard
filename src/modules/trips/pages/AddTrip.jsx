@@ -22,6 +22,43 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 
+const formatToInputDate = (d) => {
+  if (!d) return '';
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    return d;
+  }
+  let dateObj = null;
+  if (d instanceof Date) {
+    dateObj = d;
+  } else if (typeof d === 'object' && d.toDate && typeof d.toDate === 'function') {
+    dateObj = d.toDate();
+  } else if (typeof d === 'object' && typeof d.seconds === 'number') {
+    dateObj = new Date(d.seconds * 1000);
+  } else if (typeof d === 'number') {
+    dateObj = new Date(d);
+  } else if (typeof d === 'string') {
+    const parts = d.split('/');
+    if (parts.length === 3 && parts[0].length <= 2 && parts[1].length <= 2 && parts[2].length === 4) {
+      const day = parts[0].padStart(2, '0');
+      const month = parts[1].padStart(2, '0');
+      const year = parts[2];
+      return `${year}-${month}-${day}`;
+    }
+    const parsed = new Date(d);
+    if (parsed instanceof Date && !isNaN(parsed)) {
+      dateObj = parsed;
+    }
+  }
+
+  if (dateObj && !isNaN(dateObj.getTime())) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return '';
+};
+
 export const AddTrip = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -59,6 +96,10 @@ export const AddTrip = () => {
     routeTiming: {},
     seatingCapacity: ''
   });
+
+  const routeSelectedDates = (formData.selectedRoute?.selectedDates || formData.selectedRoute?.operating_dates || formData.selectedRoute?.selected_dates || [])
+    .map(d => formatToInputDate(d))
+    .filter(Boolean);
 
   // Isolated Fetchers to avoid Redux side-effects
   const fetchDriversLocal = async (queryStr) => {
@@ -139,6 +180,15 @@ export const AddTrip = () => {
       showToast("Please select a date first.", "error");
       return;
     }
+    if (routeSelectedDates.length > 0 && !routeSelectedDates.includes(formData.date)) {
+      showToast("The selected date is not in the operating dates of the selected route corridor.", "error");
+      return;
+    }
+    const isDuplicate = schedules.some(s => s.date === formData.date);
+    if (isDuplicate) {
+      showToast("This date has already been scheduled.", "error");
+      return;
+    }
     if (formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)) {
       showToast(`Planned Pax Count cannot exceed seating capacity of ${formData.seatingCapacity}.`, "error");
       return;
@@ -174,6 +224,14 @@ export const AddTrip = () => {
     if (itemsToSave.length === 0) {
       showToast("Please add at least one schedule date.", "error");
       return;
+    }
+
+    if (routeSelectedDates.length > 0) {
+      const invalidDateItem = itemsToSave.find(item => !routeSelectedDates.includes(item.date));
+      if (invalidDateItem) {
+        showToast(`The date ${invalidDateItem.date} is not in the operating dates of the selected route corridor.`, "error");
+        return;
+      }
     }
 
     const maxCapacity = parseInt(formData.seatingCapacity || 0);
@@ -402,6 +460,7 @@ export const AddTrip = () => {
                       routeTiming: (route.routes || []).reduce((acc, curr) => ({ ...acc, [curr]: "" }), {})
                     }));
                     setRouteSearch(route.name);
+                    setSchedules([]);
                   }}
                   renderItem={(route) => (
                     <div className="flex flex-col gap-1">
@@ -496,10 +555,39 @@ export const AddTrip = () => {
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Date</label>
                 <div className="relative">
                   <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input
-                    type="date" name="date" value={formData.date} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
-                  />
+                  {!formData.routeId ? (
+                    <select
+                      disabled
+                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-bold outline-none cursor-not-allowed text-sm"
+                    >
+                      <option>Select Route Corridor First</option>
+                    </select>
+                  ) : routeSelectedDates.length > 0 ? (
+                    <select
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm cursor-pointer"
+                    >
+                      <option value="">Select Operational Date</option>
+                      {routeSelectedDates.map(d => {
+                        const dateObj = new Date(d);
+                        return (
+                          <option key={d} value={d}>
+                            {isNaN(dateObj.getTime()) ? d : dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  ) : (
+                    <input
+                      type="date"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                    />
+                  )}
                 </div>
               </div>
 
