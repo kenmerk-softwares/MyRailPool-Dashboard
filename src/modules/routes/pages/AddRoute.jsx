@@ -13,6 +13,7 @@ import {
   Trash2,
   Calendar,
   ArrowRight,
+  AlertTriangle,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import MapPlaces from '../../../shared/Components/Map_places';
@@ -78,6 +79,9 @@ export const AddRoute = () => {
   const functions = getFunctions(app, "asia-south1");
   const [errors, setErrors] = useState({});
 
+  const [activationDate, setActivationDate] = useState(formatToInputDate(initialData?.activationDate));
+  const [deactivationDate, setDeactivationDate] = useState(formatToInputDate(initialData?.deactivationDate));
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const payloadKey = name === 'routeName' ? 'name' : name;
@@ -119,9 +123,25 @@ export const AddRoute = () => {
 
   const handleAddDate = (e) => {
     const date = e.target.value;
-    if (date && !selectedDates.includes(date)) {
-      setSelectedDates([...selectedDates, date].sort());
+    if (!date) return;
+    const todayStr = formatToInputDate(new Date());
+    if (date < todayStr) {
+      showToast("Cannot add past dates as operating dates.", "error");
+      e.target.value = '';
+      return;
     }
+    if (deactivationDate && date > deactivationDate) {
+      showToast("Operating date cannot be after the deactivation date.", "error");
+      e.target.value = '';
+      return;
+    }
+    if (selectedDates.includes(date)) {
+      showToast("This date is already in the operating dates list.", "error");
+      e.target.value = '';
+      return;
+    }
+    setSelectedDates([...selectedDates, date].sort());
+    e.target.value = '';
   };
 
   const handleRemoveDate = (date) => {
@@ -145,6 +165,11 @@ export const AddRoute = () => {
     const pointName = placeDetails ? placeDetails.name || placeDetails.formatted_address : currentPoint.trim();
 
     if (pointName) {
+      if (routes.includes(pointName)) {
+        showToast("This geographical node is already added to the route corridor sequence.", "error");
+        setCurrentPoint('');
+        return;
+      }
       setRoutes([...routes, pointName]);
 
       const details = placeDetails ? {
@@ -215,6 +240,32 @@ export const AddRoute = () => {
         return;
       }
 
+      if (!hasFutureDate) {
+        showToast("Cannot save: Operating dates must contain at least one future date.", "error");
+        setLoading(false);
+        return;
+      }
+      if (deactivationDate < todayStr) {
+        showToast("Deactivation date must be in the future.", "error");
+        setLoading(false);
+        return;
+      }
+      if (isDeactBeforeActivation) {
+        showToast("Deactivation date cannot be earlier than the activation date.", "error");
+        setLoading(false);
+        return;
+      }
+      if (hasOperationalDateAfterDeact) {
+        showToast("One or more operating dates are after the selected deactivation date.", "error");
+        setLoading(false);
+        return;
+      }
+      if (hasMissingFares) {
+        showToast("Please specify a valid positive fare for all point-to-point routes in the matrix.", 'error');
+        setLoading(false);
+        return;
+      }
+
       const payload = {
         action: initialData && initialData.id ? 'edit' : 'add',
         id: initialData?.id,
@@ -260,6 +311,33 @@ export const AddRoute = () => {
     }
   };
 
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+  const hasFutureDate = selectedDates.some(dateStr => {
+    return new Date(dateStr).getTime() >= todayStart;
+  });
+
+  const todayStr = formatToInputDate(new Date());
+  const isDeactBeforeActivation = deactivationDate && activationDate && deactivationDate < activationDate;
+  const isDeactPast = deactivationDate && deactivationDate < todayStr;
+  const hasOperationalDateAfterDeact = selectedDates.some(dateStr => {
+    return deactivationDate && dateStr > deactivationDate;
+  });
+
+  let hasMissingFares = false;
+  if (routes.length > 1) {
+    for (let i = 0; i < routes.length; i++) {
+      for (let j = i + 1; j < routes.length; j++) {
+        const key = `${routes[i]}-${routes[j]}`;
+        const fare = fareMatrix[key];
+        if (fare === undefined || fare === null || fare === '' || isNaN(fare) || parseFloat(fare) <= 0) {
+          hasMissingFares = true;
+          break;
+        }
+      }
+      if (hasMissingFares) break;
+    }
+  }
+
   return (
     <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -303,8 +381,12 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       name="activationDate"
-                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
-                      defaultValue={formatToInputDate(initialData?.activationDate)}
+                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all cursor-pointer"
+                      value={activationDate}
+                      onChange={(e) => {
+                        setActivationDate(e.target.value);
+                        handleInputChange(e);
+                      }}
                     />
                     {errors.activationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.activationDate}</p>}
                   </div>
@@ -316,10 +398,24 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       name="deactivationDate"
-                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
-                      defaultValue={formatToInputDate(initialData?.deactivationDate)}
+                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all cursor-pointer"
+                      value={deactivationDate}
+                      onChange={(e) => {
+                        setDeactivationDate(e.target.value);
+                        handleInputChange(e);
+                      }}
                     />
                     {errors.deactivationDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.deactivationDate}</p>}
+                    {isDeactBeforeActivation && (
+                      <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in">
+                        Deactivation date cannot be earlier than the activation date ({activationDate}).
+                      </p>
+                    )}
+                    {!isDeactBeforeActivation && isDeactPast && (
+                      <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in">
+                        Deactivation date must be in the future.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -359,10 +455,30 @@ export const AddRoute = () => {
                     <input
                       type="date"
                       onChange={handleAddDate}
-                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+                      className="w-full pl-12 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all cursor-pointer"
                     />
 
                     {errors.selectedDates && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.selectedDates}</p>}
+
+                    {!hasFutureDate && selectedDates.length > 0 && (
+                      <div className="mt-4 p-3.5 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-2.5 text-rose-700 text-[11px] font-bold animate-in slide-in-from-top-1">
+                        <AlertTriangle className="w-4 h-4 shrink-0 text-rose-500 mt-0.5 animate-bounce" />
+                        <div>
+                          <p className="font-extrabold uppercase tracking-tight text-[10px]">Activation Blocked</p>
+                          <p className="font-medium text-[9px] text-rose-600 mt-0.5 leading-relaxed">At least one future operating date is required to activate this route corridor. Please select and append a future date.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {hasOperationalDateAfterDeact && (
+                      <div className="mt-4 p-3.5 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-2.5 text-rose-700 text-[11px] font-bold animate-in slide-in-from-top-1">
+                        <AlertTriangle className="w-4 h-4 shrink-0 text-rose-500 mt-0.5 animate-bounce" />
+                        <div>
+                          <p className="font-extrabold uppercase tracking-tight text-[10px]">Date Conflict</p>
+                          <p className="font-medium text-[9px] text-rose-600 mt-0.5 leading-relaxed">One or more scheduled operating dates are after the selected deactivation date. Please extend the deactivation date or remove the conflicting dates.</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="col-span-2 md:col-span-3 mt-2">
@@ -637,6 +753,11 @@ export const AddRoute = () => {
                   ))}
                 </div>
                 {errors.fareMatrix && <p className="text-red-500 text-[10px] font-bold mt-4 ml-1 animate-in fade-in slide-in-from-top-1">{errors.fareMatrix}</p>}
+                {hasMissingFares && (
+                  <p className="text-red-500 text-[10px] font-bold mt-4 ml-1 animate-in fade-in">
+                    * Please specify a valid positive fare for all point-to-point routes in the matrix.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -650,7 +771,7 @@ export const AddRoute = () => {
             </Link>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !hasFutureDate || isDeactBeforeActivation || isDeactPast || hasOperationalDateAfterDeact || hasMissingFares}
               className="w-full sm:w-auto justify-center bg-emerald-600 text-white px-8 py-3 rounded-2xl font-black text-sm hover:bg-emerald-800 active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
