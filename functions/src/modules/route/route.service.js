@@ -43,7 +43,6 @@ const addRouteService = async (data, req) => {
 
     // ===================== CREATING PAIRS AND FARE MATRIX ===================== //
     const transformedFareMatrix = {};
-    const routePairs = [];
     if (fareMatrix && typeof fareMatrix === "object") {
       Object.entries(fareMatrix).forEach(([key, value]) => {
         const parts = key.split("-");
@@ -51,13 +50,12 @@ const addRouteService = async (data, req) => {
         if (!isNaN(i) && !isNaN(j) && routes[i] && routes[j]) {
           const pair = `${routes[i]}-${routes[j]}`;
           transformedFareMatrix[pair] = value;
-          routePairs.push(pair);
         } else {
           transformedFareMatrix[key] = value;
-          if (parts.length === 2) routePairs.push(key);
         }
       });
     }
+    const routePairs = Object.keys(transformedFareMatrix);
     // ===================== ADDING ROUTES ===================== //
     const countSnapshot = await db.collection("routes").count().get();
     const routeOrder = countSnapshot.data().count + 1;
@@ -114,7 +112,6 @@ const addRouteService = async (data, req) => {
 
     // ====================== CREATING PAIRS AND FARE MATRIX ====================== //
     const transformedFareMatrix = {};
-    const routePairs = [];
     if (fareMatrix && typeof fareMatrix === "object") {
       Object.entries(fareMatrix).forEach(([key, value]) => {
         const parts = key.split("-");
@@ -123,13 +120,12 @@ const addRouteService = async (data, req) => {
         if (!isNaN(i) && !isNaN(j) && rList[i] && rList[j]) {
           const pair = `${rList[i]}-${rList[j]}`;
           transformedFareMatrix[pair] = value;
-          routePairs.push(pair);
         } else {
           transformedFareMatrix[key] = value;
-          if (parts.length === 2) routePairs.push(key);
         }
       });
     }
+    const routePairs = Object.keys(transformedFareMatrix);
 
     const payload = {
       name: name || currentDoc.data().name,

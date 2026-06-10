@@ -70,6 +70,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/routes', label: 'Routes', icon: MapIcon },
     { path: '/drivers', label: 'Drivers', icon: Users },
     { path: '/vehicles', label: 'Vehicles', icon: Car },
+    { path: '/users-list', label: 'Users', icon: Users },
     { path: '/payment', label: 'Payment Status', icon: FaPaypal },
     { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: requestCount },
     { path: '/notifications', label: 'Notifications', icon: Bell },
