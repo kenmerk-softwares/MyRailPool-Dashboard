@@ -33,6 +33,8 @@ import PrivacyPolicy from '../pages/Settings/PrivacyPolicy';
 import Payment from '../modules/payment/Payment';
 import { Reports } from '../modules/reports/pages/Reports';
 import { CustomerReq } from '../modules/CustomerRequest/Pages/CustomerReq';
+import UsersList from '../modules/users/pages/UsersList';
+import PassengersList from '../modules/users/pages/PassengersList';
 
 // ======================== ROUTES CONFIG ======================== //
 export const routesConfig = [
@@ -69,7 +71,9 @@ export const routesConfig = [
   { path: '/privacy-policy', element: <PrivacyPolicy />, permission: '/privacy-policy' },
   { path: '/payment', element: <Payment />, permission: '/payment' },
   { path: '/reports', element: <Reports />, permission: '/reports' },
-  { path: '/customer-req', element: <CustomerReq />, permission: '/customer-req' }
+  { path: '/customer-req', element: <CustomerReq />, permission: '/customer-req' },
+  { path: '/users-list', element: <UsersList />, permission: '/users-ist' },
+  { path: '/passenger-list/:userId', element: <PassengersList />, permission: '/passenger-ist' },
 ];
 
 export const systemRoutes = [...new Map(
