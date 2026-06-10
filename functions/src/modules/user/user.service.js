@@ -36,7 +36,6 @@ const getFareFromMatrix = (fareMatrix, from, to) => {
 };
 
 const bookTripService = async (data) => {
-    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
     const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint, returnTripId, returnSelectedDate, returnMultiBookings, returnBoardingPoint, returnDropOffPoint } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
@@ -243,6 +242,11 @@ const bookTripService = async (data) => {
     const cancelUrl = data?.platform === "web" ? "https://myrailpool-4150a.web.app/payment/cancel" : "myrailpool://payment-cancel";
 
     if (paymentType === "online") {
+        if (!process.env.STRIPE_SECRET_KEY) {
+            return { success: false, message: "Stripe is not configured. Online payments are currently unavailable." };
+        }
+        const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
         const lineItems = [
             {
                 price_data: {
