@@ -7,7 +7,7 @@ const tripBookingValidation = (req) => {
     tripId: Joi.string().required(),
     bookingCount: Joi.number().required(),
     userId: Joi.string().required(),
-    paymentType: Joi.string().valid("online", "offline").required(),
+    paymentType: Joi.string().valid("online", "offline", "cash").required(),
     startingPoint: Joi.string().required(),
     dropPoint: Joi.string().required(),
     selectedDate: Joi.array().items(Joi.string()).required(),
@@ -15,6 +15,11 @@ const tripBookingValidation = (req) => {
     boardingPoint: Joi.object().required(),
     dropOffPoint: Joi.object().required(),
     multiBookings: Joi.boolean().required(),
+    returnTripId: Joi.string().optional().allow(""),
+    returnSelectedDate: Joi.array().items(Joi.string()).optional(),
+    returnMultiBookings: Joi.boolean().optional(),
+    returnBoardingPoint: Joi.object().optional(),
+    returnDropOffPoint: Joi.object().optional(),
   });
 
   const { error, value } = schema.validate(fields, {
