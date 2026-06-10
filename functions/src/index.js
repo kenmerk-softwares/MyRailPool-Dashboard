@@ -49,3 +49,9 @@ exports.onFinanceUpdated = onFinanceUpdated;
 const {onBookingUpdated} = require("./modules/notifications/trip.notifications");
 exports.onBookingUpdated = onBookingUpdated;
 
+// ================ WHATSAPP ================================ //
+const {whatsappNotifications} = require("./modules/whatsapp/whatsapp.callable");
+exports.whatsappNotifications = whatsappNotifications;
+
+const {tripReminderScheduler} = require("./modules/whatsapp/whatsapp.scheduled");
+exports.tripReminderScheduler = tripReminderScheduler;
