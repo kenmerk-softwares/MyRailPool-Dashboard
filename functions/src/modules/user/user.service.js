@@ -1,7 +1,6 @@
 const { FieldValue } = require("firebase-admin/firestore");
 const { db } = require("../../shared/config/firebase");
 const bookTripService = async (data) => {
-    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
     const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
@@ -69,8 +68,36 @@ const bookTripService = async (data) => {
         }
     }
 
-    const routeKey = `${startingPoint}-${dropPoint}`;
-    const fare = tripData.fareMatrix ? tripData.fareMatrix[routeKey] : null;
+    const getBackendSpecificFare = (fareMatrix, from, to) => {
+        if (!fareMatrix || !from || !to) return null;
+        const cleanFrom = from.replace(/\s*-\s*/g, "-").trim().toLowerCase();
+        const cleanTo = to.replace(/\s*-\s*/g, "-").trim().toLowerCase();
+        const getSplits = (key) => {
+            const cleanKey = key.replace(/\s*-\s*/g, "-");
+            const parts = cleanKey.split("-");
+            const splits = [];
+            for (let i = 1; i < parts.length; i++) {
+                const p1 = parts.slice(0, i).join("-").trim().toLowerCase();
+                const p2 = parts.slice(i).join("-").trim().toLowerCase();
+                splits.push([p1, p2]);
+            }
+            return splits;
+        };
+
+        for (const [key, value] of Object.entries(fareMatrix)) {
+            const splits = getSplits(key);
+            for (const [p1, p2] of splits) {
+                if ((p1 === cleanFrom && p2 === cleanTo) || (p1 === cleanTo && p2 === cleanFrom)) {
+                    return value;
+                }
+            }
+        }
+        return null;
+    };
+
+    const fare = getBackendSpecificFare(tripData.fareMatrix, startingPoint, dropPoint) ||
+        (tripData.routes ? getBackendSpecificFare(tripData.fareMatrix, tripData.routes[0], tripData.routes[tripData.routes.length - 1]) : null);
+
     if (!fare) {
         return { success: false, message: "Fare not configured for the selected route" };
     }
@@ -111,6 +138,7 @@ const bookTripService = async (data) => {
     const cancelUrl = data?.platform === "web" ? "https://myrailpool-4150a.web.app/payment/cancel" : "myrailpool://payment-cancel";
 
     if (paymentType === "online") {
+        const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             line_items: [
@@ -262,6 +290,17 @@ const bookTripService = async (data) => {
     batch.set(counterRef, { counter: baseCounter + dates.length }, { merge: true });
 
     await batch.commit();
+
+    if (bookingStatus === "Confirmed") {
+        try {
+            const { sendBookingConfirmation } = require("../whatsapp/whatsapp.service");
+            for (const bookingDocId of bookingIds) {
+                await sendBookingConfirmation(bookingDocId);
+            }
+        } catch (error) {
+            console.error("Error sending booking confirmation WhatsApp:", error);
+        }
+    }
 
     return {
         success: true,

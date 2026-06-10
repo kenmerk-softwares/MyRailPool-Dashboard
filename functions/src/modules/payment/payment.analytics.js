@@ -28,10 +28,11 @@ const updateAnalyticsData = async (amount, bookingCount, date = new Date(), isCo
 
     const yearlyRef = db.collection("yearly_analytics").doc(year);
     const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     const monthlyDocID = `${year}-${month}`;
     const weekOfMonth = Math.ceil(date.getDate() / 7);
     const weeklyDocId = `${year}-${month}-${weekOfMonth}`;
-    const dailyDocId = `${weeklyDocId}-${date.getDay()}`;
+    const dailyDocId = `${year}-${month}-${day}`;
     const monthlyRef = db.collection("monthly_analytics").doc(monthlyDocID);
     const weeklyRef = db.collection("weekly_analytics").doc(weeklyDocId);
     const totalRef = db.collection("analytics").doc("total");

@@ -88,6 +88,17 @@ const stripeWebhook = onRequest(async (req, res) => {
 
                 await batch.commit();
                 console.log(`Successfully confirmed bookings: ${finalBookingIds.join(", ")}`);
+
+                try {
+                    const { sendBookingConfirmation } = require("../whatsapp/whatsapp.service");
+                    for (const bid of finalBookingIds) {
+                        console.log("Sending WhatsApp for booking:", bid);
+                        await sendBookingConfirmation(bid);
+                        console.log("WhatsApp process completed:", bid);
+                    }
+                } catch (error) {
+                    console.error("Error sending booking confirmation WhatsApp via webhook:", error);
+                }
             } catch (error) {
                 console.error(`Error updating bookings:`, error);
                 return res.status(500).send("Internal Server Error updating database");
@@ -106,7 +117,7 @@ const stripeWebhook = onRequest(async (req, res) => {
                 if (financeDoc.exists) {
                     const batch = db.batch();
                     batch.update(financeDoc.ref, { paymentStatus: "refunded", stripeRefundId: stripeRefundId, refundDate: new Date() });
-                    
+
                     const financeData = financeDoc.data();
                     const bookingNosVal = financeData.bookingNos;
                     const bookingNosList = Array.isArray(bookingNosVal) ? bookingNosVal : (typeof bookingNosVal === "string" ? bookingNosVal.split(",") : []);

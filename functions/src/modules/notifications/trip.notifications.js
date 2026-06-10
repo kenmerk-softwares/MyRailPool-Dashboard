@@ -180,6 +180,12 @@ const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event)
             if (!notifiedCancellationKeys.has(dedupKey)) {
                 notifiedCancellationKeys.add(dedupKey);
                 await sendTripCancellationNotification(enrichedUser, event.params.bookingId, selectedDate);
+                try {
+                    const { sendBookingCancelled } = require("../whatsapp/whatsapp.service");
+                    await sendBookingCancelled(event.params.bookingId, afterUser.userId);
+                } catch (whatsappErr) {
+                    console.error("Error sending WhatsApp cancel notification:", whatsappErr);
+                }
             }
         }
     }
