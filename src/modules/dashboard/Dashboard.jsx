@@ -33,6 +33,9 @@ const formatAndSortAnalytics = (docs, timeframe, selectedMonth, selectedYear) =>
         return filteredDocs.sort((a, b) => {
             const partsA = a.id.split('-');
             const partsB = b.id.split('-');
+            if (partsA.length === 3 && partsB.length === 3) {
+                return Number(partsA[2] || 0) - Number(partsB[2] || 0);
+            }
             const wA = Number(partsA[2] || 0);
             const wB = Number(partsB[2] || 0);
             if (wA !== wB) return wA - wB;
@@ -42,11 +45,17 @@ const formatAndSortAnalytics = (docs, timeframe, selectedMonth, selectedYear) =>
             return dA - dB;
         }).map(d => {
             const parts = d.id.split('-');
-            const weekOfMonth = parts[2] || d.week;
             const dayName = daysOfWeek[d.day] || `Day ${d.day}`;
+            let label = '';
+            if (parts.length === 3) {
+                label = `${dayName} (${parts[2]})`;
+            } else {
+                const weekOfMonth = parts[2] || d.week;
+                label = `${dayName} (Wk ${weekOfMonth})`;
+            }
             return {
                 ...d,
-                label: `${dayName} (Wk ${weekOfMonth})`,
+                label,
                 amount: d.amount || 0,
                 noOfTrips: d.noOfTrips || 0,
                 passengerCount: d.passengerCount || 0
@@ -125,9 +134,13 @@ const formatAnalytics = (docs, timeframe) => {
         let label = '';
         if (timeframe === 'daily') {
             const parts = d.id.split('-');
-            const weekOfMonth = parts[2] || d.week;
             const dayName = daysOfWeek[d.day] || `Day ${d.day}`;
-            label = `${dayName} (Wk ${weekOfMonth})`;
+            if (parts.length === 3) {
+                label = `${dayName} (${parts[2]})`;
+            } else {
+                const weekOfMonth = parts[2] || d.week;
+                label = `${dayName} (Wk ${weekOfMonth})`;
+            }
         } else if (timeframe === 'weekly') {
             const parts = d.id.split('-');
             const weekOfMonth = parts[2] || d.week;

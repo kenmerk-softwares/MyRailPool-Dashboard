@@ -43,7 +43,7 @@ const getFareFromMatrix = (fareMatrix, from, to) => {
 };
 
 const bookTripService = async (data) => {
-    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint, returnTripId, returnSelectedDate, returnMultiBookings, returnBoardingPoint, returnDropOffPoint } = data;
+    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
     if (!tripDoc.exists) {
@@ -156,23 +156,37 @@ const bookTripService = async (data) => {
         }
     }
 
-    // Check seats for return
-    if (returnTripId) {
-        const returnAvailableSeatsMap = returnTripData.available_seats || {};
-        for (const date of returnDates) {
-            const currentAvailableSeats = returnAvailableSeatsMap[date] ?? returnTripData.total_seats;
-            if (currentAvailableSeats < bookingCount) {
-                return { success: false, message: `Not enough seats available for return trip on date ${date}` };
+    const getBackendSpecificFare = (fareMatrix, from, to) => {
+        if (!fareMatrix || !from || !to) return null;
+        const cleanFrom = from.replace(/\s*-\s*/g, "-").trim().toLowerCase();
+        const cleanTo = to.replace(/\s*-\s*/g, "-").trim().toLowerCase();
+        const getSplits = (key) => {
+            const cleanKey = key.replace(/\s*-\s*/g, "-");
+            const parts = cleanKey.split("-");
+            const splits = [];
+            for (let i = 1; i < parts.length; i++) {
+                const p1 = parts.slice(0, i).join("-").trim().toLowerCase();
+                const p2 = parts.slice(i).join("-").trim().toLowerCase();
+                splits.push([p1, p2]);
+            }
+            return splits;
+        };
+
+        for (const [key, value] of Object.entries(fareMatrix)) {
+            const splits = getSplits(key);
+            for (const [p1, p2] of splits) {
+                if ((p1 === cleanFrom && p2 === cleanTo) || (p1 === cleanTo && p2 === cleanFrom)) {
+                    return value;
+                }
             }
         }
-    }
+        return null;
+    };
 
-    // Outbound fare
-    let fare = getFareFromMatrix(tripData.fareMatrix, startingPoint, dropPoint);
-    if (fare === null && tripData.routes && tripData.routes.length > 0) {
-        fare = getFareFromMatrix(tripData.fareMatrix, tripData.routes[0], tripData.routes[tripData.routes.length - 1]);
-    }
-    if (fare === null) {
+    const fare = getBackendSpecificFare(tripData.fareMatrix, startingPoint, dropPoint) ||
+        (tripData.routes ? getBackendSpecificFare(tripData.fareMatrix, tripData.routes[0], tripData.routes[tripData.routes.length - 1]) : null);
+
+    if (!fare) {
         return { success: false, message: "Fare not configured for the selected route" };
     }
     const outboundFareTotal = Number(fare) * bookingCount * dates.length;
@@ -257,32 +271,18 @@ const bookTripService = async (data) => {
     const cancelUrl = data?.platform === "web" ? "https://myrailpool-4150a.web.app/payment/cancel" : "myrailpool://payment-cancel";
 
     if (paymentType === "online") {
-        if (!process.env.STRIPE_SECRET_KEY) {
-            return { success: false, message: "Stripe is not configured. Online payments are currently unavailable." };
-        }
         const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
-        const lineItems = [
-            {
-                price_data: {
-                    currency: "gbp",
-                    product_data: {
-                        name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
-                        description: `Booking for ${bookingCount} passenger(s) on ${dates.join(", ")}`,
-                    },
-                    unit_amount: Math.round(Number(fare) * bookingCount * dates.length * 100),
-                },
-                quantity: 1,
-            }
-        ];
-
-        if (returnTripId) {
-            lineItems.push({
-                price_data: {
-                    currency: "gbp",
-                    product_data: {
-                        name: `Return Trip Booking: ${dropPoint} to ${startingPoint}`,
-                        description: `Booking for ${bookingCount} passenger(s) on ${returnDates.join(", ")}`,
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            line_items: [
+                {
+                    price_data: {
+                        currency: "gbp",
+                        product_data: {
+                            name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
+                            description: `Booking for ${bookingCount} passenger(s) on ${dates.join(", ")}`,
+                        },
+                        unit_amount: Math.round(totalFare * 100),
                     },
                     unit_amount: Math.round(Number(returnFare) * bookingCount * returnDates.length * 100),
                 },
@@ -532,6 +532,17 @@ const bookTripService = async (data) => {
     batch.set(counterRef, { counter: baseCounter + dates.length + returnDates.length }, { merge: true });
 
     await batch.commit();
+
+    if (bookingStatus === "Confirmed") {
+        try {
+            const { sendBookingConfirmation } = require("../whatsapp/whatsapp.service");
+            for (const bookingDocId of bookingIds) {
+                await sendBookingConfirmation(bookingDocId);
+            }
+        } catch (error) {
+            console.error("Error sending booking confirmation WhatsApp:", error);
+        }
+    }
 
     return {
         success: true,
