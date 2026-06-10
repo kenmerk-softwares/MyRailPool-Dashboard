@@ -3,30 +3,37 @@ const { db } = require("../../shared/config/firebase");
 
 const getFareFromMatrix = (fareMatrix, from, to) => {
     if (!fareMatrix || !from || !to) return null;
-    const cleanFrom = from.trim().toLowerCase();
-    const cleanTo = to.trim().toLowerCase();
+    const cleanFrom = from.replace(/\s*-\s*/g, "-").trim().toLowerCase();
+    const cleanTo = to.replace(/\s*-\s*/g, "-").trim().toLowerCase();
+    const getSplits = (key) => {
+        const cleanKey = key.replace(/\s*-\s*/g, "-");
+        const parts = cleanKey.split("-");
+        const splits = [];
+        for (let i = 1; i < parts.length; i++) {
+            const p1 = parts.slice(0, i).join("-").trim().toLowerCase();
+            const p2 = parts.slice(i).join("-").trim().toLowerCase();
+            splits.push([p1, p2]);
+        }
+        return splits;
+    };
 
     // First pass: Exact match (case-insensitive)
     for (const [key, value] of Object.entries(fareMatrix)) {
-        const parts = key.split("-");
-        if (parts.length === 2) {
-            const p1 = parts[0].trim().toLowerCase();
-            const p2 = parts[1].trim().toLowerCase();
+        const splits = getSplits(key);
+        for (const [p1, p2] of splits) {
             if ((p1 === cleanFrom && p2 === cleanTo) || (p1 === cleanTo && p2 === cleanFrom)) {
                 return Number(value);
             }
         }
     }
 
-    // Second pass: Partial match (includes)
+    // Second pass: Bidirectional partial match
     for (const [key, value] of Object.entries(fareMatrix)) {
-        const parts = key.split("-");
-        if (parts.length === 2) {
-            const p1 = parts[0].trim().toLowerCase();
-            const p2 = parts[1].trim().toLowerCase();
+        const splits = getSplits(key);
+        for (const [p1, p2] of splits) {
             if (
-                (p1.includes(cleanFrom) && p2.includes(cleanTo)) ||
-                (p1.includes(cleanTo) && p2.includes(cleanFrom))
+                ((p1.includes(cleanFrom) || cleanFrom.includes(p1)) && (p2.includes(cleanTo) || cleanTo.includes(p2))) ||
+                ((p1.includes(cleanTo) || cleanTo.includes(p1)) && (p2.includes(cleanFrom) || cleanFrom.includes(p2)))
             ) {
                 return Number(value);
             }
@@ -189,8 +196,13 @@ const bookTripService = async (data) => {
     let returnFare = null;
     if (returnTripId) {
         returnFare = getFareFromMatrix(returnTripData.fareMatrix, dropPoint, startingPoint);
+        if (returnFare === null && returnTripData.routes && returnTripData.routes.length > 0) {
+            returnFare = getFareFromMatrix(returnTripData.fareMatrix, returnTripData.routes[0], returnTripData.routes[returnTripData.routes.length - 1]);
+        }
         if (returnFare === null) {
-            returnFare = fare; // Fallback to outbound fare
+            const returnFares = Object.values(returnTripData.fareMatrix || {});
+            const returnMinFare = returnFares.length > 0 ? Math.min(...returnFares.map(Number)) : 0;
+            returnFare = returnMinFare || fare; // Fallback to minimum return fare or outbound fare
         }
         returnFareTotal = Number(returnFare) * bookingCount * returnDates.length;
     }
