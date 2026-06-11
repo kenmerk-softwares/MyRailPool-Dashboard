@@ -93,7 +93,7 @@ const stripeWebhook = onRequest(async (req, res) => {
                     const { sendBookingConfirmation } = require("../whatsapp/whatsapp.service");
                     for (const bid of finalBookingIds) {
                         console.log("Sending WhatsApp for booking:", bid);
-                        await sendBookingConfirmation(bid);
+                        await sendBookingConfirmation(bid, userId, financeId);
                         console.log("WhatsApp process completed:", bid);
                     }
                 } catch (error) {

@@ -44,28 +44,50 @@ const formatWhatsAppNumber = (mobile) => {
   return "+44" + clean;
 };
 
-const sendBookingConfirmation = async (bookingDocId) => {
+const sendBookingConfirmation = async (bookingDocId, targetUserId = null, targetFinanceId = null) => {
   const bookingDoc = await db.collection("bookings").doc(bookingDocId).get();
 
   if (!bookingDoc.exists) {
+    console.error("Booking not found:", bookingDocId);
     return;
   }
 
   const booking = bookingDoc.data();
+  console.log("Booking Data:", booking);
+
+  const sentMobiles = new Set();
 
   for (const passenger of booking.users || []) {
+    if (targetUserId && passenger.userId !== targetUserId) continue;
+    if (targetFinanceId && passenger.financeId !== targetFinanceId) continue;
+
     const userDoc = await db.collection("users")
       .doc(passenger.userId)
       .get();
 
-    if (!userDoc.exists) continue;
+    if (!userDoc.exists) {
+      console.error("User not found:", passenger.userId);
+      continue;
+    }
 
     const user = userDoc.data();
     console.log("User Mobile:", user.mobile);
-    if (!user.mobile) continue;
+    if (!user.mobile) {
+      console.error("User mobile not found:", passenger.userId);
+      continue;
+    }
 
     const formattedMobile = formatWhatsAppNumber(user.mobile);
-    if (!formattedMobile) continue;
+    if (!formattedMobile) {
+      console.error("Formatted mobile not found:", user.mobile);
+      continue;
+    }
+
+    if (sentMobiles.has(formattedMobile)) {
+      console.log("Message already sent to this number in this run:", formattedMobile);
+      continue;
+    }
+    sentMobiles.add(formattedMobile);
 
     try {
       const result = await getTwilioClient().messages.create({
@@ -98,14 +120,10 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
   if (!bookingDoc.exists) {
     return;
   }
-
   const booking = bookingDoc.data();
 
   for (const passenger of booking.users || []) {
-    // Only send cancellation WhatsApp if the passenger booking status is Cancelled
     if (passenger.status !== "Cancelled") continue;
-
-    // If targetUserId is provided, only send to that specific user
     if (targetUserId && passenger.userId !== targetUserId) continue;
 
     const userDoc = await db.collection("users")
