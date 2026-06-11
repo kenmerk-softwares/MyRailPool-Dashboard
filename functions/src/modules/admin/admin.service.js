@@ -542,6 +542,12 @@ const cancelBookingService = async (req) => {
         }
     }
     await batch.commit();
+    try {
+        const { sendBookingCancelled } = require("../whatsapp/whatsapp.service");
+        await sendBookingCancelled(bookingId, userId);
+    } catch (whatsappErr) {
+        logError(`Error sending WhatsApp cancel notification for booking ${bookingId}: ${whatsappErr.message}`);
+    }
     await adminLogs(req.auth.uid, req.auth.token.email, "Cancel Booking", `Cancelled booking ID: ${bookingId} (financeId: ${financeId}) for user ${userId}`);
     logInfo(`Booking ${bookingId} for user ${userId} cancelled successfully by admin`);
     return { status: 200, success: true, message: "Booking cancelled successfully" };

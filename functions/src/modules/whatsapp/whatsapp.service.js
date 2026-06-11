@@ -13,9 +13,11 @@ const getTwilioClient = () => {
 };
 
 const TEMPLATE_SIDS = {
-  booking_confirmation: process.env.TWILIO_BOOKING_TEMPLATE_SID || "HX5303221ad90993004443880a7f640f35",
-  trip_reminder: process.env.TWILIO_REMINDER_TEMPLATE_SID || "HX6c22bf0dc3c52b6e44c5815f56a16e2c",
-  booking_cancelled: process.env.TWILIO_CANCELLED_TEMPLATE_SID || "HX9587f49a0d8a044e308774ccc200bfb8",
+  booking_confirmation: process.env.TWILIO_BOOKING_TEMPLATE_SID,
+  trip_reminder: process.env.TWILIO_REMINDER_TEMPLATE_SID,
+  booking_cancelled: process.env.TWILIO_CANCELLED_TEMPLATE_SID,
+  admin_booking: process.env.TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
+
 };
 
 const formatWhatsAppNumber = (mobile) => {
@@ -107,6 +109,12 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
         }),
       });
       console.log("WhatsApp SID:", result.sid);
+
+      await sendAdminBookingNotification(
+        booking,
+        passenger,
+        user
+      );
     }
     catch (err) {
       console.error("WhatsApp Error:", err);
@@ -164,9 +172,50 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
   }
 };
 
+const sendAdminBookingNotification = async (
+  booking,
+  passenger,
+  user
+) => {
+  const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
+
+  if (!adminNumber) {
+    console.log("Admin WhatsApp number missing");
+    return;
+  }
+
+  const formattedAdmin =
+    adminNumber.startsWith("+")
+      ? adminNumber
+      : `+${adminNumber}`;
+
+  const result = await getTwilioClient().messages.create({
+    from: process.env.TWILIO_WHATSAPP_NUMBER,
+    to: `whatsapp:${formattedAdmin}`,
+    contentSid: TEMPLATE_SIDS.admin_booking,
+    contentVariables: JSON.stringify({
+      1: String(user.name || ""),
+      2: String(user.mobile || ""),
+      3: String(booking.bookingNo || ""),
+      4: String(booking.route_name || ""),
+      5: String(booking.selectedDate || ""),
+      6: String(passenger.boardingPoint?.name || ""),
+      7: String(passenger.dropOffPoint?.name || ""),
+      8: String(passenger.bookingCount || 0),
+      9: String(passenger.paymentType || ""),
+      10: String(passenger.totalFare || 0),
+      11: String(booking.driver_name || ""),
+    }),
+  });
+
+  console.log("Admin WhatsApp sent:", result.sid);
+};
+
+
 module.exports = {
   sendBookingConfirmation,
   sendBookingCancelled,
   formatWhatsAppNumber,
+  sendAdminBookingNotification,
 };
 

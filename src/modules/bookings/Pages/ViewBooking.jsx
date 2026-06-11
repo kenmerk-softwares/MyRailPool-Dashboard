@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  MapPin, Calendar, Car, Navigation, ArrowLeft, AlertCircle,
+  MapPin, Car, Navigation, ArrowLeft, AlertCircle,
   Hash, Users, CreditCard, Loader2, User, CheckCircle2,
-  XCircle, Clock, Phone, Bus, UserCheck, Route, Mail,
-  Activity, Shield
+  XCircle, Clock, Phone, UserCheck, Route,Activity
 } from 'lucide-react';
 import { doc, getDoc, collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
@@ -13,7 +12,6 @@ import { useDocument } from '../../../shared/hooks/useDocument';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 import { useToast } from '../../../shared/hooks/ToastContext';
 
-// small reusable field box — label on top, value below
 const Field = ({ label, value, mono = false, highlight, className = '' }) => (
   <div className={`space-y-1.5 ${className}`}>
     <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">{label}</label>
@@ -26,7 +24,6 @@ const Field = ({ label, value, mono = false, highlight, className = '' }) => (
   </div>
 );
 
-// card wrapper used for each section
 const Card = ({ icon: Icon, iconBg = 'bg-primary-50', iconColor = 'text-primary-600', title, children }) => (
   <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden text-sm">
     <div className="px-6 py-4 flex items-center gap-3 bg-slate-50/50 border-b border-slate-100">
@@ -250,7 +247,6 @@ export const ViewBooking = () => {
     }
   };
 
-  // load the booking doc when the page opens
   useEffect(() => {
     if (docId) fetchDocument(docId);
   }, [docId, fetchDocument]);
@@ -344,7 +340,7 @@ export const ViewBooking = () => {
   );
 
   const users = booking.users || [];
-  const totalCollected = users.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
+  // const totalCollected = users.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
 
   return (
     <div className="max-w-5xl mx-auto pb-12 px-4 animate-in fade-in duration-500 font-jakarta">
