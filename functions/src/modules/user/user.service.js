@@ -146,6 +146,14 @@ const bookTripService = async (data) => {
     const baseCounter = (counterDoc.exists && counterDoc.data().counter) ? counterDoc.data().counter : 0;
     let counterId = baseCounter + 1;
 
+    const bookingChargeRef = db.collection("configurations").doc("booking-charge");
+    const bookingChargeDoc = await bookingChargeRef.get();
+    let bookingCharge = 0;
+    if (bookingChargeDoc.exists) {
+        const bd = bookingChargeDoc.data();
+        bookingCharge = Number(bd.amount ?? bd.charge?.amount ?? 0);
+    }
+
     // Check seats for outbound
     const availableSeatsMap = tripData.available_seats || {};
     const dates = [...new Set(Array.isArray(selectedDate) ? selectedDate : [selectedDate])];
@@ -207,7 +215,7 @@ const bookTripService = async (data) => {
         returnFareTotal = Number(returnFare) * bookingCount * returnDates.length;
     }
 
-    const totalFare = outboundFareTotal + returnFareTotal;
+    const totalFare = outboundFareTotal + returnFareTotal + bookingCharge;
 
     const batch = db.batch();
     const financeRef = db.collection("finance").doc();
@@ -304,6 +312,19 @@ const bookTripService = async (data) => {
             });
         }
 
+        if (bookingCharge > 0) {
+            lineItems.push({
+                price_data: {
+                    currency: "gbp",
+                    product_data: {
+                        name: "Booking Fee",
+                    },
+                    unit_amount: Math.round(bookingCharge * 100),
+                },
+                quantity: 1,
+            });
+        }
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             line_items: lineItems,
@@ -340,7 +361,7 @@ const bookTripService = async (data) => {
             financeId: financeRef.id,
             bookingNo,
             name: userData.name || userData.displayName || "Unknown",
-            phone: userData.phone || userData.phoneNumber || "",
+            phone: userData.mobile || userData.phoneNumber || "",
             bookingCount,
             paymentType,
             startingPoint,
@@ -448,6 +469,7 @@ const bookTripService = async (data) => {
         status: bookingStatus,
         paymentStatus,
         tripStatus: "Not Started",
+        bookingCharge: bookingCharge,
         multiBookings: data.multiBookings || false,
     };
     batch.set(financeRef, financeData);

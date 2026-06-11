@@ -1,9 +1,10 @@
 const { db } = require("../../shared/config/firebase");
 const { FieldValue } = require("firebase-admin/firestore");
 
-const updateAnalyticsData = async (amount, bookingCount, date = new Date(), isConfirmed = true) => {
+const updateAnalyticsData = async (amount, bookingCount, tripsCount, date = new Date(), isConfirmed = true) => {
     const parsedAmount = Number(amount) || 0;
     const parsedBookingCount = Number(bookingCount) || 0;
+    const parsedTripsCount = Number(tripsCount) || 1;
 
     const year = date.getFullYear().toString();
     const getWeekNumber = (d) => {
@@ -16,13 +17,15 @@ const updateAnalyticsData = async (amount, bookingCount, date = new Date(), isCo
     const week = getWeekNumber(date);
     const multiplier = isConfirmed ? 1 : -1;
     const amountChange = parsedAmount * multiplier;
-    const passengerChange = parsedBookingCount * multiplier;
-    const tripChange = 1 * multiplier;
+    // Total passenger seats booked = passenger count per trip * number of trips
+    const passengerChange = (parsedBookingCount * parsedTripsCount) * multiplier;
+    const tripChange = parsedTripsCount * multiplier;
 
     const updateData = {
         amount: FieldValue.increment(amountChange),
         passengerCount: FieldValue.increment(passengerChange),
         noOfTrips: FieldValue.increment(tripChange),
+        bookingCount: FieldValue.increment(parsedBookingCount * multiplier),
         updatedAt: new Date()
     };
 
@@ -57,7 +60,7 @@ const updateAnalyticsData = async (amount, bookingCount, date = new Date(), isCo
             year: year,
             month: month,
             week: week,
-            day: date.getDay()
+            day: date.getDate()
         }, { merge: true });
 
         batch.set(totalRef, updateData, { merge: true });
@@ -81,18 +84,52 @@ const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) 
     const wasConfirmed = beforeData && beforeData.status === "Confirmed";
     const isConfirmed = afterData && afterData.status === "Confirmed";
 
+    if (wasConfirmed === isConfirmed) {
+        return null;
+    }
+
+    const eventId = event.id;
+    const eventRef = db.collection("analytics_events").doc(eventId);
+
+    try {
+        await db.runTransaction(async (t) => {
+            const doc = await t.get(eventRef);
+            if (doc.exists) {
+                console.log(`Event ${eventId} already processed. Skipping.`);
+                return;
+            }
+            t.set(eventRef, { processedAt: new Date() });
+        });
+    } catch (e) {
+        console.error("Transaction failed or event already processed:", e);
+        return null;
+    }
+
+    const getTripsCount = (data) => {
+        if (!data || !data.bookingId) return 1;
+        if (Array.isArray(data.bookingId)) return data.bookingId.length;
+        if (typeof data.bookingId === "string" && data.bookingId.includes(",")) return data.bookingId.split(",").length;
+        return 1;
+    };
+
+    const extractDate = (createdAt) => {
+        if (!createdAt) return new Date();
+        if (typeof createdAt.toDate === "function") return createdAt.toDate();
+        if (createdAt instanceof Date) return createdAt;
+        if (typeof createdAt === "string" || typeof createdAt === "number") return new Date(createdAt);
+        return new Date();
+    };
+
     if (!wasConfirmed && isConfirmed) {
-        const date = afterData.createdAt && typeof afterData.createdAt.toDate === "function"
-            ? afterData.createdAt.toDate()
-            : new Date();
+        const date = extractDate(afterData.createdAt);
 
-        await updateAnalyticsData(afterData.amount, afterData.bookingCount, date, true);
+        const tripsCount = getTripsCount(afterData);
+        await updateAnalyticsData(afterData.amount, afterData.bookingCount, tripsCount, date, true);
     } else if (wasConfirmed && !isConfirmed) {
-        const date = beforeData.createdAt && typeof beforeData.createdAt.toDate === "function"
-            ? beforeData.createdAt.toDate()
-            : new Date();
+        const date = extractDate(beforeData.createdAt);
 
-        await updateAnalyticsData(beforeData.amount, beforeData.bookingCount, date, false);
+        const tripsCount = getTripsCount(beforeData);
+        await updateAnalyticsData(beforeData.amount, beforeData.bookingCount, tripsCount, date, false);
     }
     return null;
 });
