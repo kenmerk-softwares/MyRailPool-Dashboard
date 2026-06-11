@@ -52,12 +52,10 @@ const tripReminderScheduler = onSchedule(
           const diffMinutes = Math.floor((tripDateTime.getTime() - now.getTime()) / (1000 * 60));
 
           let reminderType = null;
-          // 60 minute reminder
-          if (diffMinutes <= 60 && diffMinutes > 45) {
+          if (diffMinutes <= 60 && diffMinutes > 30) {
             reminderType = "oneHourSent";
           }
-          // 30 minute reminder
-          if (diffMinutes <= 30 && diffMinutes > 15) {
+          if (diffMinutes <= 30 && diffMinutes > 0) {
             reminderType = "thirtyMinSent";
           }
           if (!reminderType) continue;
