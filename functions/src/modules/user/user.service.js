@@ -43,7 +43,7 @@ const getFareFromMatrix = (fareMatrix, from, to) => {
 };
 
 const bookTripService = async (data) => {
-    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint } = data;
+    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint, returnTripId, returnSelectedDate, returnMultiBookings, returnBoardingPoint, returnDropOffPoint } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
     if (!tripDoc.exists) {
@@ -271,18 +271,32 @@ const bookTripService = async (data) => {
     const cancelUrl = data?.platform === "web" ? "https://myrailpool-4150a.web.app/payment/cancel" : "myrailpool://payment-cancel";
 
     if (paymentType === "online") {
+        if (!process.env.STRIPE_SECRET_KEY) {
+            return { success: false, message: "Stripe is not configured. Online payments are currently unavailable." };
+        }
         const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ["card"],
-            line_items: [
-                {
-                    price_data: {
-                        currency: "gbp",
-                        product_data: {
-                            name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
-                            description: `Booking for ${bookingCount} passenger(s) on ${dates.join(", ")}`,
-                        },
-                        unit_amount: Math.round(totalFare * 100),
+
+        const lineItems = [
+            {
+                price_data: {
+                    currency: "gbp",
+                    product_data: {
+                        name: `Trip Booking: ${startingPoint} to ${dropPoint}`,
+                        description: `Booking for ${bookingCount} passenger(s) on ${dates.join(", ")}`,
+                    },
+                    unit_amount: Math.round(Number(fare) * bookingCount * dates.length * 100),
+                },
+                quantity: 1,
+            }
+        ];
+
+        if (returnTripId) {
+            lineItems.push({
+                price_data: {
+                    currency: "gbp",
+                    product_data: {
+                        name: `Return Trip Booking: ${dropPoint} to ${startingPoint}`,
+                        description: `Booking for ${bookingCount} passenger(s) on ${returnDates.join(", ")}`,
                     },
                     unit_amount: Math.round(Number(returnFare) * bookingCount * returnDates.length * 100),
                 },
@@ -537,7 +551,7 @@ const bookTripService = async (data) => {
         try {
             const { sendBookingConfirmation } = require("../whatsapp/whatsapp.service");
             for (const bookingDocId of bookingIds) {
-                await sendBookingConfirmation(bookingDocId);
+                await sendBookingConfirmation(bookingDocId, userId, financeRef.id);
             }
         } catch (error) {
             console.error("Error sending booking confirmation WhatsApp:", error);
