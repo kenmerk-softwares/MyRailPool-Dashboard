@@ -436,6 +436,26 @@ const cancelBookingService = async (req) => {
         stripeSessionId = userBookingData.stripeSessionId;
     }
 
+    let activeBookingIds = [];
+    if (financeData.bookingId) {
+        if (Array.isArray(financeData.bookingId)) {
+            activeBookingIds = [...financeData.bookingId];
+        } else if (typeof financeData.bookingId === "string") {
+            activeBookingIds = financeData.bookingId.split(",").filter(id => id.trim() !== "");
+        }
+    }
+    
+    let activeBookingNos = [];
+    if (financeData.bookingNos) {
+        if (Array.isArray(financeData.bookingNos)) {
+            activeBookingNos = [...financeData.bookingNos];
+        } else if (typeof financeData.bookingNos === "string") {
+            activeBookingNos = financeData.bookingNos.split(",").filter(no => no.trim() !== "");
+        }
+    }
+
+    const isFullCancel = activeBookingIds.length <= 1;
+
     let stripeRefundId = null;
     let paymentStatus = null;
     if (refund === true && stripeSessionId && financeData.paymentStatus !== "refunded" && financeData.paymentStatus !== "initiated") {
@@ -443,14 +463,18 @@ const cancelBookingService = async (req) => {
             const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
             const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
             if (session && session.payment_intent) {
-                const refund = await stripe.refunds.create({
+                const refundParams = {
                     payment_intent: session.payment_intent,
                     metadata: {
                         financeId,
                         userId,
                         bookingId
                     }
-                });
+                };
+                if (!isFullCancel && userBookingDoc.exists && userBookingDoc.data().totalFare) {
+                    refundParams.amount = Math.round(userBookingDoc.data().totalFare * 100);
+                }
+                const refund = await stripe.refunds.create(refundParams);
                 stripeRefundId = refund.id;
                 paymentStatus = "initiated";
                 console.log(`Successfully refunded Stripe payment intent ${session.payment_intent} for booking ${bookingId}`);
@@ -466,9 +490,23 @@ const cancelBookingService = async (req) => {
     const batch = db.batch();
     
     const financeUpdate = {
-        status: "Cancelled",
         updatedAt: new Date()
     };
+    
+    if (isFullCancel) {
+        financeUpdate.status = "Cancelled";
+    } else {
+        const updatedBookingIds = activeBookingIds.filter(id => id !== bookingId && id !== bookingDoc.id);
+        financeUpdate.bookingId = updatedBookingIds;
+        if (bookingNo) {
+            const updatedBookingNos = activeBookingNos.filter(no => no !== bookingNo);
+            financeUpdate.bookingNos = updatedBookingNos;
+        }
+        if (userBookingDoc.exists && userBookingDoc.data().totalFare) {
+            financeUpdate.amount = FieldValue.increment(-userBookingDoc.data().totalFare);
+        }
+    }
+
     if (stripeRefundId) {
         financeUpdate.stripeRefundId = stripeRefundId;
     }
