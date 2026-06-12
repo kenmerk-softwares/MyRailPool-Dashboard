@@ -308,7 +308,7 @@ const PrivacyPolicy = () => {
 							/>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="relative">
-									<Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+									<Mail className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
 									<input
 										type="email"
 										value={formData.email}
@@ -318,7 +318,7 @@ const PrivacyPolicy = () => {
 									/>
 								</div>
 								<div className="relative">
-									<Globe className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+									<Globe className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
 									<input
 										type="text"
 										value={formData.website}
@@ -336,7 +336,7 @@ const PrivacyPolicy = () => {
 							{saving ? <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" /> : <><Save className="w-5 h-5" /> Save Changes</>}
 						</button>
 						{existingData?.updatedAt && (
-							<p className="text-center text-xs text-slate-400 mt-3">
+							<p className="text-center text-xs text-slate-500 mt-3">
 								Last updated: {new Date(existingData.updatedAt.toDate?.() || existingData.updatedAt).toLocaleDateString()}
 							</p>
 						)}

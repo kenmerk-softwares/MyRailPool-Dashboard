@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {Car, Clock, CalendarCheck, CheckCircle2, XCircle, Send, Eye } from 'lucide-react';
+import { Car, Clock, CalendarCheck, CheckCircle2, XCircle, Send, Eye } from 'lucide-react';
 
 const NotificationItem = ({ icon: Icon, title, message, time, type, onView }) => {
   const getColors = () => {
-    switch(type) {
+    switch (type) {
       case 'success': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case 'warning': return 'bg-amber-50 text-amber-600 border-amber-100';
       case 'danger': return 'bg-red-50 text-red-600 border-red-100';
@@ -21,10 +21,10 @@ const NotificationItem = ({ icon: Icon, title, message, time, type, onView }) =>
         <div className="flex items-center justify-between gap-4 mb-1">
           <h4 className="text-sm md:text-base font-bold text-slate-800 truncate">{title}</h4>
           <div className="flex flex-col items-end gap-2 shrink-0">
-             <span className="text-[10px] md:text-xs text-slate-400 uppercase tracking-tight whitespace-nowrap">{time}</span>
-             <button 
+            <span className="text-[10px] md:text-xs text-slate-500 uppercase tracking-tight whitespace-nowrap">{time}</span>
+            <button
               onClick={(e) => { e.stopPropagation(); onView(); }}
-              className="p-2 bg-slate-50 text-slate-400 hover:bg-primary-600 hover:text-white rounded-lg transition-all border border-slate-100 hover:border-primary-600 shadow-sm"
+              className="p-2 bg-slate-50 text-slate-500 hover:bg-primary-600 hover:text-white rounded-lg transition-all border border-slate-100 hover:border-primary-600 shadow-sm"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>
@@ -39,7 +39,7 @@ const NotificationItem = ({ icon: Icon, title, message, time, type, onView }) =>
 
 export const NotificationList = () => {
   const [selectedNotif, setSelectedNotif] = useState(null);
-  
+
   const notifications = [
     {
       icon: CalendarCheck,
@@ -93,13 +93,13 @@ export const NotificationList = () => {
           Send Notification
         </Link>
       </div>
-      
+
       <div className="space-y-4">
         <div className="flex items-center justify-between px-2 mb-2">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">Today</span>
           <button className="text-xs font-medium text-primary-600 hover:text-primary-700">Mark all as read</button>
         </div>
-        
+
         {notifications.slice(0, 3).map((notif, idx) => (
           <NotificationItem key={idx} {...notif} onView={() => setSelectedNotif(notif)} />
         ))}
@@ -107,7 +107,7 @@ export const NotificationList = () => {
         <div className="flex items-center justify-between px-2 pt-6 mb-2">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">Yesterday</span>
         </div>
-        
+
         {notifications.slice(3).map((notif, idx) => (
           <NotificationItem key={idx} {...notif} onView={() => setSelectedNotif(notif)} />
         ))}
@@ -120,34 +120,33 @@ export const NotificationList = () => {
             <div className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${
-                    selectedNotif.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                    selectedNotif.type === 'warning' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                    selectedNotif.type === 'danger' ? 'bg-red-50 text-red-600 border-red-100' :
-                    'bg-primary-50 text-primary-600 border-primary-100'
-                  }`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${selectedNotif.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      selectedNotif.type === 'warning' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                        selectedNotif.type === 'danger' ? 'bg-red-50 text-red-600 border-red-100' :
+                          'bg-primary-50 text-primary-600 border-primary-100'
+                    }`}>
                     <selectedNotif.icon className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 tracking-tight">{selectedNotif.title}</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">{selectedNotif.time}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-tight">{selectedNotif.time}</p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setSelectedNotif(null)}
                   className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
                 >
-                  <XCircle className="w-6 h-6 text-slate-400" />
+                  <XCircle className="w-6 h-6 text-slate-500" />
                 </button>
               </div>
-              
+
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-8">
                 <p className="text-slate-600 leading-relaxed font-medium">
                   {selectedNotif.message}
                 </p>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setSelectedNotif(null)}
                 className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg"
               >

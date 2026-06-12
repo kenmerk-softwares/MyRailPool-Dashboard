@@ -358,7 +358,7 @@ export const EditTrip = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Loading Trip Configuration...</p>
+        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Loading Trip Configuration...</p>
       </div>
     );
   }
@@ -368,11 +368,11 @@ export const EditTrip = () => {
       <div className="flex items-center justify-between mb-6 px-2">
         <div className="flex items-center gap-4">
           <Link to="/trips" className="p-2 hover:bg-slate-100 rounded-xl transition-colors group">
-            <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+            <ChevronLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-600" />
           </Link>
           <div>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase tracking-widest">Update Trip Schedule</h2>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Asset Allocation & Multi-Date Routing</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Asset Allocation & Multi-Date Routing</p>
           </div>
         </div>
       </div>
@@ -456,7 +456,7 @@ export const EditTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating Capacity</label>
                 <div className="relative">
-                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="number"
                     name="seatingCapacity"
@@ -531,7 +531,7 @@ export const EditTrip = () => {
                       <span className="font-bold text-slate-800 text-sm">{route.name}</span>
                       <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium uppercase tracking-tight">
                         <span>{route.startingPoint}</span>
-                        <ArrowRight className="w-3 h-3 text-slate-400" />
+                        <ArrowRight className="w-3 h-3 text-slate-500" />
                         <span>{route.endPoint}</span>
                       </div>
                     </div>
@@ -553,7 +553,7 @@ export const EditTrip = () => {
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Remarks</label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text" name="notes" value={formData.notes} onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 outline-none transition-all text-sm"
@@ -566,12 +566,12 @@ export const EditTrip = () => {
             {/* Stop Timings Visualizer */}
             {formData.routes.length > 0 && (
               <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-500">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 ml-1">Arrival Sequence Configuration</h4>
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6 ml-1">Arrival Sequence Configuration</h4>
                 <div className="flex items-start overflow-x-auto pb-4 scrollbar-hide gap-0">
                   {formData.routes.map((stop, idx) => (
                     <div key={idx} className="flex items-start">
                       <div className="flex flex-col items-center w-36">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${formData.routeTiming[stop] ? 'bg-indigo-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-400'}`}>
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${formData.routeTiming[stop] ? 'bg-indigo-600 text-white' : 'bg-white border-2 border-slate-200 text-slate-500'}`}>
                           <MapPin className="w-5 h-5" />
                         </div>
                         <div className="mt-4 text-center px-2">
@@ -618,11 +618,11 @@ export const EditTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Date</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   {!formData.routeId ? (
                     <select
                       disabled
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-bold outline-none cursor-not-allowed text-sm"
+                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold outline-none cursor-not-allowed text-sm"
                     >
                       <option>Select Route Corridor First</option>
                     </select>
@@ -658,14 +658,13 @@ export const EditTrip = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Planned Pax Count</label>
                 <div className="relative">
-                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="number" name="total_pcount" value={formData.total_pcount} onChange={(e) => setFormData(prev => ({ ...prev, total_pcount: e.target.value }))}
-                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border bg-white font-bold outline-none transition-all text-sm ${
-                      formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)
+                    className={`w-full pl-11 pr-4 py-2.5 rounded-xl border bg-white font-bold outline-none transition-all text-sm ${formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)
                         ? 'border-red-500 focus:border-red-500'
                         : 'border-slate-200 focus:border-indigo-500'
-                    }`}
+                      }`}
                     placeholder="0"
                   />
                 </div>
@@ -690,9 +689,9 @@ export const EditTrip = () => {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50">
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Execution Date</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Deployment Pax</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Controls</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Execution Date</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Deployment Pax</th>
+                      <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Controls</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -708,12 +707,12 @@ export const EditTrip = () => {
                           </div>
                         </td>
                         <td className="px-8 py-4">
-                          <span className="text-sm font-black text-slate-800">{schedule.passengerCount} <span className="text-slate-400 font-bold ml-1 uppercase text-[10px]">Seats Reserved</span></span>
+                          <span className="text-sm font-black text-slate-800">{schedule.passengerCount} <span className="text-slate-500 font-bold ml-1 uppercase text-[10px]">Seats Reserved</span></span>
                         </td>
                         <td className="px-8 py-4 text-center">
                           <button
                             type="button" onClick={() => setSchedules(prev => prev.filter(s => s.id !== schedule.id))}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

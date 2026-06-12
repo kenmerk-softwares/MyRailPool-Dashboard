@@ -46,7 +46,7 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       <div className="flex items-center gap-2 md:gap-6 ml-auto">
 
         <div className="relative">
-          <Link to="/notifications" className="text-slate-400 hover:text-slate-600 p-1 md:p-2 rounded-full hover:bg-slate-50 transition-colors block relative focus:outline-none">
+          <Link to="/notifications" className="text-slate-500 hover:text-slate-600 p-1 md:p-2 rounded-full hover:bg-slate-50 transition-colors block relative focus:outline-none">
             <Bell className="w-4 h-4 md:w-6 md:h-6" />
             <span className="absolute top-1 right-1 md:top-1.5 md:right-2 block h-1.5 w-1.5 md:h-2.5 md:w-2.5 rounded-full bg-red-500 ring-2 ring-white shadow-sm"></span>
           </Link>
@@ -62,11 +62,11 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             <span className="text-sm font-semibold text-slate-700">Admin User</span>
             <span className="text-xs text-slate-500">Superadmin</span>
           </div>
-          <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-slate-400 hidden md:block" />
+          <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-slate-500 hidden md:block" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-slate-400 hover:text-red-500 p-1 md:p-2 rounded-full hover:bg-red-50 transition-colors focus:outline-none"
+          className="text-slate-500 hover:text-red-500 p-1 md:p-2 rounded-full hover:bg-red-50 transition-colors focus:outline-none"
           title="Logout"
         >
           <LogOut className="w-4 h-4 md:w-6 md:h-6" />

@@ -153,7 +153,7 @@ export const Reports = () => {
       if (toDate) {
         constraints.push(where("selectedDate", "<=", toDate));
       }
-      
+
       // Query by route type if filter is active
       if (routeTypeFilter !== 'all') {
         constraints.push(where("route_type", "==", routeTypeFilter));
@@ -198,7 +198,7 @@ export const Reports = () => {
         if (toDate) list = list.filter(b => b.selectedDate <= toDate);
         if (routeTypeFilter !== 'all') list = list.filter(b => b.route_type === routeTypeFilter);
         list.sort((a, b) => (b.selectedDate || '').localeCompare(a.selectedDate || ''));
-        
+
         const fallbackCount = list.length;
         const fallbackCapacity = list.reduce((sum, b) => sum + (Number(b.totalSeats) || 0), 0);
 
@@ -206,7 +206,7 @@ export const Reports = () => {
         setServerCapacity(fallbackCapacity);
         localStorage.setItem('reports_serverCount', String(fallbackCount));
         localStorage.setItem('reports_serverCapacity', String(fallbackCapacity));
-        
+
         setBookings(list);
         localStorage.setItem('reports_bookings_cache', JSON.stringify(list));
       } catch (fallbackError) {
@@ -291,9 +291,9 @@ export const Reports = () => {
         const vehicleReg = (b.vehicle_reg || '').toLowerCase();
 
         const matches = tripNoStr.includes(queryStr) ||
-                        routeName.includes(queryStr) ||
-                        driverName.includes(queryStr) ||
-                        vehicleReg.includes(queryStr);
+          routeName.includes(queryStr) ||
+          driverName.includes(queryStr) ||
+          vehicleReg.includes(queryStr);
         if (!matches) return false;
       }
 
@@ -311,7 +311,7 @@ export const Reports = () => {
     filteredBookings.forEach(b => {
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
-      
+
       // Revenue is sum of fares from non-cancelled users
       const bookingRev = confirmedUsers.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
       totalRevenue += bookingRev;
@@ -343,7 +343,7 @@ export const Reports = () => {
       const dateKey = b.selectedDate || 'Unknown Date';
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
-      
+
       const rev = confirmedUsers.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
       const pax = confirmedUsers.reduce((sum, u) => sum + (Number(u.bookingCount) || 1), 0);
 
@@ -416,7 +416,7 @@ export const Reports = () => {
     return filteredBookings.map(b => {
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
-      
+
       const rev = confirmedUsers.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
       const pax = confirmedUsers.reduce((sum, u) => sum + (Number(u.bookingCount) || 1), 0);
       const cap = Number(b.totalSeats) || 0;
@@ -450,10 +450,10 @@ export const Reports = () => {
     filteredBookings.forEach(b => {
       const rawType = (b.route_type || 'core').toLowerCase();
       const typeKey = rawType.includes('flexi') ? 'flexi' : 'core';
-      
+
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
-      
+
       const rev = confirmedUsers.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
       const pax = confirmedUsers.reduce((sum, u) => sum + (Number(u.bookingCount) || 1), 0);
       const cap = Number(b.totalSeats) || 0;
@@ -484,7 +484,7 @@ export const Reports = () => {
 
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
-      
+
       const rev = confirmedUsers.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
       const pax = confirmedUsers.reduce((sum, u) => sum + (Number(u.bookingCount) || 1), 0);
       const cap = Number(b.totalSeats) || 0;
@@ -600,7 +600,7 @@ export const Reports = () => {
 
   return (
     <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700 font-jakarta print:bg-white print:p-0">
-      
+
       {/* Main header and actions */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-6 md:mb-8 gap-4 sm:gap-0 print:hidden">
         <div>
@@ -618,13 +618,13 @@ export const Reports = () => {
               <span>Updating...</span>
             </div>
           )}
-          <button 
+          <button
             onClick={handlePrint}
             className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs md:text-sm font-semibold flex items-center gap-2 transition-colors bg-white shadow-sm"
           >
             <Printer className="w-4 h-4" /> Print PDF
           </button>
-          <button 
+          <button
             onClick={() => handleCSVExport(activeTab)}
             className="px-4 py-2 bg-primary-600 text-white hover:bg-primary-700 rounded-xl text-xs md:text-sm font-semibold flex items-center gap-2 transition-all shadow-md shadow-primary-600/10 active:scale-95"
           >
@@ -656,11 +656,10 @@ export const Reports = () => {
               <button
                 key={p.id}
                 onClick={() => applyPreset(p.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  preset === p.id
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${preset === p.id
                     ? 'bg-white text-primary-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 {p.label}
               </button>
@@ -674,12 +673,12 @@ export const Reports = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          
+
           {/* Date from */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Travel From Date</label>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Travel From Date</label>
             <div className="relative">
-              <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
                 type="date"
                 value={fromDate}
@@ -691,9 +690,9 @@ export const Reports = () => {
 
           {/* Date to */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Travel To Date</label>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Travel To Date</label>
             <div className="relative">
-              <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
                 type="date"
                 value={toDate}
@@ -705,7 +704,7 @@ export const Reports = () => {
 
           {/* Route type */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Route Service Type</label>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Route Service Type</label>
             <select
               value={routeTypeFilter}
               onChange={(e) => setRouteTypeFilter(e.target.value)}
@@ -734,16 +733,15 @@ export const Reports = () => {
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
-          
+
         </div>
 
         {/* Warning notification banner */}
         {warning && (
-          <div className={`mt-4 p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
-            warning.type === 'error_range' 
-              ? 'bg-rose-50 border-rose-200 text-rose-800' 
+          <div className={`mt-4 p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${warning.type === 'error_range'
+              ? 'bg-rose-50 border-rose-200 text-rose-800'
               : 'bg-amber-50 border-amber-200 text-amber-800'
-          }`}>
+            }`}>
             <div className="flex items-start gap-2.5">
               <AlertTriangle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${warning.type === 'error_range' ? 'text-rose-500' : 'text-amber-500'}`} />
               <div>
@@ -753,13 +751,13 @@ export const Reports = () => {
             </div>
             {warning.type === 'confirm_all_time' ? (
               <div className="flex gap-2 self-end sm:self-center">
-                <button 
+                <button
                   onClick={handleConfirmAllTime}
                   className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm active:scale-95"
                 >
                   Proceed
                 </button>
-                <button 
+                <button
                   onClick={handleCancelAllTime}
                   className="px-3 py-1.5 bg-white border border-amber-200 hover:bg-amber-100 text-amber-800 text-xs font-bold rounded-lg transition-colors active:scale-95"
                 >
@@ -767,7 +765,7 @@ export const Reports = () => {
                 </button>
               </div>
             ) : (
-              <button 
+              <button
                 onClick={() => setWarning(null)}
                 className="px-3 py-1.5 bg-white border border-rose-200 hover:bg-rose-100 text-rose-850 text-xs font-bold rounded-lg transition-colors self-end sm:self-center active:scale-95"
               >
@@ -779,7 +777,7 @@ export const Reports = () => {
 
         {/* Search input (full width below inputs) */}
         <div className="mt-4 pt-4 border-t border-slate-100 relative">
-          <Search className="absolute left-3.5 top-[26px] w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-[26px] w-4 h-4 text-slate-500" />
           <input
             type="text"
             placeholder="Search by route, driver, vehicle, trip number, etc..."
@@ -792,85 +790,85 @@ export const Reports = () => {
 
       {/* Metrics cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <StatCard 
-          title="Aggregated Revenue" 
+        <StatCard
+          title="Aggregated Revenue"
           value={
             loading && bookings.length === 0 ? (
               <span className="inline-block w-24 h-8 bg-slate-100 animate-pulse rounded-md mt-1"></span>
             ) : (
-              <span className={loading ? 'animate-pulse text-slate-400' : ''}>
+              <span className={loading ? 'animate-pulse text-slate-500' : ''}>
                 ₹{(stats.revenue || 0).toLocaleString('en-IN')}
               </span>
             )
-          } 
-          icon={DollarSign} 
-          trend="Live" 
-          trendUp={true} 
-          trendLabel="interval total" 
+          }
+          icon={DollarSign}
+          trend="Live"
+          trendUp={true}
+          trendLabel="interval total"
         />
-        <StatCard 
-          title="Total Bookings" 
+        <StatCard
+          title="Total Bookings"
           value={
             loading && bookings.length === 0 ? (
               <span className="inline-block w-16 h-8 bg-slate-100 animate-pulse rounded-md mt-1"></span>
             ) : (
-              <span className={loading ? 'animate-pulse text-slate-400' : ''}>
+              <span className={loading ? 'animate-pulse text-slate-500' : ''}>
                 {stats.bookings}
               </span>
             )
-          } 
-          icon={FileText} 
-          trend="Live" 
-          trendUp={true} 
-          trendLabel="interval total" 
+          }
+          icon={FileText}
+          trend="Live"
+          trendUp={true}
+          trendLabel="interval total"
         />
-        <StatCard 
-          title="Confirmed Passengers" 
+        <StatCard
+          title="Confirmed Passengers"
           value={
             loading && bookings.length === 0 ? (
               <span className="inline-block w-16 h-8 bg-slate-100 animate-pulse rounded-md mt-1"></span>
             ) : (
-              <span className={loading ? 'animate-pulse text-slate-400' : ''}>
+              <span className={loading ? 'animate-pulse text-slate-500' : ''}>
                 {stats.passengers}
               </span>
             )
-          } 
-          icon={Users} 
-          trend="Live" 
-          trendUp={true} 
-          trendLabel="interval total" 
+          }
+          icon={Users}
+          trend="Live"
+          trendUp={true}
+          trendLabel="interval total"
         />
-        <StatCard 
-          title="Total Fleet Seats" 
+        <StatCard
+          title="Total Fleet Seats"
           value={
             loading && bookings.length === 0 ? (
               <span className="inline-block w-16 h-8 bg-slate-100 animate-pulse rounded-md mt-1"></span>
             ) : (
-              <span className={loading ? 'animate-pulse text-slate-400' : ''}>
+              <span className={loading ? 'animate-pulse text-slate-500' : ''}>
                 {stats.capacity}
               </span>
             )
-          } 
-          icon={Car} 
-          trend="Live" 
-          trendUp={true} 
-          trendLabel="interval total" 
+          }
+          icon={Car}
+          trend="Live"
+          trendUp={true}
+          trendLabel="interval total"
         />
-        <StatCard 
-          title="Average Occupancy" 
+        <StatCard
+          title="Average Occupancy"
           value={
             loading && bookings.length === 0 ? (
               <span className="inline-block w-16 h-8 bg-slate-100 animate-pulse rounded-md mt-1"></span>
             ) : (
-              <span className={loading ? 'animate-pulse text-slate-400' : ''}>
+              <span className={loading ? 'animate-pulse text-slate-500' : ''}>
                 {stats.loadFactor}%
               </span>
             )
-          } 
-          icon={BarChart3} 
-          trend="Load" 
-          trendUp={Number(stats.loadFactor) > 50} 
-          trendLabel="capacity filled" 
+          }
+          icon={BarChart3}
+          trend="Load"
+          trendUp={Number(stats.loadFactor) > 50}
+          trendLabel="capacity filled"
         />
       </div>
 
@@ -886,11 +884,10 @@ export const Reports = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
-              activeTab === tab.id
+            className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === tab.id
                 ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
-            }`}
+                : 'border-transparent text-slate-500 hover:text-slate-600 hover:border-slate-300'
+              }`}
           >
             <tab.icon className="w-4 h-4" />
             {tab.label}
@@ -910,7 +907,7 @@ export const Reports = () => {
             <Search className="w-8 h-8" />
           </div>
           <h3 className="font-bold text-slate-800 text-base">No Data Matches Filter</h3>
-          <p className="text-slate-400 text-xs max-w-sm">No records match your selected date boundaries, route types, or search queries.</p>
+          <p className="text-slate-500 text-xs max-w-sm">No records match your selected date boundaries, route types, or search queries.</p>
           <button
             onClick={handleClearFilters}
             className="mt-4 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all"
@@ -920,7 +917,7 @@ export const Reports = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          
+
           {/* TAB 1: OVERVIEW & DAILY TRENDS */}
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 gap-6">
@@ -936,8 +933,8 @@ export const Reports = () => {
                       <AreaChart data={timelineData}>
                         <defs>
                           <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -975,16 +972,16 @@ export const Reports = () => {
               <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                   <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Daily Trends</h3>
-                  <span className="text-xs text-slate-400 font-bold">Showing {timelineData.length} days</span>
+                  <span className="text-xs text-slate-500 font-bold">Showing {timelineData.length} days</span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50/50 border-b border-slate-100">
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Travel Date</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Bookings</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Passengers Transported</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Revenue Generated</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Travel Date</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Bookings</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Passengers Transported</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Revenue Generated</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1006,7 +1003,7 @@ export const Reports = () => {
           {/* TAB 2: ROUTE-BASED BOOKING ANALYSIS */}
           {activeTab === 'routes' && (
             <div className="grid grid-cols-1 gap-6">
-              
+
               {/* Route Summary Chart */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                 <h3 className="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Revenue Contribution by Corridor</h3>
@@ -1033,18 +1030,18 @@ export const Reports = () => {
                   <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Route Performance</h3>
                   <span className="text-[10px] bg-slate-100 px-2.5 py-1 rounded-full text-slate-500 font-bold uppercase">Route List</span>
                 </div>
-                
+
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50/50 border-b border-slate-100">
                         <th className="w-8 px-6 py-3.5"></th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route Corridor</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Service Type</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Departures Run</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Passengers carried</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Occupancy Rate</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Revenue Generated</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Route Corridor</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Service Type</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Departures Run</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Passengers carried</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Occupancy Rate</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Revenue Generated</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1057,12 +1054,12 @@ export const Reports = () => {
                               <td className="px-6 py-4">
                                 <button
                                   onClick={() => setExpandedRouteId(isExpanded ? null : route.routeId)}
-                                  className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
+                                  className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
                                 >
                                   {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                                 </button>
                               </td>
-                              
+
                               {/* Route Corridor */}
                               <td className="px-6 py-4">
                                 <div className="flex flex-col">
@@ -1072,21 +1069,20 @@ export const Reports = () => {
 
                               {/* Service Type */}
                               <td className="px-6 py-4 text-center">
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${
-                                  route.routeType === 'core' 
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${route.routeType === 'core'
                                     ? 'bg-blue-50 text-blue-700 border border-blue-100'
                                     : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
-                                }`}>
+                                  }`}>
                                   {route.routeType}
                                 </span>
                               </td>
 
                               {/* Departures Run */}
                               <td className="px-6 py-4 text-xs font-bold text-slate-700 text-center">{route.tripsRun}</td>
-                              
+
                               {/* Passengers */}
                               <td className="px-6 py-4 text-xs font-bold text-slate-700 text-center">{route.passengers}</td>
-                              
+
                               {/* Occupancy */}
                               <td className="px-6 py-4 text-center">
                                 <div className="flex flex-col items-center gap-1">
@@ -1108,12 +1104,12 @@ export const Reports = () => {
                               <tr className="bg-slate-50/40">
                                 <td colSpan={7} className="px-8 py-5 border-y border-slate-100">
                                   <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-inner">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                                       <Activity className="w-3.5 h-3.5 text-indigo-500" /> Associated Trip Details
                                     </h4>
                                     <table className="w-full text-left text-xs border-collapse">
                                       <thead>
-                                        <tr className="border-b border-slate-100 text-slate-400">
+                                        <tr className="border-b border-slate-100 text-slate-500">
                                           <th className="pb-2 font-bold uppercase text-[9px]">Trip No</th>
                                           <th className="pb-2 font-bold uppercase text-[9px]">Travel Date</th>
                                           <th className="pb-2 font-bold uppercase text-[9px]">Driver Assigned</th>
@@ -1187,7 +1183,7 @@ export const Reports = () => {
           {/* TAB 3: TRIP-BASED BOOKING ANALYSIS */}
           {activeTab === 'trips' && (
             <div className="grid grid-cols-1 gap-6">
-              
+
               {/* Trip Capacity Load Chart */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                 <h3 className="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider">Trip Occupancy Performance</h3>
@@ -1214,25 +1210,25 @@ export const Reports = () => {
                   <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Trip Operations</h3>
                   <span className="text-[10px] bg-slate-100 px-2.5 py-1 rounded-full text-slate-500 font-bold uppercase">Trip List</span>
                 </div>
-                
+
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50/50 border-b border-slate-100">
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trip No</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Travel Date</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Route corridor</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Driver</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Pax Booked</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Occupancy Rate</th>
-                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Revenue</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Trip No</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Travel Date</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Route corridor</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Driver</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Vehicle</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Pax Booked</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Occupancy Rate</th>
+                        <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Revenue</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {paginatedTrips.map((trip, idx) => (
                         <tr key={trip.id} className="hover:bg-slate-50/30 transition-colors">
-                          
+
                           {/* Trip No */}
                           <td className="px-6 py-4">
                             <span className="px-2.5 py-1 rounded-lg bg-primary-50 text-primary-700 font-extrabold text-[11px] border border-primary-100">
@@ -1259,19 +1255,18 @@ export const Reports = () => {
                           {/* Pax Booked */}
                           <td className="px-6 py-4 text-center">
                             <span className="text-xs font-bold text-slate-800">{trip.passengers}</span>
-                            <span className="text-slate-400 mx-0.5">/</span>
+                            <span className="text-slate-500 mx-0.5">/</span>
                             <span className="text-xs font-medium text-slate-500">{trip.capacity}</span>
                           </td>
 
                           {/* Occupancy Rate */}
                           <td className="px-6 py-4 text-center">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${
-                              Number(trip.occupancyRate) > 75 
-                                ? 'bg-emerald-50 text-emerald-700' 
-                                : Number(trip.occupancyRate) > 35 
-                                  ? 'bg-indigo-50 text-indigo-700' 
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${Number(trip.occupancyRate) > 75
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : Number(trip.occupancyRate) > 35
+                                  ? 'bg-indigo-50 text-indigo-700'
                                   : 'bg-amber-50 text-amber-700'
-                            }`}>
+                              }`}>
                               {trip.occupancyRate}%
                             </span>
                           </td>
@@ -1317,12 +1312,12 @@ export const Reports = () => {
           {/* TAB 4: ROUTE TYPE INSIGHTS */}
           {activeTab === 'routeTypes' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
+
               {/* Pie Chart Widget */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm mb-1 uppercase tracking-wider">Revenue Breakdown</h3>
-                  <p className="text-[11px] text-slate-400 font-medium">Core vs. Flexi Revenue Share</p>
+                  <p className="text-[11px] text-slate-500 font-medium">Core vs. Flexi Revenue Share</p>
                 </div>
                 <div className="h-60 w-full my-4">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1346,7 +1341,7 @@ export const Reports = () => {
                   </ResponsiveContainer>
                 </div>
                 <div className="text-center bg-slate-50 rounded-xl p-3 border border-slate-100">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Highest Earning</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Highest Earning</span>
                   <p className="text-sm font-black text-slate-800 mt-0.5">
                     {routeTypeData[0]?.revenue >= routeTypeData[1]?.revenue ? 'Core Services' : 'Flexi Services'}
                   </p>
@@ -1363,11 +1358,11 @@ export const Reports = () => {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-slate-50/50 border-b border-slate-100">
-                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Service Type Name</th>
-                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Trips Run</th>
-                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Total Passengers</th>
-                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Occupancy Rate</th>
-                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Revenue</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Service Type Name</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Trips Run</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Total Passengers</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Occupancy Rate</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Revenue</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -1391,7 +1386,7 @@ export const Reports = () => {
                 </div>
 
                 <div className="p-6 border-t border-slate-100 bg-slate-50/50">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Service Classifications</h4>
+                  <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] mb-2">Service Classifications</h4>
                   <ul className="text-slate-500 text-xs space-y-1.5 list-disc pl-4 leading-relaxed font-semibold">
                     <li><strong className="text-slate-700">Core Service:</strong> Structured routes scheduled regularly.</li>
                     <li><strong className="text-slate-700">Flexi / On-Demand:</strong> Adaptive routes dispatched based on demand.</li>
@@ -1405,7 +1400,7 @@ export const Reports = () => {
           {/* TAB 5: RESOURCE PERFORMANCE (DRIVERS & VEHICLES) */}
           {activeTab === 'resources' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              
+
               {/* Driver Performance Table */}
               <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between">
                 <div>
@@ -1415,15 +1410,15 @@ export const Reports = () => {
                     </h3>
                     <span className="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded font-black uppercase">Sorted by Revenue</span>
                   </div>
-                  
+
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-slate-50/50 border-b border-slate-100">
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Driver Name</th>
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Trips Run</th>
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Passengers Carried</th>
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Revenue Generated</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Driver Name</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Trips Run</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Passengers Carried</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Revenue Generated</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -1443,7 +1438,7 @@ export const Reports = () => {
                     </table>
                   </div>
                 </div>
-                <div className="p-4 bg-slate-50/30 border-t text-center text-[11px] font-bold text-slate-400">
+                <div className="p-4 bg-slate-50/30 border-t text-center text-[11px] font-bold text-slate-500">
                   Showing {resourceData.drivers.length} drivers
                 </div>
               </div>
@@ -1457,15 +1452,15 @@ export const Reports = () => {
                     </h3>
                     <span className="text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded font-black uppercase">Sorted by Trips</span>
                   </div>
-                  
+
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-slate-50/50 border-b border-slate-100">
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle Reg</th>
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Trips Run</th>
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Occupancy</th>
-                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Revenue</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Vehicle Reg</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Trips Run</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Occupancy</th>
+                          <th className="px-6 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Revenue</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -1487,7 +1482,7 @@ export const Reports = () => {
                     </table>
                   </div>
                 </div>
-                <div className="p-4 bg-slate-50/30 border-t text-center text-[11px] font-bold text-slate-400">
+                <div className="p-4 bg-slate-50/30 border-t text-center text-[11px] font-bold text-slate-500">
                   Showing {resourceData.vehicles.length} vehicles
                 </div>
               </div>
@@ -1497,9 +1492,9 @@ export const Reports = () => {
 
         </div>
       )}
-      
+
       {/* PDF print-only footer */}
-      <div className="hidden print:block border-t mt-12 pt-4 text-center text-xs text-slate-400">
+      <div className="hidden print:block border-t mt-12 pt-4 text-center text-xs text-slate-500">
         © {new Date().getFullYear()} MyRailPool Operations. All rights reserved. Operations Analytics Summary.
       </div>
     </div>

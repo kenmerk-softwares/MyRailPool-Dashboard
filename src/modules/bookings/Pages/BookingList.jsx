@@ -119,7 +119,7 @@ export const BookingList = () => {
                                         <span className="font-black text-indigo-600">
                                             {booking.bookedCount ?? (booking.users?.length ?? 0)}
                                         </span>
-                                        <span className="text-slate-400 font-semibold">/</span>
+                                        <span className="text-slate-500 font-semibold">/</span>
                                         <span className="font-bold text-slate-600">
                                             {booking.totalSeats ?? '—'}
                                         </span>
@@ -133,7 +133,7 @@ export const BookingList = () => {
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => handleView(booking)}
-                                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                                className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                                 title="View Booking"
                             >
                                 <Eye className="w-4 h-4" />

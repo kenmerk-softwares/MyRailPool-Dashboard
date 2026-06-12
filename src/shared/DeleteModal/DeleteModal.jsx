@@ -1,12 +1,12 @@
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 
-const DeleteModal = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title = "Confirm Delete", 
-  message = "Are you sure you want to delete this item?", 
+const DeleteModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title = "Confirm Delete",
+  message = "Are you sure you want to delete this item?",
   itemName = "",
   loading = false,
   confirmText = "Delete",
@@ -21,7 +21,7 @@ const DeleteModal = ({
           <FaTrash className="text-xl" />
         </div>
         <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-        <p className="text-slate-400 text-sm mt-2 mb-6">
+        <p className="text-slate-500 text-sm mt-2 mb-6">
           {message}
           {itemName && (
             <>

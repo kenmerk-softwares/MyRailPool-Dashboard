@@ -26,7 +26,7 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendUp, trendLabel 
             <span className={`font-medium ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
               {trend}
             </span>
-            {trendLabel && <span className="text-slate-400 ml-2">{trendLabel}</span>}
+            {trendLabel && <span className="text-slate-500 ml-2">{trendLabel}</span>}
           </>
         )}
       </div>
@@ -43,7 +43,7 @@ export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, 
     {(actionLabel || onExportClick) && (
       <div className="flex flex-wrap gap-2 md:gap-3">
         {onExportClick && (
-          <button 
+          <button
             onClick={onExportClick}
             className="bg-white border text-slate-700 border-slate-200 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm flex-1 sm:flex-none text-center justify-center"
           >
@@ -58,7 +58,7 @@ export const SectionHeader = ({ title, subtitle, actionLabel, actionIcon: Icon, 
                 {actionLabel}
               </Link>
             ) : (
-              <button 
+              <button
                 onClick={onActionClick}
                 className="bg-primary-600 text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm shadow-primary-600/20 flex items-center justify-center gap-2 flex-1 sm:flex-none"
               >
@@ -81,7 +81,7 @@ export const StatusBadge = ({ status, statusColor }) => {
     primary: 'bg-primary-100 text-primary-800',
     slate: 'bg-slate-100 text-slate-800'
   };
-  
+
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium capitalize whitespace-nowrap ${colors[statusColor] || colors.slate}`}>
       {status === 'Pending' && <Clock className="w-3 h-3 mr-1" />}
@@ -97,7 +97,7 @@ export const StatusBadge = ({ status, statusColor }) => {
 export const EmptyView = ({ title, subtitle, icon: Icon }) => (
   <div className="flex flex-col items-center justify-center h-[50vh] md:h-[60vh] text-center px-4">
     <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4 md:mb-6">
-      <Icon className="w-8 h-8 md:w-10 md:h-10 text-slate-400" />
+      <Icon className="w-8 h-8 md:w-10 md:h-10 text-slate-500" />
     </div>
     <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-2">{title}</h3>
     <p className="text-sm md:text-base text-slate-500 max-w-md">{subtitle}</p>
@@ -125,14 +125,14 @@ export const Activity = (props) => (
   </svg>
 );
 
-export const Autocomplete = ({ 
-  label, 
-  placeholder, 
-  value, 
-  onChange, 
-  onSelect, 
-  results = [], 
-  loading = false, 
+export const Autocomplete = ({
+  label,
+  placeholder,
+  value,
+  onChange,
+  onSelect,
+  results = [],
+  loading = false,
   icon: Icon,
   renderItem,
   emptyMessage = "No results found"
@@ -154,8 +154,8 @@ export const Autocomplete = ({
     <div className="space-y-2">
       {label && <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">{label}</label>}
       <div className="relative" ref={dropdownRef}>
-        {Icon && <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />}
-        <input 
+        {Icon && <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />}
+        <input
           type="text"
           placeholder={placeholder}
           value={value}

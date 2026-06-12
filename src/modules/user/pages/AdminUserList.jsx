@@ -31,11 +31,11 @@ export const AdminUserList = () => {
     setSearchQuery('');
   };
 
-  const filteredData = users; 
+  const filteredData = users;
 
   useEffect(() => {
     fetchUsers({ searchQuery, activeFilter });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, activeFilter]);
 
   const handleDelete = async () => {
@@ -140,7 +140,7 @@ export const AdminUserList = () => {
               <td className="px-8 py-4">
                 <div className="flex flex-col">
                   <span className="text-[13px] font-black text-slate-800">{user.name}</span>
-                  <span className="text-[10px] font-bold text-slate-400">{user.email}</span>
+                  <span className="text-[10px] font-bold text-slate-500">{user.email}</span>
                 </div>
               </td>
               <td className="px-8 py-4">
@@ -149,9 +149,9 @@ export const AdminUserList = () => {
                 </span>
               </td>
               <td className="px-8 py-4">
-                <StatusBadge 
-                  status="Active" 
-                  statusColor="success" 
+                <StatusBadge
+                  status="Active"
+                  statusColor="success"
                 />
               </td>
               <td className="px-8 py-4 text-[13px] font-black text-slate-600 whitespace-nowrap">
@@ -163,17 +163,17 @@ export const AdminUserList = () => {
           )}
           actions={(user) => (
             <div className="flex items-center gap-2">
-              <button 
+              <button
                 onClick={() => {
                   setSelectedUser(user);
                   setIsAddModalOpen(true);
                 }}
-                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Edit User"
               >
                 <Edit className="w-4 h-4" />
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setPasswordUser(user);
                   setPasswordError('');
@@ -181,17 +181,17 @@ export const AdminUserList = () => {
                   setConfirmNewPassword('');
                   setIsPasswordModalOpen(true);
                 }}
-                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-amber-600 hover:border-amber-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Change Password"
               >
                 <KeyRound className="w-4 h-4" />
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setUserToDelete(user);
                   setIsDeleteModalOpen(true);
                 }}
-                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Delete User"
               >
                 <Trash2 className="w-4 h-4" />
@@ -213,12 +213,12 @@ export const AdminUserList = () => {
         )}
       </div>
 
-      <AddAdmin 
-        isOpen={isAddModalOpen} 
+      <AddAdmin
+        isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
           setSelectedUser(null);
-        }} 
+        }}
         editData={selectedUser}
         onRefresh={() => fetchUsers({ searchQuery, activeFilter })}
       />
@@ -236,7 +236,7 @@ export const AdminUserList = () => {
       {/* Change Password Modal */}
       {isPasswordModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div 
+          <div
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
             onClick={() => {
               if (!passwordLoading) {
@@ -258,18 +258,18 @@ export const AdminUserList = () => {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   setIsPasswordModalOpen(false);
                   setPasswordUser(null);
                 }}
-                className="p-2 hover:bg-slate-200/50 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
+                className="p-2 hover:bg-slate-200/50 rounded-xl transition-colors text-slate-500 hover:text-slate-600"
                 disabled={passwordLoading}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col items-start w-full">
@@ -279,7 +279,7 @@ export const AdminUserList = () => {
                   <input
                     type="password"
                     id="newPassword"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all placeholder:text-slate-400 text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all placeholder:text-slate-500 text-sm"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
@@ -294,7 +294,7 @@ export const AdminUserList = () => {
                   <input
                     type="password"
                     id="confirmNewPassword"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all placeholder:text-slate-400 text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all placeholder:text-slate-500 text-sm"
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
                     placeholder="Confirm new password"

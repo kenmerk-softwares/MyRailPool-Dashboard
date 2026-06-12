@@ -4,15 +4,11 @@ import {
   Clock,
   Users,
   Navigation,
-  Leaf,
   Edit,
-  TrendingUp,
   Hash,
   Globe,
   Milestone,
-  ArrowRight,
   CheckCircle,
-  AlertCircle,
   MapPin,
   ChevronLeft,
   Loader2,
@@ -62,7 +58,7 @@ export const ViewTrip = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Accessing Operational Dossier...</p>
+        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Accessing Operational Dossier...</p>
       </div>
     );
   }
@@ -106,14 +102,14 @@ export const ViewTrip = () => {
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -mr-32 -mt-32 z-0"></div>
 
           <div className="flex items-center gap-6 relative z-10">
-            <div className="w-20 h-20 bg-slate-900 text-white flex items-center justify-center rounded-2xl shadow-xl shadow-slate-200 ring-4 ring-slate-50 transition-transform hover:scale-105 duration-500">
+            <div className="w-20 h-20 bg-emerald-900 text-white flex items-center justify-center rounded-2xl shadow-xl shadow-slate-200 ring-4 ring-slate-50 transition-transform hover:scale-105 duration-500">
               <Navigation className="w-10 h-10" />
             </div>
 
             <div>
               <div className="flex items-center gap-3">
                 <Link to="/trips" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                  <ChevronLeft className="w-4 h-4 text-slate-400" />
+                  <ChevronLeft className="w-4 h-4 text-slate-500" />
                 </Link>
                 <Link to={`/routes/view/${trip.route_id}`} className="hover:text-indigo-600 transition-colors">
                   <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">{trip.route_name}</h1>
@@ -128,11 +124,11 @@ export const ViewTrip = () => {
                   <Hash className="w-3.5 h-3.5 text-indigo-600" />
                   <span className="text-xs font-black text-indigo-700 tracking-wider">TRIP ID: {trip.tripId}</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400">
+                <div className="flex items-center gap-2 text-slate-500">
                   <Calendar className="w-3.5 h-3.5" />
                   <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">{trip.selectedDates?.length || 0} Scheduled Windows</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400">
+                <div className="flex items-center gap-2 text-slate-500">
                   <Activity className="w-3.5 h-3.5" />
                   <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">{trip.route_type} Service</span>
                 </div>
@@ -166,7 +162,7 @@ export const ViewTrip = () => {
               <div className="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {section.fields.map((field, fIdx) => (
                   <div key={fIdx} className="space-y-1.5">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block">
                       {field.label}
                     </span>
                     <div className="flex items-center gap-2">
@@ -222,16 +218,16 @@ export const ViewTrip = () => {
           </div>
 
           {/* Remarks Section */}
-          <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-xl relative overflow-hidden group">
+          <div className="bg-emerald-900 rounded-2xl p-8 border border-slate-800 shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform duration-700">
-              <FileText className="w-20 h-20 text-indigo-500" />
+              <FileText className="w-20 h-20 text-slate-200" />
             </div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <Activity className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Trip Operational Remarks</h3>
+                <Activity className="w-4 h-4 text-slate-200" />
+                <h3 className="text-[12px] font-black text-white uppercase tracking-widest">Trip Operational Remarks</h3>
               </div>
-              <p className="text-slate-300 font-medium text-sm leading-relaxed italic pr-20">
+              <p className="text-slate-100 font-medium text-sm leading-relaxed italic pr-20">
                 "{trip.notes || "No specific operational notes or special remarks recorded for this trip."}"
               </p>
             </div>
@@ -259,7 +255,7 @@ export const ViewTrip = () => {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[11px] font-black text-slate-700">{typeof date === 'string' ? new Date(date).toLocaleDateString('en-GB', { weekday: 'long' }) : 'Unknown Date'}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{typeof date === 'string' ? new Date(date).getFullYear() : ''}</span>
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{typeof date === 'string' ? new Date(date).getFullYear() : ''}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">

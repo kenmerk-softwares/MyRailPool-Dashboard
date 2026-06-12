@@ -20,7 +20,7 @@ const PaymentCharts = ({ revenueData, methodData }) => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-lg font-black text-slate-800">Revenue Analysis</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Weekly earnings trend</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Weekly earnings trend</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
@@ -29,39 +29,39 @@ const PaymentCharts = ({ revenueData, methodData }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}}
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
                 dy={10}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
               />
-              <Area 
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#6366f1" 
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#6366f1"
                 strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorRevenue)" 
+                fillOpacity={1}
+                fill="url(#colorRevenue)"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -71,7 +71,7 @@ const PaymentCharts = ({ revenueData, methodData }) => {
       <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
         <div className="mb-8">
           <h3 className="text-lg font-black text-slate-800">Method Split</h3>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular payment modes</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Popular payment modes</p>
         </div>
 
         <div className="h-[250px] w-full">
@@ -88,11 +88,11 @@ const PaymentCharts = ({ revenueData, methodData }) => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
               />
-              <Legend 
-                verticalAlign="bottom" 
+              <Legend
+                verticalAlign="bottom"
                 height={36}
                 iconType="circle"
                 wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}

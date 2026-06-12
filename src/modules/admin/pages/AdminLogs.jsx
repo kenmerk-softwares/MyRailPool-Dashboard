@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {  ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { SectionHeader } from '../../../components/Shared';
 import { adminDb } from '../../../shared/services/firebase';
 import { where, orderBy } from 'firebase/firestore';
@@ -8,101 +8,101 @@ import { Table } from '../../../shared/Table/Table';
 import { exportToExcel } from '../../../shared/utils/export';
 
 export default function AdminLogs() {
-    const [fromDate, setFromDate] = useState('');
-    const [toDate, setToDate] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
-    const { data: logs, loading, hasMore, fetchData } = useCollection('admin-logs', { 
-        pageSize: 20, 
-        dbInstance: adminDb 
-    });
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: logs, loading, hasMore, fetchData } = useCollection('admin-logs', {
+    pageSize: 20,
+    dbInstance: adminDb
+  });
 
-    const getConstraints = useCallback(() => {
-        const constraints = [];
-        if (searchQuery) {
-            // Search query (email) takes precedence in DB query to narrow down logs
-            constraints.push(where('email', '==', searchQuery.trim()));
-            // We do NOT add orderBy('createdAt') or date range constraints here
-            // to avoid needing a composite index!
-        } else {
-            // Normal browse/date filter mode
-            constraints.push(orderBy('createdAt', 'desc'));
-            if (fromDate) {
-                constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
-            }
-            if (toDate) {
-                constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
-            }
-        }
-        return constraints;
-    }, [fromDate, toDate, searchQuery]);
+  const getConstraints = useCallback(() => {
+    const constraints = [];
+    if (searchQuery) {
+      // Search query (email) takes precedence in DB query to narrow down logs
+      constraints.push(where('email', '==', searchQuery.trim()));
+      // We do NOT add orderBy('createdAt') or date range constraints here
+      // to avoid needing a composite index!
+    } else {
+      // Normal browse/date filter mode
+      constraints.push(orderBy('createdAt', 'desc'));
+      if (fromDate) {
+        constraints.push(where('createdAt', '>=', new Date(fromDate + "T00:00:00")));
+      }
+      if (toDate) {
+        constraints.push(where('createdAt', '<=', new Date(toDate + "T23:59:59")));
+      }
+    }
+    return constraints;
+  }, [fromDate, toDate, searchQuery]);
 
-    useEffect(() => {
-        fetchData({ constraints: getConstraints() });
-    }, [fetchData, getConstraints]);
+  useEffect(() => {
+    fetchData({ constraints: getConstraints() });
+  }, [fetchData, getConstraints]);
 
-    // Filter and sort logs on the client side if searchQuery is active
-    const processedLogs = React.useMemo(() => {
-        let result = [...logs];
-        if (searchQuery) {
-            // Apply date filters client-side
-            if (fromDate) {
-                const start = new Date(fromDate + "T00:00:00").getTime();
-                result = result.filter(log => {
-                    const time = log.createdAt?.seconds ? log.createdAt.seconds * 1000 : new Date(log.createdAt).getTime();
-                    return time >= start;
-                });
-            }
-            if (toDate) {
-                const end = new Date(toDate + "T23:59:59").getTime();
-                result = result.filter(log => {
-                    const time = log.createdAt?.seconds ? log.createdAt.seconds * 1000 : new Date(log.createdAt).getTime();
-                    return time <= end;
-                });
-            }
-            // Sort by createdAt descending client-side
-            result.sort((a, b) => {
-                const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt).getTime();
-                const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt).getTime();
-                return timeB - timeA;
-            });
-        }
-        return result;
-    }, [logs, searchQuery, fromDate, toDate]);
-
-    const handleLoadMore = () => {
-        fetchData({ 
-            constraints: getConstraints(), 
-            isLoadMore: true 
+  // Filter and sort logs on the client side if searchQuery is active
+  const processedLogs = React.useMemo(() => {
+    let result = [...logs];
+    if (searchQuery) {
+      // Apply date filters client-side
+      if (fromDate) {
+        const start = new Date(fromDate + "T00:00:00").getTime();
+        result = result.filter(log => {
+          const time = log.createdAt?.seconds ? log.createdAt.seconds * 1000 : new Date(log.createdAt).getTime();
+          return time >= start;
         });
-    };
+      }
+      if (toDate) {
+        const end = new Date(toDate + "T23:59:59").getTime();
+        result = result.filter(log => {
+          const time = log.createdAt?.seconds ? log.createdAt.seconds * 1000 : new Date(log.createdAt).getTime();
+          return time <= end;
+        });
+      }
+      // Sort by createdAt descending client-side
+      result.sort((a, b) => {
+        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt).getTime();
+        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt).getTime();
+        return timeB - timeA;
+      });
+    }
+    return result;
+  }, [logs, searchQuery, fromDate, toDate]);
 
-    const formatTimestamp = (timestamp) => {
-        if (!timestamp) return { time: 'N/A', date: 'N/A' };
-        const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
-        return {
-            time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            date: date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
-        };
-    };
+  const handleLoadMore = () => {
+    fetchData({
+      constraints: getConstraints(),
+      isLoadMore: true
+    });
+  };
 
-    const handleExport = () => {
-        exportToExcel(processedLogs, {
-            adminName: 'Administrator Name',
-            email: 'Email Address',
-            action: 'Action Type',
-            details: 'Description',
-            timestamp: 'Timestamp'
-        }, 'AdminLogs');
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return { time: 'N/A', date: 'N/A' };
+    const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
+    return {
+      time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      date: date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
     };
+  };
 
-    return (
-        <div className="p-4 md:p-6 lg:p-8">
-            <SectionHeader
-                title="Admin Logs"
-                subtitle="Monitor system activities, configuration changes, and administrator actions."
-                onExportClick={handleExport}
-            />
+  const handleExport = () => {
+    exportToExcel(processedLogs, {
+      adminName: 'Administrator Name',
+      email: 'Email Address',
+      action: 'Action Type',
+      details: 'Description',
+      timestamp: 'Timestamp'
+    }, 'AdminLogs');
+  };
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8">
+      <SectionHeader
+        title="Admin Logs"
+        subtitle="Monitor system activities, configuration changes, and administrator actions."
+        onExportClick={handleExport}
+      />
 
       <div className="pb-10">
         <Table
@@ -150,7 +150,7 @@ export default function AdminLogs() {
                 </td>
                 <td className="px-8 py-4 whitespace-nowrap">
                   <div className="text-[13px] font-black text-slate-900">{time}</div>
-                  <div className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">{date}</div>
+                  <div className="text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-tighter">{date}</div>
                 </td>
               </>
             );
@@ -170,6 +170,6 @@ export default function AdminLogs() {
           </div>
         )}
       </div>
-        </div>
-    );
+    </div>
+  );
 }

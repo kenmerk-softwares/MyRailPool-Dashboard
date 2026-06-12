@@ -54,7 +54,7 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
             </div>
             <div className="min-w-0">
               <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-tight truncate">Route Request</h3>
-              <p className="text-[10px] sm:text-xs font-medium text-slate-400 mt-0.5 truncate">{request.id}</p>
+              <p className="text-[10px] sm:text-xs font-medium text-slate-500 mt-0.5 truncate">{request.id}</p>
             </div>
           </div>
           <div className="flex-shrink-0">
@@ -69,21 +69,21 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
             <div className="relative">
               <User className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
               <div className="text-xs">
-                <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Name</span>
+                <span className="block font-semibold text-slate-500 uppercase tracking-tighter text-[9px]">Name</span>
                 <p className="text-slate-700 font-bold leading-tight">{request.name || 'N/A'}</p>
               </div>
             </div>
             <div className="relative">
               <Phone className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
               <div className="text-xs">
-                <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Phone Number</span>
+                <span className="block font-semibold text-slate-500 uppercase tracking-tighter text-[9px]">Phone Number</span>
                 <p className="text-slate-700 font-bold leading-tight">{request.phone || 'N/A'}</p>
               </div>
             </div>
             <div className="relative">
               <MapPin className="absolute -left-[22px] top-0 w-4 h-4 text-emerald-500 bg-white" />
               <div className="text-xs">
-                <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Pickup</span>
+                <span className="block font-semibold text-slate-500 uppercase tracking-tighter text-[9px]">Pickup</span>
                 <p className="text-slate-700 font-bold leading-tight">{request.from || request.pickup || 'N/A'}</p>
               </div>
             </div>
@@ -91,7 +91,7 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
             <div className="relative">
               <MapPin className="absolute -left-[22px] top-0 w-4 h-4 text-rose-500 bg-white" />
               <div className="text-xs">
-                <span className="block font-semibold text-slate-400 uppercase tracking-tighter text-[9px]">Drop</span>
+                <span className="block font-semibold text-slate-500 uppercase tracking-tighter text-[9px]">Drop</span>
                 <p className="text-slate-700 font-bold leading-tight">{request.to || request.drop || 'N/A'}</p>
               </div>
             </div>
@@ -100,14 +100,14 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
           <div className="grid grid-cols-2 gap-4 pt-2">
 
             <div className="flex items-center gap-2.5 px-3 py-2 bg-slate-50 rounded-xl">
-              <Clock className="w-4 h-4 text-slate-400" />
+              <Clock className="w-4 h-4 text-slate-500" />
               <span className="text-[10px] font-bold text-slate-500">{new Date(request.createdAt || request.requestSentAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
 
         <div className="mb-8">
-          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Planned Schedule</label>
+          <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Planned Schedule</label>
           <div className="flex flex-wrap gap-2">
             {request.schedules ? request.schedules.map((sched, idx) => (
               <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50/50 border border-indigo-100/50 rounded-lg text-[10px] font-bold text-indigo-700">

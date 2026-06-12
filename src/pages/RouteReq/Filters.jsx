@@ -7,7 +7,7 @@ const Filters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, dat
   return (
     <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4">
       <div className="relative flex-1 w-full">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
           type="text"
           value={searchTerm}
@@ -33,8 +33,8 @@ const Filters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, dat
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${statusFilter === status
-                  ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
+                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
             >
               {status}
@@ -44,7 +44,7 @@ const Filters = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, dat
       </div>
 
       <div className="relative w-full md:w-auto">
-        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
           type="date"
           value={dateFilter}

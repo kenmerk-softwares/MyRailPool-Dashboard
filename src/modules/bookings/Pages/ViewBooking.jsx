@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import {
   MapPin, Car, Navigation, ArrowLeft, AlertCircle,
   Hash, Users, CreditCard, Loader2, User, CheckCircle2,
-  XCircle, Clock, Phone, UserCheck, Route,Activity
+  XCircle, Clock, Phone, UserCheck, Route, Activity
 } from 'lucide-react';
 import { doc, getDoc, collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
@@ -146,7 +146,7 @@ const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-600 transition-colors"
           >
             <XCircle className="w-5 h-5" />
           </button>
@@ -162,7 +162,7 @@ const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-slate-700 truncate">{user.name || 'Unknown'}</p>
                   <p className="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
-                    <Phone className="w-3 h-3 text-slate-400" /> {user.phone || '—'}
+                    <Phone className="w-3 h-3 text-slate-500" /> {user.mobile || user.phone || '—'}
                   </p>
                 </div>
                 <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">Primary</span>
@@ -178,7 +178,7 @@ const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-slate-700 truncate">{p.name || 'Unknown'}</p>
                     <p className="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
-                      <Phone className="w-3 h-3 text-slate-400" /> {p.mobile || p.phone || '—'}
+                      <Phone className="w-3 h-3 text-slate-500" /> {p.mobile || p.phone || '—'}
                     </p>
                   </div>
                 </div>
@@ -515,11 +515,11 @@ export const ViewBooking = () => {
                     <StatusBadge status={u.status} statusColor={getStatusColor(u.status)} />
                   </div>
 
-                  {/* Passenger details grid */}
+                  {/* Passenger details */}
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-xs">
                     <div className="space-y-0.5">
                       <span className="text-slate-500 font-semibold uppercase tracking-wider">Phone</span>
-                      <p className="font-bold text-slate-700 flex items-center gap-1"><Phone className="w-3 h-3 shrink-0" />{u.phone || '—'}</p>
+                      <p className="font-bold text-slate-700 flex items-center gap-1"><Phone className="w-3 h-3 shrink-0" />{u.mobile || u.phone || '—'}</p>
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-slate-500 font-semibold uppercase tracking-wider">From</span>

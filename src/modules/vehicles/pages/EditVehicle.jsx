@@ -125,13 +125,13 @@ export const EditVehicle = () => {
     setUpdating(true);
     try {
       const docId = String(id || '').replace('#', '');
-      const res = await FunctionsAPI.addVehicle({ 
-        type: "edit", 
+      const res = await FunctionsAPI.addVehicle({
+        type: "edit",
         id: docId,
         fields: {
           ...formData,
           searchKey: `${formData.make} ${formData.model} ${formData.registrationNo}`.toLowerCase()
-        } 
+        }
       });
 
       if (res.success) {
@@ -151,7 +151,7 @@ export const EditVehicle = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Synchronizing Registry...</p>
+        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Synchronizing Registry...</p>
       </div>
     );
   }
@@ -161,22 +161,22 @@ export const EditVehicle = () => {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="max-w-full mx-auto pb-12 px-2 animate-in fade-in duration-500">
-      
+
       {/* Header Actions */}
       <div className="flex items-center justify-between mb-6 px-2">
         <div className="flex items-center gap-4">
           <Link to="/vehicles" className="p-2 hover:bg-slate-100 rounded-xl transition-colors group">
-            <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+            <ChevronLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-600" />
           </Link>
           <div>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase">Edit Asset Registry</h2>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Asset ID: {id}</p>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Asset ID: {id}</p>
           </div>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60">
-        
+
         {/* ── Section 1: Asset Identity ── */}
         <div className="space-y-4 mt-4">
           <div className="px-6 py-2 border-b border-slate-100 flex items-center gap-3 bg-slate-50/30">
@@ -188,11 +188,11 @@ export const EditVehicle = () => {
 
           <div className="px-6 pb-2">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              
+
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Make <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Car className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="text" name="make" value={formData.make} onChange={handleChange} className={inputCls('make')} />
                 </div>
                 {errors.make && <p className="text-xs text-red-500 mt-1">{errors.make}</p>}
@@ -201,7 +201,7 @@ export const EditVehicle = () => {
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Model <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <Info className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Info className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="text" name="model" value={formData.model} onChange={handleChange} className={inputCls('model')} />
                 </div>
                 {errors.model && <p className="text-xs text-red-500 mt-1">{errors.model}</p>}
@@ -210,7 +210,7 @@ export const EditVehicle = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Colour <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <Activity className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Activity className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="text" name="colour" value={formData.colour} onChange={handleChange} className={inputCls('colour')} />
                 </div>
               </div>
@@ -229,7 +229,7 @@ export const EditVehicle = () => {
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Seating <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="text" name="seatingCapacity" value={formData.seatingCapacity} onChange={handleChange} className={inputCls('seatingCapacity')} />
                 </div>
               </div>
@@ -260,21 +260,21 @@ export const EditVehicle = () => {
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Registration No <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="text" name="registrationNo" value={formData.registrationNo} onChange={handleChange} className={inputCls('registrationNo') + ' uppercase font-black'} />
                 </div>
               </div>
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">PH Licence <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="text" name="phVehicleLicence" value={formData.phVehicleLicence} onChange={handleChange} className={inputCls('phVehicleLicence')} />
                 </div>
               </div>
               <div className="md:col-span-2 space-y-2">
                 <label className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider block">Licence Expiry <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input type="date" name="licenceExpiry" value={formData.licenceExpiry} onChange={handleChange} className={inputCls('licenceExpiry')} />
                 </div>
               </div>
@@ -319,50 +319,50 @@ export const EditVehicle = () => {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               <div className="md:col-span-2 space-y-2">
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                                Assigned Driver
-                              </label>
-                              <div className="relative" ref={dropdownRef}>
-                                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input
-                                  type="text"
-                                  placeholder="Search active drivers..."
-                                  value={driverSearch}
-                                  onChange={(e) => {
-                                    setDriverSearch(e.target.value);
-                                    setShowDriverResults(true);
-                                    if (!e.target.value) {
-                                      setFormData(prev => ({ ...prev, assignedDriver: '', driverId: '' }));
-                                    }
-                                  }}
-                                  onFocus={() => setShowDriverResults(true)}
-                                  className={inputCls('assignedDriver')}
-                                />
-                                {showDriverResults && drivers.length > 0 && (
-                                  <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2">
-                                    {drivers.map(driver => (
-                                      <button
-                                        key={driver.id}
-                                        type="button"
-                                        onClick={() => {
-                                          setFormData(prev => ({ 
-                                            ...prev, 
-                                            assignedDriver: driver.name,
-                                            driverId: driver.docId
-                                          }));
-                                          setDriverSearch(driver.name);
-                                          setShowDriverResults(false);
-                                        }}
-                                        className="w-full text-left px-4 py-2 hover:bg-indigo-50 transition-colors flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
-                                      >
-                                        <span className="font-bold text-slate-800 text-sm">{driver.name}</span>
-                                        <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{driver.mobile || 'No Mobile'}</span>
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                  Assigned Driver
+                </label>
+                <div className="relative" ref={dropdownRef}>
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Search active drivers..."
+                    value={driverSearch}
+                    onChange={(e) => {
+                      setDriverSearch(e.target.value);
+                      setShowDriverResults(true);
+                      if (!e.target.value) {
+                        setFormData(prev => ({ ...prev, assignedDriver: '', driverId: '' }));
+                      }
+                    }}
+                    onFocus={() => setShowDriverResults(true)}
+                    className={inputCls('assignedDriver')}
+                  />
+                  {showDriverResults && drivers.length > 0 && (
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto py-2">
+                      {drivers.map(driver => (
+                        <button
+                          key={driver.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              assignedDriver: driver.name,
+                              driverId: driver.docId
+                            }));
+                            setDriverSearch(driver.name);
+                            setShowDriverResults(false);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-indigo-50 transition-colors flex flex-col gap-0.5 border-b border-slate-50 last:border-0"
+                        >
+                          <span className="font-bold text-slate-800 text-sm">{driver.name}</span>
+                          <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{driver.mobile || 'No Mobile'}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Internal Remarks</label>
                 <textarea rows="1" name="notes" value={formData.notes} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none resize-none" placeholder="Notes..." />

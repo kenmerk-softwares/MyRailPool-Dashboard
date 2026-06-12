@@ -17,7 +17,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div 
+      <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
@@ -30,7 +30,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
             </div>
             <h3 className="text-xl font-black text-slate-900 tracking-tight">Reject Request</h3>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-rose-100 rounded-xl transition-colors"
           >
@@ -40,13 +40,13 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
 
         <div className="p-6 space-y-6">
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Request ID</span>
+            <span className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Request ID</span>
             <p className="text-sm font-bold text-slate-800">{request?.id || 'N/A'}</p>
           </div>
 
           <div className="space-y-2">
             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block ml-1">Reason for Rejection</label>
-            <select 
+            <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all cursor-pointer"
@@ -60,7 +60,7 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
 
           <div className="space-y-2">
             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block ml-1">Additional Comments (Optional)</label>
-            <textarea 
+            <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Provide more context for the customer..."
@@ -71,13 +71,13 @@ const RejectModal = ({ isOpen, onClose, onConfirm, request }) => {
         </div>
 
         <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-          <button 
+          <button
             onClick={onClose}
             className="px-4 py-3 rounded-xl text-sm font-black text-slate-500 hover:bg-slate-200 transition-all w-full sm:flex-1 order-2 sm:order-1"
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={() => onConfirm(reason, comment)}
             disabled={!reason}
             className="px-4 py-3 bg-rose-600 text-white rounded-xl text-sm font-black hover:bg-rose-700 transition-all shadow-lg shadow-rose-100 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2 w-full sm:flex-[2] order-1 sm:order-2"

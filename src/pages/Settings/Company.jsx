@@ -174,7 +174,7 @@ const Company = () => {
 										Company Name
 									</label>
 									<div className="relative">
-										<Building2 className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<Building2 className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
 										<input
 											type="text"
 											name="companyName"
@@ -191,7 +191,7 @@ const Company = () => {
 										Address
 									</label>
 									<div className="relative">
-										<MapPin className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<MapPin className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
 										<textarea
 											name="address"
 											value={formData.address}
@@ -208,7 +208,7 @@ const Company = () => {
 										Tag
 									</label>
 									<div className="relative">
-										<Tag className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<Tag className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
 										<input
 											type="text"
 											name="tag"
@@ -238,7 +238,7 @@ const Company = () => {
 										{formData.contact.map((phone, idx) => (
 											<div key={idx} className="flex gap-2 items-center">
 												<div className="relative flex-1">
-													<Phone className="absolute left-3 top-2.5 w-3 h-3 text-slate-400" />
+													<Phone className="absolute left-3 top-2.5 w-3 h-3 text-slate-500" />
 													<input
 														type="tel"
 														value={phone}
@@ -253,7 +253,7 @@ const Company = () => {
 													<button
 														type="button"
 														onClick={() => handleRemovePhone(idx)}
-														className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+														className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
 													>
 														<Trash2 className="w-4 h-4" />
 													</button>
@@ -267,7 +267,7 @@ const Company = () => {
 										Instagram Link
 									</label>
 									<div className="relative">
-										<Instagram className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<Instagram className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
 										<input
 											type="text"
 											name="instagram"
@@ -284,7 +284,7 @@ const Company = () => {
 										LinkedIn Link
 									</label>
 									<div className="relative">
-										<Linkedin className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<Linkedin className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
 										<input
 											type="text"
 											name="linkedin"
@@ -301,7 +301,7 @@ const Company = () => {
 										Youtube Link
 									</label>
 									<div className="relative">
-										<Youtube className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+										<Youtube className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
 										<input
 											type="text"
 											name="youTube"
@@ -417,7 +417,7 @@ const Company = () => {
 								</h2>
 							</div>
 						</div>
-						<div className="mt-8 pt-6 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
+						<div className="mt-8 pt-6 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
 							<div className="flex items-center gap-1 text-gray-700">
 								<Sparkles className="w-3 h-3 text-amber-700" />
 								Last updated:

@@ -96,7 +96,7 @@ export const VehicleList = () => {
                         {vehicle.registrationNo}
                       </span>
                       <span className="w-1 h-1 rounded-full bg-slate-300 inline-block"></span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                         {vehicle.id}
                       </span>
                     </div>
@@ -108,12 +108,12 @@ export const VehicleList = () => {
               <td className="px-8 py-4">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-slate-400" />
+                    <Activity className="w-3.5 h-3.5 text-slate-500" />
                     <span className="text-[13px] font-black text-slate-700 uppercase tracking-tight">{vehicle.type}</span>
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <User className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">
                       {vehicle.seatingCapacity} Seats
                     </span>
                   </div>
@@ -130,7 +130,7 @@ export const VehicleList = () => {
                     <span className="text-[13px] font-black text-slate-700 tracking-tight">{vehicle.assignedDriver}</span>
                   </div>
                 ) : (
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Unassigned</span>
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest italic">Unassigned</span>
                 )}
               </td>
 
@@ -138,11 +138,11 @@ export const VehicleList = () => {
               <td className="px-8 py-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-4 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Licence</span>
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Licence</span>
                     <span className="text-[10px] font-black text-slate-700">{vehicle.licenceExpiry}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Insurance</span>
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Insurance</span>
                     <span className="text-[10px] font-black text-slate-700">{vehicle.insuranceExpiry}</span>
                   </div>
                 </div>
@@ -164,20 +164,20 @@ export const VehicleList = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleView(vehicle)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="View Dossier"
               >
                 <Eye className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleEdit(vehicle)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-amber-600 hover:border-amber-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Edit Registry"
               >
                 <Edit className="w-4 h-4" />
               </button>
               {/* <button
-                className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Remove Asset"
               >
                 <Trash2 className="w-4 h-4" />
