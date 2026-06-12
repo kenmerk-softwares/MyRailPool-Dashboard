@@ -90,23 +90,23 @@ export const RouteList = () => {
 
   const handleOpenReactivate = (route) => {
     setReactivateRoute(route);
-    
+
     // Parse current selected dates
     const rawDates = route.selectedDates || route.operating_dates || route.selected_dates || [];
     const formattedDates = rawDates.map(d => formatToInputDate(d)).filter(Boolean);
     setModalSelectedDates(formattedDates);
-    
+
     // Find a good default deactivation date (max date + 30 days, or today + 30 days)
     const today = new Date();
     let baseDate = today;
-    
+
     formattedDates.forEach(dateStr => {
       const d = new Date(dateStr);
       if (d > baseDate) {
         baseDate = d;
       }
     });
-    
+
     const defaultDeact = new Date(baseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
     setModalDeactivationDate(formatToInputDate(defaultDeact));
     setDateToAdd('');
@@ -127,7 +127,7 @@ export const RouteList = () => {
       showToast("This date is already in the operating dates list.", "error");
       return;
     }
-    
+
     const updated = [...modalSelectedDates, dateToAdd].sort();
     setModalSelectedDates(updated);
     setDateToAdd('');
@@ -142,7 +142,7 @@ export const RouteList = () => {
       showToast("Cannot activate: Operating dates must contain at least one future date.", "error");
       return;
     }
-    
+
     if (modalDeactivationDate < todayStr) {
       showToast("Deactivation date must be in the future.", "error");
       return;
@@ -157,12 +157,12 @@ export const RouteList = () => {
       showToast("One or more operating dates are after the selected deactivation date.", "error");
       return;
     }
-    
+
     setIsReactivating(true);
     try {
       const functions = getFunctions(app, "asia-south1");
       const addRouteFn = httpsCallable(functions, 'addRoute');
-      
+
       const payload = {
         action: 'edit',
         id: reactivateRoute.id,
@@ -177,7 +177,7 @@ export const RouteList = () => {
         start: reactivateRoute.startingPoint || reactivateRoute.routes?.[0] || '',
         end: reactivateRoute.endPoint || reactivateRoute.routes?.[reactivateRoute.routes?.length - 1] || '',
       };
-      
+
       const result = await addRouteFn(payload);
       if (result.data.success) {
         showToast(`Route corridor "${reactivateRoute.name}" successfully reactivated.`, "success");
@@ -206,12 +206,12 @@ export const RouteList = () => {
   const hasOperationalDateAfterDeact = modalSelectedDates.some(dateStr => {
     return dateStr > modalDeactivationDate;
   });
-  
+
   return (
     <>
-      <SectionHeader 
-        title="Route Management" 
-        subtitle="Define templates for common routes and pricing." 
+      <SectionHeader
+        title="Route Management"
+        subtitle="Define templates for common routes and pricing."
         actionLabel="Create Route"
         actionIcon={Plus}
         actionTo="/routes/add"
@@ -243,7 +243,7 @@ export const RouteList = () => {
               <td className="px-8 py-4">
                 <div className="flex flex-col">
                   <span className="text-[13px] font-black text-slate-800">{route.name}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Corridor ID: {route.id}</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Corridor ID: {route.id}</span>
                 </div>
               </td>
               <td className="px-8 py-4">
@@ -256,23 +256,23 @@ export const RouteList = () => {
                 </div>
               </td>
               <td className="px-8 py-4">
-                <StatusBadge 
-                  status={route.status} 
-                  statusColor={route.status === 'Active' ? 'success' : 'slate'} 
+                <StatusBadge
+                  status={route.status}
+                  statusColor={route.status === 'Active' ? 'success' : 'slate'}
                 />
               </td>
             </>
           )}
           actions={(route) => (
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => handleView(route)} 
+              <button
+                onClick={() => handleView(route)}
                 className="p-2 bg-white border border-green-200 text-green-500 hover:text-green-700 hover:border-green-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Quick View"
               >
                 <Eye className="w-4 h-4" />
               </button>
-              <Link 
+              <Link
                 to="/routes/add"
                 state={{ route }}
                 className="p-2 bg-white border border-yellow-100 text-yellow-500 hover:text-yellow-700 hover:border-yellow-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
@@ -281,8 +281,8 @@ export const RouteList = () => {
                 <Edit className="w-4 h-4" />
               </Link>
               {route.status === 'Inactive' && (
-                <button 
-                  onClick={() => handleOpenReactivate(route)} 
+                <button
+                  onClick={() => handleOpenReactivate(route)}
                   className="p-2 bg-white border border-indigo-200 text-indigo-500 hover:text-indigo-700 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                   title="Reactivate Corridor"
                 >
@@ -309,7 +309,7 @@ export const RouteList = () => {
       {reactivateRoute && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-300">
-            
+
             {/* Header */}
             <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -321,9 +321,9 @@ export const RouteList = () => {
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Restore Operational status & extend calendar</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setReactivateRoute(null)}
-                className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
+                className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-500 hover:text-slate-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -331,12 +331,12 @@ export const RouteList = () => {
 
             {/* Body */}
             <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
-              
+
               {/* Corridor Details */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Route Corridor Name</span>
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Route Corridor Name</span>
                 <p className="font-extrabold text-slate-800 text-sm">{reactivateRoute.name}</p>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">
                   {reactivateRoute.startingPoint} &rarr; {reactivateRoute.endPoint}
                 </p>
               </div>
@@ -347,7 +347,7 @@ export const RouteList = () => {
                   New Deactivation Date (Expiration)
                 </label>
                 <div className="relative group">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 animate-in fade-in" />
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 animate-in fade-in" />
                   <input
                     type="date"
                     value={modalDeactivationDate}
@@ -355,7 +355,7 @@ export const RouteList = () => {
                     className="w-full pl-12 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-sm cursor-pointer"
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
                   Must be in the future. The background scheduler will automatically deactivate the route after this date.
                 </p>
                 {isDeactBeforeActivation && (
@@ -427,13 +427,12 @@ export const RouteList = () => {
                       const dateObj = new Date(date);
                       const isPast = dateObj < todayStart;
                       return (
-                        <div 
-                          key={date} 
-                          className={`flex items-center gap-2 px-2.5 py-1.5 border rounded-xl shadow-sm transition-all duration-200 ${
-                            isPast 
-                              ? 'bg-slate-100/70 border-slate-200 text-slate-400' 
+                        <div
+                          key={date}
+                          className={`flex items-center gap-2 px-2.5 py-1.5 border rounded-xl shadow-sm transition-all duration-200 ${isPast
+                              ? 'bg-slate-100/70 border-slate-200 text-slate-500'
                               : 'bg-white border-emerald-100 text-slate-800 hover:border-emerald-200 hover:bg-emerald-50/10'
-                          }`}
+                            }`}
                         >
                           <div className="flex flex-col items-center justify-center">
                             <span className="text-[10px] font-black leading-none">{dateObj.getDate()}</span>
@@ -441,7 +440,7 @@ export const RouteList = () => {
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] font-bold leading-tight">{dateObj.toLocaleDateString('en-GB', { weekday: 'short' })}</span>
-                            <span className="text-[7px] font-medium leading-none">{dateObj.getFullYear()} {isPast && <span className="text-slate-400 font-extrabold">(Past)</span>}</span>
+                            <span className="text-[7px] font-medium leading-none">{dateObj.getFullYear()} {isPast && <span className="text-slate-500 font-extrabold">(Past)</span>}</span>
                           </div>
                           <button
                             type="button"
@@ -455,7 +454,7 @@ export const RouteList = () => {
                     })}
                   </div>
                 ) : (
-                  <div className="py-6 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400">
+                  <div className="py-6 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-500">
                     <Calendar className="w-6 h-6 mb-1 text-slate-300" />
                     <span className="text-[10px] font-black uppercase tracking-wider">No operating dates</span>
                   </div>
@@ -475,7 +474,7 @@ export const RouteList = () => {
               <button
                 onClick={handleReactivateSubmit}
                 disabled={isReactivating || !hasFutureDate || isDeactBeforeActivation || isDeactPast || hasOperationalDateAfterDeact}
-                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10"
+                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/10"
               >
                 {isReactivating ? (
                   <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

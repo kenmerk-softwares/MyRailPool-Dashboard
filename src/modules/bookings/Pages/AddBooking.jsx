@@ -265,7 +265,7 @@ export const AddBooking = () => {
 
   return (
     <div className="max-w-6xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
+
       {/* Header Bar */}
       <div className="flex items-center gap-4 mb-6 md:mb-8">
         <Link to="/bookings" className="p-2 hover:bg-slate-100 rounded-xl transition-colors group">
@@ -278,7 +278,7 @@ export const AddBooking = () => {
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
-        
+
         {/* ── SECTION 1: CUSTOMER ASSIGNMENT ── */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 text-sm">
           <div className="px-6 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-[22px]">
@@ -286,7 +286,7 @@ export const AddBooking = () => {
               <User className="w-5 h-5 text-indigo-600" />
               <h3 className="font-bold text-slate-800 tracking-tight">Customer Assignment</h3>
             </div>
-            
+
             {/* New Customer Toggle */}
             <div className="flex items-center gap-2.5">
               <input
@@ -400,7 +400,7 @@ export const AddBooking = () => {
                     <UserCheck className="w-5 h-5 text-indigo-600" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Assigned Driver</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Assigned Driver</span>
                     <p className="font-bold text-slate-700 text-sm">{selectedTrip.driver_name || 'N/A'}</p>
                     <p className="text-[10px] text-slate-500 font-mono">ID: {selectedTrip.driver_id || 'N/A'}</p>
                   </div>
@@ -411,7 +411,7 @@ export const AddBooking = () => {
                     <Car className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Allocated Asset</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Allocated Asset</span>
                     <p className="font-bold text-slate-700 text-sm">{selectedTrip.vehicle_reg || 'N/A'}</p>
                     <p className="text-[10px] text-slate-500 font-mono">ID: {selectedTrip.vehicle_id || 'N/A'}</p>
                   </div>
@@ -422,7 +422,7 @@ export const AddBooking = () => {
                     <Navigation className="w-5 h-5 text-amber-600" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Route Corridor</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Route Corridor</span>
                     <p className="font-bold text-slate-700 text-sm truncate max-w-[200px]" title={selectedTrip.route_name}>{selectedTrip.route_name || 'N/A'}</p>
                     <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">{selectedTrip.route_type || 'core'} corridor</p>
                   </div>
@@ -430,13 +430,13 @@ export const AddBooking = () => {
 
                 {selectedTrip.routes && selectedTrip.routes.length > 0 && (
                   <div className="col-span-1 md:col-span-3 pt-4 border-t border-slate-200/60">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Arrival Sequence stops</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Arrival Sequence stops</span>
                     <div className="flex flex-wrap gap-2">
                       {selectedTrip.routes.map((stop, index) => (
                         <span key={index} className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600">
                           <MapPin className="w-3 h-3 text-indigo-500" /> {stop}
                           {selectedTrip.routeTiming?.[stop] && (
-                            <span className="text-slate-400 font-semibold ml-1">({selectedTrip.routeTiming[stop]})</span>
+                            <span className="text-slate-500 font-semibold ml-1">({selectedTrip.routeTiming[stop]})</span>
                           )}
                         </span>
                       ))}
@@ -456,7 +456,7 @@ export const AddBooking = () => {
           </div>
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Travel Date */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Travel Date</label>
@@ -464,7 +464,7 @@ export const AddBooking = () => {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 disabled={!selectedTrip}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white text-slate-700 font-bold focus:border-indigo-500 outline-none transition-all cursor-pointer disabled:bg-slate-50 disabled:text-slate-400"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white text-slate-700 font-bold focus:border-indigo-500 outline-none transition-all cursor-pointer disabled:bg-slate-50 disabled:text-slate-500"
                 required
               >
                 <option value="">-- Choose Date --</option>
@@ -489,7 +489,7 @@ export const AddBooking = () => {
                 value={selectedRouteKey}
                 onChange={(e) => setSelectedRouteKey(e.target.value)}
                 disabled={!selectedTrip}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white text-slate-700 font-bold focus:border-indigo-500 outline-none transition-all cursor-pointer disabled:bg-slate-50 disabled:text-slate-400"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white text-slate-700 font-bold focus:border-indigo-500 outline-none transition-all cursor-pointer disabled:bg-slate-50 disabled:text-slate-500"
                 required
               >
                 <option value="">-- Choose Corridor Segment --</option>
@@ -511,9 +511,8 @@ export const AddBooking = () => {
                 value={bookingCount}
                 onChange={(e) => setBookingCount(Math.max(1, parseInt(e.target.value) || 1))}
                 disabled={!selectedTrip || !selectedDate}
-                className={`w-full px-4 py-2.5 rounded-xl border font-bold focus:border-indigo-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 ${
-                  bookingCount > availableSeats ? 'border-red-500 focus:border-red-500 text-red-600' : 'border-slate-200 text-slate-800'
-                }`}
+                className={`w-full px-4 py-2.5 rounded-xl border font-bold focus:border-indigo-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500 ${bookingCount > availableSeats ? 'border-red-500 focus:border-red-500 text-red-600' : 'border-slate-200 text-slate-800'
+                  }`}
                 required
               />
               {bookingCount > availableSeats && (
@@ -567,7 +566,7 @@ export const AddBooking = () => {
           </div>
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Live Pricing Estimator Card */}
             <div className="md:col-span-1 p-5 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex flex-col justify-between">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pricing Estimator</span>

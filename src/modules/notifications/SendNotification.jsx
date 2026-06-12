@@ -22,7 +22,7 @@ export const SendNotification = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
@@ -32,8 +32,8 @@ export const SendNotification = () => {
 
   return (
     <div className="max-w-3xl mx-auto pb-12 animate-in fade-in duration-500 px-4 md:px-0">
-      <SectionHeader 
-        title="Send Notification" 
+      <SectionHeader
+        title="Send Notification"
       />
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-6">
@@ -49,8 +49,8 @@ export const SendNotification = () => {
             <div className="space-y-2">
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Target Role</label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                <select 
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                <select
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
@@ -59,7 +59,7 @@ export const SendNotification = () => {
                   <option value="user">User</option>
                   <option value="driver">Driver</option>
                 </select>
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
                 </div>
               </div>
@@ -68,8 +68,8 @@ export const SendNotification = () => {
             <div className="space-y-2">
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight block">Recipient Group</label>
               <div className="relative">
-                <Bell className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                <select 
+                <Bell className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                <select
                   name="recipientGroups"
                   value={formData.recipientGroups}
                   onChange={handleChange}
@@ -80,20 +80,20 @@ export const SendNotification = () => {
                   <option value="operators">Staff</option>
                   <option value="customers">Customers</option>
                 </select>
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
                 </div>
               </div>
             </div>
 
-            
+
           </div>
 
           <div className="space-y-2">
             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-normal block">Notification Title</label>
             <div className="relative">
-              <MessageSquare className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
+              <MessageSquare className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
                 type="text"
                 name="title"
                 required
@@ -107,7 +107,7 @@ export const SendNotification = () => {
 
           <div className="space-y-2">
             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-normal block">Message Content</label>
-            <textarea 
+            <textarea
               name="message"
               required
               value={formData.message}

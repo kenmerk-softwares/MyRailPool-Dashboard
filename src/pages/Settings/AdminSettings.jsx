@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PermissionPopup } from './PermissionPopup';
 import { FaUserShield, FaBuilding, FaUserTie, FaTimes, FaTrash, FaEdit, FaUserSlash } from 'react-icons/fa';
-import { collection, onSnapshot, query, orderBy, addDoc} from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../../shared/services/firebase';
 import { useToast } from '../../shared/hooks/ToastContext';
@@ -37,11 +37,11 @@ export const AdminSettings = () => {
 		try {
 			const functions = getFunctions(app, "asia-south1");
 			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
-			
-			const result = await editPermissionsFn({ 
-				id: deletePermissionId, 
+
+			const result = await editPermissionsFn({
+				id: deletePermissionId,
 				permissionId: deletePermissionId,
-				operation: "delete" 
+				operation: "delete"
 			});
 
 			if (result.data.success) {
@@ -64,11 +64,11 @@ export const AdminSettings = () => {
 		try {
 			const functions = getFunctions(app);
 			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
-			
-			const result = await editPermissionsFn({ 
-				id: revokePermissionId, 
+
+			const result = await editPermissionsFn({
+				id: revokePermissionId,
 				permissionId: revokePermissionId,
-				operation: "revoke" 
+				operation: "revoke"
 			});
 
 			if (result.data.success) {
@@ -117,15 +117,15 @@ export const AdminSettings = () => {
 						<FaUserShield className="text-[1.2rem] text-green-800" />
 						Permission Model
 					</button>
-					<button 
-						className="w-full sm:w-auto justify-center sm:justify-start bg-white border border-slate-200 px-4 md:px-6 py-3 md:py-4 rounded-xl cursor-pointer flex items-center gap-3 font-semibold text-slate-600 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 hover:text-slate-800" 
+					<button
+						className="w-full sm:w-auto justify-center sm:justify-start bg-white border border-slate-200 px-4 md:px-6 py-3 md:py-4 rounded-xl cursor-pointer flex items-center gap-3 font-semibold text-slate-600 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 hover:text-slate-800"
 						onClick={() => setShowDeptPopup(true)}
 					>
 						<FaBuilding className="text-emerald-800 text-lg" />
 						Manage Departments
 					</button>
-					<button 
-						className="w-full sm:w-auto justify-center sm:justify-start bg-white border border-slate-200 px-4 md:px-6 py-3 md:py-4 rounded-xl cursor-pointer flex items-center gap-3 font-semibold text-slate-600 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 hover:text-slate-800" 
+					<button
+						className="w-full sm:w-auto justify-center sm:justify-start bg-white border border-slate-200 px-4 md:px-6 py-3 md:py-4 rounded-xl cursor-pointer flex items-center gap-3 font-semibold text-slate-600 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 hover:text-slate-800"
 						onClick={() => setShowDesigPopup(true)}
 					>
 						<FaUserTie className="text-emerald-800 text-lg" />
@@ -215,7 +215,7 @@ export const AdminSettings = () => {
 										</td>
 									</tr>
 								)}
-				</tbody>
+							</tbody>
 						</table>
 					</div>
 				</div>
@@ -229,16 +229,16 @@ export const AdminSettings = () => {
 				}}
 				editData={editPermissionData}
 			/>
-			<DepartmentPopup 
-				isOpen={showDeptPopup} 
-				onClose={() => setShowDeptPopup(false)} 
+			<DepartmentPopup
+				isOpen={showDeptPopup}
+				onClose={() => setShowDeptPopup(false)}
 			/>
-			<Designation 
-				isOpen={showDesigPopup} 
-				onClose={() => setShowDesigPopup(false)} 
+			<Designation
+				isOpen={showDesigPopup}
+				onClose={() => setShowDesigPopup(false)}
 			/>
 
-			<DeleteModal 
+			<DeleteModal
 				isOpen={!!deletePermissionId}
 				onClose={() => setDeletePermissionId(null)}
 				onConfirm={confirmDeletePermission}
@@ -247,7 +247,7 @@ export const AdminSettings = () => {
 				loading={loading}
 			/>
 
-			<DeleteModal 
+			<DeleteModal
 				isOpen={!!revokePermissionId}
 				onClose={() => setRevokePermissionId(null)}
 				onConfirm={confirmRevokePermission}
@@ -266,36 +266,36 @@ function Designation({ isOpen, onClose }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [formData, setFormData] = useState({
-	  id: '',
-	  designationName: ""
+		id: '',
+		designationName: ""
 	});
 	const [editData, setEditData] = useState(null);
-  
+
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [designationToDelete, setDesignationToDelete] = useState(null);
-				const functions = getFunctions(app, "asia-south1");
+	const functions = getFunctions(app, "asia-south1");
 
 	useEffect(() => {
-	  if (!isOpen) return;
-  
-	  const q = query(collection(db, "designations"), orderBy("designationName"));
-	  const unsubscribe = onSnapshot(q, (snapshot) => {
-		const types = snapshot.docs.map(doc => ({
-		  id: doc.id,
-		  ...doc.data()
-		}));
-		setDesignations(types);
-	  }, (err) => {
-		console.error("Error fetching designations:", err);
-	  });
-  
-	  return () => unsubscribe();
+		if (!isOpen) return;
+
+		const q = query(collection(db, "designations"), orderBy("designationName"));
+		const unsubscribe = onSnapshot(q, (snapshot) => {
+			const types = snapshot.docs.map(doc => ({
+				id: doc.id,
+				...doc.data()
+			}));
+			setDesignations(types);
+		}, (err) => {
+			console.error("Error fetching designations:", err);
+		});
+
+		return () => unsubscribe();
 	}, [isOpen]);
-  
+
 	if (!isOpen) return null;
-  
+
 	const handleInputChange = (e) => {
-	  setFormData({ ...formData, designationName: e.target.value });
+		setFormData({ ...formData, designationName: e.target.value });
 	};
 
 	const handleEdit = (desig) => {
@@ -309,173 +309,173 @@ function Designation({ isOpen, onClose }) {
 	};
 
 	const handleAdd = async (e) => {
-	  e.preventDefault();
-	  setError("");
-	  setLoading(true);
-  
-	  try {
-		if (editData) {
+		e.preventDefault();
+		setError("");
+		setLoading(true);
+
+		try {
+			if (editData) {
+				const editSettingsFn = httpsCallable(functions, 'editSettings');
+
+				const result = await editSettingsFn({
+					id: editData.id,
+					type: "designation",
+					operation: "edit",
+					formData: { name: formData.designationName }
+				});
+
+				if (result.data.success) {
+					showToast("Designation updated successfully!", "success");
+					resetForm();
+				} else {
+					setError(result.data.error || "Error updating designation");
+				}
+			} else {
+				const payload = {
+					designationName: formData.designationName,
+					searchKey: formData.designationName.toLowerCase(),
+					createdAt: new Date(),
+				};
+
+				await addDoc(collection(db, "designations"), payload);
+				showToast("Designation created successfully!", "success");
+				resetForm();
+			}
+		} catch (err) {
+			console.error("Designation submit error:", err);
+			setError(err.message || "Unexpected error occurred.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleDelete = (desig) => {
+		setDesignationToDelete(desig);
+		setIsDeleteModalOpen(true);
+	};
+
+	const confirmDelete = async () => {
+		if (!designationToDelete) return;
+		setLoading(true);
+		try {
 			const editSettingsFn = httpsCallable(functions, 'editSettings');
-			
+
 			const result = await editSettingsFn({
-				id: editData.id,
+				id: designationToDelete.id,
 				type: "designation",
-				operation: "edit",
-				formData: { name: formData.designationName }
+				operation: "delete"
 			});
 
 			if (result.data.success) {
-				showToast("Designation updated successfully!", "success");
-				resetForm();
+				showToast("Designation deleted successfully", "success");
 			} else {
-				setError(result.data.error || "Error updating designation");
+				showToast(result.data.error || "Error deleting designation", "error");
 			}
-		} else {
-			const payload = {
-				designationName: formData.designationName,
-				searchKey: formData.designationName.toLowerCase(),
-				createdAt: new Date(),
-			};
-	
-			await addDoc(collection(db, "designations"), payload);
-			showToast("Designation created successfully!", "success");
-			resetForm();
+		} catch (error) {
+			console.error("Error deleting designation:", error);
+			showToast("Error deleting designation", "error");
+		} finally {
+			setLoading(false);
+			setIsDeleteModalOpen(false);
+			setDesignationToDelete(null);
 		}
-	  } catch (err) {
-		console.error("Designation submit error:", err);
-		setError(err.message || "Unexpected error occurred.");
-	  } finally {
-		setLoading(false);
-	  }
 	};
-  
-	const handleDelete = (desig) => {
-	  setDesignationToDelete(desig);
-	  setIsDeleteModalOpen(true);
-	};
-  
-	const confirmDelete = async () => {
-	  if (!designationToDelete) return;
-	  setLoading(true);
-	  try {
-		const editSettingsFn = httpsCallable(functions, 'editSettings');
-		
-		const result = await editSettingsFn({
-			id: designationToDelete.id,
-			type: "designation",
-			operation: "delete"
-		});
 
-		if (result.data.success) {
-			showToast("Designation deleted successfully", "success");
-		} else {
-			showToast(result.data.error || "Error deleting designation", "error");
-		}
-	  } catch (error) {
-		console.error("Error deleting designation:", error);
-		showToast("Error deleting designation", "error");
-	  } finally {
-		setLoading(false);
-		setIsDeleteModalOpen(false);
-		setDesignationToDelete(null);
-	  }
-	};
-  
 	return (
-	  <>
-		<div className="fixed inset-0 z-[1000] flex justify-center items-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-4">
-		  <div className="bg-white p-8 rounded-[24px] w-full max-w-[500px] shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
-			<div className="flex justify-between items-center mb-6">
-			  <h2 className="text-xl font-bold text-emerald-900">Manage Designations</h2>
-			  <button 
-                className="text-[#a0aec0] hover:bg-slate-50 hover:text-slate-800 p-2 rounded-lg transition-all flex items-center justify-center" 
-                onClick={onClose}
-              >
-				<FaTimes className="text-lg" />
-			  </button>
-			</div>
-  
-			<div className="mb-8 pb-8 border-b border-slate-100">
-			  <form onSubmit={handleAdd}>
-				<div className="flex gap-3">
-				  <input
-					type="text"
-					placeholder="Enter Designation Title"
-					className="flex-1 p-3 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-					value={formData.designationName}
-					onChange={handleInputChange}
-					autoFocus
-					disabled={loading}
-				  />
-				  <button 
-                    type="submit" 
-                    className="bg-emerald-700 text-white px-6 rounded-xl font-semibold cursor-pointer hover:bg-emerald-800 transition-colors disabled:opacity-50" 
-                    disabled={loading}
-                  >
-					{loading ? "Saving..." : editData ? "Update" : "Add"}
-				  </button>
-				  {editData && (
-					<button 
-						type="button" 
-						onClick={resetForm}
-						className="bg-slate-100 text-slate-600 px-4 rounded-xl font-semibold cursor-pointer hover:bg-slate-200 transition-colors"
-					>
-						Cancel
-					</button>
-				  )}
-				</div>
-				{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-			  </form>
-			</div>
-  
-			<div className="max-h-[300px] overflow-y-auto pr-1">
-			  {designations.length > 0 ? (
-				designations.map(desig => (
-				  <div key={desig.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl mb-2 hover:bg-slate-100 transition-colors group">
-					<span className="font-medium text-slate-700">{desig.designationName}</span>
-					<div className="flex items-center gap-1">
+		<>
+			<div className="fixed inset-0 z-[1000] flex justify-center items-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+				<div className="bg-white p-8 rounded-[24px] w-full max-w-[500px] shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+					<div className="flex justify-between items-center mb-6">
+						<h2 className="text-xl font-bold text-emerald-900">Manage Designations</h2>
 						<button
-							className="text-blue-400 hover:bg-blue-50 hover:text-blue-600 p-2 rounded-lg transition-all"
-							onClick={() => handleEdit(desig)}
+							className="text-[#a0aec0] hover:bg-slate-50 hover:text-slate-800 p-2 rounded-lg transition-all flex items-center justify-center"
+							onClick={onClose}
 						>
-							<FaEdit className="w-4 h-4" />
-						</button>
-						<button
-							className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
-							onClick={() => handleDelete(desig)}
-						>
-							<FaTrash className="w-4 h-4" />
+							<FaTimes className="text-lg" />
 						</button>
 					</div>
-				  </div>
-				))
-			  ) : (
-				<p className="text-center text-slate-400 py-4">No designations added yet.</p>
-			  )}
+
+					<div className="mb-8 pb-8 border-b border-slate-100">
+						<form onSubmit={handleAdd}>
+							<div className="flex gap-3">
+								<input
+									type="text"
+									placeholder="Enter Designation Title"
+									className="flex-1 p-3 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+									value={formData.designationName}
+									onChange={handleInputChange}
+									autoFocus
+									disabled={loading}
+								/>
+								<button
+									type="submit"
+									className="bg-emerald-700 text-white px-6 rounded-xl font-semibold cursor-pointer hover:bg-emerald-800 transition-colors disabled:opacity-50"
+									disabled={loading}
+								>
+									{loading ? "Saving..." : editData ? "Update" : "Add"}
+								</button>
+								{editData && (
+									<button
+										type="button"
+										onClick={resetForm}
+										className="bg-slate-100 text-slate-600 px-4 rounded-xl font-semibold cursor-pointer hover:bg-slate-200 transition-colors"
+									>
+										Cancel
+									</button>
+								)}
+							</div>
+							{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+						</form>
+					</div>
+
+					<div className="max-h-[300px] overflow-y-auto pr-1">
+						{designations.length > 0 ? (
+							designations.map(desig => (
+								<div key={desig.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl mb-2 hover:bg-slate-100 transition-colors group">
+									<span className="font-medium text-slate-700">{desig.designationName}</span>
+									<div className="flex items-center gap-1">
+										<button
+											className="text-blue-400 hover:bg-blue-50 hover:text-blue-600 p-2 rounded-lg transition-all"
+											onClick={() => handleEdit(desig)}
+										>
+											<FaEdit className="w-4 h-4" />
+										</button>
+										<button
+											className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
+											onClick={() => handleDelete(desig)}
+										>
+											<FaTrash className="w-4 h-4" />
+										</button>
+									</div>
+								</div>
+							))
+						) : (
+							<p className="text-center text-slate-500 py-4">No designations added yet.</p>
+						)}
+					</div>
+
+					<div className="mt-8 flex justify-end border-t border-slate-100 pt-6">
+						<button
+							className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-semibold cursor-pointer transition-all hover:bg-slate-50 hover:text-slate-800"
+							onClick={onClose}
+						>
+							Close
+						</button>
+					</div>
+				</div>
 			</div>
-  
-			<div className="mt-8 flex justify-end border-t border-slate-100 pt-6">
-			  <button 
-                className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-semibold cursor-pointer transition-all hover:bg-slate-50 hover:text-slate-800" 
-                onClick={onClose}
-              >
-				Close
-			  </button>
-			</div>
-		  </div>
-		</div>
-  
-		<DeleteModal 
-			isOpen={isDeleteModalOpen}
-			onClose={() => setIsDeleteModalOpen(false)}
-			onConfirm={confirmDelete}
-			title="Delete Designation?"
-			itemName={designationToDelete?.designationName}
-			loading={loading}
-		/>
-	  </>
+
+			<DeleteModal
+				isOpen={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
+				onConfirm={confirmDelete}
+				title="Delete Designation?"
+				itemName={designationToDelete?.designationName}
+				loading={loading}
+			/>
+		</>
 	);
-  }
+}
 
 function DepartmentPopup({ isOpen, onClose }) {
 	const { showToast } = useToast();
@@ -483,34 +483,34 @@ function DepartmentPopup({ isOpen, onClose }) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [formData, setFormData] = useState({
-	  id: '',
-	  departmentName: ""
+		id: '',
+		departmentName: ""
 	});
 	const [editData, setEditData] = useState(null);
-  
+
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [departmentToDelete, setDepartmentToDelete] = useState(null);
-  
+
 	useEffect(() => {
-	  if (!isOpen) return;
-  
-	  const q = query(collection(db, "departments"), orderBy("departmentName"));
-	  const unsubscribe = onSnapshot(q, (snapshot) => {
-		const types = snapshot.docs.map(doc => ({
-		  id: doc.id,
-		  ...doc.data()
-		}));
-		setDepartments(types);
-	  }, (err) => {
-		console.error("Error fetching departments:", err);
-	  });
-  
-	  return () => unsubscribe();
+		if (!isOpen) return;
+
+		const q = query(collection(db, "departments"), orderBy("departmentName"));
+		const unsubscribe = onSnapshot(q, (snapshot) => {
+			const types = snapshot.docs.map(doc => ({
+				id: doc.id,
+				...doc.data()
+			}));
+			setDepartments(types);
+		}, (err) => {
+			console.error("Error fetching departments:", err);
+		});
+
+		return () => unsubscribe();
 	}, [isOpen]);
 	if (!isOpen) return null;
-  
+
 	const handleInputChange = (e) => {
-	  setFormData({ ...formData, departmentName: e.target.value });
+		setFormData({ ...formData, departmentName: e.target.value });
 	};
 
 	const handleEdit = (dept) => {
@@ -524,167 +524,167 @@ function DepartmentPopup({ isOpen, onClose }) {
 	};
 
 	const handleAdd = async (e) => {
-	  e.preventDefault();
-	  setError("");
-	  setLoading(true);
-  
-	  try {
-		if (editData) {
+		e.preventDefault();
+		setError("");
+		setLoading(true);
+
+		try {
+			if (editData) {
+				const functions = getFunctions(app);
+				const editSettingsFn = httpsCallable(functions, 'editSettings');
+
+				const result = await editSettingsFn({
+					id: editData.id,
+					type: "department",
+					operation: "edit",
+					formData: { name: formData.departmentName }
+				});
+
+				if (result.data.success) {
+					showToast("Department updated successfully!", "success");
+					resetForm();
+				} else {
+					setError(result.data.error || "Error updating department");
+				}
+			} else {
+				const payload = { departmentName: formData.departmentName };
+				await addDoc(collection(db, "departments"), payload);
+				showToast("Department created successfully!", "success");
+				resetForm();
+			}
+		} catch (err) {
+			console.error("Department submit error:", err);
+			setError(err.message || "Unexpected error occurred.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleDelete = (dept) => {
+		setDepartmentToDelete(dept);
+		setIsDeleteModalOpen(true);
+	};
+
+	const confirmDelete = async () => {
+		if (!departmentToDelete) return;
+		setLoading(true);
+		try {
 			const functions = getFunctions(app);
 			const editSettingsFn = httpsCallable(functions, 'editSettings');
-			
+
 			const result = await editSettingsFn({
-				id: editData.id,
+				id: departmentToDelete.id,
 				type: "department",
-				operation: "edit",
-				formData: { name: formData.departmentName }
+				operation: "delete"
 			});
 
 			if (result.data.success) {
-				showToast("Department updated successfully!", "success");
-				resetForm();
+				showToast("Department deleted successfully", "success");
 			} else {
-				setError(result.data.error || "Error updating department");
+				showToast(result.data.error || "Error deleting department", "error");
 			}
-		} else {
-			const payload = { departmentName: formData.departmentName };
-			await addDoc(collection(db, "departments"), payload);
-			showToast("Department created successfully!", "success");
-			resetForm();
+		} catch (error) {
+			console.error("Error deleting department:", error);
+			showToast("Error deleting department", "error");
+		} finally {
+			setLoading(false);
+			setIsDeleteModalOpen(false);
+			setDepartmentToDelete(null);
 		}
-	  } catch (err) {
-		console.error("Department submit error:", err);
-		setError(err.message || "Unexpected error occurred.");
-	  } finally {
-		setLoading(false);
-	  }
 	};
-  
-	const handleDelete = (dept) => {
-	  setDepartmentToDelete(dept);
-	  setIsDeleteModalOpen(true);
-	};
-  
-	const confirmDelete = async () => {
-	  if (!departmentToDelete) return;
-	  setLoading(true);
-	  try {
-		const functions = getFunctions(app);
-		const editSettingsFn = httpsCallable(functions, 'editSettings');
-		
-		const result = await editSettingsFn({
-			id: departmentToDelete.id,
-			type: "department",
-			operation: "delete"
-		});
 
-		if (result.data.success) {
-			showToast("Department deleted successfully", "success");
-		} else {
-			showToast(result.data.error || "Error deleting department", "error");
-		}
-	  } catch (error) {
-		console.error("Error deleting department:", error);
-		showToast("Error deleting department", "error");
-	  } finally {
-		setLoading(false);
-		setIsDeleteModalOpen(false);
-		setDepartmentToDelete(null);
-	  }
-	};
-  
 	return (
-	  <>
-		<div className="fixed inset-0 z-[1000] flex justify-center items-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-4">
-		  <div className="bg-white p-8 rounded-[24px] w-full max-w-[500px] shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
-			<div className="flex justify-between items-center mb-6">
-			  <h2 className="text-xl font-bold text-emerald-900">Manage Departments</h2>
-			  <button 
-                className="text-[#a0aec0] hover:bg-slate-50 hover:text-slate-800 p-2 rounded-lg transition-all flex items-center justify-center" 
-                onClick={onClose}
-              >
-				<FaTimes className="text-lg" />
-			  </button>
-			</div>
-  
-			<div className="mb-8 pb-8 border-b border-slate-100">
-			  <form onSubmit={handleAdd}>
-				<div className="flex gap-3">
-				  <input
-					type="text"
-					placeholder="Enter Department Name"
-					className="flex-1 p-3 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-					value={formData.departmentName}
-					onChange={handleInputChange}
-					autoFocus
-					disabled={loading}
-				  />
-				  <button 
-                    type="submit" 
-                    className="bg-emerald-700 text-white px-6 rounded-xl font-semibold cursor-pointer hover:bg-emerald-800 transition-colors disabled:opacity-50" 
-                    disabled={loading}
-                  >
-					{loading ? "Saving..." : editData ? "Update" : "Add"}
-				  </button>
-				  {editData && (
-					<button 
-						type="button" 
-						onClick={resetForm}
-						className="bg-slate-100 text-slate-600 px-4 rounded-xl font-semibold cursor-pointer hover:bg-slate-200 transition-colors"
-					>
-						Cancel
-					</button>
-				  )}
-				</div>
-				{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-			  </form>
-			</div>
-  
-			<div className="max-h-[300px] overflow-y-auto pr-1">
-			  {departments.length > 0 ? (
-				departments.map(dept => (
-				  <div key={dept.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl mb-2 hover:bg-slate-100 transition-colors group">
-					<span className="font-medium text-slate-700">{dept.departmentName}</span>
-					<div className="flex items-center gap-1">
+		<>
+			<div className="fixed inset-0 z-[1000] flex justify-center items-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+				<div className="bg-white p-8 rounded-[24px] w-full max-w-[500px] shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+					<div className="flex justify-between items-center mb-6">
+						<h2 className="text-xl font-bold text-emerald-900">Manage Departments</h2>
 						<button
-							className="text-blue-400 hover:bg-blue-50 hover:text-blue-600 p-2 rounded-lg transition-all"
-							onClick={() => handleEdit(dept)}
+							className="text-[#a0aec0] hover:bg-slate-50 hover:text-slate-800 p-2 rounded-lg transition-all flex items-center justify-center"
+							onClick={onClose}
 						>
-							<FaEdit className="w-4 h-4" />
-						</button>
-						<button
-							className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
-							onClick={() => handleDelete(dept)}
-						>
-							<FaTrash className="w-4 h-4" />
+							<FaTimes className="text-lg" />
 						</button>
 					</div>
-				  </div>
-				))
-			  ) : (
-				<p className="text-center text-slate-400 py-4">No departments added yet.</p>
-			  )}
+
+					<div className="mb-8 pb-8 border-b border-slate-100">
+						<form onSubmit={handleAdd}>
+							<div className="flex gap-3">
+								<input
+									type="text"
+									placeholder="Enter Department Name"
+									className="flex-1 p-3 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+									value={formData.departmentName}
+									onChange={handleInputChange}
+									autoFocus
+									disabled={loading}
+								/>
+								<button
+									type="submit"
+									className="bg-emerald-700 text-white px-6 rounded-xl font-semibold cursor-pointer hover:bg-emerald-800 transition-colors disabled:opacity-50"
+									disabled={loading}
+								>
+									{loading ? "Saving..." : editData ? "Update" : "Add"}
+								</button>
+								{editData && (
+									<button
+										type="button"
+										onClick={resetForm}
+										className="bg-slate-100 text-slate-600 px-4 rounded-xl font-semibold cursor-pointer hover:bg-slate-200 transition-colors"
+									>
+										Cancel
+									</button>
+								)}
+							</div>
+							{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+						</form>
+					</div>
+
+					<div className="max-h-[300px] overflow-y-auto pr-1">
+						{departments.length > 0 ? (
+							departments.map(dept => (
+								<div key={dept.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl mb-2 hover:bg-slate-100 transition-colors group">
+									<span className="font-medium text-slate-700">{dept.departmentName}</span>
+									<div className="flex items-center gap-1">
+										<button
+											className="text-blue-400 hover:bg-blue-50 hover:text-blue-600 p-2 rounded-lg transition-all"
+											onClick={() => handleEdit(dept)}
+										>
+											<FaEdit className="w-4 h-4" />
+										</button>
+										<button
+											className="text-red-400 hover:bg-red-50 hover:text-red-600 p-2 rounded-lg transition-all"
+											onClick={() => handleDelete(dept)}
+										>
+											<FaTrash className="w-4 h-4" />
+										</button>
+									</div>
+								</div>
+							))
+						) : (
+							<p className="text-center text-slate-500 py-4">No departments added yet.</p>
+						)}
+					</div>
+
+					<div className="mt-8 flex justify-end border-t border-slate-100 pt-6">
+						<button
+							className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-semibold cursor-pointer transition-all hover:bg-slate-50 hover:text-slate-800"
+							onClick={onClose}
+						>
+							Close
+						</button>
+					</div>
+				</div>
 			</div>
-  
-			<div className="mt-8 flex justify-end border-t border-slate-100 pt-6">
-			  <button 
-                className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-semibold cursor-pointer transition-all hover:bg-slate-50 hover:text-slate-800" 
-                onClick={onClose}
-              >
-				Close
-			  </button>
-			</div>
-		  </div>
-		</div>
-  
-		<DeleteModal 
-			isOpen={isDeleteModalOpen}
-			onClose={() => setIsDeleteModalOpen(false)}
-			onConfirm={confirmDelete}
-			title="Delete Department?"
-			itemName={departmentToDelete?.departmentName}
-			loading={loading}
-		/>
-	  </>
+
+			<DeleteModal
+				isOpen={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
+				onConfirm={confirmDelete}
+				title="Delete Department?"
+				itemName={departmentToDelete?.departmentName}
+				loading={loading}
+			/>
+		</>
 	);
-  }
+}

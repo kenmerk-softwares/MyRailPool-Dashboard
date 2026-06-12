@@ -3,7 +3,7 @@ import { Bell, MapPin, Calendar, Clock, ChevronRight } from 'lucide-react';
 
 const NotificationItem = ({ notification, onClick }) => {
   return (
-    <div 
+    <div
       onClick={() => onClick(notification)}
       className="p-4 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer group animate-in slide-in-from-right duration-300"
     >
@@ -14,7 +14,7 @@ const NotificationItem = ({ notification, onClick }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <h4 className="text-sm font-bold text-slate-900 truncate">Route Request {notification.id ? `#${notification.id.slice(-4)}` : ''}</h4>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{notification.createdAt ? new Date(notification.createdAt).toLocaleDateString() : notification.requestSentTime}</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{notification.createdAt ? new Date(notification.createdAt).toLocaleDateString() : notification.requestSentTime}</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
             <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -56,7 +56,7 @@ const NotificationCenter = ({ notifications, onNotificationClick }) => {
           <Bell className="w-6 h-6 text-slate-300" />
         </div>
         <p className="text-sm font-bold text-slate-500">No new notifications</p>
-        <p className="text-xs text-slate-400 mt-1">New route requests will appear here</p>
+        <p className="text-xs text-slate-500 mt-1">New route requests will appear here</p>
       </div>
     );
   }
@@ -74,10 +74,10 @@ const NotificationCenter = ({ notifications, onNotificationClick }) => {
       </div>
       <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
         {notifications.map((notif) => (
-          <NotificationItem 
-            key={notif.id} 
-            notification={notif} 
-            onClick={onNotificationClick} 
+          <NotificationItem
+            key={notif.id}
+            notification={notif}
+            onClick={onNotificationClick}
           />
         ))}
       </div>

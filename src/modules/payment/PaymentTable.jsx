@@ -7,9 +7,9 @@ import { StatusBadge } from '../../components/Shared';
 const MethodIcon = ({ method }) => {
   switch ((method || '').toLowerCase()) {
     case 'online': return <Smartphone className="w-3.5 h-3.5" />;
-    case 'card':   return <CreditCard className="w-3.5 h-3.5" />;
-    case 'cash':   return <Banknote className="w-3.5 h-3.5" />;
-    default:       return <CreditCard className="w-3.5 h-3.5" />;
+    case 'card': return <CreditCard className="w-3.5 h-3.5" />;
+    case 'cash': return <Banknote className="w-3.5 h-3.5" />;
+    default: return <CreditCard className="w-3.5 h-3.5" />;
   }
 };
 
@@ -34,7 +34,7 @@ const PaymentTable = ({
   return (
     <div className="pb-10">
       <Table
-        headers={['Sl No', 'Booking ID', 'Description', 'Amount', 'Type', 'Method', 'Status', 'Date']}
+        headers={['Sl No', 'Description', 'Amount', 'Type', 'Method', 'Status', 'Date']}
         data={payments}
         searchQuery={searchTerm}
         setSearchQuery={setSearchTerm}
@@ -48,17 +48,17 @@ const PaymentTable = ({
         searchPlaceholder="Search by booking ID, trip ID, description..."
         filterOptions={[
           { label: 'Confirmed', value: 'Confirmed' },
-          { label: 'Pending',   value: 'Pending'   },
+          { label: 'Pending', value: 'Pending' },
           { label: 'Cancelled', value: 'Cancelled' },
         ]}
         renderRow={(payment, idx) => (
           <>
             <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
 
-            {/* booking ID */}
+            {/* booking ID
             <td className="px-8 py-4">
-              <span className="font-mono text-[11px] text-slate-500 break-all max-w-[160px] block">{payment.bookingId || '—'}</span>
-            </td>
+              <span className="font-mono text-[11px] text-slate-500 break-all max-w-[160px] block">{payment.bookingNos || '—'}</span>
+            </td> */}
 
             {/* description */}
             <td className="px-8 py-4 text-[13px] font-bold text-slate-700 max-w-[180px] truncate">
@@ -72,11 +72,10 @@ const PaymentTable = ({
 
             {/* type (Credit / Debit) */}
             <td className="px-8 py-4">
-              <span className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest border ${
-                payment.type === 'Credit'
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                  : 'bg-rose-50 text-rose-700 border-rose-100'
-              }`}>{payment.type || '—'}</span>
+              <span className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest border ${payment.type === 'Credit'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                : 'bg-rose-50 text-rose-700 border-rose-100'
+                }`}>{payment.type || '—'}</span>
             </td>
 
             {/* payment method */}
@@ -102,7 +101,7 @@ const PaymentTable = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onView(payment)}
-              className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+              className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
               title="View Details"
             >
               <Eye className="w-4 h-4" />

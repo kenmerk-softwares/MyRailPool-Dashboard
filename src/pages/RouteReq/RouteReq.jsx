@@ -160,7 +160,7 @@ const RouteReq = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:self-end w-full lg:w-auto">
-          <div className="flex items-center justify-center px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest shadow-sm">
+          <div className="flex items-center justify-center px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest shadow-sm">
             <RefreshCcw className="w-3 h-3 mr-2 animate-spin-slow" />
             Last Updated: Just now
           </div>

@@ -124,7 +124,7 @@ export const AddDriver = () => {
                   Full Legal Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <UserCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <UserCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text" name="name" value={formData.name} onChange={handleChange}
                     className={inputCls('name')} placeholder="e.g. Alexander Hamilton"
@@ -139,7 +139,7 @@ export const AddDriver = () => {
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="email" name="email" value={formData.email} onChange={handleChange}
                     className={inputCls('email')} placeholder="driver@myrailpool.com"
@@ -154,7 +154,7 @@ export const AddDriver = () => {
                   Mobile <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="tel" name="mobile" value={formData.mobile} onChange={handleChange}
                     className={inputCls('mobile')} placeholder="+44 7000 000000"
@@ -182,11 +182,11 @@ export const AddDriver = () => {
               {/* Address */}
               <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                  Residential Address 
+                  Residential Address
                   <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                  <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
                   <textarea
                     rows="2" name="address" value={formData.address} onChange={handleChange}
                     className={`${inputCls('address')} py-3 resize-none`} placeholder="Street, City, Postcode"
@@ -217,7 +217,7 @@ export const AddDriver = () => {
                   PH License No <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text" name="phLicenseNumber" value={formData.phLicenseNumber} onChange={handleChange}
                     className={inputCls('phLicenseNumber')} placeholder="PH-LIC-000"
@@ -232,7 +232,7 @@ export const AddDriver = () => {
                   PH Expiry <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="phExpiryDate" value={formData.phExpiryDate} onChange={handleChange}
                     className={inputCls('phExpiryDate')}
@@ -247,7 +247,7 @@ export const AddDriver = () => {
                   DVLA License No <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text" name="dvlaLicenseNumber" value={formData.dvlaLicenseNumber} onChange={handleChange}
                     className={inputCls('dvlaLicenseNumber')} placeholder="DVLA-000"
@@ -262,7 +262,7 @@ export const AddDriver = () => {
                   DVLA Expiry <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="dvlaExpiryDate" value={formData.dvlaExpiryDate} onChange={handleChange}
                     className={inputCls('dvlaExpiryDate')}
@@ -277,7 +277,7 @@ export const AddDriver = () => {
                   DBS Certificate No
                 </label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="text" name="dbsCertificateNumber" value={formData.dbsCertificateNumber} onChange={handleChange}
                     className={inputCls('dbsCertificateNumber')} placeholder="DBS-000"
@@ -291,7 +291,7 @@ export const AddDriver = () => {
                   DBS Issue Date
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="dbsDateOfIssue" value={formData.dbsDateOfIssue} onChange={handleChange}
                     className={inputCls('dbsDateOfIssue')}
@@ -319,7 +319,7 @@ export const AddDriver = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Service Start</label>
                 <div className="relative">
-                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="serviceStartDate" value={formData.serviceStartDate} onChange={handleChange}
                     className={inputCls('serviceStartDate')}
@@ -331,7 +331,7 @@ export const AddDriver = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Contract End</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="contractEndDate" value={formData.contractEndDate} onChange={handleChange}
                     className={inputCls('contractEndDate')}
@@ -343,7 +343,7 @@ export const AddDriver = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">RTW Verified</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="rtwVerifiedDate" value={formData.rtwVerifiedDate} onChange={handleChange}
                     className={inputCls('rtwVerifiedDate')}
@@ -355,7 +355,7 @@ export const AddDriver = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Training Signed</label>
                 <div className="relative">
-                  <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <input
                     type="date" name="trainingSignedDate" value={formData.trainingSignedDate} onChange={handleChange}
                     className={inputCls('trainingSignedDate')}
@@ -403,7 +403,7 @@ export const AddDriver = () => {
               <div className="md:col-span-4 space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Termination Reason</label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+                  <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-500" />
                   <textarea
                     rows="2" name="terminationReason" value={formData.terminationReason} onChange={handleChange}
                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white text-slate-800 font-medium focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all resize-none text-sm"
@@ -433,10 +433,10 @@ export const AddDriver = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">RTW Verification Note</label>
                 <div className="relative">
-                  <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+                  <FileText className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-500" />
                   <textarea
                     rows="3" name="rtwNote" value={formData.rtwNote} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-500"
                     placeholder="Enter RTW validation logs..."
                   />
                 </div>
@@ -446,10 +446,10 @@ export const AddDriver = () => {
               <div className="space-y-2">
                 <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Internal Performance Notes</label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-500" />
                   <textarea
                     rows="3" name="confidentialNotes" value={formData.confidentialNotes} onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-400"
+                    className="w-full pl-11 pr-4 py-2.5 rounded-xl border-[1.5px] border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all resize-none text-sm placeholder:text-slate-500"
                     placeholder="Secure operational documentation..."
                   />
                 </div>

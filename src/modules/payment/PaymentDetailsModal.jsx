@@ -6,7 +6,7 @@ import { StatusBadge } from '../../components/Shared';
 
 const Row = ({ label, value }) => (
   <div className="flex justify-between items-start gap-4 text-xs font-bold py-2 border-b border-slate-50 last:border-0">
-    <span className="text-slate-400 uppercase tracking-wider shrink-0">{label}</span>
+    <span className="text-slate-500 uppercase tracking-wider shrink-0">{label}</span>
     <span className="text-slate-700 text-right break-all font-mono">{value || '—'}</span>
   </div>
 );
@@ -71,14 +71,14 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
             </div>
             <div>
               <h3 className="font-black text-slate-800 text-lg font-jakarta">Payment Details</h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono truncate max-w-[220px]">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono truncate max-w-[220px]">
                 {payment.bookingId}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,19 +106,19 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               <Hash className="w-3.5 h-3.5 text-indigo-500" /> Booking Trip Details
             </h4>
             {loadingBooking ? (
-              <div className="text-xs font-bold text-slate-400 p-4 bg-slate-50 rounded-2xl animate-pulse">
+              <div className="text-xs font-bold text-slate-500 p-4 bg-slate-50 rounded-2xl animate-pulse">
                 Loading trip info...
               </div>
             ) : bookingData ? (
               <div className="bg-slate-50 rounded-2xl px-5 py-2">
-                <Row label="Route Name"  value={bookingData.route_name} />
-                <Row label="Route"       value={`${bookingData.route_start || '—'} ➔ ${bookingData.route_end || '—'}`} />
+                <Row label="Route Name" value={bookingData.route_name} />
+                <Row label="Route" value={`${bookingData.route_start || '—'} ➔ ${bookingData.route_end || '—'}`} />
                 <Row label="Travel Date" value={bookingData.selectedDate} />
                 <Row label="Trip Number" value={bookingData.tripNo ? `#${bookingData.tripNo}` : '—'} />
                 <Row label="Driver Name" value={bookingData.driver_name} />
               </div>
             ) : (
-              <div className="text-xs italic text-slate-400 p-4 bg-slate-50 rounded-2xl">
+              <div className="text-xs italic text-slate-500 p-4 bg-slate-50 rounded-2xl">
                 Booking record not found.
               </div>
             )}
@@ -130,21 +130,21 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               <User className="w-3.5 h-3.5 text-indigo-500" /> Passenger Details
             </h4>
             {loadingBooking ? (
-              <div className="text-xs font-bold text-slate-400 p-4 bg-slate-50 rounded-2xl animate-pulse">
+              <div className="text-xs font-bold text-slate-500 p-4 bg-slate-50 rounded-2xl animate-pulse">
                 Loading passenger info...
               </div>
             ) : matchedUser ? (
               <div className="bg-slate-50 rounded-2xl px-5 py-2">
                 <Row label="Passenger Name" value={matchedUser.name} />
-                <Row label="Phone"          value={matchedUser.phone} />
+                <Row label="Phone" value={matchedUser.phone} />
                 <Row label="Starting Point" value={matchedUser.startingPoint} />
-                <Row label="Drop Point"     value={matchedUser.dropPoint} />
-                <Row label="Seat Count"     value={matchedUser.bookingCount} />
-                <Row label="Total Fare"     value={matchedUser.totalFare ? `₹${matchedUser.totalFare}` : '—'} />
-                <Row label="Status"         value={matchedUser.status} />
+                <Row label="Drop Point" value={matchedUser.dropPoint} />
+                <Row label="Seat Count" value={matchedUser.bookingCount} />
+                <Row label="Total Fare" value={matchedUser.totalFare ? `₹${matchedUser.totalFare}` : '—'} />
+                <Row label="Status" value={matchedUser.status} />
               </div>
             ) : (
-              <div className="text-xs italic text-slate-400 p-4 bg-slate-50 rounded-2xl">
+              <div className="text-xs italic text-slate-500 p-4 bg-slate-50 rounded-2xl">
                 No matching user found in booking users array.
               </div>
             )}
@@ -156,13 +156,13 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               <CreditCard className="w-3.5 h-3.5 text-indigo-500" /> Transaction Info
             </h4>
             <div className="bg-slate-50 rounded-2xl px-5 py-2">
-              <Row label="Finance ID"     value={payment.financeId} />
-              <Row label="Booking ID"     value={payment.bookingId} />
-              <Row label="Trip ID"        value={payment.tripId} />
+              <Row label="Finance ID" value={payment.financeId} />
+              <Row label="Booking ID" value={payment.bookingId} />
+              <Row label="Trip ID" value={payment.tripId} />
               <Row label="Payment Method" value={payment.paymentType} />
-              <Row label="Created At"     value={formatTs(payment.createdAt)} />
-              <Row label="User ID"        value={payment.userId} />
-              <Row label="Driver ID"      value={payment.driverId} />
+              <Row label="Created At" value={formatTs(payment.createdAt)} />
+              <Row label="User ID" value={payment.userId} />
+              <Row label="Driver ID" value={payment.driverId} />
             </div>
           </div>
         </div>

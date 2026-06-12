@@ -85,7 +85,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 
 	const handleSave = () => {
 		setSaving(true);
-		
+
 		const payload = {
 			permissionName: permissionName,
 			departmentId: selectedDepartment,
@@ -97,7 +97,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 
 		if (editData) {
 			const editPermissionsFn = httpsCallable(functions, 'editPermissions');
-			
+
 			editPermissionsFn({ id: editData.id, permissionId: editData.id, payload: payload, operation: "edit" })
 				.then((result) => {
 					setSaving(false);
@@ -115,7 +115,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 				});
 		} else {
 			const ref = collection(db, "permissions");
-			addDoc(ref, {...payload, createdAt: new Date()}).then(() => {
+			addDoc(ref, { ...payload, createdAt: new Date() }).then(() => {
 				setSaving(false);
 				showToast("Permissions saved successfully!", "success");
 				onClose();
@@ -133,11 +133,11 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 
 	const confirmDelete = () => {
 		if (!editData?.id) return;
-		
+
 		setShowDeleteModal(false);
 		setSaving(true);
 		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
-		
+
 		editPermissionsFn({ id: editData.id, permissionId: editData.id, operation: "delete" })
 			.then((result) => {
 				setSaving(false);
@@ -161,11 +161,11 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 
 	const confirmRevoke = () => {
 		if (!editData?.id) return;
-		
+
 		setShowRevokeModal(false);
 		setSaving(true);
 		const editPermissionsFn = httpsCallable(functions, 'editPermissions');
-		
+
 		editPermissionsFn({ id: editData.id, permissionId: editData.id, operation: "revoke" })
 			.then((result) => {
 				setSaving(false);
@@ -189,7 +189,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 			<div className="bg-white p-8 rounded-[20px] w-[90%] max-w-[600px] shadow-2xl animate-in slide-in-from-bottom-5 duration-300 flex flex-col max-h-[85vh]">
 				<div className="flex justify-between items-center mb-6">
 					<h2 className="m-0 text-green-900 text-xl font-bold">Permission Model</h2>
-					<button className="bg-transparent border-none text-[1.25rem] text-slate-400 cursor-pointer p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:bg-slate-50 hover:text-slate-800" onClick={onClose}>
+					<button className="bg-transparent border-none text-[1.25rem] text-slate-500 cursor-pointer p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:bg-slate-50 hover:text-slate-800" onClick={onClose}>
 						<FaTimes />
 					</button>
 				</div>
@@ -200,7 +200,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 						<label className="block mb-2 text-slate-600 font-medium">Permission Name</label>
 						<input
 							type="text"
-							className="w-full p-3 border border-slate-200 rounded-lg bg-white text-base text-slate-800 outline-none focus:border-indigo-500 placeholder:text-slate-400"
+							className="w-full p-3 border border-slate-200 rounded-lg bg-white text-base text-slate-800 outline-none focus:border-indigo-500 placeholder:text-slate-500"
 							placeholder="e.g. Manager Access, Viewer Access"
 							value={permissionName}
 							onChange={(e) => setPermissionName(e.target.value)}
@@ -268,7 +268,7 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 					)}
 
 					{(!selectedDepartment || !selectedDesignation) && (
-						<div className="text-center text-slate-400 py-8">
+						<div className="text-center text-slate-500 py-8">
 							Please select a department and designation to configure permissions.
 						</div>
 					)}

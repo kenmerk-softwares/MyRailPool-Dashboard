@@ -366,7 +366,7 @@ export const AddRoute = () => {
                     <input
                       type="text"
                       name="routeName"
-                      className="w-full pl-4 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-400"
+                      className="w-full pl-4 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-500"
                       placeholder="Route Name"
                       defaultValue={initialData?.name}
                       onChange={handleInputChange}
@@ -377,7 +377,7 @@ export const AddRoute = () => {
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Activation Date</label>
                   <div className="relative group">
-                    <Clock className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.activationDate ? 'text-red-400' : 'text-slate-400 group-focus-within:text-amber-500'} transition-colors`} />
+                    <Clock className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.activationDate ? 'text-red-400' : 'text-slate-500 group-focus-within:text-amber-500'} transition-colors`} />
                     <input
                       type="date"
                       name="activationDate"
@@ -394,7 +394,7 @@ export const AddRoute = () => {
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Deactivation Date</label>
                   <div className="relative group">
-                    <ArrowRightLeft className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.deactivationDate ? 'text-red-400' : 'text-slate-400 group-focus-within:text-amber-500'} transition-colors`} />
+                    <ArrowRightLeft className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.deactivationDate ? 'text-red-400' : 'text-slate-500 group-focus-within:text-amber-500'} transition-colors`} />
                     <input
                       type="date"
                       name="deactivationDate"
@@ -497,7 +497,7 @@ export const AddRoute = () => {
 
                               <div className="flex flex-col">
                                 <span className="text-[10px] font-bold text-slate-800 leading-tight">{dateObj.toLocaleDateString('en-GB', { weekday: 'short' })}</span>
-                                <span className="text-[8px] font-medium text-slate-400 leading-tight">{dateObj.getFullYear()}</span>
+                                <span className="text-[8px] font-medium text-slate-500 leading-tight">{dateObj.getFullYear()}</span>
                               </div>
 
                               <button
@@ -515,7 +515,7 @@ export const AddRoute = () => {
                   ) : (
                     <div className="mt-4 flex items-center gap-3 px-5 py-1.5  border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
                       <Calendar className="w-5 h-5 text-slate-200" />
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No operating dates selected</span>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">No operating dates selected</span>
                     </div>
                   )}
                 </div>
@@ -551,7 +551,7 @@ export const AddRoute = () => {
                 <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block mb-3">Integrate New Location Node <span className="text-red-500"> *</span></label>
                 <div className="relative flex gap-3">
                   <div className="relative flex-1 group">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-500 transition-colors" />
                     <MapPlaces onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                       <input
                         type="text"

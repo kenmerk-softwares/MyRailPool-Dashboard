@@ -191,13 +191,13 @@ export default function ViewRoute() {
                           </div>
                           <div className="flex flex-col pr-1">
                             <span className="text-[10px] font-bold text-slate-800 leading-tight">{dateObj.toLocaleDateString('en-GB', { weekday: 'short' })}</span>
-                            <span className="text-[8px] font-medium text-slate-400 leading-tight">{dateObj.getFullYear()}</span>
+                            <span className="text-[8px] font-medium text-slate-500 leading-tight">{dateObj.getFullYear()}</span>
                           </div>
                         </div>
                       );
                     })
                   ) : (
-                    <span className="text-slate-400 italic text-xs">No operating calendar dates defined</span>
+                    <span className="text-slate-500 italic text-xs">No operating calendar dates defined</span>
                   )}
                 </div>
               </div>
@@ -253,7 +253,7 @@ export default function ViewRoute() {
                           </div>
 
                           <div className="mt-4 text-center px-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-1">
                               {idx === 0 ? 'Origin' : idx === routesDataList.length - 1 ? 'Arrival' : `Waypoint #${idx}`}
                             </span>
                             <p className="text-[12px] font-extrabold text-slate-800 uppercase tracking-tight truncate max-w-[170px]" title={node.name}>
@@ -280,7 +280,7 @@ export default function ViewRoute() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                   <MapPin className="w-6 h-6 text-slate-300 mb-2" />
-                  <p className="text-slate-400 text-xs font-medium">No sequence flow nodes defined for this route corridor.</p>
+                  <p className="text-slate-500 text-xs font-medium">No sequence flow nodes defined for this route corridor.</p>
                 </div>
               )}
             </div>
@@ -327,7 +327,7 @@ export default function ViewRoute() {
             ) : (
               <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <TrendingUp className="w-6 h-6 text-slate-300 mb-2" />
-                <p className="text-slate-400 text-xs font-medium">No point-to-point fares defined for this route corridor.</p>
+                <p className="text-slate-500 text-xs font-medium">No point-to-point fares defined for this route corridor.</p>
               </div>
             )}
           </div>

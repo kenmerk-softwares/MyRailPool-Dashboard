@@ -10,7 +10,7 @@ export default function PassengersList() {
   const navigate = useNavigate();
   const { passengers, loading, fetchPassengers } = usePassengers(userId);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Table component expects these props even if not used actively
   const [activeFilter, setActiveFilter] = useState('');
   const handleClear = () => {
@@ -35,14 +35,14 @@ export default function PassengersList() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="mb-4">
-        <button 
-          onClick={() => navigate(-1)} 
+        <button
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Users
         </button>
       </div>
-      
+
       <SectionHeader
         title="Passengers List"
         subtitle="View passengers associated with the selected user."
@@ -60,7 +60,7 @@ export default function PassengersList() {
           searchPlaceholder="Search passengers..."
           renderRow={(passenger, idx) => (
             <>
-              <td className="px-6 py-5 text-[13px] font-black text-slate-400/80">{(idx + 1).toString().padStart(2, '0')}</td>
+              <td className="px-6 py-5 text-[13px] font-black text-slate-500/80">{(idx + 1).toString().padStart(2, '0')}</td>
               <td className="px-6 py-5">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 font-bold border border-indigo-100">
@@ -73,7 +73,7 @@ export default function PassengersList() {
               </td>
               <td className="px-6 py-5">
                 <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-slate-400" />
+                  <Phone className="w-4 h-4 text-slate-500" />
                   <span className="text-[13px] font-bold text-slate-600">{passenger.mobile || 'N/A'}</span>
                 </div>
               </td>

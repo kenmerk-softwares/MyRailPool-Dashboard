@@ -61,7 +61,7 @@ export const ViewVehicle = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Accessing Asset Dossier...</p>
+        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Accessing Asset Dossier...</p>
       </div>
     );
   }
@@ -97,27 +97,27 @@ export const ViewVehicle = () => {
 
   return (
     <div className="w-full max-w-full mx-auto pb-12 px-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
+
       {/* ── Asset Hero Header ── */}
       <header className="mb-6">
         <div className="bg-white p-6 border border-slate-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
           {/* Background Decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -mr-32 -mt-32 z-0"></div>
-          
+
           <div className="flex items-center gap-6 relative z-10">
             <div className="w-20 h-20 bg-slate-900 text-white flex items-center justify-center rounded-2xl shadow-xl shadow-slate-200 ring-4 ring-slate-50 transition-transform hover:scale-105 duration-500">
               <Car className="w-10 h-10" />
             </div>
-            
+
             <div>
               <div className="flex items-center gap-3">
                 <Link to="/vehicles" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                  <ChevronLeft className="w-4 h-4 text-slate-400" />
+                  <ChevronLeft className="w-4 h-4 text-slate-500" />
                 </Link>
                 <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">{vehicle.make} {vehicle.model}</h1>
-                <StatusBadge 
-                  status={vehicle.operationalStatus} 
-                  statusColor={vehicle.operationalStatus === 'Active' ? 'success' : vehicle.operationalStatus === 'Maintenance' ? 'warning' : 'danger'} 
+                <StatusBadge
+                  status={vehicle.operationalStatus}
+                  statusColor={vehicle.operationalStatus === 'Active' ? 'success' : vehicle.operationalStatus === 'Maintenance' ? 'warning' : 'danger'}
                 />
               </div>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2">
@@ -125,11 +125,11 @@ export const ViewVehicle = () => {
                   <Hash className="w-3.5 h-3.5 text-indigo-600" />
                   <span className="text-xs font-black text-indigo-700 font-mono tracking-wider">{vehicle.registrationNo}</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400">
+                <div className="flex items-center gap-2 text-slate-500">
                   <span className="text-[10px] font-black uppercase tracking-widest">Asset ID:</span>
                   <span className="text-xs font-bold text-slate-600 tracking-tight">{vehicle.id}</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400">
+                <div className="flex items-center gap-2 text-slate-500">
                   <Activity className="w-3.5 h-3.5" />
                   <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">{vehicle.type}</span>
                 </div>
@@ -151,7 +151,7 @@ export const ViewVehicle = () => {
       {/* ── Asset Specifications ── */}
       <main className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column: Data Grids */}
           <div className="lg:col-span-2 space-y-6">
             {sections.map((section, sIdx) => (
@@ -166,7 +166,7 @@ export const ViewVehicle = () => {
                 <div className="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                   {section.fields.map((field, fIdx) => (
                     <div key={fIdx} className="space-y-1.5 group/field">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block group-hover/field:text-indigo-400 transition-colors">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block group-hover/field:text-indigo-400 transition-colors">
                         {field.label}
                       </span>
                       <div className="flex items-center gap-2">
@@ -213,7 +213,7 @@ export const ViewVehicle = () => {
                 </div>
                 <h3 className="font-bold text-slate-800 text-sm uppercase tracking-tight">Active Deployment</h3>
               </div>
-              
+
               {vehicle.assignedDriver ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
@@ -222,7 +222,7 @@ export const ViewVehicle = () => {
                     </div>
                     <div>
                       <h4 className="text-lg font-black text-slate-800 tracking-tight leading-none">{vehicle.assignedDriver}</h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Verified Operator
                       </p>
                     </div>
@@ -236,7 +236,7 @@ export const ViewVehicle = () => {
               ) : (
                 <div className="py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl">
                   <User className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Unassigned Asset</p>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Unassigned Asset</p>
                 </div>
               )}
             </div>
@@ -249,12 +249,12 @@ export const ViewVehicle = () => {
                 </div>
                 <h3 className="font-bold text-slate-800 text-sm uppercase tracking-tight">Performance Summary</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 group hover:bg-white hover:shadow-lg transition-all duration-300 cursor-default">
                   <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Missions Logged</p>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Missions Logged</p>
                       <h5 className="text-2xl font-black text-slate-800">0</h5>
                     </div>
                     <Clock className="w-8 h-8 text-slate-100 group-hover:text-indigo-100 transition-colors" />
@@ -275,21 +275,21 @@ export const ViewVehicle = () => {
               </div>
               <div>
                 <h3 className="font-bold text-slate-800 text-xs uppercase tracking-widest">Historical Deployment Logs</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Asset Utilization Audit</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Asset Utilization Audit</p>
               </div>
             </div>
             <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input type="text" placeholder="Filter deployment records..." className="pl-11 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-200 transition-all w-64" />
             </div>
           </div>
-          
+
           <div className="p-20 text-center flex flex-col items-center gap-3">
             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
               <Clock className="w-6 h-6 text-slate-200" />
             </div>
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">No Deployment Logs Found</p>
+              <p className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">No Deployment Logs Found</p>
               <p className="text-[10px] font-medium text-slate-300 uppercase mt-1">This asset has no recorded mission history in the central registry</p>
             </div>
           </div>

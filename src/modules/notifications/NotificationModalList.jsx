@@ -203,14 +203,14 @@ export const NotificationModalList = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => openEditModal(modal)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Edit Modal"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDelete(modal.id)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                 title="Delete Modal"
               >
                 <Trash2 className="w-4 h-4" />
@@ -225,7 +225,7 @@ export const NotificationModalList = () => {
           <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h3 className="text-xl font-bold text-slate-800">{currentModal ? 'Edit Modal' : 'Create Modal'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-600">
                 <XCircle className="w-6 h-6" />
               </button>
             </div>
@@ -247,7 +247,7 @@ export const NotificationModalList = () => {
                     </optgroup>
                   ))}
                 </select>
-                {currentModal && <p className="text-[10px] text-slate-400 mt-1">Notification type cannot be changed after creation.</p>}
+                {currentModal && <p className="text-[10px] text-slate-500 mt-1">Notification type cannot be changed after creation.</p>}
               </div>
 
               <div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CalendarCheck, MapIcon, Users, Eye, Route, Car, UserCheck, DollarSign, TrendingUp } from 'lucide-react';
-import { SectionHeader, StatCard, Activity } from '../../components/Shared';
+import { SectionHeader, StatCard } from '../../components/Shared';
 import { useNavigate } from 'react-router-dom';
 import { Table } from '../../shared/Table/Table';
 import { useBookings } from '../bookings/hooks/booking.useBookings';
@@ -174,7 +174,7 @@ const CustomTooltip = ({ active, payload, label, metric }) => {
 
         return (
             <div className="bg-slate-900/95 backdrop-blur-md border border-slate-800 p-4 rounded-xl shadow-2xl text-white text-[12px] font-bold">
-                <p className="text-slate-400 font-semibold mb-1">{label}</p>
+                <p className="text-slate-500 font-semibold mb-1">{label}</p>
                 <div className="flex items-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full ${metric === 'amount' ? 'bg-indigo-400' : metric === 'noOfTrips' ? 'bg-emerald-400' : 'bg-amber-400'
                         }`}></span>
@@ -455,8 +455,8 @@ export const Dashboard = () => {
                                     key={tf}
                                     onClick={() => setTimeframe(tf)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${timeframe === tf
-                                            ? 'bg-white text-slate-800 shadow-sm border border-slate-100'
-                                            : 'text-slate-400 hover:text-slate-700'
+                                        ? 'bg-white text-slate-800 shadow-sm border border-slate-100'
+                                        : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     {tf}
@@ -492,15 +492,15 @@ export const Dashboard = () => {
 
                 <div className="grid grid-cols-3 gap-4 py-4 my-2">
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-50">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Period Revenue</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Period Revenue</span>
                         <p className="text-base font-black text-slate-800 mt-0.5">₹{totalAmount.toLocaleString('en-IN')}</p>
                     </div>
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-50">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Period Trips</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Period Trips</span>
                         <p className="text-base font-black text-slate-800 mt-0.5">{totalTrips.toLocaleString()}</p>
                     </div>
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-50">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Period Passengers</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Period Passengers</span>
                         <p className="text-base font-black text-slate-800 mt-0.5">{totalPassengers.toLocaleString()}</p>
                     </div>
                 </div>
@@ -511,7 +511,7 @@ export const Dashboard = () => {
                         <div className="h-[300px] w-full bg-slate-50/50 rounded-2xl animate-pulse flex items-center justify-center border border-slate-100">
                             <div className="flex flex-col items-center gap-2">
                                 <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-                                <span className="text-xs font-semibold text-slate-400">Loading charts...</span>
+                                <span className="text-xs font-semibold text-slate-500">Loading charts...</span>
                             </div>
                         </div>
                     ) : analyticsData.length === 0 ? (
@@ -633,7 +633,7 @@ export const Dashboard = () => {
                                         <span className="font-black text-indigo-600">
                                             {booking.bookedCount ?? (booking.users?.length ?? 0)}
                                         </span>
-                                        <span className="text-slate-400 font-semibold">/</span>
+                                        <span className="text-slate-500 font-semibold">/</span>
                                         <span className="font-bold text-slate-600">
                                             {booking.totalSeats ?? '—'}
                                         </span>
@@ -646,7 +646,7 @@ export const Dashboard = () => {
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => handleView(booking)}
-                                className="p-2 bg-white border border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                                className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-primary-600 hover:border-primary-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
                                 title="View Booking"
                             >
                                 <Eye className="w-4 h-4" />

@@ -44,55 +44,56 @@ export default function UsersList() {
           renderRow={(user, idx) => {
             let joinDate = "N/A";
             if (user.createdAt) {
-               joinDate = new Date(user.createdAt).toLocaleDateString();
+              joinDate = new Date(user.createdAt).toLocaleDateString();
             }
 
             return (
-            <>
-              <td className="px-6 py-5 text-[13px] font-black text-slate-400/80">{(idx + 1).toString().padStart(2, '0')}</td>
-              <td className="px-6 py-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">
-                    {user.name?.charAt(0) || 'U'}
+              <>
+                <td className="px-6 py-5 text-[13px] font-black text-slate-500/80">{(idx + 1).toString().padStart(2, '0')}</td>
+                <td className="px-6 py-5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">
+                      {user.name?.charAt(0) || 'U'}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[14px] font-black text-slate-800 leading-tight">{user.name || 'Unknown'}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[14px] font-black text-slate-800 leading-tight">{user.name || 'Unknown'}</span>
+                </td>
+                <td className="px-6 py-5">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-indigo-500" />
+                      <span className="text-[12px] font-bold text-slate-600">{user.mobile || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-[12px] font-bold text-slate-600">{user.email || 'N/A'}</span>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td className="px-6 py-5">
-                <div className="flex flex-col gap-1">
+                </td>
+                <td className="px-6 py-5">
+                  <StatusBadge
+                    status={user?.status || 'Active'}
+                    statusColor={
+                      user?.status?.toLowerCase() === 'active' ? 'success' : 'warning'
+                    }
+                  />
+                </td>
+                <td className="px-6 py-5">
                   <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-indigo-500" />
-                    <span className="text-[12px] font-bold text-slate-600">{user.mobile || 'N/A'}</span>
+                    <Calendar className="w-4 h-4 text-slate-300" />
+                    <span className="text-[13px] font-black text-slate-500">{new Date(user.createdAt.seconds * 1000).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-[12px] font-bold text-slate-600">{user.email || 'N/A'}</span>
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-5">
-                <StatusBadge
-                  status={user?.status || 'Active'}
-                  statusColor={
-                    user?.status?.toLowerCase() === 'active' ? 'success' : 'warning'
-                  }
-                />
-              </td>
-              <td className="px-6 py-5">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-300" />
-                  <span className="text-[13px] font-black text-slate-500">{new Date(user.createdAt.seconds*1000).toLocaleDateString()}</span>
-                </div>
-              </td>
-            </>
-          )}}
+                </td>
+              </>
+            )
+          }}
           actions={(user) => (
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => navigate(`/passenger-list/${user.id}`)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group flex items-center gap-2"
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group flex items-center gap-2"
                 title="View Passengers"
               >
                 <Users className="w-4 h-4 transition-transform group-hover:scale-110" />

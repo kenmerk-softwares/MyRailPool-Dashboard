@@ -12,7 +12,7 @@ const MapPlaces = ({ children, onLoad, onPlaceChanged }) => {
 
   if (!isLoaded) {
     return (
-      <div className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-medium animate-pulse text-sm">
+      <div className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-medium animate-pulse text-sm">
         Synchronizing Map Data...
       </div>
     );
