@@ -1,10 +1,10 @@
 const { db } = require("../../shared/config/firebase");
 const { FieldValue } = require("firebase-admin/firestore");
 
-const updateAnalyticsData = async (amount, bookingCount, tripsCount, date = new Date(), isConfirmed = true) => {
+const updateAnalyticsData = async (amount, bookingCount, tripsCount, date = new Date(), isConfirmed = true, isPartial = false) => {
     const parsedAmount = Number(amount) || 0;
     const parsedBookingCount = Number(bookingCount) || 0;
-    const parsedTripsCount = Number(tripsCount) || 1;
+    const parsedTripsCount = tripsCount !== undefined && tripsCount !== null && !isNaN(Number(tripsCount)) ? Number(tripsCount) : 1;
 
     const year = date.getFullYear().toString();
     const getWeekNumber = (d) => {
@@ -20,12 +20,14 @@ const updateAnalyticsData = async (amount, bookingCount, tripsCount, date = new 
     // Total passenger seats booked = passenger count per trip * number of trips
     const passengerChange = (parsedBookingCount * parsedTripsCount) * multiplier;
     const tripChange = parsedTripsCount * multiplier;
+    
+    const bookingCountChange = isPartial ? 0 : (parsedBookingCount * multiplier);
 
     const updateData = {
         amount: FieldValue.increment(amountChange),
         passengerCount: FieldValue.increment(passengerChange),
         noOfTrips: FieldValue.increment(tripChange),
-        bookingCount: FieldValue.increment(parsedBookingCount * multiplier),
+        bookingCount: FieldValue.increment(bookingCountChange),
         updatedAt: new Date()
     };
 
@@ -84,10 +86,6 @@ const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) 
     const wasConfirmed = beforeData && beforeData.status === "Confirmed";
     const isConfirmed = afterData && afterData.status === "Confirmed";
 
-    if (wasConfirmed === isConfirmed) {
-        return null;
-    }
-
     const eventId = event.id;
     const eventRef = db.collection("analytics_events").doc(eventId);
 
@@ -130,6 +128,20 @@ const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) 
 
         const tripsCount = getTripsCount(beforeData);
         await updateAnalyticsData(beforeData.amount, beforeData.bookingCount, tripsCount, date, false);
+    } else if (wasConfirmed && isConfirmed) {
+        const beforeAmount = Number(beforeData.amount) || 0;
+        const afterAmount = Number(afterData.amount) || 0;
+        const beforeTrips = getTripsCount(beforeData);
+        const afterTrips = getTripsCount(afterData);
+        
+        if (beforeAmount > afterAmount || beforeTrips > afterTrips) {
+            const diffAmount = beforeAmount - afterAmount;
+            const diffTrips = beforeTrips - afterTrips;
+            const diffBookingCount = beforeTrips > afterTrips ? beforeData.bookingCount : 0;
+            const date = extractDate(afterData.createdAt);
+            
+            await updateAnalyticsData(diffAmount, diffBookingCount, diffTrips, date, false, true);
+        }
     }
     return null;
 });
