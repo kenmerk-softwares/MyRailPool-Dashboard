@@ -5,18 +5,18 @@ let client;
 const getTwilioClient = () => {
   if (!client) {
     client = twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN
+      process.env.TEST_TWILIO_ACCOUNT_SID,
+      process.env.TEST_TWILIO_AUTH_TOKEN
     );
   }
   return client;
 };
 
 const TEMPLATE_SIDS = {
-  booking_confirmation: process.env.TWILIO_BOOKING_TEMPLATE_SID,
-  trip_reminder: process.env.TWILIO_REMINDER_TEMPLATE_SID,
-  booking_cancelled: process.env.TWILIO_CANCELLED_TEMPLATE_SID,
-  admin_booking: process.env.TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
+  booking_confirmation: process.env.TEST_TWILIO_BOOKING_TEMPLATE_SID,
+  trip_reminder: process.env.TEST_TWILIO_REMINDER_TEMPLATE_SID,
+  booking_cancelled: process.env.TEST_TWILIO_CANCELLED_TEMPLATE_SID,
+  admin_booking: process.env.TEST_TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
 
 };
 
@@ -93,7 +93,7 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
 
     try {
       const result = await getTwilioClient().messages.create({
-        from: process.env.TWILIO_WHATSAPP_NUMBER,
+        from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
         to: `whatsapp:${formattedMobile}`,
         contentSid: TEMPLATE_SIDS.booking_confirmation,
         contentVariables: JSON.stringify({
@@ -149,7 +149,7 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
 
     try {
       const result = await getTwilioClient().messages.create({
-        from: process.env.TWILIO_WHATSAPP_NUMBER,
+        from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
         to: `whatsapp:${formattedMobile}`,
         contentSid: TEMPLATE_SIDS.booking_cancelled,
         contentVariables: JSON.stringify({
@@ -177,7 +177,7 @@ const sendAdminBookingNotification = async (
   passenger,
   user
 ) => {
-  const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
+  const adminNumber = process.env.TEST_ADMIN_WHATSAPP_NUMBER;
 
   if (!adminNumber) {
     console.log("Admin WhatsApp number missing");
@@ -190,7 +190,7 @@ const sendAdminBookingNotification = async (
       : `+${adminNumber}`;
 
   const result = await getTwilioClient().messages.create({
-    from: process.env.TWILIO_WHATSAPP_NUMBER,
+    from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${formattedAdmin}`,
     contentSid: TEMPLATE_SIDS.admin_booking,
     contentVariables: JSON.stringify({
