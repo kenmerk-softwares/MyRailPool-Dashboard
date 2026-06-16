@@ -94,7 +94,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 				setLoading(false);
 				return;
 			}
-			if (!formData.password || !formData.email || !formData.name) {
+			if (!formData.password || !formData.email || !formData.name || !formData.mobile) {
 				setError("Please fill all required fields");
 				setLoading(false);
 				return;
@@ -204,7 +204,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 
 						<div className="flex flex-col items-start w-full">
 							<label htmlFor="mobile" className="mb-2 text-sm font-semibold text-slate-700">
-								Mobile Number
+								Mobile Number <span className="text-red-500">*</span>
 							</label>
 							<input
 								type="tel"
@@ -215,6 +215,7 @@ export default function AddAdmin({ isOpen, onClose, editData = null, onRefresh }
 								onChange={handleChange}
 								placeholder="Mobile Number"
 								pattern="[0-9]{10}"
+								required
 							/>
 						</div>
 

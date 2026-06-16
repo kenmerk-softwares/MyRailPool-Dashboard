@@ -17,6 +17,9 @@ export const routeValidation = joi.object({
   deactivationDate: joi.string().required().messages({
     "string.empty": "Deactivation date is required",
   }),
+  description: joi.string().optional().allow("", null).max(1000).messages({
+    "string.max": "Description must be at most 1000 characters long",
+  }),
   selectedDates: joi.array().items(joi.string()).min(1).required().messages({
     "array.min": "At least one operating date must be selected",
   }),
