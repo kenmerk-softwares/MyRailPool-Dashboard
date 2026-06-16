@@ -14,7 +14,6 @@ import {
   Calendar,
   ArrowRight,
   AlertTriangle,
-  Activity,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import MapPlaces from '../../../shared/Components/Map_places';
@@ -290,7 +289,7 @@ export const AddRoute = () => {
         action: initialData && initialData.id ? 'edit' : 'add',
         id: initialData?.id,
         name: data.routeName,
-        status: data.status || 'Inactive',
+        status: data.status || 'Active',
         activationDate: data.activationDate,
         deactivationDate: data.deactivationDate,
         description: data.description,
@@ -442,25 +441,15 @@ export const AddRoute = () => {
 
                 {/* <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status</label>
-                  <div className="relative group">
-                    <Activity className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${errors.status ? 'text-red-400' : 'text-slate-500 group-focus-within:text-primary-500'} transition-colors`} />
-                    <select
-                      name="status"
-                      className="w-full pl-12 pr-10 py-1.5 rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
-                      defaultValue={initialData?.status || "Active"}
-                      onChange={handleInputChange}
-                    >
-                      <option value="Active">🟢 Active Corridor</option>
-                      <option value="Inactive">🔴 Inactive / Maintenance</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-focus-within:text-primary-500 transition-colors">
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                      </svg>
-                    </div>
-                    {errors.status && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.status}</p>}
-                  </div>
-                </div>
+                  <select
+                    name="status"
+                    className="w-full px-5 py-1.5  rounded-2xl border border-slate-200 bg-white text-primary-700 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all cursor-pointer appearance-none"
+                    defaultValue={initialData?.status || "Active"}
+                  >
+                    <option value="Active">Active Corridor</option>
+                    <option value="Inactive">Under Maintenance / Inactive</option>
+                  </select>
+                </div> */}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2 col-span-2">
