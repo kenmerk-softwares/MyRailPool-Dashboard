@@ -365,7 +365,8 @@ export const AddRoute = () => {
 
       <form onSubmit={handleSave}>
         <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
-          {/* Section 1: Route Specifications */}
+
+          {/* Section 1*/}
           <div className="border-b border-slate-100">
             <div className="px-6 py-4 bg-slate-50/50 flex items-center gap-3">
 
@@ -437,20 +438,7 @@ export const AddRoute = () => {
                     )}
                   </div>
                 </div>
-                {/* <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Description</label>
-                  <div className="relative group">
-                    <input
-                      type="text"
-                      name="description"
-                      className="w-full pl-4 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-500"
-                      placeholder="Description"
-                      defaultValue={initialData?.description}
-                      onChange={handleInputChange}
-                    />
-                    {errors.description && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.description}</p>}
-                  </div>
-                </div> */}
+
                 {/* <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status</label>
                   <select
