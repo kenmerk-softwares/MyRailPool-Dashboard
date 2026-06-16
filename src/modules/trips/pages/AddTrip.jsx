@@ -14,11 +14,13 @@ import {
   MapPin,
   ChevronLeft,
   Loader2,
+  X,
+  AlertTriangle,
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
 import { collection, getDocs, query, limit, where } from 'firebase/firestore';
 import { Autocomplete } from '../../../components/Shared';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useToast } from '../../../shared/hooks/ToastContext';
 import { FunctionsAPI } from '../../../shared/services/functions.api';
 
@@ -62,8 +64,11 @@ const formatToInputDate = (d) => {
 export const AddTrip = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const location = useLocation();
+  const routeRequest = location.state?.routeRequest || null;
 
   const [saving, setSaving] = useState(false);
+  const [showNoRouteModal, setShowNoRouteModal] = useState(false);
 
   // Local state for isolated autocompletes
   const [driversList, setDriversList] = useState([]);
@@ -168,6 +173,115 @@ export const AddTrip = () => {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeSearch, formData.route]);
+
+  useEffect(() => {
+    if (routeRequest) {
+      const initFromRequest = async () => {
+        try {
+          const routesRef = collection(db, 'routes');
+          const q = query(routesRef, limit(100));
+          const snapshot = await getDocs(q);
+          const list = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+
+          // Try to find a matching route
+          const matchingRoute = list.find(r =>
+            (r.name || '').toLowerCase() === routeRequest.name.toLowerCase() ||
+            ((r.startingPoint || '').toLowerCase() === routeRequest.from.toLowerCase() &&
+              (r.endPoint || '').toLowerCase() === routeRequest.to.toLowerCase())
+          );
+
+          if (matchingRoute) {
+            setFormData(prev => ({
+              ...prev,
+              route: matchingRoute.name,
+              routeId: matchingRoute.docId,
+              selectedRoute: matchingRoute,
+              routes: matchingRoute.routes || [],
+              routeTiming: (matchingRoute.routes || []).reduce((acc, curr) => ({ ...acc, [curr]: "" }), {})
+            }));
+            setRouteSearch(matchingRoute.name);
+
+            // Populate the schedules from routeRequest.schedules
+            if (routeRequest.schedules && routeRequest.schedules.length > 0) {
+              const initialSchedules = routeRequest.schedules.map((s, idx) => {
+                const parts = s.date.split('-');
+                const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+
+                const timing = {};
+                if (s.time && s.time.length > 0) {
+                  try {
+                    const timeStr = s.time[0].toLowerCase();
+                    const ampm = timeStr.includes('pm');
+                    const cleanTime = timeStr.replace('am', '').replace('pm', '').trim();
+                    const [h, m] = cleanTime.split(':');
+                    let hours = parseInt(h, 10);
+                    const minutes = parseInt(m, 10) || 0;
+                    if (ampm && hours < 12) hours += 12;
+                    if (!ampm && hours === 12) hours = 0;
+                    const hoursStr = String(hours).padStart(2, '0');
+                    const minutesStr = String(minutes).padStart(2, '0');
+                    const time24 = `${hoursStr}:${minutesStr}`;
+
+                    if (matchingRoute.routes && matchingRoute.routes.length > 0) {
+                      timing[matchingRoute.routes[0]] = time24;
+                    }
+                  } catch (e) {
+                    console.error("Error parsing schedule time:", e);
+                  }
+                }
+
+                return {
+                  id: Date.now() + idx,
+                  date: formattedDate,
+                  routeTiming: timing,
+                  passengerCount: 1
+                };
+              });
+
+              setSchedules(initialSchedules);
+            }
+          } else {
+            setShowNoRouteModal(true);
+            setRouteSearch(routeRequest.name);
+          }
+        } catch (err) {
+          console.error("Error pre-populating trip from route request:", err);
+        }
+      };
+
+      initFromRequest();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeRequest]);
+
+  const handleCreateRoute = () => {
+    if (!routeRequest) return;
+
+    const fromNode = routeRequest.from || '';
+    const toNode = routeRequest.to || '';
+    const routeNodes = [fromNode, toNode].filter(Boolean);
+    const routesDataNodes = routeNodes.map(node => ({ name: node, distanceFromStart: 0 }));
+
+    const operatingDates = routeRequest.schedules ? routeRequest.schedules.map(s => {
+      try {
+        const parts = s.date.split('-');
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      } catch (e) {
+        return '';
+      }
+    }).filter(Boolean) : [];
+
+    navigate('/routes/add', {
+      state: {
+        route: {
+          name: routeRequest.name,
+          operating_dates: operatingDates,
+          routes: routeNodes,
+          routesData: routesDataNodes
+        }
+      }
+    });
+  };
 
 
   const handleChange = (e) => {
@@ -598,8 +712,8 @@ export const AddTrip = () => {
                   <input
                     type="number" name="total_pcount" value={formData.total_pcount} onChange={handleChange}
                     className={`w-full pl-11 pr-4 py-2.5 rounded-xl border bg-white font-bold outline-none transition-all text-sm ${formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-200 focus:border-indigo-500'
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-slate-200 focus:border-indigo-500'
                       }`}
                     placeholder="Pax Count"
                     max={formData.seatingCapacity}
@@ -686,6 +800,65 @@ export const AddTrip = () => {
         </div>
 
       </div>
+
+      {showNoRouteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setShowNoRouteModal(false)}
+          />
+
+          <div className="relative bg-white w-[92%] sm:w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 mx-auto">
+            <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-100 rounded-xl">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">Route Corridor Not Found</h3>
+              </div>
+              <button
+                onClick={() => setShowNoRouteModal(false)}
+                className="p-2 hover:bg-amber-100 rounded-xl transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                The route corridor <strong className="text-slate-800">"{routeRequest?.name}"</strong> does not exist in the database yet.
+                A route corridor is required to assign schedules and initialize a trip.
+              </p>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                <div className="flex justify-between text-xs font-bold text-slate-500">
+                  <span>From:</span>
+                  <span className="text-slate-800">{routeRequest?.from}</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-slate-500">
+                  <span>To:</span>
+                  <span className="text-slate-800">{routeRequest?.to}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <button
+                onClick={() => setShowNoRouteModal(false)}
+                className="px-4 py-3 rounded-xl text-sm font-black text-slate-500 hover:bg-slate-200 transition-all w-full sm:flex-1 order-2 sm:order-1"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleCreateRoute}
+                className="px-4 py-3 bg-indigo-600 text-white rounded-xl text-sm font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 w-full sm:flex-[2] order-1 sm:order-2"
+              >
+                Establish Route
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
