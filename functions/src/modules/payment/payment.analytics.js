@@ -20,7 +20,7 @@ const updateAnalyticsData = async (amount, bookingCount, tripsCount, date = new 
     // Total passenger seats booked = passenger count per trip * number of trips
     const passengerChange = (parsedBookingCount * parsedTripsCount) * multiplier;
     const tripChange = parsedTripsCount * multiplier;
-    
+
     const bookingCountChange = isPartial ? 0 : (parsedBookingCount * multiplier);
 
     const updateData = {
@@ -133,18 +133,19 @@ const onFinanceUpdated = onDocumentWritten("finance/{financeId}", async (event) 
         const afterAmount = Number(afterData.amount) || 0;
         const beforeTrips = getTripsCount(beforeData);
         const afterTrips = getTripsCount(afterData);
-        
+
         if (beforeAmount > afterAmount || beforeTrips > afterTrips) {
             const diffAmount = beforeAmount - afterAmount;
             const diffTrips = beforeTrips - afterTrips;
             const diffBookingCount = beforeTrips > afterTrips ? beforeData.bookingCount : 0;
             const date = extractDate(afterData.createdAt);
-            
+
             await updateAnalyticsData(diffAmount, diffBookingCount, diffTrips, date, false, true);
         }
     }
     return null;
 });
+
 
 module.exports = {
     updateAnalyticsData,

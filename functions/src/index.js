@@ -30,6 +30,9 @@ exports.addTrip = addTrip;
 const {autoCompleteExpiredTrips} = require("./modules/trip/trip.scheduled");
 exports.autoCompleteExpiredTrips = autoCompleteExpiredTrips;
 
+const {onTripWritten} = require("./modules/trip/trip.trigger");
+exports.onTripWritten = onTripWritten;
+
 // ================ USER MODULES ==================== //
 const {tripBooking, createUser} = require("./modules/user/user.callable");
 exports.tripBooking = tripBooking;
