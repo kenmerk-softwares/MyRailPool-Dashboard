@@ -72,8 +72,8 @@ export const routesConfig = [
   { path: '/payment', element: <Payment />, permission: '/payment' },
   { path: '/reports', element: <Reports />, permission: '/reports' },
   { path: '/customer-req', element: <CustomerReq />, permission: '/customer-req' },
-  { path: '/users-list', element: <UsersList />, permission: '/users-ist' },
-  { path: '/passenger-list/:userId', element: <PassengersList />, permission: '/passenger-ist' },
+  { path: '/users-list', element: <UsersList />, permission: '/users-list' },
+  { path: '/passenger-list/:userId', element: <PassengersList />, permission: '/passenger-list' },
 ];
 
 export const systemRoutes = [...new Map(

@@ -29,7 +29,13 @@ function App() {
   const isRouteAllowed = (permission) => {
     if (permission === null) return true;
     if (allowedRoutes === null) return true;
-    return allowedRoutes.includes(permission);
+    if (allowedRoutes.includes(permission)) return true;
+
+    // Backward compatibility for legacy misspelled permissions in Firestore
+    if (permission === '/users-list' && allowedRoutes.includes('/users-ist')) return true;
+    if (permission === '/passenger-list' && allowedRoutes.includes('/passenger-ist')) return true;
+
+    return false;
   };
 
   if (checkingAuth) return <Loading message= "Loading data's & Initializing " />;
