@@ -57,52 +57,19 @@ const RouteReq = () => {
 
   const handleAccept = async (req) => {
     await updateRequestStatus(req.id, 'Accepted');
-    const routeDates = req.schedules ? req.schedules.map(s => {
-      try {
-        const dateParts = s.date.split('-');
-        const year = parseInt(dateParts[2], 10);
-        const month = parseInt(dateParts[1], 10) - 1;
-        const day = parseInt(dateParts[0], 10);
-
-        let hours = 12;
-        let minutes = 0;
-        if (s.time && s.time.length > 0) {
-          const timeStr = s.time[0].toLowerCase();
-          const ampm = timeStr.includes('pm');
-          const cleanTime = timeStr.replace('am', '').replace('pm', '').trim();
-          const [h, m] = cleanTime.split(':');
-          hours = parseInt(h, 10);
-          minutes = parseInt(m, 10) || 0;
-          if (ampm && hours < 12) hours += 12;
-          if (!ampm && hours === 12) hours = 0;
-        }
-        return new Date(year, month, day, hours, minutes).toISOString();
-      } catch (e) {
-        return new Date().toISOString();
-      }
-    }) : (req.routeDates || []);
-
-    const operatingDates = req.schedules ? req.schedules.map(s => {
-      try {
-        const parts = s.date.split('-');
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
-      } catch (e) {
-        return '';
-      }
-    }).filter(Boolean) : [];
 
     const fromNode = req.from || req.pickup || '';
     const toNode = req.to || req.drop || '';
     const routeNodes = [fromNode, toNode].filter(Boolean);
-    const routesDataNodes = routeNodes.map(node => ({ name: node, distanceFromStart: 0 }));
+    const routeName = routeNodes.join(' - ');
 
-    navigate('/routes/add', {
+    navigate('/trips/add', {
       state: {
-        route: {
-          name: routeNodes.join(' - '),
-          operating_dates: operatingDates,
-          routes: routeNodes,
-          routesData: routesDataNodes
+        routeRequest: {
+          name: routeName,
+          from: fromNode,
+          to: toNode,
+          schedules: req.schedules || []
         }
       }
     });

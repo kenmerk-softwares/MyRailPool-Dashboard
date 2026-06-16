@@ -164,7 +164,7 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
                 className="flex-1 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-100 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                Add Route
+                Add Trip
               </button>
             </div>
           )}
