@@ -26,7 +26,13 @@ export const PermissionPopup = ({ isOpen, onClose, editData }) => {
 				setPermissionName(editData.permissionName || '');
 				setSelectedDepartment(editData.departmentId || '');
 				setSelectedDesignation(editData.designationId || '');
-				setCurrentDesignationRoutes(editData.permissions || []);
+				const loadedPermissions = editData.permissions || [];
+				const mappedPermissions = loadedPermissions.map(p => {
+					if (p === '/users-ist') return '/users-list';
+					if (p === '/passenger-ist') return '/passenger-list';
+					return p;
+				});
+				setCurrentDesignationRoutes(mappedPermissions);
 			} else {
 				setPermissionName('');
 				setSelectedDepartment('');
