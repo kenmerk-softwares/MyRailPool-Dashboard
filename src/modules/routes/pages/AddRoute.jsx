@@ -65,7 +65,6 @@ const formatToInputDate = (d) => {
 
 export const AddRoute = () => {
 
-
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -200,8 +199,19 @@ export const AddRoute = () => {
   };
 
   const handleRemovePoint = (index) => {
+    const pointToRemove = routes[index];
     setRoutes(routes.filter((_, i) => i !== index));
     setRoutesData(routesData.filter((_, i) => i !== index));
+    setFareMatrix(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(key => {
+        const [from, to] = key.split('-');
+        if (from === pointToRemove || to === pointToRemove) {
+          delete updated[key];
+        }
+      });
+      return updated;
+    });
   };
 
   const handleKeyDown = (e) => {
@@ -265,6 +275,15 @@ export const AddRoute = () => {
         setLoading(false);
         return;
       }
+      const filteredFareMatrix = {};
+      for (let i = 0; i < routes.length; i++) {
+        for (let j = i + 1; j < routes.length; j++) {
+          const key = `${routes[i]}-${routes[j]}`;
+          if (fareMatrix[key] !== undefined) {
+            filteredFareMatrix[key] = fareMatrix[key];
+          }
+        }
+      }
 
       const payload = {
         action: initialData && initialData.id ? 'edit' : 'add',
@@ -273,10 +292,11 @@ export const AddRoute = () => {
         status: data.status || 'Active',
         activationDate: data.activationDate,
         deactivationDate: data.deactivationDate,
+        description: data.description,
         selectedDates: selectedDates,
         routes: routes,
         routesData: routesData,
-        fareMatrix: fareMatrix,
+        fareMatrix: filteredFareMatrix,
         start: routes[0] || '',
         end: routes[routes.length - 1] || '',
       };
@@ -293,7 +313,6 @@ export const AddRoute = () => {
         return;
       }
       setErrors({});
-
       const addRouteFn = httpsCallable(functions, 'addRoute');
       const result = await addRouteFn(payload);
 
@@ -359,7 +378,7 @@ export const AddRoute = () => {
             </div>
 
             <div className="px-8 py-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Route Identifier / Name</label>
                   <div className="relative group">
@@ -418,7 +437,20 @@ export const AddRoute = () => {
                     )}
                   </div>
                 </div>
-
+                {/* <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Description</label>
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      name="description"
+                      className="w-full pl-4 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-500"
+                      placeholder="Description"
+                      defaultValue={initialData?.description}
+                      onChange={handleInputChange}
+                    />
+                    {errors.description && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.description}</p>}
+                  </div>
+                </div> */}
                 {/* <div className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Operational Status</label>
                   <select
@@ -430,6 +462,23 @@ export const AddRoute = () => {
                     <option value="Inactive">Under Maintenance / Inactive</option>
                   </select>
                 </div> */}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">Description</label>
+                  <div className="relative group">
+                    <textarea
+                      type="text"
+                      rows="2"
+                      name="description"
+                      className="w-full pl-4 pr-4 py-1.5  rounded-2xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all placeholder:text-slate-500"
+                      placeholder="Description"
+                      defaultValue={initialData?.description}
+                      onChange={handleInputChange}
+                    />
+                    {errors.description && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-top-1">{errors.description}</p>}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
