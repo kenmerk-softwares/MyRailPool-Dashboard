@@ -22,6 +22,7 @@ const onTripWritten = onDocumentWritten("trips/{tripId}", async (event) => {
         try {
             const tripsQuery = await db.collection("trips")
                 .where("route_id", "==", routeId)
+                .where("status", "not-in", ["Completed", "Cancelled"])
                 .limit(1)
                 .get();
 
