@@ -22,21 +22,24 @@ const onTripWritten = onDocumentWritten("trips/{tripId}", async (event) => {
         try {
             const tripsQuery = await db.collection("trips")
                 .where("route_id", "==", routeId)
-                .where("status", "not-in", ["Completed", "Cancelled"])
-                .limit(1)
                 .get();
+
+            const hasActiveTrip = tripsQuery.docs.some(doc => {
+                const status = doc.data().status;
+                return status !== "Completed" && status !== "Cancelled";
+            });
 
             const routeRef = db.collection("routes").doc(routeId);
             const routeDoc = await routeRef.get();
 
             if (routeDoc.exists) {
-                const newStatus = !tripsQuery.empty ? "Active" : "Inactive";
+                const newStatus = hasActiveTrip ? "Active" : "Inactive";
                 if (routeDoc.data().status !== newStatus) {
                     await routeRef.update({
                         status: newStatus,
                         updatedAt: new Date()
                     });
-                    console.log(`Route "${routeId}" status updated to "${newStatus}" because trips exist: ${!tripsQuery.empty}`);
+                    console.log(`Route "${routeId}" status updated to "${newStatus}" because active trips exist: ${hasActiveTrip}`);
                 }
             }
         } catch (error) {
