@@ -34,7 +34,12 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
     const fetchBooking = async () => {
       setLoadingBooking(true);
       try {
-        const snap = await getDoc(doc(db, 'bookings', payment.bookingId));
+        const bId = Array.isArray(payment.bookingId) ? payment.bookingId[0] : payment.bookingId;
+        if (!bId) {
+          setBookingData(null);
+          return;
+        }
+        const snap = await getDoc(doc(db, 'bookings', bId));
         if (snap.exists()) {
           setBookingData(snap.data());
         }
@@ -72,7 +77,7 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
             <div>
               <h3 className="font-black text-slate-800 text-lg font-jakarta">Payment Details</h3>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono truncate max-w-[220px]">
-                {payment.bookingId}
+                {Array.isArray(payment.bookingId) ? payment.bookingId.join(', ') : payment.bookingId}
               </p>
             </div>
           </div>
@@ -113,9 +118,10 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               <div className="bg-slate-50 rounded-2xl px-5 py-2">
                 <Row label="Route Name" value={bookingData.route_name} />
                 <Row label="Route" value={`${bookingData.route_start || '—'} ➔ ${bookingData.route_end || '—'}`} />
-                <Row label="Travel Date" value={bookingData.selectedDate} />
+                <Row label="Travel Date" value={Array.isArray(bookingData.selectedDate) ? bookingData.selectedDate.join(', ') : bookingData.selectedDate} />
                 <Row label="Trip Number" value={bookingData.tripNo ? `#${bookingData.tripNo}` : '—'} />
                 <Row label="Driver Name" value={bookingData.driver_name} />
+                <Row label="Trip Status" value={payment.tripStatus} />
               </div>
             ) : (
               <div className="text-xs italic text-slate-500 p-4 bg-slate-50 rounded-2xl">
@@ -157,9 +163,15 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
             </h4>
             <div className="bg-slate-50 rounded-2xl px-5 py-2">
               <Row label="Finance ID" value={payment.financeId} />
-              <Row label="Booking ID" value={payment.bookingId} />
+              <Row label="Booking ID(s)" value={Array.isArray(payment.bookingId) ? payment.bookingId.join(', ') : payment.bookingId} />
+              <Row label="Booking No(s)" value={Array.isArray(payment.bookingNos) ? payment.bookingNos.join(', ') : payment.bookingNos} />
+              <Row label="Booking Count" value={payment.bookingCount} />
+              <Row label="Booking Charge" value={payment.bookingCharge !== undefined ? `₹${payment.bookingCharge}` : '—'} />
               <Row label="Trip ID" value={payment.tripId} />
               <Row label="Payment Method" value={payment.paymentType} />
+              <Row label="Payment Status" value={payment.paymentStatus} />
+              <Row label="Payment Intent ID" value={payment.paymentIntentId} />
+              <Row label="Multi Bookings" value={payment.multiBookings ? 'Yes' : 'No'} />
               <Row label="Created At" value={formatTs(payment.createdAt)} />
               <Row label="User ID" value={payment.userId} />
               <Row label="Driver ID" value={payment.driverId} />
