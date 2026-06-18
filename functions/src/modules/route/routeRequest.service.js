@@ -1,8 +1,8 @@
 /* global globalThis */
-const {db} = require("../../shared/config/firebase");
-const {addRouteService} = require("./route.service");
-const {addTripService} = require("../trip/trip.service");
-const {bookTripService} = require("../user/user.service");
+const { db } = require("../../shared/config/firebase");
+const { addRouteService } = require("./route.service");
+const { addTripService } = require("../trip/trip.service");
+const { bookTripService } = require("../user/user.service");
 
 const fetchPlaceFromGoogleGeocoding = async (nameVal) => {
   const apiKey = "AIzaSyDd3W4SQ3Ua0WZ6fjuFeOQdPSqxq7wuCXA";
@@ -32,6 +32,34 @@ const fetchPlaceFromGoogleGeocoding = async (nameVal) => {
   return null;
 };
 
+const fetchPlaceFromGooglePlaces = async (nameVal) => {
+  const apiKey = "AIzaSyDd3W4SQ3Ua0WZ6fjuFeOQdPSqxq7wuCXA";
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(nameVal)}&key=${apiKey}`;
+    const response = await globalThis.fetch(url);
+    if (!response.ok) {
+      console.error(`Google Places TextSearch API request failed with status: ${response.status}`);
+      return null;
+    }
+    const data = await response.json();
+    if (data.status === "OK" && data.results && data.results.length > 0) {
+      const result = data.results[0];
+      return {
+        name: result.name || nameVal,
+        place_id: result.place_id,
+        lat: result.geometry.location.lat,
+        lng: result.geometry.location.lng,
+        formatted_address: result.formatted_address,
+      };
+    } else {
+      console.warn(`Google Places TextSearch API returned status: ${data.status} for query: ${nameVal}`);
+    }
+  } catch (error) {
+    console.error("Error calling Google Places TextSearch API:", error);
+  }
+  return null;
+};
+
 const getPlaceDetails = async (locationInput) => {
   if (locationInput && typeof locationInput === "object") {
     const nameVal = locationInput.name || "";
@@ -40,61 +68,93 @@ const getPlaceDetails = async (locationInput) => {
     const lngVal = locationInput.lng !== undefined ? Number(locationInput.lng) : (locationInput.long !== undefined ? Number(locationInput.long) : (locationInput.longitude !== undefined ? Number(locationInput.longitude) : -1.5));
     const formattedAddressVal = locationInput.formatted_address || locationInput.address || `${nameVal}, UK`;
 
-    // Check if this place already exists in the "places" collection
-    let exists = false;
+    // 1. Try to find by placeIdVal in the database
     if (placeIdVal && !placeIdVal.startsWith("place_")) {
       try {
         const placeDoc = await db.collection("places").doc(placeIdVal).get();
         if (placeDoc.exists) {
-          exists = true;
+          const placeData = placeDoc.data();
+          return {
+            name: placeData.name || nameVal,
+            place_id: placeIdVal,
+            lat: placeData.lat !== undefined ? Number(placeData.lat) : (placeData.latitude !== undefined ? Number(placeData.latitude) : latVal),
+            lng: placeData.lng !== undefined ? Number(placeData.lng) : (placeData.long !== undefined ? Number(placeData.long) : (placeData.longitude !== undefined ? Number(placeData.longitude) : lngVal)),
+            formatted_address: placeData.formatted_address || formattedAddressVal,
+          };
         }
       } catch (err) {
         console.error("Error checking place doc existence:", err);
       }
     }
 
-    if (!exists && nameVal.trim()) {
+    // 2. Try to find by searchKey in the database
+    if (nameVal.trim()) {
       try {
         const placeQuery = await db.collection("places")
           .where("searchKey", "==", nameVal.trim().toLowerCase())
           .limit(1)
           .get();
         if (!placeQuery.empty) {
-          exists = true;
+          const placeData = placeQuery.docs[0].data();
+          return {
+            name: placeData.name || nameVal,
+            place_id: placeQuery.docs[0].id || placeData.place_id || placeIdVal,
+            lat: placeData.lat !== undefined ? Number(placeData.lat) : (placeData.latitude !== undefined ? Number(placeData.latitude) : latVal),
+            lng: placeData.lng !== undefined ? Number(placeData.lng) : (placeData.long !== undefined ? Number(placeData.long) : (placeData.longitude !== undefined ? Number(placeData.longitude) : lngVal)),
+            formatted_address: placeData.formatted_address || formattedAddressVal,
+          };
         }
       } catch (err) {
         console.error("Error checking place by searchKey:", err);
       }
     }
 
-    // If it doesn't exist, write/create it!
-    if (!exists && nameVal.trim()) {
-      try {
-        await db.collection("places").doc(placeIdVal).set({
-          name: nameVal,
-          place_id: placeIdVal,
-          lat: latVal,
-          lng: lngVal,
-          formatted_address: formattedAddressVal,
-          searchKey: nameVal.trim().toLowerCase(),
-          updatedAt: new Date(),
-        }, {merge: true});
-      } catch (err) {
-        console.error("Error storing place in places collection:", err);
-      }
-    }
+    // 3. Fallback to Google Geocoding & Places APIs if mock data or dummy ID is received
+    const isDummyId = placeIdVal.startsWith("place_");
+    const isDefaultCoords = (latVal === 52.0 && lngVal === -1.5);
 
-    return {
+    let finalPlace = {
       name: nameVal,
       place_id: placeIdVal,
       lat: latVal,
       lng: lngVal,
       formatted_address: formattedAddressVal,
     };
+
+    if ((isDummyId || isDefaultCoords) && nameVal.trim()) {
+      let googleGeocode = await fetchPlaceFromGoogleGeocoding(nameVal);
+      if (!googleGeocode) {
+        googleGeocode = await fetchPlaceFromGooglePlaces(nameVal);
+      }
+      if (googleGeocode) {
+        finalPlace = googleGeocode;
+      }
+    }
+
+    // Write to places database if it's a real Google Place ID
+    if (finalPlace.place_id && !finalPlace.place_id.startsWith("place_")) {
+      try {
+        await db.collection("places").doc(finalPlace.place_id).set({
+          name: finalPlace.name,
+          place_id: finalPlace.place_id,
+          lat: finalPlace.lat,
+          lng: finalPlace.lng,
+          formatted_address: finalPlace.formatted_address,
+          searchKey: finalPlace.name.toLowerCase(),
+          updatedAt: new Date(),
+        }, { merge: true });
+      } catch (err) {
+        console.error("Error storing place in places collection:", err);
+      }
+    }
+
+    return finalPlace;
   }
 
   if (typeof locationInput === "string" && locationInput.trim()) {
     const nameVal = locationInput.trim();
+
+    // 1. Try to find by searchKey in the database
     try {
       const placeQuery = await db.collection("places")
         .where("searchKey", "==", nameVal.toLowerCase())
@@ -115,6 +175,7 @@ const getPlaceDetails = async (locationInput) => {
       console.error("Error querying places collection by searchKey:", err);
     }
 
+    // 2. Try to find by literal name in the database
     try {
       const placeQueryByName = await db.collection("places")
         .where("name", "==", nameVal)
@@ -135,8 +196,12 @@ const getPlaceDetails = async (locationInput) => {
       console.error("Error querying places collection by name:", err);
     }
 
-    // Google Maps Geocoding API lookup
-    const googleGeocode = await fetchPlaceFromGoogleGeocoding(nameVal);
+    // 3. Fallback to Google Geocoding & Places APIs lookup
+    let googleGeocode = await fetchPlaceFromGoogleGeocoding(nameVal);
+    if (!googleGeocode) {
+      googleGeocode = await fetchPlaceFromGooglePlaces(nameVal);
+    }
+
     if (googleGeocode) {
       try {
         await db.collection("places").doc(googleGeocode.place_id).set({
@@ -147,7 +212,7 @@ const getPlaceDetails = async (locationInput) => {
           formatted_address: googleGeocode.formatted_address,
           searchKey: googleGeocode.name.toLowerCase(),
           updatedAt: new Date(),
-        }, {merge: true});
+        }, { merge: true });
       } catch (err) {
         console.error("Error storing geocoded place in places collection:", err);
       }
@@ -178,7 +243,7 @@ const processRouteRequestService = async (data, req) => {
 
   const routeRequestDoc = await db.collection("route_request").doc(routeRequestId).get();
   if (!routeRequestDoc.exists) {
-    return {success: false, error: "Route request not found"};
+    return { success: false, error: "Route request not found" };
   }
 
   const routeRequestData = routeRequestDoc.data();
@@ -186,7 +251,7 @@ const processRouteRequestService = async (data, req) => {
   const toDetails = await getPlaceDetails(routeRequestData.to || routeRequestData.drop);
 
   if (!fromDetails || !toDetails) {
-    return {success: false, error: "Missing origin or destination details in route request"};
+    return { success: false, error: "Missing origin or destination details in route request" };
   }
 
   const from = fromDetails.name;
@@ -266,7 +331,7 @@ const processRouteRequestService = async (data, req) => {
           lng: toDetails.lng,
         },
       ],
-      fareMatrix: {[`${from}-${to}`]: String(fare)},
+      fareMatrix: { [`${from}-${to}`]: String(fare) },
       start: from,
       end: to,
       order: routeOrder,
@@ -274,7 +339,7 @@ const processRouteRequestService = async (data, req) => {
 
     const routeResult = await addRouteService(routePayload, req);
     if (!routeResult.success) {
-      return {success: false, error: "Failed to create route: " + (routeResult.error || "unknown error")};
+      return { success: false, error: "Failed to create route: " + (routeResult.error || "unknown error") };
     }
     routeId = routeResult.id;
     routeName = routePayload.name;
@@ -303,7 +368,7 @@ const processRouteRequestService = async (data, req) => {
     const routeDocData = routeDoc.exists ? routeDoc.data() : {};
     const routeOrder = routeDocData.order || 1;
     const routeStops = routeDocData.routes || [from, to];
-    const routeFareMatrix = routeDocData.fareMatrix || {[`${from}-${to}`]: String(fare)};
+    const routeFareMatrix = routeDocData.fareMatrix || { [`${from}-${to}`]: String(fare) };
     const routePairs = routeDocData.routePairs || [`${from}-${to}`];
 
     const routeTiming = {};
@@ -352,7 +417,7 @@ const processRouteRequestService = async (data, req) => {
 
     const tripResult = await addTripService(tripPayload, req);
     if (!tripResult.success) {
-      return {success: false, error: "Failed to create trip: " + (tripResult.error || "unknown error")};
+      return { success: false, error: "Failed to create trip: " + (tripResult.error || "unknown error") };
     }
 
     const newTripQuery = await db.collection("trips")
@@ -362,7 +427,7 @@ const processRouteRequestService = async (data, req) => {
       .get();
 
     if (newTripQuery.empty) {
-      return {success: false, error: "Failed to retrieve the newly created trip"};
+      return { success: false, error: "Failed to retrieve the newly created trip" };
     }
     tripId = newTripQuery.docs[0].id;
   }
@@ -376,20 +441,20 @@ const processRouteRequestService = async (data, req) => {
     startingPoint: from,
     dropPoint: to,
     selectedDate: routeDates,
-    passengers: [{name: routeRequestData.name || "Passenger", age: ""}],
-    boardingPoint: {name: from},
-    dropOffPoint: {name: to},
+    passengers: [{ name: routeRequestData.name || "Passenger", age: "" }],
+    boardingPoint: { name: from },
+    dropOffPoint: { name: to },
     multiBookings: false,
   };
 
   const bookingResult = await bookTripService(bookingPayload);
   if (!bookingResult.success) {
-    return {success: false, error: "Failed to create booking: " + (bookingResult.message || "unknown error")};
+    return { success: false, error: "Failed to create booking: " + (bookingResult.message || "unknown error") };
   }
 
   // Send WhatsApp notification to the user that request is accepted and slot is booked
   try {
-    const {sendUserRouteRequestAcceptedNotification} = require("../whatsapp/whatsapp.service");
+    const { sendUserRouteRequestAcceptedNotification } = require("../whatsapp/whatsapp.service");
     let bookingNo = "";
     if (bookingResult.data && bookingResult.data.id && bookingResult.data.id.length > 0) {
       const bookingId = bookingResult.data.id[0];

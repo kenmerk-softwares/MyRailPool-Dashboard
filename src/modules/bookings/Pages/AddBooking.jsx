@@ -51,7 +51,7 @@ export const AddBooking = () => {
   const [bookingCount, setBookingCount] = useState(1);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedRouteKey, setSelectedRouteKey] = useState('');
-  const [passengerNames, setPassengerNames] = useState(['']);
+  const [passengerNames, setPassengerNames] = useState([{ name: '', age: '' }]);
   const [remarks, setRemarks] = useState('');
 
   // Search local registered users
@@ -118,7 +118,7 @@ export const AddBooking = () => {
       const next = [...prev];
       if (next.length < count) {
         while (next.length < count) {
-          next.push(next.length === 0 ? customerName : '');
+          next.push({ name: next.length === 0 ? customerName : '', age: '' });
         }
       } else if (next.length > count) {
         next.splice(count);
@@ -132,8 +132,12 @@ export const AddBooking = () => {
   useEffect(() => {
     setPassengerNames(prev => {
       const next = [...prev];
-      if (next[0] === '' || next[0] === undefined) {
-        next[0] = customerName;
+      if (next[0]) {
+        if (next[0].name === '' || next[0].name === undefined) {
+          next[0] = { ...next[0], name: customerName };
+        }
+      } else {
+        next[0] = { name: customerName, age: '' };
       }
       return next;
     });
@@ -241,7 +245,12 @@ export const AddBooking = () => {
         startingPoint: start,
         dropPoint: drop,
         selectedDate: [selectedDate],
-        passengers: passengerNames.map(n => n.trim()).filter(n => n !== ""),
+        passengers: passengerNames
+          .filter(p => p.name && p.name.trim() !== "")
+          .map(p => ({
+            name: p.name.trim(),
+            age: p.age ? String(p.age).trim() : "",
+          })),
         boardingPoint: { name: start },
         dropOffPoint: { name: drop },
         multiBookings: false,
@@ -534,24 +543,45 @@ export const AddBooking = () => {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {passengerNames.map((name, index) => (
-                <div key={index} className="space-y-2 animate-in fade-in zoom-in-95 duration-200">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Passenger {index + 1} Name {index === 0 && "(Primary)"}
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      const next = [...passengerNames];
-                      next[index] = e.target.value;
-                      setPassengerNames(next);
-                    }}
-                    className="w-full px-4 py-2 rounded-xl border border-slate-250 focus:border-indigo-500 outline-none transition-all font-semibold"
-                    placeholder={`Enter passenger ${index + 1} name`}
-                    required
-                  />
+            <div className="space-y-6">
+              {passengerNames.map((passenger, index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-50 rounded-2xl border border-slate-200/60 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Passenger {index + 1} Name {index === 0 && "(Primary)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={passenger.name || ''}
+                      onChange={(e) => {
+                        const next = [...passengerNames];
+                        next[index] = { ...next[index], name: e.target.value };
+                        setPassengerNames(next);
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white focus:border-indigo-500 outline-none transition-all font-semibold"
+                      placeholder={`Enter passenger ${index + 1} name`}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Passenger {index + 1} Age
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="120"
+                      value={passenger.age || ''}
+                      onChange={(e) => {
+                        const next = [...passengerNames];
+                        next[index] = { ...next[index], age: e.target.value };
+                        setPassengerNames(next);
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white focus:border-indigo-500 outline-none transition-all font-semibold"
+                      placeholder={`Enter passenger ${index + 1} age`}
+                      required
+                    />
+                  </div>
                 </div>
               ))}
             </div>

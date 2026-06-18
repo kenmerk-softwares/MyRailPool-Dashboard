@@ -137,6 +137,49 @@ const sendTripCancellationNotification = async (user, bookingId, date) => {
     }
 };
 
+const sendRouteRequestAcceptedNotification = async (userId, routeRequest, bookingNo, bookingId = null) => {
+    try {
+        if (!userId) {
+            console.error("No userId provided for route request accepted notification.");
+            return false;
+        }
+        const templateDoc = await db.collection("notification_modals").doc("ROUTE_REQUEST_ACCEPTED").get();
+        const fromVal = typeof routeRequest.from === "object" ? (routeRequest.from.name || "") : (routeRequest.from || "");
+        const toVal = typeof routeRequest.to === "object" ? (routeRequest.to.name || "") : (routeRequest.to || "");
+        const nameVal = routeRequest.name || "Customer";
+
+        let title = "Route Request Accepted! 🎉";
+        let body = `Hi ${nameVal}, your route request from ${fromVal} to ${toVal} has been accepted and your slot is booked! Booking Reference: ${bookingNo}`;
+        let type = "ROUTE_REQUEST_ACCEPTED";
+
+        if (templateDoc.exists) {
+            const templateData = templateDoc.data();
+            if (templateData.title) title = templateData.title;
+            if (templateData.type) type = templateData.type;
+            if (templateData.message) {
+                body = templateData.message
+                    .replace(/{{user_name}}/g, nameVal)
+                    .replace(/{{booking_id}}/g, bookingNo || "")
+                    .replace(/{{pickup}}/g, fromVal)
+                    .replace(/{{drop}}/g, toVal);
+            }
+        }
+
+        const dataPayload = {
+            type: type,
+            bookingNo: bookingNo || "",
+        };
+        if (bookingId) {
+            dataPayload.bookingId = bookingId;
+        }
+
+        return await sendPushNotification(userId, title, body, dataPayload);
+    } catch (error) {
+        console.error("Error sending route request accepted notification:", error);
+        return false;
+    }
+};
+
 const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event) => {
     const change = event.data;
     if (!change || !change.after.exists) return null;
@@ -197,5 +240,6 @@ module.exports = {
     sendPushNotification,
     sendBookingConfirmationNotification,
     sendTripCancellationNotification,
+    sendRouteRequestAcceptedNotification,
     onBookingUpdated
 };
