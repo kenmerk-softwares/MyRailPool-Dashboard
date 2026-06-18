@@ -177,9 +177,16 @@ const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-slate-700 truncate">{p.name || 'Unknown'}</p>
-                    <p className="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
-                      <Phone className="w-3 h-3 text-slate-500" /> {p.mobile || p.phone || '—'}
-                    </p>
+                    {p.age && (
+                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                        Age: <span className="font-bold text-slate-700">{p.age}</span>
+                      </p>
+                    )}
+                    {(p.mobile || p.phone) && (
+                      <p className="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5">
+                        <Phone className="w-3 h-3 text-slate-500" /> {p.mobile || p.phone}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -11,7 +11,12 @@ const tripBookingValidation = (req) => {
     startingPoint: Joi.string().required(),
     dropPoint: Joi.string().required(),
     selectedDate: Joi.array().items(Joi.string()).required(),
-    passengers: Joi.array().required(),
+    passengers: Joi.array().items(
+      Joi.object({
+        name: Joi.string().required(),
+        age: Joi.alternatives().try(Joi.string(), Joi.number()).allow("").optional(),
+      })
+    ).required(),
     boardingPoint: Joi.object().required(),
     dropOffPoint: Joi.object().required(),
     multiBookings: Joi.boolean().required(),
