@@ -450,8 +450,8 @@ export const AddRoute = () => {
                       defaultValue={initialData?.status || "Inactive"}
                       onChange={handleInputChange}
                     >
-                      <option value="Active">🟢 Active Corridor</option>
                       <option value="Inactive">🔴 Inactive / Maintenance</option>
+                      <option value="Active">🟢 Active Corridor</option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-focus-within:text-primary-500 transition-colors">
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
