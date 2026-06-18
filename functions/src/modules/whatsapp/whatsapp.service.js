@@ -17,7 +17,8 @@ const TEMPLATE_SIDS = {
   trip_reminder: process.env.TEST_TWILIO_REMINDER_TEMPLATE_SID,
   booking_cancelled: process.env.TEST_TWILIO_CANCELLED_TEMPLATE_SID,
   admin_booking: process.env.TEST_TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
-
+  route_request_accepted: process.env.TEST_TWILIO_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
+  user_route_request_accepted: process.env.TEST_TWILIO_USER_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
 };
 
 const formatWhatsAppNumber = (mobile) => {
@@ -211,11 +212,110 @@ const sendAdminBookingNotification = async (
   console.log("Admin WhatsApp sent:", result.sid);
 };
 
+const sendAdminRouteRequestNotification = async (routeRequest) => {
+  const adminNumber = process.env.TEST_ADMIN_WHATSAPP_NUMBER;
+
+  if (!adminNumber) {
+    console.log("Admin WhatsApp number missing");
+    return;
+  }
+
+  const formattedAdmin =
+    adminNumber.startsWith("+")
+      ? adminNumber
+      : `+${adminNumber}`;
+
+  const from = routeRequest.from || "";
+  const to = routeRequest.to || "";
+  const name = routeRequest.name || "Unknown";
+  const phone = routeRequest.phone || "";
+  const passengerCount = routeRequest.passenger_count || 1;
+  const shareIntrest = routeRequest.share_intrest ? "Yes" : "No";
+
+  let schedulesStr = "";
+  if (routeRequest.schedules && routeRequest.schedules.length > 0) {
+    schedulesStr = routeRequest.schedules
+      .map((s) => `${s.date} ${s.time ? s.time.join(", ") : ""}`)
+      .join("; ");
+  } else if (routeRequest.routeDates && routeRequest.routeDates.length > 0) {
+    schedulesStr = routeRequest.routeDates.join("; ");
+  }
+
+  const messageOptions = {
+    from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+    to: `whatsapp:${formattedAdmin}`,
+  };
+
+  const templateSid = TEMPLATE_SIDS.route_request_accepted;
+  if (templateSid) {
+    messageOptions.contentSid = templateSid;
+    messageOptions.contentVariables = JSON.stringify({
+      1: String(name),
+      2: String(phone),
+      3: String(from),
+      4: String(to),
+      5: String(passengerCount),
+      6: String(shareIntrest),
+      7: String(schedulesStr),
+    });
+  } else {
+    messageOptions.body = `New Route Request Received:\n\n` +
+      `- User: ${name}\n` +
+      `- Phone: ${phone}\n` +
+      `- From: ${from}\n` +
+      `- To: ${to}\n` +
+      `- Passenger(s): ${passengerCount}\n` +
+      `- Interested in sharing: ${shareIntrest}\n` +
+      `- Schedules: ${schedulesStr || "N/A"}`;
+  }
+
+  try {
+    const result = await getTwilioClient().messages.create(messageOptions);
+    console.log("Admin Route Request WhatsApp sent:", result.sid);
+  } catch (err) {
+    console.error("WhatsApp Error (Admin Route Request):", err);
+  }
+};
+
+const sendUserRouteRequestAcceptedNotification = async (routeRequest, bookingNo) => {
+  const userMobile = routeRequest.phone;
+  if (!userMobile) {
+    console.log("User phone number missing in route request");
+    return;
+  }
+
+  const formattedMobile = formatWhatsAppNumber(userMobile);
+  if (!formattedMobile) {
+    console.log("Could not format user phone number:", userMobile);
+    return;
+  }
+
+  const fromVal = typeof routeRequest.from === "object" ? (routeRequest.from.name || "") : (routeRequest.from || "");
+  const toVal = typeof routeRequest.to === "object" ? (routeRequest.to.name || "") : (routeRequest.to || "");
+  const nameVal = routeRequest.name || "Customer";
+
+  const messageOptions = {
+    from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+    to: `whatsapp:${formattedMobile}`,
+    body: `Hi ${nameVal},\n\nYour route request from ${fromVal} to ${toVal} has been accepted and your slot is booked!\n\nBooking Reference: ${bookingNo}`,
+  };
+
+  try {
+    const result = await getTwilioClient().messages.create(messageOptions);
+    console.log("User Route Request Accepted WhatsApp sent:", result.sid);
+  } catch (err) {
+    console.error("WhatsApp Error (User Route Request Accepted):", err);
+  }
+};
 
 module.exports = {
   sendBookingConfirmation,
   sendBookingCancelled,
   formatWhatsAppNumber,
   sendAdminBookingNotification,
+  sendAdminRouteRequestNotification,
+  sendUserRouteRequestAcceptedNotification,
 };
+
+
 

@@ -97,11 +97,19 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-3 gap-2.5 pt-2">
+            <div className="flex items-center gap-2 px-2.5 py-2 bg-slate-50 rounded-xl min-w-0">
+              <Clock className="w-4 h-4 text-slate-500 flex-shrink-0" />
+              <span className="text-[9px] font-bold text-slate-500 truncate">{new Date(request.createdAt || request.requestSentAt).toLocaleDateString()}</span>
+            </div>
 
-            <div className="flex items-center gap-2.5 px-3 py-2 bg-slate-50 rounded-xl">
-              <Clock className="w-4 h-4 text-slate-500" />
-              <span className="text-[10px] font-bold text-slate-500">{new Date(request.createdAt || request.requestSentAt).toLocaleDateString()}</span>
+            <div className="flex items-center gap-2 px-2.5 py-2 bg-slate-50 rounded-xl min-w-0">
+              <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+              <span className="text-[9px] font-bold text-slate-700 truncate">{request.passenger_count || 1} Pax</span>
+            </div>
+
+            <div className="flex items-center gap-2 px-2.5 py-2 bg-slate-50 rounded-xl min-w-0 justify-center">
+              <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 truncate">Share: {request.share_intrest ? "Yes" : "No"}</span>
             </div>
           </div>
         </div>
