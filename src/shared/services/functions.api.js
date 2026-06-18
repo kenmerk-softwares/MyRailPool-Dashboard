@@ -18,4 +18,6 @@ export const FunctionsAPI = {
   cancelTrip: (data) => callFunction("cancelTrip", data),
   cancelBooking: (data) => callFunction("cancelBooking", data),
   tripBooking: (data) => callFunction("tripBooking", data),
+  routeRequest: (data) => callFunction("routeRequest", data),
+  processRouteRequest: (data) => callFunction("processRouteRequest", data),
 };

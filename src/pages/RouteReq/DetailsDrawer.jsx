@@ -94,8 +94,8 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
                 <div className="w-1 h-3 bg-emerald-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Trip Information</h3>
               </div>
-              <div className="border border-slate-100 rounded-[2rem] space-y-6">
-                <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="border border-slate-100 rounded-[2rem] p-4 space-y-4">
+                <div className="flex flex-col md:flex-row items-center gap-4">
                   <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
                     <div className="p-2 bg-emerald-50 rounded-xl flex items-center justify-center self-start">
                       <MapPin className="w-5 h-5 text-emerald-600" />
@@ -123,6 +123,27 @@ const DetailsDrawer = ({ isOpen, onClose, request, onAccept, onReject }) => {
                   </div>
                 </div>
 
+                <div className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
+                    <div className="p-2 bg-indigo-50 rounded-xl flex items-center justify-center self-start">
+                      <Users className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Passengers</span>
+                      <p className="text-sm font-bold text-slate-800 leading-snug">{request.passenger_count || 1}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl w-full">
+                    <div className="p-2 bg-amber-50 rounded-xl flex items-center justify-center self-start">
+                      <ShieldCheck className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Interested in Sharing</span>
+                      <p className="text-sm font-bold text-slate-800 leading-snug">{request.share_intrest ? 'Yes' : 'No'}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 

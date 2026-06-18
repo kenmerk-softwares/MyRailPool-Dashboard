@@ -12,8 +12,12 @@ exports.cancelTrip = cancelTrip;
 exports.cancelBooking = cancelBooking;
 
 // ================ ROUTE MODULES ==================== //
-const {addRoute} = require("./modules/route/route.callable");
+const {addRoute, routeRequest, processRouteRequest} = require("./modules/route/route.callable");
 exports.addRoute = addRoute;
+exports.routeRequest = routeRequest;
+exports.processRouteRequest = processRouteRequest;
+
+
 
 // ================ DRIVER MODULES ==================== //
 const {addDriver} = require("./modules/driver/driver.callable");

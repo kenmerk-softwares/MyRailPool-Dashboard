@@ -160,4 +160,71 @@ const addRouteService = async (data, req) => {
   }
 };
 
-module.exports = {addRouteService};
+const routeRequestService = async (data, req) => {
+  const {
+    name,
+    phone,
+    from,
+    to,
+    schedules,
+    passenger_count,
+    share_intrest,
+  } = data;
+
+  let userName = name;
+  let userPhone = phone;
+
+  if (req.auth && req.auth.uid && (!userName || !userPhone)) {
+    try {
+      const userDoc = await db.collection("users").doc(req.auth.uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (!userName) {
+          userName = userData.name || userData.displayName || "";
+        }
+        if (!userPhone) {
+          userPhone = userData.mobile || userData.phoneNumber || "";
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching user details in routeRequestService:", err);
+    }
+  }
+
+  const payload = {
+    uid: req.auth ? req.auth.uid : "",
+    name: userName || "",
+    phone: userPhone || "",
+    from: from || "",
+    to: to || "",
+    schedules: schedules || [],
+    passenger_count: passenger_count !== undefined ? Number(passenger_count) : 1,
+    share_intrest: share_intrest !== undefined ? share_intrest : false,
+    status: "Pending",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: req.auth ? req.auth.uid : "system",
+  };
+
+  const docRef = await db.collection("route_request").add(payload);
+
+  try {
+    const {sendAdminRouteRequestNotification} = require("../whatsapp/whatsapp.service");
+    await sendAdminRouteRequestNotification(payload);
+  } catch (err) {
+    console.error("Failed to send admin WhatsApp notification for route request:", err);
+  }
+
+  return {
+    status: 200,
+    success: true,
+    id: docRef.id,
+    message: "Route request submitted successfully",
+  };
+};
+
+module.exports = {
+  addRouteService,
+  routeRequestService,
+};
+
