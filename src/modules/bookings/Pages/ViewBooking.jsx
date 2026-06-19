@@ -427,7 +427,7 @@ export const ViewBooking = () => {
                 <Field label="Total Seats" value={trip?.total_seats} />
                 <Field label="Route Type" value={trip?.route_type} />
                 <Field label="Total Bookings" value={trip?.total_bookings} />
-                <Field label="Fare Matrix" value={trip?.fareMatrix ? Object.entries(trip.fareMatrix).map(([k, v]) => `${k}: ₹${v}`).join('  |  ') : '—'} className="col-span-2 md:col-span-3" />
+                <Field label="Fare Matrix" value={trip?.fareMatrix ? Object.entries(trip.fareMatrix).map(([k, v]) => `${k}: £${v}`).join('  |  ') : '—'} className="col-span-2 md:col-span-3" />
                 {trip?.notes && <div className="col-span-2 md:col-span-4 space-y-1.5">
                   <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Notes</label>
                   <p className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 italic text-sm">{trip.notes}</p>
@@ -542,7 +542,7 @@ export const ViewBooking = () => {
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-slate-500 font-semibold uppercase tracking-wider">Fare</span>
-                      <p className="font-black text-emerald-600">₹{u.totalFare ?? '—'}</p>
+                      <p className="font-black text-emerald-600">£{u.totalFare ?? '—'}</p>
                     </div>
                     <div className="space-y-0.5">
                       <span className="text-slate-500 font-semibold uppercase tracking-wider">Payment</span>
@@ -571,7 +571,7 @@ export const ViewBooking = () => {
 
                       <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold">
                         <span>Passenger Count: <span className="font-bold text-slate-800">{booking?.passengers?.length || u.bookingCount || 0}</span></span>
-                        <span>Total: <span className="font-bold text-emerald-600">₹{u.totalFare || 0}</span></span>
+                        <span>Total: <span className="font-bold text-emerald-600">£{u.totalFare || 0}</span></span>
                       </div>
                     </div>
 

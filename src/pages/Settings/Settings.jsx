@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ShieldAlert, 
@@ -6,13 +6,16 @@ import {
   ChevronRight,
   FileText,
   Settings as SettingsIcon,
-  Users
+  Users,
+  Coins
 } from 'lucide-react';
 import { SectionHeader } from '../../components/Shared';
+import { BookingChargePopup } from './BookingChargePopup';
 import './Settings.css';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [showBookingChargePopup, setShowBookingChargePopup] = useState(false);
 
   const settingsOptions = [
     {
@@ -28,6 +31,13 @@ export default function Settings() {
       icon: <Users className="w-7 h-7" />,
       path: '/admin-users',
       color: 'emerald'
+    },
+    {
+      title: 'Booking Charges',
+      description: 'Update the system booking fee applied during customer checkout.',
+      icon: <Coins className="w-7 h-7" />,
+      color: 'blue',
+      onClick: () => setShowBookingChargePopup(true)
     },
     {
       title: 'Company Profile',
@@ -65,7 +75,13 @@ export default function Settings() {
           <div
             key={index}
             className={`settings-card ${option.color}`}
-            onClick={() => navigate(option.path)}
+            onClick={() => {
+              if (option.onClick) {
+                option.onClick();
+              } else {
+                navigate(option.path);
+              }
+            }}
           >
             <div className="settings-icon-wrapper">
               {option.icon}
@@ -80,6 +96,12 @@ export default function Settings() {
           </div>
         ))}
       </div>
+
+      <BookingChargePopup 
+        isOpen={showBookingChargePopup} 
+        onClose={() => setShowBookingChargePopup(false)} 
+      />
     </div>
   );
 }
+

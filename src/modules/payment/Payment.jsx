@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  DollarSign, CheckCircle, Clock, XCircle, RefreshCcw, Download
+  PoundSterling, CheckCircle, Clock, XCircle, RefreshCcw, Download
 } from 'lucide-react';
 import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../shared/services/firebase';
@@ -218,7 +218,7 @@ const Payment = () => {
       <div className="space-y-10">
         {/* stats cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString('en-IN')}`} icon={DollarSign} color="indigo" />
+          <StatCard title="Total Revenue" value={`£${totalRevenue.toLocaleString('en-GB')}`} icon={PoundSterling} color="indigo" />
           <StatCard title="Confirmed" value={confirmed} icon={CheckCircle} color="emerald" />
           <StatCard title="Pending" value={pending} icon={Clock} color="amber" />
           <StatCard title="Cancelled" value={cancelled} icon={XCircle} color="rose" />

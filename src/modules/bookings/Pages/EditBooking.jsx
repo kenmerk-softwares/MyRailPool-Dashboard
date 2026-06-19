@@ -7,7 +7,7 @@ import {
   Navigation,
   Hash,
   Handshake,
-  DollarSign,
+  PoundSterling,
   Briefcase
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
@@ -129,12 +129,12 @@ export const EditBooking = () => {
 
         <div>
           <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
-            <DollarSign className="w-5 h-5 text-amber-600" />
+            <PoundSterling className="w-5 h-5 text-amber-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Financial Logistics</h3>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare (₹)</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fare (£)</label>
               <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" defaultValue={booking.fare} />
             </div>
             <div className="space-y-2">
@@ -171,7 +171,7 @@ export const EditBooking = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Paid Amount (₹)</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Paid Amount (£)</label>
               <input type="text" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all" defaultValue={booking.paid} />
             </div>
           </div>

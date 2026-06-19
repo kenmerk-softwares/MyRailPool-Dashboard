@@ -67,7 +67,7 @@ const PaymentTable = ({
 
             {/* amount */}
             <td className="px-8 py-4">
-              <span className="text-[13px] font-black text-emerald-600">₹{payment.amount ?? '—'}</span>
+              <span className="text-[13px] font-black text-emerald-600">£{payment.amount ?? '—'}</span>
             </td>
 
             {/* type (Credit / Debit) */}

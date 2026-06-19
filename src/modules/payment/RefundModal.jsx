@@ -69,7 +69,7 @@ const RefundModal = ({ payment, isOpen, onClose }) => {
                     onClick={() => setRefundType('full')}
                     className={`px-4 py-3 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all ${refundType === 'full' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
                   >
-                    Full (₹{payment.amount})
+                    Full (£{payment.amount})
                   </button>
                   <button
                     onClick={() => setRefundType('partial')}
@@ -84,7 +84,7 @@ const RefundModal = ({ payment, isOpen, onClose }) => {
                 <div className="space-y-2">
                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest block">Refund Amount</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₹</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">£</span>
                     <input
                       type="number"
                       placeholder="0.00"

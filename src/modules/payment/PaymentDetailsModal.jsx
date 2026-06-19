@@ -94,7 +94,7 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
           <div className="flex items-center justify-between p-5 bg-indigo-600 rounded-[24px] text-white shadow-lg shadow-indigo-100">
             <div>
               <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Amount</p>
-              <h2 className="text-3xl font-black">₹{payment.amount}</h2>
+              <h2 className="text-3xl font-black">£{payment.amount}</h2>
               <p className="text-indigo-300 text-xs font-bold mt-1">{payment.description}</p>
             </div>
             <div className="flex flex-col items-end gap-2">
@@ -146,7 +146,7 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
                 <Row label="Starting Point" value={matchedUser.startingPoint} />
                 <Row label="Drop Point" value={matchedUser.dropPoint} />
                 <Row label="Seat Count" value={matchedUser.bookingCount} />
-                <Row label="Total Fare" value={matchedUser.totalFare ? `₹${matchedUser.totalFare}` : '—'} />
+                <Row label="Total Fare" value={matchedUser.totalFare ? `£${matchedUser.totalFare}` : '—'} />
                 <Row label="Status" value={matchedUser.status} />
               </div>
             ) : (
@@ -166,7 +166,7 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               <Row label="Booking ID(s)" value={Array.isArray(payment.bookingId) ? payment.bookingId.join(', ') : payment.bookingId} />
               <Row label="Booking No(s)" value={Array.isArray(payment.bookingNos) ? payment.bookingNos.join(', ') : payment.bookingNos} />
               <Row label="Booking Count" value={payment.bookingCount} />
-              <Row label="Booking Charge" value={payment.bookingCharge !== undefined ? `₹${payment.bookingCharge}` : '—'} />
+              <Row label="Booking Charge" value={payment.bookingCharge !== undefined ? `£${payment.bookingCharge}` : '—'} />
               <Row label="Trip ID" value={payment.tripId} />
               <Row label="Payment Method" value={payment.paymentType} />
               <Row label="Payment Status" value={payment.paymentStatus} />
