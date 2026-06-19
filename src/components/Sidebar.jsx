@@ -74,7 +74,7 @@ export const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { path: '/payment', label: 'Payment Status', icon: FaPaypal },
     { path: '/route-req', label: 'Booking Requests ', icon: MapIcon, badge: requestCount },
     { path: '/notifications', label: 'Notifications', icon: Bell },
-    { path: '/notification-modals', label: 'Notification Modals', icon: MessageSquare },
+    { path: '/notification-modals', label: 'Notification Models', icon: MessageSquare },
     { path: '/customer-req', label: 'Pilot Requests', icon: UserPlus },
     { path: '/reports', label: 'Reports & Analytics', icon: TrendingUp },
     { path: '/settings', label: 'Settings', icon: Settings },
