@@ -14,7 +14,6 @@ import {
   MapPin,
   ChevronLeft,
   Loader2,
-  Clock
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
 import { collection, getDocs, query, limit, doc, getDoc, where } from 'firebase/firestore';
@@ -290,7 +289,7 @@ export const EditTrip = () => {
       fareMatrix: formData.selectedRoute?.fareMatrix || {},
       order: formData.selectedRoute?.order || 1,
       routePairs: formData.selectedRoute?.routePairs || [],
-      routeTiming: schedules[0].routeTiming,
+      routeTiming: formData.routeTiming,
       route_id: formData.routeId,
       route_name: formData.route,
       route_type: formData.routeType,
@@ -583,8 +582,8 @@ export const EditTrip = () => {
                               type="time"
                               value={formData.routeTiming[stop] || ""}
                               onChange={(e) => {
-                                const newTiming = { ...formData.routeTiming, [stop]: e.target.value };
-                                setFormData(prev => ({ ...prev, routeTiming: newTiming }));
+                                const val = e.target.value;
+                                setFormData(prev => ({ ...prev, routeTiming: { ...prev.routeTiming, [stop]: val } }));
                               }}
                               className="w-24 px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 focus:border-indigo-500 transition-all outline-none text-center"
                             />
