@@ -3,7 +3,7 @@ import {
   FileText, TrendingUp, Calendar, Route as RouteIcon, Users,
   BarChart3, Car, RefreshCw, Download, Search, Printer,
   MapPin, Navigation, ArrowRight, ChevronDown, ChevronRight,
-  CheckCircle2, AlertCircle, DollarSign, Activity, AlertTriangle
+  CheckCircle2, AlertCircle, PoundSterling, Activity, AlertTriangle
 } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, getCountFromServer, getAggregateFromServer, sum } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
@@ -521,27 +521,27 @@ export const Reports = () => {
   const handleCSVExport = (type) => {
     if (type === 'routes') {
       const headers = ['routeId', 'routeName', 'routeType', 'tripsRun', 'associatedTripsList', 'passengers', 'occupancyRate', 'revenue'];
-      const labels = ['Route ID', 'Route Name', 'Route Type', 'Total Trips', 'Associated Trips', 'Total Passengers', 'Avg Occupancy (%)', 'Total Revenue (₹)'];
+      const labels = ['Route ID', 'Route Name', 'Route Type', 'Total Trips', 'Associated Trips', 'Total Passengers', 'Avg Occupancy (%)', 'Total Revenue (£)'];
       exportToCSV(routeData, 'Route_Booking_Analysis', headers, labels);
     } else if (type === 'trips') {
       const headers = ['tripNo', 'routeName', 'routeId', 'routeType', 'date', 'driver', 'vehicle', 'passengers', 'capacity', 'occupancyRate', 'revenue', 'status'];
-      const labels = ['Trip No', 'Route Name', 'Route ID', 'Route Type', 'Travel Date', 'Driver', 'Vehicle Registration', 'Booked Seats', 'Seating Capacity', 'Occupancy (%)', 'Revenue (₹)', 'Operational Status'];
+      const labels = ['Trip No', 'Route Name', 'Route ID', 'Route Type', 'Travel Date', 'Driver', 'Vehicle Registration', 'Booked Seats', 'Seating Capacity', 'Occupancy (%)', 'Revenue (£)', 'Operational Status'];
       exportToCSV(tripData, 'Trip_Booking_Analysis', headers, labels);
     } else if (type === 'routeTypes') {
       const headers = ['name', 'trips', 'passengers', 'occupancyRate', 'revenue'];
-      const labels = ['Route Service Type', 'Total Trips Run', 'Total Passengers Transported', 'Average Occupancy (%)', 'Total Revenue (₹)'];
+      const labels = ['Route Service Type', 'Total Trips Run', 'Total Passengers Transported', 'Average Occupancy (%)', 'Total Revenue (£)'];
       exportToCSV(routeTypeData, 'Route_Type_Booking_Analysis', headers, labels);
     } else if (type === 'drivers') {
       const headers = ['name', 'driverId', 'trips', 'passengers', 'revenue'];
-      const labels = ['Driver Name', 'Driver ID', 'Trips Completed', 'Passengers Carried', 'Revenue Generated (₹)'];
+      const labels = ['Driver Name', 'Driver ID', 'Trips Completed', 'Passengers Carried', 'Revenue Generated (£)'];
       exportToCSV(resourceData.drivers, 'Driver_Performance_Report', headers, labels);
     } else if (type === 'vehicles') {
       const headers = ['registration', 'vehicleId', 'trips', 'occupancyRate', 'revenue'];
-      const labels = ['Vehicle Registration', 'Vehicle ID', 'Trips Run', 'Average Occupancy (%)', 'Revenue Generated (₹)'];
+      const labels = ['Vehicle Registration', 'Vehicle ID', 'Trips Run', 'Average Occupancy (%)', 'Revenue Generated (£)'];
       exportToCSV(resourceData.vehicles, 'Vehicle_Utilization_Report', headers, labels);
     } else if (type === 'overview') {
       const headers = ['date', 'bookings', 'passengers', 'revenue'];
-      const labels = ['Date', 'Total Bookings', 'Total Passengers', 'Daily Revenue (₹)'];
+      const labels = ['Date', 'Total Bookings', 'Total Passengers', 'Daily Revenue (£)'];
       exportToCSV(timelineData, 'Overall_Daily_Trends', headers, labels);
     }
   };
@@ -797,11 +797,11 @@ export const Reports = () => {
               <span className="inline-block w-24 h-8 bg-slate-100 animate-pulse rounded-md mt-1"></span>
             ) : (
               <span className={loading ? 'animate-pulse text-slate-500' : ''}>
-                ₹{(stats.revenue || 0).toLocaleString('en-IN')}
+                £{(stats.revenue || 0).toLocaleString('en-GB')}
               </span>
             )
           }
-          icon={DollarSign}
+          icon={PoundSterling}
           trend="Live"
           trendUp={true}
           trendLabel="interval total"
@@ -926,7 +926,7 @@ export const Reports = () => {
                 {/* Revenue Timeline */}
                 <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                   <h3 className="font-bold text-slate-800 text-sm mb-4 uppercase tracking-wider flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-emerald-600" /> Revenue Over Time
+                    <PoundSterling className="w-4 h-4 text-emerald-600" /> Revenue Over Time
                   </h3>
                   <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -939,8 +939,8 @@ export const Reports = () => {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={10} fontWeight="bold" />
-                        <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickFormatter={(v) => `₹${v}`} />
-                        <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
+                        <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickFormatter={(v) => `£${v}`} />
+                        <Tooltip formatter={(value) => [`£${value.toLocaleString()}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
                         <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -990,7 +990,7 @@ export const Reports = () => {
                           <td className="px-6 py-4 text-xs font-bold text-slate-700">{row.date}</td>
                           <td className="px-6 py-4 text-xs font-bold text-slate-600 text-center">{row.bookings}</td>
                           <td className="px-6 py-4 text-xs font-black text-indigo-600 text-center">{row.passengers}</td>
-                          <td className="px-6 py-4 text-xs font-black text-emerald-600 text-right">₹{row.revenue.toLocaleString('en-IN')}</td>
+                          <td className="px-6 py-4 text-xs font-black text-emerald-600 text-right">£{row.revenue.toLocaleString('en-GB')}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1011,9 +1011,9 @@ export const Reports = () => {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={routeData.slice(0, 10)} layout="vertical" margin={{ left: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                      <XAxis type="number" stroke="#94a3b8" fontSize={10} fontWeight="bold" tickFormatter={(v) => `₹${v}`} />
+                      <XAxis type="number" stroke="#94a3b8" fontSize={10} fontWeight="bold" tickFormatter={(v) => `£${v}`} />
                       <YAxis type="category" dataKey="routeName" stroke="#94a3b8" fontSize={10} fontWeight="bold" width={120} />
-                      <Tooltip formatter={(v) => `₹${v.toLocaleString()}`} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
+                      <Tooltip formatter={(v) => `£${v.toLocaleString()}`} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
                       <Bar dataKey="revenue" fill="#6366f1" radius={[0, 8, 8, 0]} maxBarSize={30}>
                         {routeData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -1095,7 +1095,7 @@ export const Reports = () => {
 
                               {/* Revenue */}
                               <td className="px-6 py-4 text-xs font-black text-emerald-600 text-right">
-                                ₹{route.revenue.toLocaleString('en-IN')}
+                                £{route.revenue.toLocaleString('en-GB')}
                               </td>
                             </tr>
 
@@ -1135,7 +1135,7 @@ export const Reports = () => {
                                               {trip.capacity > 0 ? ((trip.passengers / trip.capacity) * 100).toFixed(0) : 0}%
                                             </td>
                                             <td className="py-2.5 text-right font-black text-emerald-600">
-                                              ₹{trip.revenue.toLocaleString('en-IN')}
+                                              £{trip.revenue.toLocaleString('en-GB')}
                                             </td>
                                           </tr>
                                         ))}
@@ -1273,7 +1273,7 @@ export const Reports = () => {
 
                           {/* Revenue */}
                           <td className="px-6 py-4 text-xs font-black text-emerald-600 text-right">
-                            ₹{trip.revenue.toLocaleString('en-IN')}
+                            £{trip.revenue.toLocaleString('en-GB')}
                           </td>
                         </tr>
                       ))}
@@ -1335,7 +1335,7 @@ export const Reports = () => {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v) => `₹${v.toLocaleString()}`} />
+                      <Tooltip formatter={(v) => `£${v.toLocaleString()}`} />
                       <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
                     </PieChart>
                   </ResponsiveContainer>
@@ -1377,7 +1377,7 @@ export const Reports = () => {
                             <td className="px-6 py-4 text-center text-xs font-semibold text-slate-700">{row.trips}</td>
                             <td className="px-6 py-4 text-center text-xs font-semibold text-slate-700">{row.passengers}</td>
                             <td className="px-6 py-4 text-center text-xs font-extrabold text-indigo-600">{row.occupancyRate}%</td>
-                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">₹{row.revenue.toLocaleString('en-IN')}</td>
+                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">£{row.revenue.toLocaleString('en-GB')}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1431,7 +1431,7 @@ export const Reports = () => {
                             </td>
                             <td className="px-6 py-4 text-center text-xs font-semibold text-slate-700">{driver.trips}</td>
                             <td className="px-6 py-4 text-center text-xs font-bold text-slate-700">{driver.passengers}</td>
-                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">₹{driver.revenue.toLocaleString('en-IN')}</td>
+                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">£{driver.revenue.toLocaleString('en-GB')}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1475,7 +1475,7 @@ export const Reports = () => {
                             <td className="px-6 py-4 text-center">
                               <span className="text-xs font-black text-indigo-600">{veh.occupancyRate}%</span>
                             </td>
-                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">₹{veh.revenue.toLocaleString('en-IN')}</td>
+                            <td className="px-6 py-4 text-right text-xs font-black text-emerald-600">£{veh.revenue.toLocaleString('en-GB')}</td>
                           </tr>
                         ))}
                       </tbody>

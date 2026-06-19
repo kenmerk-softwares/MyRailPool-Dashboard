@@ -5,7 +5,7 @@ import {
   MapPin,
   Navigation,
   Hash,
-  DollarSign,
+  PoundSterling,
   Calendar,
   Loader2,
   ChevronLeft,
@@ -504,7 +504,7 @@ export const AddBooking = () => {
                 <option value="">-- Choose Corridor Segment --</option>
                 {routeSegments.map((segment) => (
                   <option key={segment} value={segment}>
-                    {segment.replace('-', ' → ')} (₹{selectedTrip.fareMatrix[segment]})
+                    {segment.replace('-', ' → ')} (£{selectedTrip.fareMatrix[segment]})
                   </option>
                 ))}
               </select>
@@ -591,7 +591,7 @@ export const AddBooking = () => {
         {/* ── SECTION 5: FARES & REMARKS ── */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 text-sm">
           <div className="px-6 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50 rounded-t-[22px]">
-            <DollarSign className="w-5 h-5 text-indigo-600" />
+            <PoundSterling className="w-5 h-5 text-indigo-600" />
             <h3 className="font-bold text-slate-800 tracking-tight">Fares & Operational Notes</h3>
           </div>
 
@@ -603,7 +603,7 @@ export const AddBooking = () => {
               <div className="my-3 space-y-1">
                 <div className="flex justify-between text-xs text-slate-600 font-semibold">
                   <span>Base fare per seat:</span>
-                  <span>₹{singleFare}</span>
+                  <span>£{singleFare}</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-600 font-semibold">
                   <span>Passenger count:</span>
@@ -612,7 +612,7 @@ export const AddBooking = () => {
               </div>
               <div className="flex justify-between items-end pt-3 border-t border-indigo-200">
                 <span className="text-xs font-black text-indigo-700 uppercase">Estimated Total:</span>
-                <span className="text-2xl font-black text-indigo-800">₹{totalFare}</span>
+                <span className="text-2xl font-black text-indigo-800">£{totalFare}</span>
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarCheck, MapIcon, Users, Eye, Route, Car, UserCheck, DollarSign, TrendingUp } from 'lucide-react';
+import { CalendarCheck, MapIcon, Users, Eye, Route, Car, UserCheck, PoundSterling, TrendingUp } from 'lucide-react';
 import { SectionHeader, StatCard } from '../../components/Shared';
 import { useNavigate } from 'react-router-dom';
 import { Table } from '../../shared/Table/Table';
@@ -167,7 +167,7 @@ const CustomTooltip = ({ active, payload, label, metric }) => {
     if (active && payload && payload.length) {
         const value = payload[0].value;
         const formattedValue = metric === 'amount'
-            ? `₹${value.toLocaleString('en-IN')}`
+            ? `£${value.toLocaleString('en-GB')}`
             : value.toLocaleString();
 
         const metricName = metric === 'amount' ? 'Revenue' : metric === 'noOfTrips' ? 'Trips' : 'Passengers';
@@ -406,7 +406,7 @@ export const Dashboard = () => {
                 actionTo="/bookings/add"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-                <StatCard title="Total Revenue" value={`₹${(stats.revenue || 0).toLocaleString('en-IN')}`} icon={DollarSign} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
+                <StatCard title="Total Revenue" value={`£${(stats.revenue || 0).toLocaleString('en-GB')}`} icon={PoundSterling} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
                 <StatCard title="Total Bookings" value={stats.bookings} icon={CalendarCheck} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
                 <StatCard title="Active Trips" value={stats.trips} icon={MapIcon} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
                 <StatCard title="Available Drivers" value={stats.drivers} icon={Users} trend="Live" trendUp={true} trendLabel="" loading={statsLoading} />
@@ -493,7 +493,7 @@ export const Dashboard = () => {
                 <div className="grid grid-cols-3 gap-4 py-4 my-2">
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-50">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Period Revenue</span>
-                        <p className="text-base font-black text-slate-800 mt-0.5">₹{totalAmount.toLocaleString('en-IN')}</p>
+                        <p className="text-base font-black text-slate-800 mt-0.5">£{totalAmount.toLocaleString('en-GB')}</p>
                     </div>
                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-50">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Period Trips</span>
@@ -552,7 +552,7 @@ export const Dashboard = () => {
                                         tickLine={false}
                                         axisLine={false}
                                         tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
-                                        tickFormatter={(val) => metric === 'amount' ? `₹${val}` : val}
+                                        tickFormatter={(val) => metric === 'amount' ? `£${val}` : val}
                                     />
                                     <Tooltip content={<CustomTooltip metric={metric} />} />
                                     <Area
