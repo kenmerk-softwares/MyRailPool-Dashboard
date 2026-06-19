@@ -88,30 +88,30 @@ export const NotificationModalList = () => {
 
       if (currentModal) {
         await updateDoc(doc(db, 'notification_modals', currentModal.id), payload);
-        showToast('Modal updated successfully', 'success');
+        showToast('Model updated successfully', 'success');
       } else {
         payload.createdAt = serverTimestamp();
         await setDoc(doc(db, 'notification_modals', formData.type), payload);
-        showToast('Modal created successfully', 'success');
+        showToast('Model created successfully', 'success');
       }
 
       setIsModalOpen(false);
       fetchModals();
     } catch (error) {
-      showToast('Error saving modal', 'error');
+      showToast('Error saving model', 'error');
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this modal?')) {
+    if (window.confirm('Are you sure you want to delete this model?')) {
       try {
         await deleteDoc(doc(db, 'notification_modals', id));
-        showToast('Modal deleted successfully', 'success');
+        showToast('Model deleted successfully', 'success');
         fetchModals();
       } catch (error) {
-        showToast('Error deleting modal', 'error');
+        showToast('Error deleting model', 'error');
       }
     }
   };
@@ -153,9 +153,9 @@ export const NotificationModalList = () => {
   return (
     <div className="animate-in fade-in duration-700">
       <SectionHeader
-        title="Notification Modals"
+        title="Notification Models"
         subtitle="Manage Notification templates."
-        actionLabel="Add Modal"
+        actionLabel="Add Model"
         actionIcon={Plus}
         onActionClick={openAddModal}
         onExportClick={handleExport}
@@ -170,7 +170,7 @@ export const NotificationModalList = () => {
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           onClear={handleClear}
-          searchPlaceholder="Search modals by title..."
+          searchPlaceholder="Search models by title..."
           filterOptions={[
             { label: 'Active', value: 'Active' },
             { label: 'Inactive', value: 'Inactive' },
@@ -204,14 +204,14 @@ export const NotificationModalList = () => {
               <button
                 onClick={() => openEditModal(modal)}
                 className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
-                title="Edit Modal"
+                title="Edit Model"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDelete(modal.id)}
                 className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
-                title="Delete Modal"
+                title="Delete Model"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -224,7 +224,7 @@ export const NotificationModalList = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="text-xl font-bold text-slate-800">{currentModal ? 'Edit Modal' : 'Create Modal'}</h3>
+              <h3 className="text-xl font-bold text-slate-800">{currentModal ? 'Edit Model' : 'Create Model'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-600">
                 <XCircle className="w-6 h-6" />
               </button>
@@ -258,7 +258,7 @@ export const NotificationModalList = () => {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all"
-                  placeholder="Modal Title"
+                  placeholder="Model Title"
                 />
               </div>
 
@@ -269,7 +269,7 @@ export const NotificationModalList = () => {
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all h-24 resize-none"
-                  placeholder="Modal main message..."
+                  placeholder="Model main message..."
                 />
                 {(() => {
                   const selectedItem = NOTIFICATION_TYPES.flatMap(c => c.items).find(i => i.id === formData.type);
@@ -339,7 +339,7 @@ export const NotificationModalList = () => {
                   disabled={uploading}
                   className="px-6 py-2.5 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl transition-all shadow-lg shadow-primary-600/20 disabled:opacity-70 flex items-center gap-2"
                 >
-                  {uploading ? 'Saving...' : 'Save Modal'}
+                  {uploading ? 'Saving...' : 'Save Model'}
                   {!uploading && <CheckCircle className="w-4 h-4" />}
                 </button>
               </div>
