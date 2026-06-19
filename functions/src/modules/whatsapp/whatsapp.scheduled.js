@@ -7,12 +7,12 @@ let client;
 
 const getTwilioClient = () => {
   if (!client) {
-    client = twilio(process.env.TEST_TWILIO_ACCOUNT_SID, process.env.TEST_TWILIO_AUTH_TOKEN);
+    client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
   }
   return client;
 };
 
-const TEMPLATE_SID = process.env.TEST_TWILIO_REMINDER_TEMPLATE_SID;
+const TEMPLATE_SID = process.env.TWILIO_REMINDER_TEMPLATE_SID;
 
 const tripReminderScheduler = onSchedule(
   {
@@ -82,7 +82,7 @@ const tripReminderScheduler = onSchedule(
 
               try {
                 const result = await getTwilioClient().messages.create({
-                      from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+                      from: process.env.TWILIO_WHATSAPP_NUMBER,
                       to: `whatsapp:${formattedMobile}`,
                       contentSid: TEMPLATE_SID,
                       contentVariables: JSON.stringify({

@@ -5,20 +5,20 @@ let client;
 const getTwilioClient = () => {
   if (!client) {
     client = twilio(
-      process.env.TEST_TWILIO_ACCOUNT_SID,
-      process.env.TEST_TWILIO_AUTH_TOKEN
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
     );
   }
   return client;
 };
 
 const TEMPLATE_SIDS = {
-  booking_confirmation: process.env.TEST_TWILIO_BOOKING_TEMPLATE_SID,
-  trip_reminder: process.env.TEST_TWILIO_REMINDER_TEMPLATE_SID,
-  booking_cancelled: process.env.TEST_TWILIO_CANCELLED_TEMPLATE_SID,
-  admin_booking: process.env.TEST_TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
-  route_request_accepted: process.env.TEST_TWILIO_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
-  user_route_request_accepted: process.env.TEST_TWILIO_USER_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
+  booking_confirmation: process.env.TWILIO_BOOKING_TEMPLATE_SID,
+  trip_reminder: process.env.TWILIO_REMINDER_TEMPLATE_SID,
+  booking_cancelled: process.env.TWILIO_CANCELLED_TEMPLATE_SID,
+  admin_booking: process.env.TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
+  route_request_accepted: process.env.TWILIO_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
+  user_route_request_accepted: process.env.TWILIO_USER_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
 };
 
 const formatWhatsAppNumber = (mobile) => {
@@ -56,7 +56,7 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
   }
 
   const booking = bookingDoc.data();
-  console.log("Booking Data:", booking);
+  // console.log("Booking Data:", booking);
 
   const sentMobiles = new Set();
 
@@ -74,7 +74,7 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
     }
 
     const user = userDoc.data();
-    console.log("User Mobile:", user.mobile);
+    // console.log("User Mobile:", user.mobile);
     if (!user.mobile) {
       console.error("User mobile not found:", passenger.userId);
       continue;
@@ -87,14 +87,14 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
     }
 
     if (sentMobiles.has(formattedMobile)) {
-      console.log("Message already sent to this number in this run:", formattedMobile);
+      // console.log("Message already sent to this number in this run:", formattedMobile);
       continue;
     }
     sentMobiles.add(formattedMobile);
 
     try {
       const result = await getTwilioClient().messages.create({
-        from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+        from: process.env.TWILIO_WHATSAPP_NUMBER,
         to: `whatsapp:${formattedMobile}`,
         contentSid: TEMPLATE_SIDS.booking_confirmation,
         contentVariables: JSON.stringify({
@@ -142,7 +142,7 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
     if (!userDoc.exists) continue;
 
     const user = userDoc.data();
-    console.log("User Mobile:", user.mobile);
+    // console.log("User Mobile:", user.mobile);
     if (!user.mobile) continue;
 
     const formattedMobile = formatWhatsAppNumber(user.mobile);
@@ -150,7 +150,7 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
 
     try {
       const result = await getTwilioClient().messages.create({
-        from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+        from: process.env.TWILIO_WHATSAPP_NUMBER,
         to: `whatsapp:${formattedMobile}`,
         contentSid: TEMPLATE_SIDS.booking_cancelled,
         contentVariables: JSON.stringify({
@@ -178,10 +178,10 @@ const sendAdminBookingNotification = async (
   passenger,
   user
 ) => {
-  const adminNumber = process.env.TEST_ADMIN_WHATSAPP_NUMBER;
+  const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
 
   if (!adminNumber) {
-    console.log("Admin WhatsApp number missing");
+    // console.log("Admin WhatsApp number missing");
     return;
   }
 
@@ -191,7 +191,7 @@ const sendAdminBookingNotification = async (
       : `+${adminNumber}`;
 
   const result = await getTwilioClient().messages.create({
-    from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+    from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${formattedAdmin}`,
     contentSid: TEMPLATE_SIDS.admin_booking,
     contentVariables: JSON.stringify({
@@ -213,10 +213,10 @@ const sendAdminBookingNotification = async (
 };
 
 const sendAdminRouteRequestNotification = async (routeRequest) => {
-  const adminNumber = process.env.TEST_ADMIN_WHATSAPP_NUMBER;
+  const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
 
   if (!adminNumber) {
-    console.log("Admin WhatsApp number missing");
+    // console.log("Admin WhatsApp number missing");
     return;
   }
 
@@ -242,7 +242,7 @@ const sendAdminRouteRequestNotification = async (routeRequest) => {
   }
 
   const messageOptions = {
-    from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+    from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${formattedAdmin}`,
   };
 
@@ -280,13 +280,13 @@ const sendAdminRouteRequestNotification = async (routeRequest) => {
 const sendUserRouteRequestAcceptedNotification = async (routeRequest, bookingNo) => {
   const userMobile = routeRequest.phone;
   if (!userMobile) {
-    console.log("User phone number missing in route request");
+    // console.log("User phone number missing in route request");
     return;
   }
 
   const formattedMobile = formatWhatsAppNumber(userMobile);
   if (!formattedMobile) {
-    console.log("Could not format user phone number:", userMobile);
+    // console.log("Could not format user phone number:", userMobile);
     return;
   }
 
@@ -295,7 +295,7 @@ const sendUserRouteRequestAcceptedNotification = async (routeRequest, bookingNo)
   const nameVal = routeRequest.name || "Customer";
 
   const messageOptions = {
-    from: process.env.TEST_TWILIO_WHATSAPP_NUMBER,
+    from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${formattedMobile}`,
     body: `Hi ${nameVal},\n\nYour route request from ${fromVal} to ${toVal} has been accepted and your slot is booked!\n\nBooking Reference: ${bookingNo}`,
   };
