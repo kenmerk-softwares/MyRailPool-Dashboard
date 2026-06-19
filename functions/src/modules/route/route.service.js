@@ -64,7 +64,7 @@ const addRouteService = async (data, req) => {
     const payload = {
       name,
       order: routeOrder,
-      status: "Active",
+      status: "Inactive",
       activationDate: new Date(activationDate),
       deactivationDate: new Date(deactivationDate),
       description,
