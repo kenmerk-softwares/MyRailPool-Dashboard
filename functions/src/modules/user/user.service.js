@@ -204,13 +204,11 @@ const bookTripService = async (data) => {
     let returnFare = null;
     if (returnTripId) {
         returnFare = getFareFromMatrix(returnTripData.fareMatrix, dropPoint, startingPoint);
-        if (returnFare === null && returnTripData.routes && returnTripData.routes.length > 0) {
-            returnFare = getFareFromMatrix(returnTripData.fareMatrix, returnTripData.routes[0], returnTripData.routes[returnTripData.routes.length - 1]);
-        }
         if (returnFare === null) {
-            const returnFares = Object.values(returnTripData.fareMatrix || {});
-            const returnMinFare = returnFares.length > 0 ? Math.min(...returnFares.map(Number)) : 0;
-            returnFare = returnMinFare || fare; // Fallback to minimum return fare or outbound fare
+            return {
+                success: false,
+                message: "Fare not configured for the selected return route",
+            };
         }
         returnFareTotal = Number(returnFare) * bookingCount * returnDates.length;
     }
@@ -371,6 +369,8 @@ const bookTripService = async (data) => {
             boardingPoint,
             dropOffPoint,
             paymentStatus,
+            departureTime: tripData.routeTiming ? (tripData.routeTiming[startingPoint] || "") : "",
+            arrivalTime: tripData.routeTiming ? (tripData.routeTiming[dropPoint] || "") : "",
             createdAt: new Date(),
             ...(sessionId && { stripeSessionId: sessionId })
         };
@@ -423,6 +423,8 @@ const bookTripService = async (data) => {
                 boardingPoint: returnBoardingPoint || null,
                 dropOffPoint: returnDropOffPoint || null,
                 paymentStatus,
+                departureTime: returnTripData.routeTiming ? (returnTripData.routeTiming[dropPoint] || "") : "",
+                arrivalTime: returnTripData.routeTiming ? (returnTripData.routeTiming[startingPoint] || "") : "",
                 createdAt: new Date(),
                 ...(sessionId && { stripeSessionId: sessionId })
             };
@@ -508,6 +510,8 @@ const bookTripService = async (data) => {
             boardingPoint,
             dropOffPoint,
             paymentStatus,
+            departureTime: tripData.routeTiming ? (tripData.routeTiming[startingPoint] || "") : "",
+            arrivalTime: tripData.routeTiming ? (tripData.routeTiming[dropPoint] || "") : "",
             createdAt: new Date(),
             tripStatus: "Not Started",
             multiBookings: data.multiBookings || false,
@@ -554,6 +558,8 @@ const bookTripService = async (data) => {
                 boardingPoint: returnBoardingPoint || null,
                 dropOffPoint: returnDropOffPoint || null,
                 paymentStatus,
+                departureTime: returnTripData.routeTiming ? (returnTripData.routeTiming[dropPoint] || "") : "",
+                arrivalTime: returnTripData.routeTiming ? (returnTripData.routeTiming[startingPoint] || "") : "",
                 createdAt: new Date(),
                 tripStatus: "Not Started",
                 multiBookings: returnMultiBookings || false,
