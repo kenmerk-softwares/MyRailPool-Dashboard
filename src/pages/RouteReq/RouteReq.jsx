@@ -30,6 +30,7 @@ const RouteReq = () => {
   const [fare, setFare] = useState('10');
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
+  const [customSeatingCapacity, setCustomSeatingCapacity] = useState('');
   const [processing, setProcessing] = useState(false);
 
   const {
@@ -63,6 +64,19 @@ const RouteReq = () => {
     };
     fetchResources();
   }, []);
+
+  useEffect(() => {
+    if (selectedVehicleId) {
+      const vehicle = vehicles.find(v => v.id === selectedVehicleId);
+      if (vehicle && vehicle.seatingCapacity) {
+        setCustomSeatingCapacity(String(vehicle.seatingCapacity));
+      } else {
+        setCustomSeatingCapacity('');
+      }
+    } else {
+      setCustomSeatingCapacity('');
+    }
+  }, [selectedVehicleId, vehicles]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -103,6 +117,7 @@ const RouteReq = () => {
         driverName: driver ? driver.name : "",
         vehicleId: selectedVehicleId,
         vehicleReg: vehicle ? vehicle.registrationNo : "",
+        seatingCapacity: parseInt(customSeatingCapacity) || 0,
       });
 
       if (res.success) {
@@ -112,6 +127,7 @@ const RouteReq = () => {
         setSelectedDriverId('');
         setSelectedVehicleId('');
         setFare('10');
+        setCustomSeatingCapacity('');
         fetchRequests({ searchTerm, statusFilter, dateFilter });
       } else {
         alert(res.error || "An error occurred while processing the request.");
@@ -296,6 +312,17 @@ const RouteReq = () => {
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
                 />
               </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Seating Capacity</label>
+                <input
+                  type="number"
+                  value={customSeatingCapacity}
+                  onChange={(e) => setCustomSeatingCapacity(e.target.value)}
+                  placeholder="e.g. 15"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                />
+              </div>
             </div>
 
             <div className="mt-6 flex gap-3">
@@ -307,7 +334,14 @@ const RouteReq = () => {
               </button>
               <button
                 onClick={submitAcceptRouteRequest}
-                disabled={processing || !selectedDriverId || !selectedVehicleId || !fare}
+                disabled={
+                  processing || 
+                  !selectedDriverId || 
+                  !selectedVehicleId || 
+                  !fare || 
+                  !customSeatingCapacity || 
+                  parseInt(customSeatingCapacity) <= 0
+                }
                 className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {processing ? 'Processing...' : 'Confirm & Process'}
