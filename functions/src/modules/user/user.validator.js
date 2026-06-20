@@ -15,6 +15,7 @@ const tripBookingValidation = (req) => {
       Joi.object({
         name: Joi.string().required(),
         age: Joi.alternatives().try(Joi.string(), Joi.number()).allow("").optional(),
+        mobile: Joi.string().allow("").optional(),
       })
     ).required(),
     boardingPoint: Joi.object().required(),

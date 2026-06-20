@@ -239,7 +239,13 @@ const processRouteRequestService = async (data, req) => {
     driverName,
     vehicleId,
     vehicleReg,
+    seatingCapacity,
   } = data;
+
+  const seatingCap = Number(seatingCapacity);
+  if (isNaN(seatingCap) || seatingCap <= 0) {
+    return { success: false, error: "Invalid seating capacity. Must be greater than zero." };
+  }
 
   const routeRequestDoc = await db.collection("route_request").doc(routeRequestId).get();
   if (!routeRequestDoc.exists) {
@@ -299,6 +305,13 @@ const processRouteRequestService = async (data, req) => {
     const routeDoc = routeQuery.docs[0];
     routeId = routeDoc.id;
     routeName = routeDoc.data().name;
+
+    // Merge/update the custom fare in the existing route's fareMatrix
+    await db.collection("routes").doc(routeId).set({
+      fareMatrix: {
+        [`${from}-${to}`]: String(fare),
+      },
+    }, { merge: true });
   } else {
     // Route doesn't exist, create it!
     const countSnapshot = await db.collection("routes").count().get();
@@ -343,6 +356,12 @@ const processRouteRequestService = async (data, req) => {
     }
     routeId = routeResult.id;
     routeName = routePayload.name;
+
+    // Activate the newly created route directly
+    await db.collection("routes").doc(routeId).update({
+      status: "Active",
+      updatedAt: new Date(),
+    });
   }
 
   // 2. Check if Trip exists
@@ -358,6 +377,12 @@ const processRouteRequestService = async (data, req) => {
     const coversAll = routeDates.every((d) => tripDates.includes(d));
     if (coversAll) {
       tripId = doc.id;
+      // Merge/update custom fare in existing trip's fareMatrix
+      await db.collection("trips").doc(tripId).set({
+        fareMatrix: {
+          [`${from}-${to}`]: String(fare),
+        },
+      }, { merge: true });
       break;
     }
   }
@@ -368,27 +393,46 @@ const processRouteRequestService = async (data, req) => {
     const routeDocData = routeDoc.exists ? routeDoc.data() : {};
     const routeOrder = routeDocData.order || 1;
     const routeStops = routeDocData.routes || [from, to];
-    const routeFareMatrix = routeDocData.fareMatrix || { [`${from}-${to}`]: String(fare) };
+    
+    // Explicitly merge/ensure the custom fare key/value in routeFareMatrix
+    const routeFareMatrix = {
+      ...(routeDocData.fareMatrix || {}),
+      [`${from}-${to}`]: String(fare),
+    };
     const routePairs = routeDocData.routePairs || [`${from}-${to}`];
 
-    const routeTiming = {};
-    routeStops.forEach((stop, index) => {
-      routeTiming[stop] = `08:${String(index * 15).padStart(2, "0")}`;
-    });
+    let startHour = 8;
+    let startMinute = 0;
 
-    let seatingCapacity = 15;
-    if (vehicleId) {
-      try {
-        const vehicleDoc = await db.collection("vehicles").doc(vehicleId).get();
-        if (vehicleDoc.exists) {
-          seatingCapacity = Number(vehicleDoc.data().seatingCapacity || 15);
+    if (routeRequestData.schedules && routeRequestData.schedules.length > 0) {
+      const firstSched = routeRequestData.schedules[0];
+      if (firstSched.time && firstSched.time.length > 0) {
+        const timeStr = String(firstSched.time[0]).toLowerCase();
+        const ampm = timeStr.includes("pm");
+        const cleanTime = timeStr.replace("am", "").replace("pm", "").trim();
+        const parts = cleanTime.split(":");
+        if (parts.length >= 1) {
+          let h = parseInt(parts[0], 10);
+          let m = parts[1] ? parseInt(parts[1], 10) : 0;
+          if (!isNaN(h)) {
+            if (ampm && h < 12) h += 12;
+            if (!ampm && h === 12) h = 0;
+            startHour = h;
+            startMinute = isNaN(m) ? 0 : m;
+          }
         }
-      } catch (err) {
-        console.error("Error fetching vehicle seatingCapacity:", err);
       }
     }
 
-    // Trip doesn't exist, schedule it!
+    const routeTiming = {};
+    routeStops.forEach((stop, index) => {
+      const totalMinutes = startHour * 60 + startMinute + index * 15;
+      const h = Math.floor(totalMinutes / 60) % 24;
+      const m = totalMinutes % 60;
+      routeTiming[stop] = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    });
+
+    // Trip doesn't exist, schedule it with custom seatingCap!
     const tripPayload = {
       type: "add",
       fields: {
@@ -400,9 +444,9 @@ const processRouteRequestService = async (data, req) => {
         routeTiming: routeTiming,
         selectedDates: routeDates,
         status: "Active",
-        total_seats: seatingCapacity,
+        total_seats: seatingCap,
         available_seats: routeDates.reduce((acc, date) => {
-          acc[date] = seatingCapacity;
+          acc[date] = seatingCap;
           return acc;
         }, {}),
         driver_name: driverName,
@@ -433,15 +477,26 @@ const processRouteRequestService = async (data, req) => {
   }
 
   // 3. Create booking
+  const bookingCount = Math.max(1, Number(routeRequestData.passenger_count || 1));
+  const passengers = (routeRequestData.passengers && routeRequestData.passengers.length > 0)
+    ? routeRequestData.passengers.map(p => ({
+        name: p.name || "",
+        mobile: p.mobile || p.number || p.phone || routeRequestData.phone || "",
+      }))
+    : Array.from({ length: bookingCount }, (_, i) => ({
+        name: i === 0 ? (routeRequestData.name || "Passenger") : `${routeRequestData.name || "Passenger"} ${i + 1}`,
+        mobile: routeRequestData.phone || "",
+      }));
+
   const bookingPayload = {
     tripId: tripId,
-    bookingCount: routeRequestData.passenger_count || 1,
+    bookingCount: bookingCount,
     userId: routeRequestData.createdBy || routeRequestData.uid || "",
     paymentType: "offline",
     startingPoint: from,
     dropPoint: to,
     selectedDate: routeDates,
-    passengers: [{ name: routeRequestData.name || "Passenger", age: "" }],
+    passengers: passengers,
     boardingPoint: { name: from },
     dropOffPoint: { name: to },
     multiBookings: false,

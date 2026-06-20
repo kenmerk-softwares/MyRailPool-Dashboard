@@ -8,6 +8,7 @@ const processRouteRequestValidator = (req) => {
     driverName: Joi.string().required(),
     vehicleId: Joi.string().required(),
     vehicleReg: Joi.string().required(),
+    seatingCapacity: Joi.number().integer().min(1).required(),
   }).unknown(true);
 
   const {error, value} = schema.validate(req.data, {
