@@ -19,6 +19,7 @@ exports.processRouteRequest = processRouteRequest;
 
 
 
+
 // ================ DRIVER MODULES ==================== //
 const {addDriver} = require("./modules/driver/driver.callable");
 exports.addDriver = addDriver;
@@ -62,3 +63,10 @@ exports.whatsappNotifications = whatsappNotifications;
 
 const {tripReminderScheduler} = require("./modules/whatsapp/whatsapp.scheduled");
 exports.tripReminderScheduler = tripReminderScheduler;
+
+// ================== PAYMENT DRIVER ==================== //
+const {updatePaymentDriver, updateTripDriverApp} = require("./modules/driver/driver.callable");
+exports.updatePaymentDriver = updatePaymentDriver;
+exports.updateTripDriverApp = updateTripDriverApp;
+
+

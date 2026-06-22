@@ -47,4 +47,61 @@ const addDriverValidator = (req, data) => {
   };
 };
 
-module.exports = {addDriverValidator};
+const updatePaymentDriverValidator = (req, data) => {
+  const schema = Joi.object({
+    uid: Joi.string().required(),
+    financeId: Joi.string().required(),
+    bookingId: Joi.string().required(),
+    tripId: Joi.string().required(),
+    paymentStatus: Joi.string().required(),
+  });
+
+
+  const {error, value} = schema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.details.map((err) => err.message),
+    };
+  }
+
+  return {
+    success: true,
+    data: value,
+  };
+};
+
+
+// ==================== UPDATE TRIP DRIVER APP VALIDATOR ==================== //
+const updateTripDriverAppValidator = (req, data) => {
+  const schema = Joi.object({
+    bookingId: Joi.string().required(),
+    tripId: Joi.string().required(),
+    tripStatus: Joi.string().required(),
+  });
+
+
+  const {error, value} = schema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.details.map((err) => err.message),
+    };
+  }
+
+  return {
+    success: true,
+    data: value,
+  };
+};
+
+module.exports = {addDriverValidator, updatePaymentDriverValidator, updateTripDriverAppValidator};
+

@@ -372,6 +372,7 @@ const bookTripService = async (data) => {
             departureTime: tripData.routeTiming ? (tripData.routeTiming[startingPoint] || "") : "",
             arrivalTime: tripData.routeTiming ? (tripData.routeTiming[dropPoint] || "") : "",
             createdAt: new Date(),
+            passengers: data.passengers || [],
             ...(sessionId && { stripeSessionId: sessionId })
         };
 
@@ -390,6 +391,7 @@ const bookTripService = async (data) => {
             route_type: tripData.route_type || "",
             selectedDate: date,
             updatedAt: new Date(),
+            tripStatus: "Not Started",
             totalSeats: tripData.total_seats,
             bookedCount: FieldValue.increment(bookingCount),
             users: FieldValue.arrayUnion(userDetailsMap),
@@ -426,6 +428,7 @@ const bookTripService = async (data) => {
                 departureTime: returnTripData.routeTiming ? (returnTripData.routeTiming[dropPoint] || "") : "",
                 arrivalTime: returnTripData.routeTiming ? (returnTripData.routeTiming[startingPoint] || "") : "",
                 createdAt: new Date(),
+                passengers: data.passengers || [],
                 ...(sessionId && { stripeSessionId: sessionId })
             };
 
@@ -444,6 +447,7 @@ const bookTripService = async (data) => {
                 route_type: returnTripData.route_type || "",
                 selectedDate: date,
                 updatedAt: new Date(),
+                tripStatus: "Not Started",
                 totalSeats: returnTripData.total_seats,
                 bookedCount: FieldValue.increment(bookingCount),
                 users: FieldValue.arrayUnion(userDetailsMap),
