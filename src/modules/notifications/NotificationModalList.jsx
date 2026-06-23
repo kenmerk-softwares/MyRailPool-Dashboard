@@ -18,7 +18,8 @@ const NOTIFICATION_TYPES = [
       { id: "TRIP_STARTED", label: "Trip Started", variables: ["{{booking_id}}", "{{driver_name}}"] },
       { id: "TRIP_COMPLETED", label: "Trip Completed", variables: ["{{user_name}}", "{{booking_id}}", "{{amount}}"] },
       { id: "RIDE_CANCELLED", label: "Ride Cancelled", variables: ["{{user_name}}", "{{booking_id}}", "{{cancellation_reason}}", "{{refund_amount}}"] },
-      { id: "SYSTEM_RIDE_CANCELLATION", label: "System Ride Cancellation", variables: ["{{driver_name}}", "{{booking_id}}", "{{cancellation_reason}}"] }
+      { id: "SYSTEM_RIDE_CANCELLATION", label: "System Ride Cancellation", variables: ["{{driver_name}}", "{{booking_id}}", "{{cancellation_reason}}"] },
+      { id: "ROUTE_REQUEST_ACCEPTED", label: "Route Request Accepted", variables: ["{{user_name}}", "{{booking_id}}", "{{pickup}}", "{{drop}}"] }
     ]
   },
   {
