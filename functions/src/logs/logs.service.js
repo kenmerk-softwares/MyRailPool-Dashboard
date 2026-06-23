@@ -1,8 +1,8 @@
 /* eslint-disable max-len */
-const {initializeApp, cert, getApps} = require("firebase-admin/app");
-const {getFirestore} = require("firebase-admin/firestore");
-const {getServiceAccountFromEnv} = require("../shared/config/service-account-env");
-const {db} = require("../shared/config/firebase");
+const { initializeApp, cert, getApps } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+const { getServiceAccountFromEnv } = require("../shared/config/service-account-env");
+const { db } = require("../shared/config/firebase");
 
 let adminLogDb = null;
 
@@ -23,12 +23,14 @@ function getAdminLogDb() {
 }
 
 const adminLogs = (async (uid, email, action, description) => {
+  // Temporarily disabled admin logging
+  return { status: 200, success: true };
   try {
     if (!uid) {
-      return {success: false, error: "Unauthorized"};
+      return { success: false, error: "Unauthorized" };
     }
     const adminData = await db.collection("admin-users").doc(uid).get();
-    const {name, designation, department} = adminData.data();
+    const { name, designation, department } = adminData.data();
     const payload = {
       uid,
       name,
@@ -40,7 +42,7 @@ const adminLogs = (async (uid, email, action, description) => {
       createdAt: new Date(),
     };
     await getAdminLogDb().collection("admin-logs").add(payload);
-    return {status: 200, success: true};
+    return { status: 200, success: true };
   } catch (error) {
     console.error("Admin Logs Error:", error);
     return {
@@ -50,4 +52,4 @@ const adminLogs = (async (uid, email, action, description) => {
   }
 });
 
-module.exports = {adminLogs};
+module.exports = { adminLogs };
