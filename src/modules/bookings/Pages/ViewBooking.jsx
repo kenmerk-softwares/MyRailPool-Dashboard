@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import {
   MapPin, Car, Navigation, ArrowLeft, AlertCircle,
@@ -50,9 +51,20 @@ const CancelBookingModal = ({
   confirmedPaymentsCount = 0,
   loadingPaymentsCount = false,
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center animate-in fade-in zoom-in duration-200">
         <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -121,17 +133,29 @@ const CancelBookingModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
 // Beautiful modal styled identically to CancelBookingModal for passenger details
 const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !user) return null;
 
   const passengerList = passengers || [];
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100 animate-in fade-in zoom-in duration-200">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
@@ -203,9 +227,11 @@ const PassengerDetailsModal = ({ isOpen, onClose, user, passengers }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
+
 
 export const ViewBooking = () => {
   const { id } = useParams();
@@ -570,7 +596,7 @@ export const ViewBooking = () => {
                       <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
 
                       <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold">
-                        <span>Passenger Count: <span className="font-bold text-slate-800">{booking?.passengers?.length || u.bookingCount || 0}</span></span>
+                        <span>Passenger Count: <span className="font-bold text-slate-800">{u.passengers?.length || u.bookingCount || 0}</span></span>
                         <span>Total: <span className="font-bold text-emerald-600">£{u.totalFare || 0}</span></span>
                       </div>
                     </div>
@@ -597,6 +623,7 @@ export const ViewBooking = () => {
                       )}
                     </div>
                   </div>
+
                 </div>
               ))}
             </div>
@@ -621,13 +648,13 @@ export const ViewBooking = () => {
         confirmedPaymentsCount={confirmedPaymentsCount}
         loadingPaymentsCount={loadingPaymentsCount}
       />
-
       <PassengerDetailsModal
         isOpen={passengerModal.isOpen}
         onClose={() => setPassengerModal({ isOpen: false, user: null })}
         user={passengerModal.user}
-        passengers={booking?.passengers}
+        passengers={passengerModal.user?.passengers}
       />
+
     </div>
   );
 };
