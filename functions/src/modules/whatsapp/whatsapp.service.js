@@ -56,7 +56,6 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
   }
 
   const booking = bookingDoc.data();
-  // console.log("Booking Data:", booking);
 
   const sentMobiles = new Set();
 
@@ -69,25 +68,24 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
       .get();
 
     if (!userDoc.exists) {
-      console.error("User not found:", passenger.userId);
+      console.error(`User not found in DB for passenger ID`);
       continue;
     }
 
     const user = userDoc.data();
-    // console.log("User Mobile:", user.mobile);
     if (!user.mobile) {
-      console.error("User mobile not found:", passenger.userId);
+      console.error(`User mobile is empty for`);
       continue;
     }
 
     const formattedMobile = formatWhatsAppNumber(user.mobile);
     if (!formattedMobile) {
-      console.error("Formatted mobile not found:", user.mobile);
+      console.error(`Could not format mobile number`);
       continue;
     }
 
     if (sentMobiles.has(formattedMobile)) {
-      // console.log("Message already sent to this number in this run:", formattedMobile);
+      console.log(`Message already sent to this number in this run`);
       continue;
     }
     sentMobiles.add(formattedMobile);
@@ -98,18 +96,18 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
         to: `whatsapp:${formattedMobile}`,
         contentSid: TEMPLATE_SIDS.booking_confirmation,
         contentVariables: JSON.stringify({
-          1: String(passenger.name || user.name || ""),
-          2: String(passenger.bookingNo || booking.bookingNo || ""),
-          3: String(booking.route_name || ""),
-          4: String(booking.selectedDate || ""),
-          5: String(passenger.boardingPoint?.placeName || passenger.startingPoint || ""),
-          6: String(passenger.dropOffPoint?.placeName || passenger.dropPoint || ""),
-          7: String(passenger.bookingCount || 0),
-          8: String(passenger.paymentType || ""),
-          9: String(passenger.totalFare || 0),
+          1: String(passenger.name || user.name || "N/A"),
+          2: String(passenger.bookingNo || booking.bookingNo || "N/A"),
+          3: String(booking.route_name || "N/A"),
+          4: String(booking.selectedDate || "N/A"),
+          5: String(passenger.boardingPoint?.placeName || passenger.startingPoint || "N/A"),
+          6: String(passenger.dropOffPoint?.placeName || passenger.dropPoint || "N/A"),
+          7: String(passenger.bookingCount || "0"),
+          8: String(passenger.paymentType || "N/A"),
+          9: String(passenger.totalFare || "0"),
         }),
       });
-      console.log("WhatsApp SID:", result.sid);
+      console.log("WhatsApp sendBookingConfirmation SID:", result.sid);
 
       await sendAdminBookingNotification(
         booking,
@@ -118,7 +116,7 @@ const sendBookingConfirmation = async (bookingDocId, targetUserId = null, target
       );
     }
     catch (err) {
-      console.error("WhatsApp Error:", err);
+      console.error("WhatsApp Error sendBookingConfirmation:", err);
     }
   }
 };
@@ -139,14 +137,25 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
       .doc(passenger.userId)
       .get();
 
-    if (!userDoc.exists) continue;
+    if (!userDoc.exists) {
+      console.error(`User not found in DB for passenger ID`);
+      continue;
+    }
 
     const user = userDoc.data();
-    // console.log("User Mobile:", user.mobile);
-    if (!user.mobile) continue;
+    console.log(`Fetched user`);
+    if (!user.mobile) {
+      console.error(`User mobile is empty`);
+      continue;
+    }
 
     const formattedMobile = formatWhatsAppNumber(user.mobile);
-    if (!formattedMobile) continue;
+    if (!formattedMobile) {
+      console.error(`Could not format mobile number`);
+      continue;
+    }
+
+    console.log(`Preparing to send cancellation WhatsApp message `);
 
     try {
       const result = await getTwilioClient().messages.create({
@@ -154,21 +163,21 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
         to: `whatsapp:${formattedMobile}`,
         contentSid: TEMPLATE_SIDS.booking_cancelled,
         contentVariables: JSON.stringify({
-          1: String(passenger.name || user.name || ""),
-          2: String(passenger.bookingNo || booking.bookingNo || ""),
-          3: String(booking.route_name || ""),
-          4: String(booking.selectedDate || ""),
-          5: String(passenger.boardingPoint?.name || passenger.startingPoint || ""),
-          6: String(passenger.dropOffPoint?.name || passenger.dropPoint || ""),
-          7: String(passenger.bookingCount || 0),
-          8: String(passenger.paymentType || ""),
-          9: String(passenger.totalFare || 0),
+          1: String(passenger.name || user.name || "N/A"),
+          2: String(passenger.bookingNo || booking.bookingNo || "N/A"),
+          3: String(booking.route_name || "N/A"),
+          4: String(booking.selectedDate || "N/A"),
+          5: String(passenger.boardingPoint?.name || passenger.startingPoint || "N/A"),
+          6: String(passenger.dropOffPoint?.name || passenger.dropPoint || "N/A"),
+          7: String(passenger.bookingCount || "0"),
+          8: String(passenger.paymentType || "N/A"),
+          9: String(passenger.totalFare || "0"),
         }),
       });
-      console.log("WhatsApp SID (Cancelled):", result.sid);
+      console.log("WhatsApp sendBookingCancelled",result.sid);
     }
     catch (err) {
-      console.error("WhatsApp Error (Cancelled):", err);
+      console.error("WhatsApp Error (bookCancelled):");
     }
   }
 };
@@ -190,26 +199,36 @@ const sendAdminBookingNotification = async (
       ? adminNumber
       : `+${adminNumber}`;
 
-  const result = await getTwilioClient().messages.create({
-    from: process.env.TWILIO_WHATSAPP_NUMBER,
-    to: `whatsapp:${formattedAdmin}`,
-    contentSid: TEMPLATE_SIDS.admin_booking,
-    contentVariables: JSON.stringify({
-      1: String(user.name || ""),
-      2: String(user.mobile || ""),
-      3: String(booking.bookingNo || ""),
-      4: String(booking.route_name || ""),
-      5: String(booking.selectedDate || ""),
-      6: String(passenger.boardingPoint?.name || ""),
-      7: String(passenger.dropOffPoint?.name || ""),
-      8: String(passenger.bookingCount || 0),
-      9: String(passenger.paymentType || ""),
-      10: String(passenger.totalFare || 0),
-      11: String(booking.driver_name || ""),
-    }),
-  });
+  const toWhatsAppNumber = `whatsapp:${formattedAdmin}`;
+  if (toWhatsAppNumber === process.env.TWILIO_WHATSAPP_NUMBER) {
+    console.warn("Skipping Admin WhatsApp notification: ADMIN_WHATSAPP_NUMBER is the same as TWILIO_WHATSAPP_NUMBER.");
+    return;
+  }
 
-  console.log("Admin WhatsApp sent:", result.sid);
+  try {
+    const result = await getTwilioClient().messages.create({
+      from: process.env.TWILIO_WHATSAPP_NUMBER,
+      to: toWhatsAppNumber,
+      contentSid: TEMPLATE_SIDS.admin_booking,
+      contentVariables: JSON.stringify({
+        1: String(user.name || "N/A"),
+        2: String(user.mobile || "N/A"),
+        3: String(booking.bookingNo || "N/A"),
+        4: String(booking.route_name || "N/A"),
+        5: String(booking.selectedDate || "N/A"),
+        6: String(passenger.boardingPoint?.name || "N/A"),
+        7: String(passenger.dropOffPoint?.name || "N/A"),
+        8: String(passenger.bookingCount || "0"),
+        9: String(passenger.paymentType || "N/A"),
+        10: String(passenger.totalFare || "0"),
+        11: String(booking.driver_name || "N/A"),
+      }),
+    });
+
+    console.log("Admin WhatsApp sent SID",result.sid);
+  } catch (err) {
+    console.error("Admin WhatsApp Error",err);
+  }
 };
 
 const sendAdminRouteRequestNotification = async (routeRequest) => {
@@ -271,7 +290,7 @@ const sendAdminRouteRequestNotification = async (routeRequest) => {
 
   try {
     const result = await getTwilioClient().messages.create(messageOptions);
-    console.log("Admin Route Request WhatsApp sent:", result.sid);
+    console.log("Admin Route Request WhatsApp sent",result.sid);
   } catch (err) {
     console.error("WhatsApp Error (Admin Route Request):", err);
   }
@@ -302,7 +321,7 @@ const sendUserRouteRequestAcceptedNotification = async (routeRequest, bookingNo)
 
   try {
     const result = await getTwilioClient().messages.create(messageOptions);
-    console.log("User Route Request Accepted WhatsApp sent:", result.sid);
+    console.log("User Route Request Accepted WhatsApp sent",result.sid);
   } catch (err) {
     console.error("WhatsApp Error (User Route Request Accepted):", err);
   }
