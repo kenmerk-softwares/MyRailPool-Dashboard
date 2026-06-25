@@ -24,7 +24,7 @@ function getAdminLogDb() {
 
 const adminLogs = (async (uid, email, action, description) => {
   // Temporarily disabled admin logging
-  return { status: 200, success: true };
+  // return { status: 200, success: true };
   try {
     if (!uid) {
       return { success: false, error: "Unauthorized" };
