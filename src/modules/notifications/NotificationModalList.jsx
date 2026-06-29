@@ -12,6 +12,7 @@ const NOTIFICATION_TYPES = [
   {
     category: "Booking & Trips",
     items: [
+      { id: "ADMIN_BOOKING_RECEIVED", label: "Admin Booking Received", variables: ["{{user_name}}", "{{booking_id}}", "{{pickup}}", "{{drop}}", "{{date}}", "{{amount}}"] },
       { id: "BOOKING_CONFIRMATION", label: "Booking Confirmation", variables: ["{{user_name}}", "{{booking_id}}", "{{pickup}}", "{{drop}}", "{{date}}", "{{amount}}"] },
       { id: "DRIVER_ASSIGNED", label: "Driver Assigned", variables: ["{{user_name}}", "{{booking_id}}", "{{driver_name}}", "{{vehicle_number}}"] },
       { id: "UPON_DOOR_STEP", label: "Upon Door Step", variables: ["{{user_name}}", "{{booking_id}}", "{{driver_name}}", "{{eta}}"] },
@@ -152,78 +153,80 @@ export const NotificationModalList = () => {
   };
 
   return (
-    <div className="animate-in fade-in duration-700">
-      <SectionHeader
-        title="Notification Models"
-        subtitle="Manage Notification templates."
-        actionLabel="Add Model"
-        actionIcon={Plus}
-        onActionClick={openAddModal}
-        onExportClick={handleExport}
-      />
-
-      <div className="pb-10">
-        <Table
-          headers={['Details', 'Target Audience', 'Status']}
-          data={filteredModals}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-          onClear={handleClear}
-          searchPlaceholder="Search models by title..."
-          filterOptions={[
-            { label: 'Active', value: 'Active' },
-            { label: 'Inactive', value: 'Inactive' },
-          ]}
-          renderRow={(modal, idx) => (
-            <>
-              <td className="px-8 py-4">
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">{modal.id}</span>
-                  </div>
-                  <span className="text-[14px] font-black text-slate-800 tracking-tight">{modal.title}</span>
-                  <span className="text-[12px] text-slate-500 mt-1 line-clamp-1 max-w-xs">{modal.message}</span>
-                </div>
-              </td>
-              <td className="px-8 py-4">
-                <span className="text-[12px] font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider">
-                  {modal.targetAudience}
-                </span>
-              </td>
-              <td className="px-8 py-4">
-                <StatusBadge
-                  status={modal.status}
-                  statusColor={modal.status === 'Active' ? 'success' : 'danger'}
-                />
-              </td>
-            </>
-          )}
-          actions={(modal) => (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => openEditModal(modal)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
-                title="Edit Model"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleDelete(modal.id)}
-                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
-                title="Delete Model"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+    <>
+      <div className="animate-in fade-in duration-700">
+        <SectionHeader
+          title="Notification Models"
+          subtitle="Manage Notification templates."
+          actionLabel="Add Model"
+          actionIcon={Plus}
+          onActionClick={openAddModal}
+          onExportClick={handleExport}
         />
+
+        <div className="pb-10">
+          <Table
+            headers={['Details', 'Target Audience', 'Status']}
+            data={filteredModals}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            onClear={handleClear}
+            searchPlaceholder="Search models by title..."
+            filterOptions={[
+              { label: 'Active', value: 'Active' },
+              { label: 'Inactive', value: 'Inactive' },
+            ]}
+            renderRow={(modal, idx) => (
+              <>
+                <td className="px-8 py-4">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wider">{modal.id}</span>
+                    </div>
+                    <span className="text-[14px] font-black text-slate-800 tracking-tight">{modal.title}</span>
+                    <span className="text-[12px] text-slate-500 mt-1 line-clamp-1 max-w-xs">{modal.message}</span>
+                  </div>
+                </td>
+                <td className="px-8 py-4">
+                  <span className="text-[12px] font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                    {modal.targetAudience}
+                  </span>
+                </td>
+                <td className="px-8 py-4">
+                  <StatusBadge
+                    status={modal.status}
+                    statusColor={modal.status === 'Active' ? 'success' : 'danger'}
+                  />
+                </td>
+              </>
+            )}
+            actions={(modal) => (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openEditModal(modal)}
+                  className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                  title="Edit Model"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(modal.id)}
+                  className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-100 rounded-xl transition-all hover:shadow-lg active:scale-95"
+                  title="Delete Model"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          />
+        </div>
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-[150] flex items-start justify-center p-4 pt-1 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden my-8">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h3 className="text-xl font-bold text-slate-800">{currentModal ? 'Edit Model' : 'Create Model'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-slate-600">
@@ -293,7 +296,7 @@ export const NotificationModalList = () => {
                             </button>
                           ))}
                         </div>
-                        <p className="text-[10px] text-indigo-400 mt-2">These variables will be replaced with actual user data when sent.</p>
+                        <p className="text-[10px] text-indigo-800 mt-2">These variables will be replaced with actual user data when sent.</p>
                       </div>
                     );
                   }
@@ -348,6 +351,6 @@ export const NotificationModalList = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
