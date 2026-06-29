@@ -103,6 +103,90 @@ const sendBookingConfirmationNotification = async (user, bookingId, date) => {
     }
 };
 
+const sendAdminBookingReceivedNotification = async (user, bookingId, date, bookingData) => {
+    try {
+        const routeName = bookingData.route_name || "N/A";
+        const routeStart = bookingData.route_start || "N/A";
+        const routeEnd = bookingData.route_end || "N/A";
+        const driverName = bookingData.driver_name || "N/A";
+        const bookingNo = user.bookingNo || bookingData.bookingNo || "N/A";
+        const startingPoint = user.startingPoint || routeStart;
+        const dropPoint = user.dropPoint || routeEnd;
+        const departureTime = user.departureTime || "N/A";
+        const arrivalTime = user.arrivalTime || "N/A";
+        const userName = user.name || "Customer";
+        const userPhone = user.phone || "N/A";
+        const passengers = user.passengers || [];
+        const passengerCount = passengers.length;
+
+        // Fetch template from notification_modals collection
+        const templateDoc = await db.collection("notification_modals").doc("ADMIN_BOOKING_RECEIVED").get();
+        let title = "New Booking Received";
+        let message = "";
+
+        if (templateDoc.exists) {
+            const templateData = templateDoc.data();
+            if (templateData.title) title = templateData.title;
+            if (templateData.message) {
+                message = templateData.message
+                    .replace(/{{user_name}}/g, userName)
+                    .replace(/{{booking_id}}/g, bookingNo)
+                    .replace(/{{date}}/g, date || "")
+                    .replace(/{{pickup}}/g, startingPoint)
+                    .replace(/{{drop}}/g, dropPoint)
+                    .replace(/{{amount}}/g, user.totalFare !== undefined ? String(user.totalFare) : "");
+            }
+        }
+
+        // If template doesn't exist or doesn't have a message, fall back to default formatted details
+        if (!message) {
+            message = `Booking No: ${bookingNo}\n`;
+            message += `Route: ${routeName} (${routeStart} to ${routeEnd})\n`;
+            message += `Date: ${date}\n`;
+            message += `Timings: Departure: ${departureTime} | Arrival: ${arrivalTime}\n`;
+            message += `Driver: ${driverName}\n`;
+            message += `Customer: ${userName} (Phone: ${userPhone})\n`;
+            message += `Pickup: ${startingPoint} | Drop: ${dropPoint}\n`;
+            message += `Passenger Count: ${passengerCount}`;
+
+            if (passengerCount > 0) {
+                const passengerDetails = passengers.map((p, idx) => `${idx + 1}. ${p.name || "Name N/A"} (${p.mobile || "Phone N/A"})`).join(", ");
+                message += `\nPassengers: ${passengerDetails}`;
+            }
+        }
+        await db.collection("admin_notification").add({
+            title: title,
+            message: message,
+            type: "success",
+            createdAt: new Date(),
+            status: "Unread",
+            bookingId: bookingId,
+            bookingNo: bookingNo,
+            details: {
+                bookingNo,
+                routeName,
+                routeStart,
+                routeEnd,
+                driverName,
+                userName,
+                userPhone,
+                startingPoint,
+                dropPoint,
+                departureTime,
+                arrivalTime,
+                passengerCount,
+                passengers,
+                date
+            }
+        });
+        console.log(`Saved admin notification in admin_notification for booking ${bookingNo}`);
+        return true;
+    } catch (error) {
+        console.error("Error creating admin booking received notification:", error);
+        return false;
+    }
+};
+
 const sendTripCancellationNotification = async (user, bookingId, date) => {
     try {
         const templateDoc = await db.collection("notification_modals").doc("TRIP_CANCELLATION").get();
@@ -190,6 +274,8 @@ const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event)
     const beforeUsers = beforeData ? (beforeData.users || []) : [];
     const afterUsers = afterData.users || [];
 
+
+
     // Deduplicate by (userId + financeId) to avoid sending multiple notifications
     // when a multi-date booking creates separate booking docs with the same financeId.
     const notifiedConfirmationKeys = new Set();
@@ -217,6 +303,9 @@ const onBookingUpdated = onDocumentWritten("bookings/{bookingId}", async (event)
             if (!notifiedConfirmationKeys.has(dedupKey)) {
                 notifiedConfirmationKeys.add(dedupKey);
                 await sendBookingConfirmationNotification(enrichedUser, event.params.bookingId, selectedDate);
+                await sendAdminBookingReceivedNotification(enrichedUser, event.params.bookingId, selectedDate, afterData);
+            } else {
+                console.log("DEBUG: Key already notified:", dedupKey);
             }
         }
         if ((wasConfirmedBefore || wasPendingBefore) && isCancelledNow) {
@@ -241,5 +330,6 @@ module.exports = {
     sendBookingConfirmationNotification,
     sendTripCancellationNotification,
     sendRouteRequestAcceptedNotification,
+    sendAdminBookingReceivedNotification,
     onBookingUpdated
 };
