@@ -88,7 +88,7 @@ export const EditTrip = () => {
     vehicleId: '',
     route: '',
     routeId: '',
-    routeType: 'core',
+    routeType: 'flexi',
     status: 'Active',
     notes: '',
     date: '',
@@ -148,7 +148,7 @@ export const EditTrip = () => {
             vehicleId: data.vehicle_id || '',
             route: data.route_name || '',
             routeId: data.route_id || '',
-            routeType: data.route_type || 'core',
+            routeType: data.route_type || 'flexi',
             status: data.status || 'Active',
             notes: data.notes || '',
             date: '',
@@ -544,7 +544,7 @@ export const EditTrip = () => {
                   name="routeType" value={formData.routeType} onChange={(e) => setFormData(prev => ({ ...prev, routeType: e.target.value }))}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 outline-none transition-all cursor-pointer text-sm"
                 >
-                  <option value="core">Core Service</option>
+                  {/* <option value="core">Core Service</option> */}
                   <option value="flexi">Flexi / On-Demand</option>
                 </select>
               </div>
