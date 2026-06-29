@@ -433,7 +433,7 @@ export const AddBooking = () => {
                   <div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Route Corridor</span>
                     <p className="font-bold text-slate-700 text-sm truncate max-w-[200px]" title={selectedTrip.route_name}>{selectedTrip.route_name || 'N/A'}</p>
-                    <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">{selectedTrip.route_type || 'core'} corridor</p>
+                    <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">{selectedTrip.route_type || 'flexi'} corridor</p>
                   </div>
                 </div>
 
