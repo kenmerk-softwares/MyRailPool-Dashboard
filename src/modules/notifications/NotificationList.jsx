@@ -121,9 +121,9 @@ export const NotificationList = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${selectedNotif.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                      selectedNotif.type === 'warning' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                        selectedNotif.type === 'danger' ? 'bg-red-50 text-red-600 border-red-100' :
-                          'bg-primary-50 text-primary-600 border-primary-100'
+                    selectedNotif.type === 'warning' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                      selectedNotif.type === 'danger' ? 'bg-red-50 text-red-600 border-red-100' :
+                        'bg-primary-50 text-primary-600 border-primary-100'
                     }`}>
                     <selectedNotif.icon className="w-6 h-6" />
                   </div>

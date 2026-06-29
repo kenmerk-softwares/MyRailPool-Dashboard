@@ -1,19 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Phone, Mail, Calendar } from 'lucide-react';
+import { Users, Phone, Mail, Calendar, Edit, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SectionHeader, StatusBadge } from '../../../components/Shared';
 import { Table } from '../../../shared/Table/Table';
 import { useUsers } from '../hooks/user.userList';
+import { useToast } from '../../../shared/hooks/ToastContext';
 
 export default function UsersList() {
   const navigate = useNavigate();
-  const { users, loading, hasMore, fetchUsers } = useUsers();
+  const { users, loading, hasMore, fetchUsers, updateUserName } = useUsers();
+  const { showToast } = useToast();
   const [activeFilter, setActiveFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Modal states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleClear = () => {
     setActiveFilter('');
     setSearchQuery('');
+  };
+
+  const handleOpenEdit = (user) => {
+    setEditingUser(user);
+    setEditName(user.name || '');
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditModalOpen(false);
+    setEditingUser(null);
+    setEditName('');
+  };
+
+  const handleSaveName = async (e) => {
+    e.preventDefault();
+    if (!editName.trim()) {
+      showToast('Name cannot be empty', 'error');
+      return;
+    }
+    setIsUpdating(true);
+    const result = await updateUserName(editingUser.id, editName.trim());
+    setIsUpdating(false);
+    if (result.success) {
+      showToast('User name updated successfully!', 'success');
+      handleCloseEdit();
+    } else {
+      showToast('Failed to update user name', 'error');
+    }
   };
 
   useEffect(() => {
@@ -99,6 +136,14 @@ export default function UsersList() {
                 <Users className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <span className="text-xs font-bold">Passengers</span>
               </button>
+              <button
+                onClick={() => handleOpenEdit(user)}
+                className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-emerald-600 hover:border-emerald-100 hover:bg-emerald-50/30 rounded-xl transition-all duration-300 hover:shadow-md active:scale-95 group flex items-center gap-2"
+                title="Edit User Name"
+              >
+                <Edit className="w-4 h-4 transition-transform group-hover:scale-110" />
+                <span className="text-xs font-bold">Edit</span>
+              </button>
             </div>
           )}
         />
@@ -116,6 +161,48 @@ export default function UsersList() {
           </div>
         )}
       </div>
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider">Edit User Name</h3>
+              <button onClick={handleCloseEdit} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <form onSubmit={handleSaveName} className="p-6 space-y-6">
+              <div>
+                <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">User Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Enter user name"
+                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all duration-300 shadow-inner"
+                />
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCloseEdit}
+                  className="flex-1 px-5 py-3.5 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-xl hover:border-slate-300 hover:text-slate-700 transition-all duration-300 active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="flex-1 px-5 py-3.5 bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-xl hover:bg-indigo-700 transition-all duration-300 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-100"
+                >
+                  {isUpdating ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
