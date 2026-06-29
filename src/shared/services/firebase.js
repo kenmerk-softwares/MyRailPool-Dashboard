@@ -9,20 +9,22 @@ import { getStorage } from "firebase/storage";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBrnMBRLFLyvVIQ3T-iFmac0fi7bkHgFQY",
-  authDomain: "railpool-test.firebaseapp.com",
-  projectId: "railpool-test",
-  storageBucket: "railpool-test.firebasestorage.app",
-  messagingSenderId: "401776332768",
-  appId: "1:401776332768:web:272a4fc0cc78aaba9ae585"
+  apiKey: "AIzaSyBxLcoDryseaiAA0SCYUZKoAKwMYIKsAUc",
+  authDomain: "myrailpool-4150a.firebaseapp.com",
+  projectId: "myrailpool-4150a",
+  storageBucket: "myrailpool-4150a.firebasestorage.app",
+  messagingSenderId: "804422835617",
+  appId: "1:804422835617:web:83db70548129193daf3fe0",
+  measurementId: "G-97E8W842LT"
 };
 const adminConfig = {
-  apiKey: "AIzaSyBrnMBRLFLyvVIQ3T-iFmac0fi7bkHgFQY",
-  authDomain: "railpool-test.firebaseapp.com",
-  projectId: "railpool-test",
-  storageBucket: "railpool-test.firebasestorage.app",
-  messagingSenderId: "401776332768",
-  appId: "1:401776332768:web:272a4fc0cc78aaba9ae585"
+  apiKey: "AIzaSyBxLcoDryseaiAA0SCYUZKoAKwMYIKsAUc",
+  authDomain: "myrailpool-4150a.firebaseapp.com",
+  projectId: "myrailpool-4150a",
+  storageBucket: "myrailpool-4150a.firebasestorage.app",
+  messagingSenderId: "804422835617",
+  appId: "1:804422835617:web:83db70548129193daf3fe0",
+  measurementId: "G-97E8W842LT"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
