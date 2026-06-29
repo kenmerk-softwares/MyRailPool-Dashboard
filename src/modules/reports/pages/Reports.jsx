@@ -365,7 +365,7 @@ export const Reports = () => {
     filteredBookings.forEach(b => {
       const routeId = b.route_id || 'unassigned-route';
       const routeName = b.route_name || 'Unassigned Route';
-      const routeType = b.route_type || 'core';
+      const routeType = b.route_type || 'flexi';
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
 
@@ -427,7 +427,7 @@ export const Reports = () => {
         tripId: b.tripId || '—',
         routeName: b.route_name || '—',
         routeId: b.route_id || '—',
-        routeType: b.route_type || 'core',
+        routeType: b.route_type || 'flexi',
         date: b.selectedDate || '—',
         driver: b.driver_name || '—',
         vehicle: b.vehicle_reg || '—',
@@ -448,8 +448,8 @@ export const Reports = () => {
     };
 
     filteredBookings.forEach(b => {
-      const rawType = (b.route_type || 'core').toLowerCase();
-      const typeKey = rawType.includes('flexi') ? 'flexi' : 'core';
+      const rawType = (b.route_type || 'flexi').toLowerCase();
+      const typeKey = rawType.includes('flexi') ? 'flexi' : '';
 
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
@@ -711,7 +711,7 @@ export const Reports = () => {
               className="w-full px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all cursor-pointer text-xs"
             >
               <option value="all">All Service Types</option>
-              <option value="core">Core Service</option>
+              {/* <option value="core">Core Service</option> */}
               <option value="flexi">Flexi / On-Demand</option>
             </select>
           </div>
@@ -878,7 +878,7 @@ export const Reports = () => {
           { id: 'overview', label: 'Timeline & Trends', icon: TrendingUp },
           { id: 'routes', label: 'Route Analysis', icon: RouteIcon },
           { id: 'trips', label: 'Trip Analysis', icon: Activity },
-          { id: 'routeTypes', label: 'Service Types', icon: BarChart3 },
+          // { id: 'routeTypes', label: 'Service Types', icon: BarChart3 },
           { id: 'resources', label: 'Resource Utilization', icon: Car }
         ].map(tab => (
           <button
@@ -1310,10 +1310,9 @@ export const Reports = () => {
           )}
 
           {/* TAB 4: ROUTE TYPE INSIGHTS */}
-          {activeTab === 'routeTypes' && (
+          {/* {activeTab === 'routeTypes' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-              {/* Pie Chart Widget */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm mb-1 uppercase tracking-wider">Revenue Breakdown</h3>
@@ -1348,7 +1347,6 @@ export const Reports = () => {
                 </div>
               </div>
 
-              {/* Table Data list (Span 2 columns) */}
               <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm lg:col-span-2 flex flex-col justify-between">
                 <div>
                   <div className="px-6 py-4 border-b border-slate-100">
@@ -1395,7 +1393,7 @@ export const Reports = () => {
               </div>
 
             </div>
-          )}
+          )} */}
 
           {/* TAB 5: RESOURCE PERFORMANCE (DRIVERS & VEHICLES) */}
           {activeTab === 'resources' && (
