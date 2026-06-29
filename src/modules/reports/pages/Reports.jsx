@@ -449,7 +449,7 @@ export const Reports = () => {
 
     filteredBookings.forEach(b => {
       const rawType = (b.route_type || 'flexi').toLowerCase();
-      const typeKey = rawType.includes('flexi') ? 'flexi' : '';
+      const typeKey = rawType.includes('flexi') ? 'flexi' : 'core';
 
       const users = b.users || [];
       const confirmedUsers = users.filter(u => u.status !== 'Cancelled');
