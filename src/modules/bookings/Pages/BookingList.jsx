@@ -30,19 +30,36 @@ export const BookingList = () => {
     };
 
     const handleExport = () => {
-        exportToExcel(bookings, {
-            bookingId: 'Booking ID',
+        const exportData = bookings.map(booking => {
+            const users = booking.users || [];
+            const totalFare = users.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
+            const hasPending = users.some((u) => u.status === 'Pending');
+            const docStatus = hasPending ? 'Pending' : 'Confirmed';
+            const createdAt = booking.updatedAt
+                ? new Date(booking.updatedAt).toLocaleString('en-IN')
+                : (booking.createdAt ? new Date(booking.createdAt).toLocaleString('en-IN') : '—');
+            return {
+                ...booking,
+                passengerCount: booking.bookedCount ?? (users.length ?? 0),
+                computedTotalFare: `£${totalFare.toFixed(2)}`,
+                computedStatus: docStatus,
+                computedCreatedAt: createdAt
+            };
+        });
+
+        exportToExcel(exportData, {
+            id: 'Booking ID',
             tripNo: 'Trip Number',
             route_name: 'Route Name',
-            pickupPoint: 'From',
-            dropoffPoint: 'To',
-            travelDate: 'Travel Date',
+            route_start: 'From',
+            route_end: 'To',
+            selectedDate: 'Travel Date',
             driver_name: 'Driver Name',
-            passengerCount: 'Passenger Count',
-            total_fare: 'Total Fare',
-            paymentStatus: 'Payment Status',
-            status: 'Booking Status',
-            createdAt: 'Created At'
+            passengerCount: 'Booked Seats',
+            totalSeats: 'Total Seats',
+            computedTotalFare: 'Total Fare',
+            computedStatus: 'Booking Status',
+            computedCreatedAt: 'Created At'
         }, 'Bookings');
     };
 

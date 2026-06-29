@@ -34,7 +34,7 @@ const PaymentTable = ({
   return (
     <div className="pb-10">
       <Table
-        headers={['Sl No', 'Description', 'Amount', 'Type', 'Method', 'Status', 'Date']}
+        headers={['Sl No', 'User', 'Description', 'Amount', 'Transaction', 'Method', 'Status', 'Date']}
         data={payments}
         searchQuery={searchTerm}
         setSearchQuery={setSearchTerm}
@@ -47,13 +47,20 @@ const PaymentTable = ({
         onClear={onClear}
         searchPlaceholder="Search by booking ID, trip ID, description..."
         filterOptions={[
-          { label: 'Confirmed', value: 'Confirmed' },
+          { label: 'Paid', value: 'Confirmed' },
           { label: 'Pending', value: 'Pending' },
           { label: 'Cancelled', value: 'Cancelled' },
         ]}
         renderRow={(payment, idx) => (
           <>
             <td className="px-8 py-4 text-[13px] font-black text-slate-800">{idx + 1}</td>
+
+            {/* user */}
+            <td className="px-8 py-4">
+              <span className="text-[13px] font-bold text-slate-700 max-w-[120px] truncate block">
+                {payment.userName || payment.customerName || payment.userId || '—'}
+              </span>
+            </td>
 
             {/* booking ID
             <td className="px-8 py-4">
@@ -75,7 +82,9 @@ const PaymentTable = ({
               <span className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-widest border ${payment.type === 'Credit'
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                 : 'bg-rose-50 text-rose-700 border-rose-100'
-                }`}>{payment.type || '—'}</span>
+                }`}>
+                {payment.type === 'Credit' ? 'Income' : payment.type === 'Debit' ? 'Refund' : (payment.type || '—')}
+              </span>
             </td>
 
             {/* payment method */}
@@ -88,7 +97,7 @@ const PaymentTable = ({
 
             {/* status */}
             <td className="px-8 py-4">
-              <StatusBadge status={payment.status} statusColor={statusColor(payment.status)} />
+              <StatusBadge status={payment.status === 'Confirmed' ? 'Paid' : payment.status} statusColor={statusColor(payment.status)} />
             </td>
 
             {/* date */}
