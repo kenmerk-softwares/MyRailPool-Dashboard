@@ -35,9 +35,56 @@ const Payment = () => {
   const fetchPayments = useCallback(async () => {
     setLoading(true);
     try {
+      // Fetch users to map userIds to userNames
+      const usersColRef = collection(db, 'users');
+      const usersSnap = await getDocs(usersColRef);
+      const userMap = {};
+      usersSnap.forEach(uDoc => {
+        const uData = uDoc.data();
+        if (uData && uData.name) {
+          userMap[uDoc.id] = uData.name;
+        }
+      });
+
       const colRef = collection(db, 'finance');
       const snap = await getDocs(query(colRef, orderBy('createdAt', 'desc')));
-      const allDocs = snap.docs.map(d => serialize({ id: d.id, ...d.data() }));
+      const rawDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Fetch bookings to get route name and travel date
+      const uniqueBookingIds = Array.from(new Set(rawDocs.map(p => {
+        const bId = Array.isArray(p.bookingId) ? p.bookingId[0] : p.bookingId;
+        return bId;
+      }).filter(Boolean)));
+
+      const bookingSnaps = await Promise.all(
+        uniqueBookingIds.map(id => getDoc(doc(db, 'bookings', id)))
+      );
+
+      const bookingMap = {};
+      bookingSnaps.forEach(bSnap => {
+        if (bSnap.exists()) {
+          bookingMap[bSnap.id] = bSnap.data();
+        }
+      });
+
+      const allDocs = rawDocs.map(d => {
+        const userId = d.userId;
+        const mappedName = userId && userMap[userId] ? userMap[userId] : null;
+
+        const bId = Array.isArray(d.bookingId) ? d.bookingId[0] : d.bookingId;
+        const booking = bId ? bookingMap[bId] : null;
+
+        const formattedDate = booking?.selectedDate 
+          ? (Array.isArray(booking.selectedDate) ? booking.selectedDate.join(', ') : booking.selectedDate)
+          : null;
+
+        return serialize({
+          ...d,
+          userName: mappedName || d.userName || d.customerName || null,
+          routeName: booking?.route_name || null,
+          travelDate: formattedDate || null
+        });
+      });
 
       // 1. Apply date filters to compute date-based aggregates
       let dateFilteredDocs = allDocs;
@@ -155,7 +202,7 @@ const Payment = () => {
           booking.selectedDate || '',
           booking.tripNo ? `#${booking.tripNo}` : '',
           booking.driver_name || '',
-          matchedUser.name || '',
+          matchedUser.name || p.userName || '',
           matchedUser.phone || '',
           matchedUser.startingPoint || '',
           matchedUser.dropPoint || '',

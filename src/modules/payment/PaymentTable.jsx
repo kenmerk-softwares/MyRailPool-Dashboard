@@ -34,7 +34,7 @@ const PaymentTable = ({
   return (
     <div className="pb-10">
       <Table
-        headers={['Sl No', 'User', 'Description', 'Amount', 'Transaction', 'Method', 'Status', 'Date']}
+        headers={['Sl No', 'User', 'Seat Count', 'Booking Count', 'Route', 'Travel Date', 'Trip Status', 'Description', 'Amount', 'Transaction', 'Method', 'Status', 'Date']}
         data={payments}
         searchQuery={searchTerm}
         setSearchQuery={setSearchTerm}
@@ -62,10 +62,36 @@ const PaymentTable = ({
               </span>
             </td>
 
-            {/* booking ID
+            {/* seat count */}
             <td className="px-8 py-4">
-              <span className="font-mono text-[11px] text-slate-500 break-all max-w-[160px] block">{payment.bookingNos || '—'}</span>
-            </td> */}
+              <span className="text-[13px] font-bold text-slate-700 block">
+                {payment.bookingCount || '—'}
+              </span>
+            </td>
+
+            {/* booking count */}
+            <td className="px-8 py-4">
+              <span className="text-[13px] font-bold text-slate-700 block">
+                {Array.isArray(payment.bookingId) ? payment.bookingId.length : (payment.bookingId ? 1 : 0)}
+              </span>
+            </td>
+
+            {/* route */}
+            <td className="px-8 py-4 text-[13px] font-bold text-slate-700 max-w-[150px] truncate">
+              {payment.routeName || '—'}
+            </td>
+
+            {/* travel date */}
+            <td className="px-8 py-4 text-[11px] font-bold text-slate-500 whitespace-nowrap">
+              {payment.travelDate || '—'}
+            </td>
+
+            {/* trip status */}
+            <td className="px-8 py-4">
+              <span className="text-[12px] font-bold text-slate-700 whitespace-nowrap block">
+                {payment.tripStatus || '—'}
+              </span>
+            </td>
 
             {/* description */}
             <td className="px-8 py-4 text-[13px] font-bold text-slate-700 max-w-[180px] truncate">
@@ -94,7 +120,6 @@ const PaymentTable = ({
                 <span className="text-[10px] font-bold uppercase tracking-tighter">{payment.paymentType || '—'}</span>
               </div>
             </td>
-
             {/* status */}
             <td className="px-8 py-4">
               <StatusBadge status={payment.status === 'Confirmed' ? 'Paid' : payment.status} statusColor={statusColor(payment.status)} />

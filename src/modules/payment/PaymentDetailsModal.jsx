@@ -168,11 +168,14 @@ const PaymentDetailsModal = ({ payment, isOpen, onClose }) => {
               <Row label="Booking Count" value={payment.bookingCount} />
               <Row label="Booking Charge" value={payment.bookingCharge !== undefined ? `£${payment.bookingCharge}` : '—'} />
               <Row label="Trip ID" value={payment.tripId} />
+              <Row label="Trip Status" value={payment.tripStatus} />
               <Row label="Payment Method" value={payment.paymentType} />
               <Row label="Payment Status" value={payment.paymentStatus} />
+              <Row label="Offline Payment Time" value={formatTs(payment.offlinePaymentTime)} />
               <Row label="Payment Intent ID" value={payment.paymentIntentId} />
               <Row label="Multi Bookings" value={payment.multiBookings ? 'Yes' : 'No'} />
               <Row label="Created At" value={formatTs(payment.createdAt)} />
+              <Row label="User Name" value={payment.userName} />
               <Row label="User ID" value={payment.userId} />
               <Row label="Driver ID" value={payment.driverId} />
             </div>

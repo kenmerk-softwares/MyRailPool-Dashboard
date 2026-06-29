@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
 
 export const useUsers = () => {
@@ -60,5 +60,26 @@ export const useUsers = () => {
         }
     }, []);
 
-    return { users, loading, hasMore, fetchUsers };
+    const updateUserName = useCallback(async (userId, newName) => {
+        try {
+            const docRef = doc(db, "users", userId);
+            await updateDoc(docRef, { name: newName });
+            
+            // Update local ref & state
+            allUsersRef.current = allUsersRef.current.map((user) => 
+                user.id === userId ? { ...user, name: newName } : user
+            );
+            setUsers((prevUsers) => 
+                prevUsers.map((user) => 
+                    user.id === userId ? { ...user, name: newName } : user
+                )
+            );
+            return { success: true };
+        } catch (error) {
+            console.error("Error updating user name:", error);
+            return { success: false, error };
+        }
+    }, []);
+
+    return { users, loading, hasMore, fetchUsers, updateUserName };
 };
