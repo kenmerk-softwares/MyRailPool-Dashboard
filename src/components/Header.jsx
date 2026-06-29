@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Bell, UserCircle, ChevronDown, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
-import { auth } from '../shared/services/firebase';
+import { auth, db } from '../shared/services/firebase';
 import { useToast } from '../shared/hooks/ToastContext';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'admin_notification'),
+      where('status', '==', 'Unread')
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
+    }, (error) => {
+      console.error("Error listening to unread notifications count:", error);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -46,9 +63,13 @@ export const Header = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       <div className="flex items-center gap-2 md:gap-6 ml-auto">
 
         <div className="relative">
-          <Link to="/notifications" className="text-slate-500 hover:text-slate-600 p-1 md:p-2 rounded-full hover:bg-slate-50 transition-colors block relative focus:outline-none">
+          <Link to="/notifications" className="text-slate-500 hover:text-slate-600 p-1.5 md:p-2.5 rounded-full hover:bg-slate-50 transition-colors block relative focus:outline-none">
             <Bell className="w-4 h-4 md:w-6 md:h-6" />
-            <span className="absolute top-1 right-1 md:top-1.5 md:right-2 block h-1.5 w-1.5 md:h-2.5 md:w-2.5 rounded-full bg-red-500 ring-2 ring-white shadow-sm"></span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 md:top-0 md:right-0 flex items-center justify-center min-w-[16px] md:min-w-[20px] h-4 md:h-5 px-1 rounded-full bg-red-500 text-white text-[9px] md:text-[10px] font-bold ring-2 ring-white shadow-sm animate-pulse">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Link>
         </div>
 
