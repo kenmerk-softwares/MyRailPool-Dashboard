@@ -90,7 +90,7 @@ export const AddTrip = () => {
     vehicleId: '',
     route: '',
     routeId: '',
-    routeType: 'core',
+    routeType: 'flexi',
     status: 'Active',
     notes: '',
     date: '',
@@ -595,7 +595,7 @@ export const AddTrip = () => {
                   name="routeType" value={formData.routeType} onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:border-indigo-500 outline-none transition-all cursor-pointer text-sm"
                 >
-                  <option value="core">Core Service</option>
+                  {/* <option value="core">Core Service</option> */}
                   <option value="flexi">Flexi / On-Demand</option>
                 </select>
               </div>
