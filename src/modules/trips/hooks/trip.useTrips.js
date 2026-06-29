@@ -35,11 +35,11 @@ export const useTrips = () => {
 			if (searchQuery && searchQuery.trim() !== "") {
 				const s = searchQuery.toLowerCase();
 				filtered = filtered.filter(trip => 
-					(trip.tripId && trip.tripId.toLowerCase().includes(s)) ||
-					(trip.driver_name && trip.driver_name.toLowerCase().includes(s)) ||
-					(trip.vehicle_reg && trip.vehicle_reg.toLowerCase().includes(s)) ||
-					(trip.route_name && trip.route_name.toLowerCase().includes(s)) ||
-					(trip.id && trip.id.toLowerCase().includes(s))
+					(trip.tripId && String(trip.tripId).toLowerCase().includes(s)) ||
+					(trip.driver_name && String(trip.driver_name).toLowerCase().includes(s)) ||
+					(trip.vehicle_reg && String(trip.vehicle_reg).toLowerCase().includes(s)) ||
+					(trip.route_name && String(trip.route_name).toLowerCase().includes(s)) ||
+					(trip.id && String(trip.id).toLowerCase().includes(s))
 				);
 			}
 

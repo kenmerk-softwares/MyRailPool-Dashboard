@@ -122,16 +122,32 @@ export const TripList = () => {
   }, [cancelModal.isOpen, cancelModal.trip]);
 
   const handleExport = () => {
-    exportToExcel(trips, {
-      tripNo: 'Trip Number',
+    const exportData = trips.map(trip => {
+      const dates = Array.isArray(trip.selectedDates) ? trip.selectedDates.join(', ') : 'No dates';
+      const routeStart = Array.isArray(trip.routes) && trip.routes.length > 0 ? trip.routes[0] : '—';
+      const routeEnd = Array.isArray(trip.routes) && trip.routes.length > 0 ? trip.routes[trip.routes.length - 1] : '—';
+      
+      return {
+        ...trip,
+        computedTripId: trip.tripId || 'N/A',
+        computedDates: dates,
+        computedRouteStart: routeStart,
+        computedRouteEnd: routeEnd,
+      };
+    });
+
+    exportToExcel(exportData, {
+      computedTripId: 'Trip ID',
+      computedDates: 'Scheduled Dates',
       route_name: 'Route Name',
+      computedRouteStart: 'Start Point',
+      computedRouteEnd: 'End Point',
       route_type: 'Route Type',
       total_seats: 'Total Seats',
+      total_bookings: 'Total Bookings',
       driver_name: 'Driver Name',
       vehicle_reg: 'Vehicle Registration',
-      status: 'Status',
-      total_bookings: 'Total Bookings',
-      createdAt: 'Scheduled Date'
+      status: 'Status'
     }, 'Trips');
   };
 
