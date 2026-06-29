@@ -51,7 +51,7 @@ export const AddBooking = () => {
   const [bookingCount, setBookingCount] = useState(1);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedRouteKey, setSelectedRouteKey] = useState('');
-  const [passengerNames, setPassengerNames] = useState([{ name: '', age: '' }]);
+  const [passengerNames, setPassengerNames] = useState([{ name: '', mobile: '' }]);
   const [remarks, setRemarks] = useState('');
 
   // Search local registered users
@@ -118,7 +118,7 @@ export const AddBooking = () => {
       const next = [...prev];
       if (next.length < count) {
         while (next.length < count) {
-          next.push({ name: next.length === 0 ? customerName : '', age: '' });
+          next.push({ name: next.length === 0 ? customerName : '', mobile: '' });
         }
       } else if (next.length > count) {
         next.splice(count);
@@ -128,20 +128,20 @@ export const AddBooking = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingCount]);
 
-  // Sync first passenger name with customer name
+  // Sync first passenger name and mobile with customer details
   useEffect(() => {
     setPassengerNames(prev => {
       const next = [...prev];
       if (next[0]) {
         if (next[0].name === '' || next[0].name === undefined) {
-          next[0] = { ...next[0], name: customerName };
+          next[0] = { ...next[0], name: customerName, mobile: customerPhone };
         }
       } else {
-        next[0] = { name: customerName, age: '' };
+        next[0] = { name: customerName, mobile: customerPhone };
       }
       return next;
     });
-  }, [customerName]);
+  }, [customerName, customerPhone]);
 
   const handleUserSelect = (user) => {
     setSelectedUser(user);
@@ -249,7 +249,7 @@ export const AddBooking = () => {
           .filter(p => p.name && p.name.trim() !== "")
           .map(p => ({
             name: p.name.trim(),
-            age: p.age ? String(p.age).trim() : "",
+            mobile: p.mobile ? String(p.mobile).trim() : "",
           })),
         boardingPoint: { name: start },
         dropOffPoint: { name: drop },
@@ -565,21 +565,18 @@ export const AddBooking = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Passenger {index + 1} Age
+                      Passenger {index + 1} Mobile
                     </label>
                     <input
-                      type="number"
-                      min="0"
-                      max="120"
-                      value={passenger.age || ''}
+                      type="tel"
+                      value={passenger.mobile || ''}
                       onChange={(e) => {
                         const next = [...passengerNames];
-                        next[index] = { ...next[index], age: e.target.value };
+                        next[index] = { ...next[index], mobile: e.target.value };
                         setPassengerNames(next);
                       }}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-250 bg-white focus:border-indigo-500 outline-none transition-all font-semibold"
-                      placeholder={`Enter passenger ${index + 1} age`}
-                      required
+                      placeholder={`Enter passenger ${index + 1} mobile`}
                     />
                   </div>
                 </div>
