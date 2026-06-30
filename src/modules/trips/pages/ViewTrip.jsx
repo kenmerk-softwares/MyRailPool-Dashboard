@@ -31,6 +31,8 @@ export const ViewTrip = () => {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [visibleDatesCount, setVisibleDatesCount] = useState(5);
+
   useEffect(() => {
     const fetchTrip = async () => {
       try {
@@ -201,7 +203,7 @@ export const ViewTrip = () => {
                       <div className="mt-4 text-center px-2">
                         <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">{stop}</p>
                         <div className="mt-2 flex items-center justify-center gap-1.5 px-3 py-1 bg-indigo-50 rounded-lg text-indigo-700 text-[10px] font-black">
-                          <Clock className="w-3 h-3" />
+                          <Clock className="w-3.5 h-3.5" />
                           {trip.routeTiming?.[stop] || '--:--'}
                         </div>
                       </div>
@@ -246,7 +248,7 @@ export const ViewTrip = () => {
             </div>
 
             <div className="space-y-3">
-              {Array.isArray(trip.selectedDates) && trip.selectedDates.map((date, idx) => (
+              {Array.isArray(trip.selectedDates) && trip.selectedDates.slice(0, visibleDatesCount).map((date, idx) => (
                 <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-white hover:shadow-lg transition-all duration-300">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-white rounded-lg flex flex-col items-center justify-center border border-slate-100 text-slate-800">
@@ -264,6 +266,15 @@ export const ViewTrip = () => {
                   </div>
                 </div>
               ))}
+
+              {Array.isArray(trip.selectedDates) && trip.selectedDates.length > visibleDatesCount && (
+                <button
+                  onClick={() => setVisibleDatesCount(prev => prev + 5)}
+                  className="w-full mt-2 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 font-bold text-[11px] uppercase tracking-wider rounded-xl hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm active:scale-95"
+                >
+                  Load More Dates
+                </button>
+              )}
             </div>
           </div>
 

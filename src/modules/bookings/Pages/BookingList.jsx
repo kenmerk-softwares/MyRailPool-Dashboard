@@ -89,7 +89,7 @@ export const BookingList = () => {
                     setFromDate={setFromDate}
                     toDate={toDate}
                     setToDate={setToDate}
-                    searchPlaceholder="Search by trip no, route name, driver..."
+                    searchPlaceholder="Search by trip, route, driver, customer name, mobile..."
                     renderRow={(booking, idx) => {
                         return (
                             <>
