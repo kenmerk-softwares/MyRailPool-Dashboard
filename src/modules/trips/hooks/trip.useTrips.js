@@ -50,27 +50,19 @@ export const useTrips = () => {
 				);
 			}
 
-			// Apply date filters client-side (check both creation date and scheduled dates)
+			// Apply date filters client-side (check only scheduled dates)
 			if (fromDate || toDate) {
 				const fromTime = fromDate ? new Date(fromDate + "T00:00:00").getTime() : null;
 				const toTime = toDate ? new Date(toDate + "T23:59:59").getTime() : null;
 
 				filtered = filtered.filter(trip => {
-					let tripTime = null;
-					if (trip.createdAt) {
-						tripTime = new Date(trip.createdAt).getTime();
-					}
-
-					// Check if creation date falls in range
-					const createdMatches = tripTime && (!fromTime || tripTime >= fromTime) && (!toTime || tripTime <= toTime);
-
 					// Check if any selected dates fall in range
 					const selectedDateMatches = Array.isArray(trip.selectedDates) && trip.selectedDates.some(d => {
 						const dTime = new Date(d + "T00:00:00").getTime();
 						return (!fromTime || dTime >= fromTime) && (!toTime || dTime <= toTime);
 					});
 
-					return createdMatches || selectedDateMatches;
+					return selectedDateMatches;
 				});
 			}
 

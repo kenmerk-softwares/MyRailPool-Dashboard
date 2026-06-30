@@ -16,6 +16,8 @@ import {
   Loader2,
   X,
   AlertTriangle,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
 import { collection, getDocs, query, limit, where } from 'firebase/firestore';
@@ -82,7 +84,9 @@ export const AddTrip = () => {
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [routeSearch, setRouteSearch] = useState('');
   const [schedules, setSchedules] = useState([]);
-
+  const [visibleSchedulesCount, setVisibleSchedulesCount] = useState(5);
+  const [selectedSchedulerDates, setSelectedSchedulerDates] = useState([]);
+  const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
     driver: '',
     driverId: '',
@@ -101,6 +105,10 @@ export const AddTrip = () => {
     routeTiming: {},
     seatingCapacity: ''
   });
+
+  useEffect(() => {
+    setSelectedSchedulerDates([]);
+  }, [formData.selectedRoute]);
 
   const routeSelectedDates = (formData.selectedRoute?.selectedDates || formData.selectedRoute?.operating_dates || formData.selectedRoute?.selected_dates || [])
     .map(d => formatToInputDate(d))
@@ -290,33 +298,74 @@ export const AddTrip = () => {
   };
 
   const handleAddSchedule = () => {
-    if (!formData.date) {
-      showToast("Please select a date first.", "error");
+    if (!formData.total_pcount || Number(formData.total_pcount) <= 0) {
+      showToast("Planned Pax Count must be greater than zero.", "error");
       return;
     }
-    if (routeSelectedDates.length > 0 && !routeSelectedDates.includes(formData.date)) {
-      showToast("The selected date is not in the operating dates of the selected route corridor.", "error");
-      return;
-    }
-    const isDuplicate = schedules.some(s => s.date === formData.date);
-    if (isDuplicate) {
-      showToast("This date has already been scheduled.", "error");
-      return;
-    }
-    if (formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)) {
-      showToast(`Planned Pax Count cannot exceed seating capacity of ${formData.seatingCapacity}.`, "error");
-      return;
-    }
-    setSchedules(prev => [
-      ...prev,
-      {
-        id: Date.now(),
-        date: formData.date,
-        routeTiming: { ...formData.routeTiming },
-        passengerCount: formData.total_pcount || 0
+
+    if (routeSelectedDates.length > 0) {
+      if (selectedSchedulerDates.length === 0) {
+        showToast("Please select at least one date.", "error");
+        return;
       }
-    ]);
-    setFormData(prev => ({ ...prev, date: '', total_pcount: '' }));
+      if (formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)) {
+        showToast(`Planned Pax Count cannot exceed seating capacity of ${formData.seatingCapacity}.`, "error");
+        return;
+      }
+
+      const newSchedules = [];
+      let duplicateCount = 0;
+
+      selectedSchedulerDates.forEach((d, idx) => {
+        const isDuplicate = schedules.some(s => s.date === d);
+        if (isDuplicate) {
+          duplicateCount++;
+        } else {
+          newSchedules.push({
+            id: Date.now() + idx + Math.random(),
+            date: d,
+            routeTiming: { ...formData.routeTiming },
+            passengerCount: formData.total_pcount || 0
+          });
+        }
+      });
+
+      if (newSchedules.length > 0) {
+        setSchedules(prev => [...prev, ...newSchedules]);
+        showToast(`Added ${newSchedules.length} execution date(s) to schedule.`, "success");
+      }
+      if (duplicateCount > 0) {
+        showToast(`${duplicateCount} of the selected dates were already scheduled and skipped.`, "warning");
+      }
+
+      setSelectedSchedulerDates([]);
+      setDateDropdownOpen(false);
+      setFormData(prev => ({ ...prev, total_pcount: '' }));
+    } else {
+      if (!formData.date) {
+        showToast("Please select a date first.", "error");
+        return;
+      }
+      const isDuplicate = schedules.some(s => s.date === formData.date);
+      if (isDuplicate) {
+        showToast("This date has already been scheduled.", "error");
+        return;
+      }
+      if (formData.seatingCapacity && Number(formData.total_pcount) > Number(formData.seatingCapacity)) {
+        showToast(`Planned Pax Count cannot exceed seating capacity of ${formData.seatingCapacity}.`, "error");
+        return;
+      }
+      setSchedules(prev => [
+        ...prev,
+        {
+          id: Date.now(),
+          date: formData.date,
+          routeTiming: { ...formData.routeTiming },
+          passengerCount: formData.total_pcount || 0
+        }
+      ]);
+      setFormData(prev => ({ ...prev, date: '', total_pcount: '' }));
+    }
   };
 
   const handleRemoveSchedule = (sid) => {
@@ -666,41 +715,125 @@ export const AddTrip = () => {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
               <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Date</label>
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Operational Date(s)</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   {!formData.routeId ? (
-                    <select
-                      disabled
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold outline-none cursor-not-allowed text-sm"
-                    >
-                      <option>Select Route Corridor First</option>
-                    </select>
+                    <>
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none" />
+                      <select
+                        disabled
+                        className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold outline-none cursor-not-allowed text-sm"
+                      >
+                        <option>Select Route Corridor First</option>
+                      </select>
+                    </>
                   ) : routeSelectedDates.length > 0 ? (
-                    <select
-                      name="date"
-                      value={formData.date}
-                      onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm cursor-pointer"
-                    >
-                      <option value="">Select Operational Date</option>
-                      {routeSelectedDates.map(d => {
-                        const dateObj = new Date(d);
-                        return (
-                          <option key={d} value={d}>
-                            {isNaN(dateObj.getTime()) ? d : dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    <>
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none" />
+                      <button
+                        type="button"
+                        onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
+                        className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold text-left focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-sm cursor-pointer flex justify-between items-center shadow-sm"
+                      >
+                        <span className="truncate">
+                          {selectedSchedulerDates.length === 0
+                            ? "Select Operational Dates"
+                            : `${selectedSchedulerDates.length} Date(s) Selected`}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-slate-500 transition-transform duration-300" style={{ transform: dateDropdownOpen ? 'rotate(180deg)' : 'none' }} />
+                      </button>
+                      
+                      {dateDropdownOpen && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-30" 
+                            onClick={() => setDateDropdownOpen(false)}
+                          />
+                          <div className="absolute z-40 mt-1.5 w-full bg-white border border-slate-200 rounded-2xl shadow-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Calendar</span>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const notScheduled = routeSelectedDates.filter(d => !schedules.some(s => s.date === d));
+                                    setSelectedSchedulerDates(notScheduled);
+                                  }}
+                                  className="text-[9px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-wider"
+                                >
+                                  Select All
+                                </button>
+                                <span className="text-[9px] text-slate-300">|</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedSchedulerDates([])}
+                                  className="text-[9px] font-black text-slate-500 hover:text-slate-700 uppercase tracking-wider"
+                                >
+                                  Clear
+                                </button>
+                              </div>
+                            </div>
+                            <div className="max-h-48 overflow-y-auto space-y-1.5 scrollbar-hide">
+                              {routeSelectedDates.map(d => {
+                                const dateObj = new Date(d);
+                                const isChecked = selectedSchedulerDates.includes(d);
+                                const isAlreadyScheduled = schedules.some(s => s.date === d);
+                                return (
+                                  <div
+                                    key={d}
+                                    onClick={() => {
+                                      if (isAlreadyScheduled) return;
+                                      if (isChecked) {
+                                        setSelectedSchedulerDates(prev => prev.filter(x => x !== d));
+                                      } else {
+                                        setSelectedSchedulerDates(prev => [...prev, d]);
+                                      }
+                                    }}
+                                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
+                                      isAlreadyScheduled 
+                                        ? 'bg-slate-50 border-slate-100 opacity-60 cursor-not-allowed'
+                                        : isChecked
+                                          ? 'bg-indigo-50/50 border-indigo-200 text-indigo-700 font-bold'
+                                          : 'bg-white border-slate-100 hover:border-slate-200 text-slate-700'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${
+                                        isChecked ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 bg-white'
+                                      }`}>
+                                        {isChecked && <Check className="w-2.5 h-2.5 stroke-[4]" />}
+                                      </div>
+                                      <div className="flex flex-col">
+                                        <span className="text-xs font-black tracking-tight leading-none mb-0.5">
+                                          {isNaN(dateObj.getTime()) ? d : dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' })}
+                                        </span>
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                                          {isNaN(dateObj.getTime()) ? '' : dateObj.getFullYear()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    {isAlreadyScheduled && (
+                                      <span className="text-[8px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full uppercase tracking-wider">Scheduled</span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </>
                   ) : (
-                    <input
-                      type="date"
-                      name="date"
-                      value={formData.date}
-                      onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
-                    />
+                    <>
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none" />
+                      <input
+                        type="date"
+                        name="date"
+                        value={formData.date}
+                        onChange={handleChange}
+                        className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-bold focus:border-indigo-500 outline-none transition-all text-sm"
+                      />
+                    </>
                   )}
                 </div>
               </div>
@@ -746,7 +879,10 @@ export const AddTrip = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {schedules.map((schedule) => (
+                    {[...schedules]
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .slice(0, visibleSchedulesCount)
+                      .map((schedule) => (
                       <tr key={schedule.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-8 py-4">
                           <div className="flex items-center gap-3">
@@ -772,6 +908,17 @@ export const AddTrip = () => {
                     ))}
                   </tbody>
                 </table>
+                {schedules.length > visibleSchedulesCount && (
+                  <div className="p-4 flex justify-center bg-slate-50/50 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleSchedulesCount(prev => prev + 5)}
+                      className="px-6 py-2 bg-white border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm active:scale-95"
+                    >
+                      Load More Schedules
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="mt-6 py-12 flex flex-col items-center justify-center bg-slate-50/30 rounded-2xl border-2 border-dashed border-slate-200">

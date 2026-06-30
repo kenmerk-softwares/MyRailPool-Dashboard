@@ -45,7 +45,7 @@ export const useBookings = () => {
                 const s = searchQuery.toLowerCase().trim();
                 filtered = filtered.filter(booking => {
                     const tripNoStr = booking.tripNo !== undefined ? String(booking.tripNo) : "";
-                    return (
+                    const matchesBookingInfo = (
                         tripNoStr.includes(s) ||
                         (booking.route_name && booking.route_name.toLowerCase().includes(s)) ||
                         (booking.driver_name && booking.driver_name.toLowerCase().includes(s)) ||
@@ -53,6 +53,25 @@ export const useBookings = () => {
                         (booking.route_end && booking.route_end.toLowerCase().includes(s)) ||
                         (booking.id && booking.id.toLowerCase().includes(s))
                     );
+
+                    if (matchesBookingInfo) return true;
+
+                    // Search by passenger/user name & mobile within the booking users and sub-passengers
+                    const matchesUserOrPassenger = Array.isArray(booking.users) && booking.users.some(u => {
+                        if (!u) return false;
+                        const userName = String(u.name || u.displayName || "").toLowerCase();
+                        const userMobile = String(u.mobile || u.phone || u.phoneNumber || "").toLowerCase();
+                        if (userName.includes(s) || userMobile.includes(s)) return true;
+
+                        return Array.isArray(u.passengers) && u.passengers.some(p => {
+                            if (!p) return false;
+                            const pName = String(p.name || "").toLowerCase();
+                            const pMobile = String(p.mobile || p.phone || "").toLowerCase();
+                            return pName.includes(s) || pMobile.includes(s);
+                        });
+                    });
+
+                    return matchesUserOrPassenger;
                 });
             }
 
