@@ -233,7 +233,6 @@ export const RouteList = () => {
 
           searchPlaceholder="Search routes by name or locations..."
           filterOptions={[
-            // { label: 'All', value: '' },
             { label: 'Active', value: 'Active' },
             { label: 'Inactive', value: 'Inactive' },
           ]}
@@ -430,8 +429,8 @@ export const RouteList = () => {
                         <div
                           key={date}
                           className={`flex items-center gap-2 px-2.5 py-1.5 border rounded-xl shadow-sm transition-all duration-200 ${isPast
-                              ? 'bg-slate-100/70 border-slate-200 text-slate-500'
-                              : 'bg-white border-emerald-100 text-slate-800 hover:border-emerald-200 hover:bg-emerald-50/10'
+                            ? 'bg-slate-100/70 border-slate-200 text-slate-500'
+                            : 'bg-white border-emerald-100 text-slate-800 hover:border-emerald-200 hover:bg-emerald-50/10'
                             }`}
                         >
                           <div className="flex flex-col items-center justify-center">
