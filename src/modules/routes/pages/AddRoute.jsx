@@ -97,25 +97,6 @@ export const AddRoute = () => {
     }
   };
 
-
-
-
-
-  // const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  // const [selectedDays, setSelectedDays] = useState(() => {
-  //   if (initialData?.days_op) {
-  //     if (initialData.days_op === 'Daily') return [...daysOfWeek];
-  //     const selected = initialData.days_op.split(',').map(d => d.trim());
-  //     return selected.map(s => {
-  //       const full = daysOfWeek.find(d => d.startsWith(s));
-  //       return full || s;
-  //     });
-  //   }
-  //   return [];
-  // });
-
-
-
   const [selectedDates, setSelectedDates] = useState(() => {
     const rawDates = initialData?.selectedDates || initialData?.operating_dates || initialData?.selected_dates || [];
     return rawDates.map(d => formatToInputDate(d)).filter(Boolean);

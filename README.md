@@ -199,17 +199,7 @@ Access the login page. Admin permissions are synchronized with Firebase Auth and
 
 ---
 
-## User Roles
 
-The dashboard enforces role-based access control (RBAC) to protect features and pages:
-
-| Role | Permissions | Responsibilities |
-| :--- | :--- | :--- |
-| **Super Admin** | Full access to all modules, settings, permissions config, and user roles. | Managing system configurations, access parameters, and adding admin users. |
-| **Admin** | Read/write access to Bookings, Trips, Drivers, Vehicles, and Route Requests. Read-only logs. | Managing daily operations, scheduling fleets, approving routes, and resolving bookings. |
-| **Viewer** | Read-only access to dashboards, lists, payment histories, reports, and logs. | Auditing financial metrics, checking operational health, and exporting reports. |
-
----
 
 ## API Documentation
 
@@ -286,25 +276,6 @@ Authentication is powered by **Firebase Authentication**.
 
 ---
 
-## Screenshots
-
-Add visual guides below to help developers navigate the dashboard interfaces:
-
-#### Main Dashboard Overview
-![Dashboard Analytics Mockup](https://via.placeholder.com/1200x600/1e293b/ffffff?text=MyRailPool+Dashboard+Overview)
-
-#### Booking Control Panel
-![Booking Drawer Mockup](https://via.placeholder.com/1200x600/1e293b/ffffff?text=Booking+List+and+Creation+Drawer)
-
----
-
-## Future Improvements
-
-*   **Live Shuttle Tracking**: Integrate Google Maps to display real-time driver coordinates on the map interface.
-*   **Automated Driver Payouts**: Use Stripe Connect to automate driver payouts based on completed trips.
-*   **Smart Route Suggestions**: Analyze aggregated route request coordinates to automatically suggest new routes.
-
----
 
 ## Contributing
 
@@ -326,14 +297,14 @@ Add visual guides below to help developers navigate the dashboard interfaces:
     ```
 5.  Create a Pull Request.
 
----
 
 ## License
 
-This project is licensed under the MIT License.
+Copyright (c) 2026 MyrailPool Ltd, Abhilash Augustine. All rights reserved.
 
 ---
 
 ## Author
 
-Created and maintained by the **Kenmerk Softwares Team**. For support or queries, contact developer support.
+Created and maintained by **MyrailPool Ltd**
+*   **Abhilash Augustine** - *Founder & Director*
