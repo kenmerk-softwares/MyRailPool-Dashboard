@@ -43,7 +43,7 @@ const getFareFromMatrix = (fareMatrix, from, to) => {
 };
 
 const bookTripService = async (data) => {
-    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint, returnTripId, returnSelectedDate, returnMultiBookings, returnBoardingPoint, returnDropOffPoint } = data;
+    const { tripId, bookingCount, userId, paymentType, startingPoint, dropPoint, selectedDate, boardingPoint, dropOffPoint, returnTripId, returnSelectedDate, returnMultiBookings, returnBoardingPoint, returnDropOffPoint, bookingChannel, paymentConfirmationChannel, accessNeeds, accessDetails } = data;
 
     let tripDoc = await db.collection("trips").doc(tripId).get();
     if (!tripDoc.exists) {
@@ -373,7 +373,11 @@ const bookTripService = async (data) => {
             arrivalTime: tripData.routeTiming ? (tripData.routeTiming[dropPoint] || "") : "",
             createdAt: new Date(),
             passengers: data.passengers || [],
-            ...(sessionId && { stripeSessionId: sessionId })
+            ...(sessionId && { stripeSessionId: sessionId }),
+            bookingChannel: bookingChannel ? bookingChannel : "system",
+            paymentConfirmationChannel: paymentConfirmationChannel ? paymentConfirmationChannel : "system",
+            accessNeeds: accessNeeds || "no",
+            accessDetails: accessNeeds === "yes" ? accessDetails : "",
         };
 
         const bookingData = {
@@ -429,7 +433,12 @@ const bookTripService = async (data) => {
                 arrivalTime: returnTripData.routeTiming ? (returnTripData.routeTiming[startingPoint] || "") : "",
                 createdAt: new Date(),
                 passengers: data.passengers || [],
-                ...(sessionId && { stripeSessionId: sessionId })
+                ...(sessionId && { stripeSessionId: sessionId }),
+                bookingChannel: bookingChannel ? bookingChannel : "system",
+                paymentConfirmationChannel: paymentConfirmationChannel ? paymentConfirmationChannel : "system",
+                accessNeeds: accessNeeds || "no",
+                accessDetails: accessNeeds === "yes" ? accessDetails : "",
+
             };
 
             const bookingData = {
@@ -520,7 +529,11 @@ const bookTripService = async (data) => {
             tripStatus: "Not Started",
             multiBookings: data.multiBookings || false,
             financeId: financeRef.id,
-            ...(sessionId && { stripeSessionId: sessionId })
+            ...(sessionId && { stripeSessionId: sessionId }),
+            bookingChannel: data.bookingChannel ? data.bookingChannel : "system",
+            paymentConfirmationChannel: data.paymentConfirmationChannel ? data.paymentConfirmationChannel : "system",
+            accessNeeds: data.accessNeeds || "no",
+            accessDetails: data.accessNeeds === "yes" ? data.accessDetails : "",
         };
 
         batch.set(userBookingRef, userBookingData);
@@ -568,7 +581,11 @@ const bookTripService = async (data) => {
                 tripStatus: "Not Started",
                 multiBookings: returnMultiBookings || false,
                 financeId: financeRef.id,
-                ...(sessionId && { stripeSessionId: sessionId })
+                ...(sessionId && { stripeSessionId: sessionId }),
+                bookingChannel: data.bookingChannel ? data.bookingChannel : "system",
+                paymentConfirmationChannel: data.paymentConfirmationChannel ? data.paymentConfirmationChannel : "system",
+                accessNeeds: data.accessNeeds || "no",
+                accessDetails: data.accessNeeds === "yes" ? data.accessDetails : "",
             };
 
             batch.set(userBookingRef, userBookingData);

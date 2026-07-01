@@ -26,6 +26,10 @@ const tripBookingValidation = (req) => {
     returnMultiBookings: Joi.boolean().optional(),
     returnBoardingPoint: Joi.object().optional(),
     returnDropOffPoint: Joi.object().optional(),
+    bookingChannel: Joi.string().optional().allow(""),
+    paymentConfirmationChannel: Joi.string().optional().allow(""),
+    accessNeeds: Joi.string().valid("yes", "no").optional().allow(""),
+    accessDetails: Joi.string().optional().allow(""),
   });
 
   const { error, value } = schema.validate(fields, {

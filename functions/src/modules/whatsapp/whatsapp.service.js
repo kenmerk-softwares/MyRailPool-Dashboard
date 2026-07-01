@@ -17,8 +17,8 @@ const TEMPLATE_SIDS = {
   trip_reminder: process.env.TWILIO_REMINDER_TEMPLATE_SID,
   booking_cancelled: process.env.TWILIO_CANCELLED_TEMPLATE_SID,
   admin_booking: process.env.TWILIO_ADMIN_BOOKING_TEMPLATE_SID,
-  route_request_accepted: process.env.TWILIO_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
-  user_route_request_accepted: process.env.TWILIO_USER_ROUTE_REQUEST_ACCEPTED_TEMPLATE_SID,
+  admin_route_req_noti: process.env.TWILIO_ADMIN_ROUTEREQ_TEMPLATE_SID,
+  route_request_approved: process.env.TWILIO_ROUTEREQ_APPROVED
 };
 
 const formatWhatsAppNumber = (mobile) => {
@@ -174,7 +174,7 @@ const sendBookingCancelled = async (bookingDocId, targetUserId = null) => {
           9: String(passenger.totalFare || "0"),
         }),
       });
-      console.log("WhatsApp sendBookingCancelled",result.sid);
+      console.log("WhatsApp sendBookingCancelled", result.sid);
     }
     catch (err) {
       console.error("WhatsApp Error (bookCancelled):");
@@ -225,9 +225,9 @@ const sendAdminBookingNotification = async (
       }),
     });
 
-    console.log("Admin WhatsApp sent SID",result.sid);
+    console.log("Admin WhatsApp sent SID", result.sid);
   } catch (err) {
-    console.error("Admin WhatsApp Error",err);
+    console.error("Admin WhatsApp Error", err);
   }
 };
 
@@ -244,8 +244,8 @@ const sendAdminRouteRequestNotification = async (routeRequest) => {
       ? adminNumber
       : `+${adminNumber}`;
 
-  const from = routeRequest.from || "";
-  const to = routeRequest.to || "";
+  const from = typeof routeRequest.from === "object" ? (routeRequest.from.name || "") : (routeRequest.from || "");
+  const to = typeof routeRequest.to === "object" ? (routeRequest.to.name || "") : (routeRequest.to || "");
   const name = routeRequest.name || "Unknown";
   const phone = routeRequest.phone || "";
   const passengerCount = routeRequest.passenger_count || 1;
@@ -265,7 +265,7 @@ const sendAdminRouteRequestNotification = async (routeRequest) => {
     to: `whatsapp:${formattedAdmin}`,
   };
 
-  const templateSid = TEMPLATE_SIDS.route_request_accepted;
+  const templateSid = TEMPLATE_SIDS.admin_route_req_noti;
   if (templateSid) {
     messageOptions.contentSid = templateSid;
     messageOptions.contentVariables = JSON.stringify({
@@ -290,7 +290,7 @@ const sendAdminRouteRequestNotification = async (routeRequest) => {
 
   try {
     const result = await getTwilioClient().messages.create(messageOptions);
-    console.log("Admin Route Request WhatsApp sent",result.sid);
+    console.log("Admin Route Request WhatsApp sent", result.sid);
   } catch (err) {
     console.error("WhatsApp Error (Admin Route Request):", err);
   }
@@ -316,12 +316,33 @@ const sendUserRouteRequestAcceptedNotification = async (routeRequest, bookingNo)
   const messageOptions = {
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${formattedMobile}`,
-    body: `Hi ${nameVal},\n\nYour route request from ${fromVal} to ${toVal} has been accepted and your slot is booked!\n\nBooking Reference: ${bookingNo}`,
   };
+
+  const templateSid = TEMPLATE_SIDS.route_request_approved;
+  if (templateSid) {
+    messageOptions.contentSid = templateSid;
+    messageOptions.contentVariables = JSON.stringify({
+      1: String(nameVal),
+      2: String(fromVal),
+      3: String(toVal),
+      4: String(bookingNo),
+      5: String(routeRequest.passenger_count || 1),
+      6: String(routeRequest.share_intrest ? "Yes" : "No"),
+      7: String(
+        routeRequest.schedules && routeRequest.schedules.length > 0
+          ? routeRequest.schedules
+            .map((s) => `${s.date} ${s.time ? s.time.join(", ") : ""}`)
+            .join("; ")
+          : (routeRequest.routeDates || []).join("; ")
+      ),
+    });
+  } else {
+    messageOptions.body = `Hi ${nameVal},\n\nYour route request from ${fromVal} to ${toVal} has been accepted and your slot is booked!\n\nBooking Reference: ${bookingNo}`;
+  }
 
   try {
     const result = await getTwilioClient().messages.create(messageOptions);
-    console.log("User Route Request Accepted WhatsApp sent",result.sid);
+    console.log("User Route Request Accepted WhatsApp sent", result.sid);
   } catch (err) {
     console.error("WhatsApp Error (User Route Request Accepted):", err);
   }
