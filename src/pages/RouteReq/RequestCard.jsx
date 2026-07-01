@@ -54,7 +54,6 @@ const RequestCard = ({ request, onView, onAccept, onReject }) => {
             </div>
             <div className="min-w-0">
               <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-tight truncate">Route Request</h3>
-              {/* <p className="text-[10px] sm:text-xs font-medium text-slate-500 mt-0.5 truncate">{request.id}</p> */}
             </div>
           </div>
           <div className="flex-shrink-0">

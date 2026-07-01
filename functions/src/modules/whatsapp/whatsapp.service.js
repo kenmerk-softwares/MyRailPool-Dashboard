@@ -190,7 +190,6 @@ const sendAdminBookingNotification = async (
   const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER;
 
   if (!adminNumber) {
-    // console.log("Admin WhatsApp number missing");
     return;
   }
 

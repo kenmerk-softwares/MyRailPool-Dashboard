@@ -94,7 +94,8 @@ export const BookingList = () => {
     };
 
     useEffect(() => {
-        fetchBookings({ searchQuery, activeFilter, fromDate, toDate });
+        const queryLimit = (!fromDate && !toDate && !searchQuery) ? 200 : null;
+        fetchBookings({ searchQuery, activeFilter, fromDate, toDate, limit: queryLimit });
     }, [searchQuery, activeFilter, fromDate, toDate, fetchBookings]);
 
     const handleView = (booking) => {
@@ -104,10 +105,17 @@ export const BookingList = () => {
     const [exporting, setExporting] = useState(false);
 
     const handleExport = async () => {
-        const targetBookings = allFilteredBookingsRef.current;
-        if (targetBookings.length === 0 || exporting) return;
+        if (exporting) return;
         setExporting(true);
         try {
+            // Fetch all records without limit before exporting
+            await fetchBookings({ searchQuery, activeFilter, fromDate, toDate, limit: null });
+            
+            const targetBookings = allFilteredBookingsRef.current;
+            if (targetBookings.length === 0) {
+                setExporting(false);
+                return;
+            }
             // 1. Gather unique driver, vehicle, trip, and finance IDs
             const uniqueDriverIds = Array.from(
                 new Set([
@@ -412,7 +420,10 @@ export const BookingList = () => {
                 {hasMore && (
                     <div className="mt-8 flex justify-center">
                         <button
-                            onClick={() => fetchBookings({ searchQuery, activeFilter, isLoadMore: true })}
+                            onClick={() => {
+                                const queryLimit = (!fromDate && !toDate && !searchQuery) ? 200 : null;
+                                fetchBookings({ searchQuery, activeFilter, fromDate, toDate, isLoadMore: true, limit: queryLimit });
+                            }}
                             disabled={loading}
                             className="px-8 py-3 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm active:scale-95 disabled:opacity-50"
                         >
