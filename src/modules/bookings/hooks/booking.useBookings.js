@@ -16,6 +16,7 @@ export const useBookings = () => {
 
     const allBookingsRef = useRef([]);
     const visibleCountRef = useRef(15);
+    const allFilteredBookingsRef = useRef([]);
 
     const fetchBookings = useCallback(async ({
         searchQuery = "",
@@ -119,6 +120,7 @@ export const useBookings = () => {
             const sliced = filtered.slice(0, visibleCountRef.current);
             dispatch(setBookings(sliced));
             setHasMore(visibleCountRef.current < filtered.length);
+            allFilteredBookingsRef.current = filtered;
 
         } catch (error) {
             console.error("Error fetching bookings:", error);
@@ -130,5 +132,5 @@ export const useBookings = () => {
 
     const setGlobalLoading = useCallback((val) => dispatch(setLoading(val)), [dispatch]);
 
-    return { bookings, loading, hasMore, fetchBookings, setLoading: setGlobalLoading };
+    return { bookings, loading, hasMore, fetchBookings, setLoading: setGlobalLoading, allFilteredBookingsRef };
 };
