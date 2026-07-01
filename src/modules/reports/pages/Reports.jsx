@@ -657,8 +657,8 @@ export const Reports = () => {
                 key={p.id}
                 onClick={() => applyPreset(p.id)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${preset === p.id
-                    ? 'bg-white text-primary-600 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800'
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
                   }`}
               >
                 {p.label}
@@ -739,8 +739,8 @@ export const Reports = () => {
         {/* Warning notification banner */}
         {warning && (
           <div className={`mt-4 p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${warning.type === 'error_range'
-              ? 'bg-rose-50 border-rose-200 text-rose-800'
-              : 'bg-amber-50 border-amber-200 text-amber-800'
+            ? 'bg-rose-50 border-rose-200 text-rose-800'
+            : 'bg-amber-50 border-amber-200 text-amber-800'
             }`}>
             <div className="flex items-start gap-2.5">
               <AlertTriangle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${warning.type === 'error_range' ? 'text-rose-500' : 'text-amber-500'}`} />
@@ -878,15 +878,14 @@ export const Reports = () => {
           { id: 'overview', label: 'Timeline & Trends', icon: TrendingUp },
           { id: 'routes', label: 'Route Analysis', icon: RouteIcon },
           { id: 'trips', label: 'Trip Analysis', icon: Activity },
-          // { id: 'routeTypes', label: 'Service Types', icon: BarChart3 },
           { id: 'resources', label: 'Resource Utilization', icon: Car }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === tab.id
-                ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-slate-500 hover:text-slate-600 hover:border-slate-300'
+              ? 'border-primary-600 text-primary-600'
+              : 'border-transparent text-slate-500 hover:text-slate-600 hover:border-slate-300'
               }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -1070,8 +1069,8 @@ export const Reports = () => {
                               {/* Service Type */}
                               <td className="px-6 py-4 text-center">
                                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${route.routeType === 'core'
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-100'
-                                    : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                                  : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
                                   }`}>
                                   {route.routeType}
                                 </span>
@@ -1262,10 +1261,10 @@ export const Reports = () => {
                           {/* Occupancy Rate */}
                           <td className="px-6 py-4 text-center">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${Number(trip.occupancyRate) > 75
-                                ? 'bg-emerald-50 text-emerald-700'
-                                : Number(trip.occupancyRate) > 35
-                                  ? 'bg-indigo-50 text-indigo-700'
-                                  : 'bg-amber-50 text-amber-700'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : Number(trip.occupancyRate) > 35
+                                ? 'bg-indigo-50 text-indigo-700'
+                                : 'bg-amber-50 text-amber-700'
                               }`}>
                               {trip.occupancyRate}%
                             </span>

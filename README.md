@@ -1,114 +1,108 @@
 # MyRailPool Dashboard
 
-MyRailPool Dashboard is a premium, real-time command center and administration panel designed to manage the scheduling, bookings, transit routes, driver allocations, and payments for the MyRailPool transit pooling and shuttle service network. 
+MyRailPool Dashboard is a real-time administration panel and command center designed to manage scheduling, bookings, transit routes, driver allocations, and payments for the MyRailPool transit and shuttle network.
 
 ---
 
 ## Overview
 
 ### Purpose
-The **MyRailPool Dashboard** serves as the central administrative hub for transit operators and managers. It streamlines administrative workflows, automates booking validations, optimizes route assignments, and provides financial reporting tools.
+The dashboard serves as the central administrative hub for transit operators and managers. It simplifies workflows, automates booking validations, optimizes route assignments, and provides financial reporting tools.
 
 ### Problem Solved
-Managing a high-frequency rail and shuttle pooling network involves complex operations: matching user bookings to scheduled trips, managing vehicle capacity, processing payments, communicating delays/updates, and ensuring drivers are assigned properly. This dashboard consolidates these scattered workflows into a single responsive panel.
+Managing a shuttle pooling network involves complex operations: matching passenger bookings to scheduled trips, managing capacity, processing payments, sending updates, and assigning drivers. This dashboard consolidates these workflows into a single responsive panel.
 
 ### Key Objectives
-*   **Operational Control**: Provide administrators with tools to create routes, schedule trips, assign drivers/vehicles, and oversee active pools.
-*   **Financial Integrity**: Audit stripe transactions, generate custom monthly/yearly reports, and automate customer refunds.
-*   **Secure Multi-Tenant Access**: Enforce role-based access control (RBAC) to ensure employees, operators, and developers have scoped permissions.
-*   **Real-time Alerts**: Leverage automated WhatsApp triggers and dynamic app popups to keep passengers and drivers synchronized.
+*   **Operational Control**: Create routes, schedule trips, assign drivers and vehicles, and monitor active pools.
+*   **Financial Management**: Track Stripe transactions, generate revenue reports, and automate refunds.
+*   **Secure Access**: Enforce role-based access control (RBAC) to ensure users have appropriate permissions.
+*   **Real-Time Alerts**: Trigger automated WhatsApp updates via Twilio to keep passengers and drivers synchronized.
 
 ---
 
 ## Features
 
-*   **💳 Booking Management**: Form-based booking creation, status tracking (Active, Completed, Cancelled), and seat allocation.
-*   **📅 Trip Scheduler**: Create scheduled trip occurrences for established transit routes. Automatically mark expired trips as completed via Cloud Scheduler.
-*   **📍 Route Management**: Plot new transit corridors, define pick-up/drop-off points, and handle passenger route requests.
-*   **🚗 Driver & Vehicle Profiles**: Comprehensive onboarding forms including driver license validation and vehicle capacity limits.
-*   **📊 Dynamic Financial Analytics**: Real-time revenue analytics, transaction distribution charts (using Recharts), and custom Excel statement generation.
-*   **🔐 Dynamic Permission Control**: Grant granular route permissions to admin users. Custom designations and departments can be managed directly from the settings panel.
-*   **💬 Communication Gateway**: Trigger template-based WhatsApp alerts via Twilio and manage popups or modal screens.
+*   **Booking Management**: Create bookings via forms, track status (Active, Completed, Cancelled), and allocate seats.
+*   **Trip Scheduler**: Schedule trips for transit routes. Automatically complete expired trips using Cloud Scheduler.
+*   **Route Management**: Map transit corridors, define pick-up/drop-off points, and manage passenger route requests.
+*   **Driver & Vehicle Profiles**: Onboard drivers with license validation and manage vehicle capacity limits.
+*   **Financial Analytics**: View real-time revenue dashboards, transaction charts (via Recharts), and export statements.
+*   **Dynamic Permission Control**: Manage custom designations, departments, and granular route permissions for admin users.
+*   **Communication Gateway**: Trigger Twilio WhatsApp alerts and manage application notifications.
 
 ---
 
 ## Technology Stack
 
 ### Frontend
-*   **Core**: React 19.2.4 (Single Page Application)
-*   **State Management**: Redux Toolkit & React-Redux for global authentication, UI, and caching states.
-*   **Routing**: React Router DOM v7 for secure, role-shielded routing.
-*   **Styling**: Tailwind CSS & Vanilla CSS custom design systems.
-*   **Visualization**: Recharts for dynamic payment & trip analytics.
-*   **Utilities**: Lucide React (Icons), SheetJS/xlsx (Data Export).
+*   **Core**: React 19 (Single Page Application)
+*   **State Management**: Redux Toolkit & React-Redux
+*   **Routing**: React Router DOM v7
+*   **Styling**: Tailwind CSS & Custom CSS
+*   **Visualization**: Recharts
+*   **Utilities**: Lucide React (Icons), SheetJS (Data Export)
 
-### Backend
-*   **Runtime**: Cloud Functions for Firebase (v2, Node.js 24)
-*   **Framework**: Firebase Admin SDK
+### Backend & Database
+*   **Runtime**: Cloud Functions for Firebase (Node.js 24)
+*   **Database**: Google Cloud Firestore (NoSQL)
+*   **File Storage**: Firebase Storage
+*   **Hosting**: Firebase Hosting
 
-### Database & Storage
-*   **Primary Database**: Google Cloud Firestore (NoSQL, real-time sync)
-*   **File Storage**: Firebase Storage (Secure document uploads, vehicle assets, driver licenses)
-
-### Cloud/Hosting
-*   **Application Hosting**: Firebase Hosting
-*   **Compute**: Firebase Cloud Functions (Region: `asia-south1`)
-
-### Third-party APIs & Services
-*   **Payment Gateway**: Stripe API (Stripe Webhooks & Node SDK)
-*   **Messaging**: Twilio API (WhatsApp Business API templates)
-*   **Maps & Routing**: Google Maps Places API
+### Third-Party Services
+*   **Payments**: Stripe API
+*   **Messaging**: Twilio API (WhatsApp Business)
+*   **Maps**: Google Maps Places API
 
 ---
 
 ## Project Structure
 
-The project is structured as a monorepo consisting of the React frontend application and the Firebase backend functions codebase.
+The project is structured as a monorepo containing both the React frontend and the Firebase backend.
 
 ```
 / (Root Directory)
-├── firebase.json                       # Firebase services configuration (Hosting, Functions, Emulators)
-├── .firebaserc                         # Maps project alias to Firebase Project ID (myrailpool-4150a)
-├── tailwind.config.js                  # Tailwind utility styling config
+├── firebase.json                       # Firebase services configuration
+├── .firebaserc                         # Firebase Project ID configuration
+├── tailwind.config.js                  # Tailwind CSS styling config
 ├── .env                                # Frontend environment configurations
-├── package.json                        # Frontend dependencies & start/build/deploy scripts
+├── package.json                        # Frontend dependencies & scripts
 ├── public/                             # Static templates & assets
 ├── functions/                          # Firebase Backend Codebase
-│   ├── index.js                        # Firebase entry point directing to src
-│   ├── package.json                    # Node modules & engines for backend deployment
-│   ├── .env                            # Backend Stripe, Twilio, and bypass configuration parameters
+│   ├── index.js                        # Firebase entry point
+│   ├── package.json                    # Backend dependencies & configuration
+│   ├── .env                            # Backend Stripe, Twilio, and bypass configuration
 │   └── src/                            # Functions source folder
-│       ├── index.js                    # Core index exporting modules (Callable, Webhook, Scheduled)
+│       ├── index.js                    # Core functions exports
 │       ├── modules/                    # Business modules (Admin, Route, Vehicle, Driver, Payment)
 │       └── shared/                     # Common helpers, validation wrappers, and logging utils
 └── src/                                # Frontend React Codebase
-    ├── index.js                        # App bootstrapping element
-    ├── App.js                          # Main routing controller with reactive auth sync
-    ├── App.css / index.css             # Main styling configurations
+    ├── index.js                        # App bootstrap entry point
+    ├── App.js                          # Main routing controller
+    ├── App.css / index.css             # App styling configuration
     ├── app/                            # Redux store and route definitions
-    │   └── routes.js                   # Navigation config matching views to roles & permissions
-    ├── components/                     # Shared UI layout (Layout sidebar, buttons, table wrappers)
+    │   └── routes.js                   # Navigation configuration matching views to roles
+    ├── components/                     # Shared UI layout components
     ├── data/                           # Mock datasets and static variables
     ├── shared/                         # Custom Hooks, Firebase initializers, Toast providers
-    └── modules/                        # Feature-specific modules containing pages & hooks
-        ├── auth/                       # Login and credential validation module
-        ├── bookings/                   # Bookings management views (Add, edit, list)
-        ├── dashboard/                  # Interactive main statistics charts
+    └── modules/                        # Feature-specific pages & hooks
+        ├── auth/                       # Login and credential validation
+        ├── bookings/                   # Bookings management views
+        ├── dashboard/                  # Interactive analytics dashboard
         ├── drivers/                    # Driver onboarding and listing panel
         ├── payment/                    # Payments lists and revenue dashboards
         ├── reports/                    # Reports compiler (Excel, CSV)
-        ├── routes/                     # Operational route planner pages
+        ├── routes/                     # Operational route planner
         ├── trips/                      # Trip schedules and pool monitoring
-        ├── user/                       # Admin user user-list and access controller
-        └── vehicles/                   # Vehicle fleets listings
+        ├── user/                       # Admin user management and access control
+        └── vehicles/                   # Vehicle fleet listings
 ```
 
 ---
 
-## Installation
+## Installation & Setup
 
 ### Prerequisites
-*   **Node.js**: v20 or later (v24 recommended for functions runtime consistency)
+*   **Node.js**: v20 or later
 *   **Firebase CLI**: Installed globally (`npm install -g firebase-tools`)
 *   **Git**
 
@@ -133,21 +127,21 @@ The project is structured as a monorepo consisting of the React frontend applica
     ```
 
 4.  **Configure Environment Variables**
-    Create a `.env` file in the root directory and a `.env` file inside the `functions` directory. Refer to the **Configuration** section below for the required fields.
+    Create a `.env` file in the root directory and another inside the `functions` directory. Refer to the **Configuration** section below for details.
 
 5.  **Running Locally**
-    *   **Start Backend Emulators**: Ensure you are authenticated with Firebase (`firebase login`), then launch functions emulator:
+    *   **Start Backend Emulators**: Authenticate with Firebase (`firebase login`), then launch the functions emulator:
         ```bash
         firebase emulators:start --only functions
         ```
-    *   **Start React Frontend Server**: In a separate terminal tab in the root folder, run:
+    *   **Start React Frontend**: In a separate terminal tab in the root folder, run:
         ```bash
         npm start
         ```
         Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 6.  **Building for Production**
-    Generate a highly optimized, minified production build:
+    To generate an optimized production build:
     ```bash
     npm run build
     ```
@@ -157,68 +151,70 @@ The project is structured as a monorepo consisting of the React frontend applica
 ## Configuration
 
 ### Frontend Environment Variables
-Set these inside the root [.env](file:///Users/gospel/Documents/MyRailPool-Dashboard/.env) file:
+Set these inside the root `.env` file:
 
 | Variable | Description | Example / Default |
 | :--- | :--- | :--- |
-| `REACT_APP_PLACES_WEB_API` | Google Maps API key used for Place autocomplete and routing | `AIzaSyDd3W4SQ3U...` |
+| `REACT_APP_PLACES_WEB_API` | Google Maps API key for Place Autocomplete and routing | `AIzaSyDd3W4SQ3U...` |
 
 ### Backend Environment Variables
-Set these inside the backend [functions/.env](file:///Users/gospel/Documents/MyRailPool-Dashboard/functions/.env) file:
+Set these inside the backend `functions/.env` file:
 
 | Variable | Description | Example / Default |
 | :--- | :--- | :--- |
-| `TEST_TWILIO_ACCOUNT_SID` | Twilio Account Identification String for SMS/WhatsApp API | `ACa954b87f61ce735e...` |
-| `TEST_TWILIO_AUTH_TOKEN` | Twilio Account Secret authorization token | `22f19d543e6ed6cca...` |
-| `TEST_TWILIO_WHATSAPP_NUMBER` | Twilio WhatsApp Sandbox/Approved Business phone sender ID | `whatsapp:+14155238886` |
-| `TEST_TWILIO_VALIDATE_WEBHOOK` | Toggles webhook payload validation for security | `false` / `true` |
-| `TEST_BYPASS_AUTH` | Bypasses callable authorization limits in sandbox environment | `true` |
-| `TEST_TWILIO_BOOKING_TEMPLATE_SID` | Twilio Content Template ID for Booking confirmations | `HX5303221ad9099300...` |
-| `TEST_TWILIO_REMINDER_TEMPLATE_SID` | Twilio Content Template ID for upcoming Trip reminders | `HX6c22bf0dc3c52b...` |
-| `TEST_TWILIO_CANCELLED_TEMPLATE_SID` | Twilio Content Template ID for Trip cancellation notices | `HX9587f49a0d8a044e...` |
-| `TEST_TWILIO_ADMIN_BOOKING_TEMPLATE_SID` | Twilio Content Template ID for booking alerts sent to admins | `HX378b724f76ce2929...` |
-| `TEST_ADMIN_WHATSAPP_NUMBER` | WhatsApp recipient phone number for admin notifications | `+919778726418` |
-| `STRIPE_SECRET_KEY` | Secret Key used to process payment intents and checkouts in Stripe | `sk_test_51TNuSz...` |
-| `STRIPE_WEBHOOK_SECRET` | Signing secret used to authenticate Stripe Webhook payloads | `whsec_5V3FctE...` |
+| `TWILIO_ACCOUNT_SID` | Twilio Account SID for SMS/WhatsApp API | `AC8d8261ef7bd37...` |
+| `TWILIO_AUTH_TOKEN` | Twilio Auth Token | `6df57e032e91958...` |
+| `TWILIO_API_KEY` | Twilio API Key for services authentications | `SKa80f5427d4b51...` |
+| `TWILIO_API_SECRET` | Twilio API Secret for services authentications | `PQZyn7ambkvbK6x...` |
+| `TWILIO_WHATSAPP_NUMBER` | Twilio WhatsApp sender number | `whatsapp:+15559591897` |
+| `TWILIO_VALIDATE_WEBHOOK` | Enable webhook payload validation | `false` / `true` |
+| `TEST_BYPASS_AUTH` | Bypass auth checks in sandbox environment | `true` |
+| `TWILIO_BOOKING_TEMPLATE_SID` | Twilio Template ID for Booking confirmations | `HXefed6c8d914ee...` |
+| `TWILIO_REMINDER_TEMPLATE_SID` | Twilio Template ID for upcoming Trip reminders | `HXd17d2d9f7ef40...` |
+| `TWILIO_CANCELLED_TEMPLATE_SID` | Twilio Template ID for Trip cancellation notices | `HXa8501d68b4f21...` |
+| `TWILIO_ADMIN_BOOKING_TEMPLATE_SID` | Twilio Template ID for booking alerts to admins | `HXe874a324fde40...` |
+| `TWILIO_ADMIN_ROUTEREQ_TEMPLATE_SID` | Twilio Template ID for route requests alerts to admins | `HX18b674f352873...` |
+| `TWILIO_ROUTEREQ_APPROVED` | Twilio Template ID for route request approval notices | `HX82ce67fe9d834...` |
+| `ADMIN_WHATSAPP_NUMBER` | WhatsApp recipient for admin notifications | `+919778726418` |
+| `STRIPE_SECRET_KEY` | Stripe Secret Key for processing payments | `sk_live_51TNuSi...` |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Signing Secret | `whsec_5V3FctE...` |
 
 ---
 
 ## Usage
 
 ### Logging In
-Access the login page. Admin account permissions are synced with Firebase Auth and Firestore. Enter credentials configured in your `admin-users` collection.
+Access the login page. Admin permissions are synchronized with Firebase Auth and Firestore. Enter credentials matching a document in the `admin-users` collection.
 
 ### Scheduling a Trip
-1.  Navigate to **Routes** and ensure the route exists, or create one.
+1.  Navigate to **Routes** and ensure the route exists, or create a new one.
 2.  Go to **Trips** -> **Add Trip**.
-3.  Select a Route, pick a Driver and Vehicle (only active resources are selectable).
-4.  Specify the departure date, departure time, and base fare, then click **Create**.
+3.  Select a Route, an active Driver, and an active Vehicle.
+4.  Specify the departure date, time, and base fare, then click **Create**.
 
 ### Cancelling a Booking
-1.  Go to **Bookings**.
-2.  Select a booking from the list and open the **View** details drawer/page.
-3.  Click **Cancel Booking**. This invokes the `cancelBooking` cloud function, issuing refunds via Stripe and updating the driver and passenger via WhatsApp notifications.
+1.  Go to **Bookings** and open the target booking details.
+2.  Click **Cancel Booking**.
+3.  This triggers the `cancelBooking` cloud function, which processes the refund via Stripe and notifies the passenger and driver via WhatsApp.
 
 ---
 
 ## User Roles
 
-Administrators are granted one of three functional roles, which controls navigation route shielding and access:
+The dashboard enforces role-based access control (RBAC) to protect features and pages:
 
 | Role | Permissions | Responsibilities |
 | :--- | :--- | :--- |
-| **Super Admin** | Full access to all modules, read/write on settings, permissions configurator, user role editor. | Managing backend constants, defining system access parameters, adding internal admin users. |
-| **Admin** | Read/write access on Bookings, Trips, Drivers, Vehicles, and Route Requests. Read-only on admin logs. | Conducting day-to-day operations, scheduling fleets, approving route proposals, resolving bookings. |
-| **Viewer** | Read-only access to all dashboards, lists, payment histories, reports, and logs. No write/update actions. | Overseeing operational health, auditing financial metrics, exporting reports. |
+| **Super Admin** | Full access to all modules, settings, permissions config, and user roles. | Managing system configurations, access parameters, and adding admin users. |
+| **Admin** | Read/write access to Bookings, Trips, Drivers, Vehicles, and Route Requests. Read-only logs. | Managing daily operations, scheduling fleets, approving routes, and resolving bookings. |
+| **Viewer** | Read-only access to dashboards, lists, payment histories, reports, and logs. | Auditing financial metrics, checking operational health, and exporting reports. |
 
 ---
 
 ## API Documentation
 
-Backend services are triggered via Firebase Cloud Functions v2.
-
-### Callable Functions (HTTPS Callable SDK)
-Invoked using the Firebase Web SDK Client.
+### HTTPS Callable Functions
+These endpoints are invoked via the Firebase Web SDK Client.
 
 | Function Endpoint | Description | Payload Schema | Auth Required |
 | :--- | :--- | :--- | :--- |
@@ -238,20 +234,18 @@ Invoked using the Firebase Web SDK Client.
 | `createUser` | Registers a new client/passenger. | `{ email, name, phone }` | Yes |
 | `whatsappNotifications` | Manually triggers confirmation or cancellation WhatsApp. | `{ type: 'booking_confirmation'\|'booking_cancelled', bookingId }` | Yes |
 
-### Webhooks & Scheduled Functions
+### Webhooks & Scheduled Jobs
 
 | Endpoint / Job Name | Trigger Type | Description | Auth Method |
 | :--- | :--- | :--- | :--- |
-| `stripeWebhook` | HTTP Webhook (`/stripeWebhook`) | Captures Stripe events like `payment_intent.succeeded` to complete booking records. | Stripe Webhook Signature Verification |
-| `autoCompleteExpiredTrips` | Scheduled (Every 30 minutes) | Iterates through ongoing/scheduled trips and flags them completed if past arrival thresholds. | Cron System Triggered |
-| `cleanupExpiredBookings` | Scheduled (Every 15 minutes) | Cancels bookings where payment intent remained unpaid past reservation timeouts. | Cron System Triggered |
-| `tripReminderScheduler` | Scheduled (Every hour) | Identifies upcoming trips starting within 3 hours and dispatches Twilio reminders. | Cron System Triggered |
+| `stripeWebhook` | HTTP Webhook (`/stripeWebhook`) | Processes Stripe events like `payment_intent.succeeded` to finalize bookings. | Stripe Webhook Signature Verification |
+| `autoCompleteExpiredTrips` | Scheduled (Every 30 mins) | Automatically completes active trips that have passed their estimated duration. | Cron System Triggered |
+| `cleanupExpiredBookings` | Scheduled (Every 15 mins) | Cancels bookings where payment was not completed within the checkout window. | Cron System Triggered |
+| `tripReminderScheduler` | Scheduled (Every hour) | Dispatches Twilio WhatsApp reminders for trips starting within 3 hours. | Cron System Triggered |
 
 ---
 
 ## Database Schema (Firestore)
-
-Firestore stores data in JSON-like documents grouped into collections:
 
 | Collection Name | Document Purpose | Key Attributes |
 | :--- | :--- | :--- |
@@ -272,42 +266,27 @@ Firestore stores data in JSON-like documents grouped into collections:
 
 ---
 
-## Authentication & Authorization
+## Authentication & Route Protection
 
-Authentication is built on **Firebase Authentication**.
-1.  **State Sync**: The main application listens to authorization states via [auth.listner.js](file:///Users/gospel/Documents/MyRailPool-Dashboard/src/modules/auth/auth.listner.js).
-2.  **Profile Synchronization**: Upon login, the listener attaches a real-time `onSnapshot` listener to the user's document in the `admin-users` collection.
-3.  **Permissions Extraction**: The user's profile exposes a `permissionId`. The listener resolves this ID in the `permissions` collection to fetch allowable routes (e.g. `/bookings`, `/trips`).
-4.  **Route Protection**: In [App.js](file:///Users/gospel/Documents/MyRailPool-Dashboard/src/App.js), navigation elements and React Router `<Route>` nodes are conditionally rendered. If an unprivileged user attempts to navigate to a blocked route, they are dynamically redirected to the `/no-access` component.
+Authentication is powered by **Firebase Authentication**.
 
----
-
-## Deployment
-
-### Host Frontend
-Deploy built static bundle files straight to Firebase Hosting:
-```bash
-firebase deploy --only hosting
-```
-
-### Deploy Functions
-Deploy Cloud Functions (requires `npm run lint` validation):
-```bash
-firebase deploy --only functions
-```
+1.  **State Sync**: The application listens to authentication states via the auth listener [auth.listner.js](src/modules/auth/auth.listner.js).
+2.  **Profile Synchronization**: Upon login, a real-time listener monitors the user's document in the `admin-users` collection.
+3.  **Permissions Extraction**: The user's profile maps to a `permissionId`. The application retrieves the permitted routes (e.g. `/bookings`, `/trips`) from the `permissions` collection.
+4.  **Route Protection**: In the main routing controller [App.js](src/App.js), pages are conditionally rendered. If an unauthorized user attempts to access a protected route, they are automatically redirected to the `/no-access` screen.
 
 ---
 
 ## Security Practices
 
-*   **Joi Validation**: All backend Cloud Callable functions check payloads using Joi schemas before executing business logic.
-*   **Stripe Authentication**: The `stripeWebhook` parses raw request buffers to verify Stripe signatures (`stripe.webhooks.constructEvent`), preventing spoofing.
-*   **Context Authentication**: Backend callable functions use the `callableWrapper` in [callable.wrapper.js](file:///Users/gospel/Documents/MyRailPool-Dashboard/functions/src/shared/utils/callable.wrapper.js) to reject requests without a valid `req.auth` token.
-*   **Environment Secret Safeguards**: Stripe keys and Twilio credentials are kept out of Git repositories and handled via Firebase Functions configuration parameters.
+*   **Input Validation**: All backend cloud functions validate incoming payloads using Joi schemas.
+*   **Stripe Webhook Signature Verification**: The `stripeWebhook` parses raw request buffers to verify signatures via Stripe's SDK, preventing request spoofing.
+*   **Authentication Wrappers**: Backend callable functions use a wrapper [callable.wrapper.js](functions/src/shared/utils/callable.wrapper.js) to reject requests that do not include a valid user authentication token.
+*   **Secrets Management**: API credentials (Stripe and Twilio keys) are managed securely via Firebase environment parameters and kept out of version control.
 
 ---
 
-## Screenshots (Placeholders)
+## Screenshots
 
 Add visual guides below to help developers navigate the dashboard interfaces:
 
@@ -321,9 +300,9 @@ Add visual guides below to help developers navigate the dashboard interfaces:
 
 ## Future Improvements
 
-*   **📍 Live Shuttle Tracking**: Integration of Google Maps directions API to render active driver coordinates on a dashboard map.
-*   **💳 Automated Driver Settlements**: Implement Stripe Connect to automate payouts to drivers based on completed rides.
-*   **🤖 AI Route Generation**: Analyze aggregate `route_request` coordinates to suggest route creations automatically.
+*   **Live Shuttle Tracking**: Integrate Google Maps to display real-time driver coordinates on the map interface.
+*   **Automated Driver Payouts**: Use Stripe Connect to automate driver payouts based on completed trips.
+*   **Smart Route Suggestions**: Analyze aggregated route request coordinates to automatically suggest new routes.
 
 ---
 
@@ -335,7 +314,7 @@ Add visual guides below to help developers navigate the dashboard interfaces:
     ```
 2.  Add changes and run ESLint validator to prevent pipeline errors:
     ```bash
-    npm run lint # inside functions directory
+    npm run lint
     ```
 3.  Commit your modifications:
     ```bash
@@ -351,7 +330,7 @@ Add visual guides below to help developers navigate the dashboard interfaces:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ---
 

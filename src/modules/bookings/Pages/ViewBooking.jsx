@@ -37,7 +37,7 @@ const Card = ({ icon: Icon, iconBg = 'bg-primary-50', iconColor = 'text-primary-
   </div>
 );
 
-// Beautiful modal styled identically to DeleteModal for passenger booking cancellation
+
 const CancelBookingModal = ({
   isOpen,
   onClose,
@@ -373,7 +373,6 @@ export const ViewBooking = () => {
   );
 
   const users = booking.users || [];
-  // const totalCollected = users.reduce((sum, u) => sum + (Number(u.totalFare) || 0), 0);
 
   return (
     <div className="max-w-5xl mx-auto pb-12 px-4 animate-in fade-in duration-500 font-jakarta">

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where, limit } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
 import { setBookings, setLoading } from "../booking.slice";
 import { serialize } from "../../../shared/utils/serialize";
@@ -17,26 +17,175 @@ export const useBookings = () => {
     const allBookingsRef = useRef([]);
     const visibleCountRef = useRef(15);
     const allFilteredBookingsRef = useRef([]);
+    const prevParamsRef = useRef({ searchQuery: "", activeFilter: "", fromDate: "", toDate: "" });
 
     const fetchBookings = useCallback(async ({
         searchQuery = "",
         activeFilter = "",
         fromDate = "",
         toDate = "",
-        isLoadMore = false
+        isLoadMore = false,
+        limit: queryLimit = null
     } = {}) => {
         dispatch(setLoading(true));
         try {
-            let rawData = allBookingsRef.current;
+            const paramsChanged = 
+                searchQuery !== prevParamsRef.current.searchQuery ||
+                activeFilter !== prevParamsRef.current.activeFilter ||
+                fromDate !== prevParamsRef.current.fromDate ||
+                toDate !== prevParamsRef.current.toDate;
 
-            if (!isLoadMore || rawData.length === 0) {
+            prevParamsRef.current = { searchQuery, activeFilter, fromDate, toDate };
+
+            let rawData = allBookingsRef.current;
+            const isSearchActive = searchQuery && searchQuery.trim() !== "";
+
+            if (paramsChanged || !isLoadMore || rawData.length === 0) {
                 const colRef = collection(db, "bookings");
-                const q = query(colRef, orderBy("updatedAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                rawData = serialize(querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data()
-                })));
+
+                if (isSearchActive) {
+                    const searchVal = searchQuery.trim();
+                    const queries = [];
+
+                    // 1. Exact match variations (driver_name, route_name, route_start, route_end, name)
+                    const variations = Array.from(new Set([
+                        searchVal,
+                        searchVal.toLowerCase(),
+                        searchVal.toUpperCase(),
+                        searchVal.replace(/\b\w/g, c => c.toUpperCase()),
+                        searchVal.charAt(0).toUpperCase() + searchVal.slice(1).toLowerCase()
+                    ]));
+                    queries.push(query(colRef, where("driver_name", "in", variations)));
+                    queries.push(query(colRef, where("route_name", "in", variations)));
+                    queries.push(query(colRef, where("route_start", "in", variations)));
+                    queries.push(query(colRef, where("route_end", "in", variations)));
+
+                    // 2. Prefix search on driver_name and route_name
+                    const titleCased = searchVal.replace(/\b\w/g, c => c.toUpperCase());
+                    queries.push(query(colRef, where("driver_name", ">=", titleCased), where("driver_name", "<=", titleCased + "\uf8ff")));
+                    queries.push(query(colRef, where("route_name", ">=", titleCased), where("route_name", "<=", titleCased + "\uf8ff")));
+
+                    const lowerCased = searchVal.toLowerCase();
+                    queries.push(query(colRef, where("driver_name", ">=", lowerCased), where("driver_name", "<=", lowerCased + "\uf8ff")));
+                    queries.push(query(colRef, where("route_name", ">=", lowerCased), where("route_name", "<=", lowerCased + "\uf8ff")));
+
+                    // 3. Trip number search (if numerical)
+                    const tripNoNum = Number(searchVal);
+                    if (!isNaN(tripNoNum)) {
+                        queries.push(query(colRef, where("tripNo", "==", tripNoNum)));
+                    }
+
+                    // 4. Exact selectedDate search if matches YYYY-MM-DD
+                    const dateReg = /^\d{4}-\d{2}-\d{2}$/;
+                    if (dateReg.test(searchVal)) {
+                        queries.push(query(colRef, where("selectedDate", "==", searchVal)));
+                    }
+
+                    // 5. Look up users by name in the users collection, and find bookings by their userIds array
+                    try {
+                        const usersCollection = collection(db, "users");
+                        const userQueries = [];
+                        userQueries.push(query(usersCollection, where("name", "in", variations)));
+                        userQueries.push(query(usersCollection, where("name", ">=", titleCased), where("name", "<=", titleCased + "\uf8ff")));
+                        userQueries.push(query(usersCollection, where("name", ">=", lowerCased), where("name", "<=", lowerCased + "\uf8ff")));
+
+                        const userSnapshots = await Promise.all(userQueries.map(uq => getDocs(uq).catch(() => ({ docs: [] }))));
+                        const matchingUserIds = [];
+                        userSnapshots.forEach(snap => {
+                            if (snap && snap.docs) {
+                                snap.docs.forEach(doc => {
+                                    matchingUserIds.push(doc.id);
+                                });
+                            }
+                        });
+
+                        const uniqueUserIds = Array.from(new Set(matchingUserIds)).slice(0, 10);
+                        if (uniqueUserIds.length > 0) {
+                            queries.push(query(colRef, where("userIds", "array-contains-any", uniqueUserIds)));
+                        }
+                    } catch (err) {
+                        console.error("Error performing sub-query for users in bookings search:", err);
+                    }
+                    const snapshots = await Promise.all(queries.map(q => getDocs(q).catch(() => ({ docs: [] }))));
+                    const docMap = new Map();
+
+                    snapshots.forEach(snapshot => {
+                        if (snapshot && snapshot.docs) {
+                            snapshot.docs.forEach(doc => {
+                                docMap.set(doc.id, {
+                                    id: doc.id,
+                                    ...doc.data()
+                                });
+                            });
+                        }
+                    });
+
+                    rawData = serialize(Array.from(docMap.values()));
+                } else if (fromDate || toDate) {
+                    const queries = [];
+
+                    // Query 1: by updatedAt range (Timestamp comparison)
+                    const constraints1 = [];
+                    if (fromDate) {
+                        const start = new Date(fromDate + "T00:00:00");
+                        constraints1.push(where("updatedAt", ">=", start));
+                    }
+                    if (toDate) {
+                        const end = new Date(toDate + "T23:59:59");
+                        constraints1.push(where("updatedAt", "<=", end));
+                    }
+                    constraints1.push(orderBy("updatedAt", "desc"));
+                    if (queryLimit) {
+                        constraints1.push(limit(queryLimit));
+                    }
+                    queries.push(query(colRef, ...constraints1));
+
+                    // Query 2: by selectedDate range (string YYYY-MM-DD comparison)
+                    const constraints2 = [];
+                    if (fromDate) {
+                        constraints2.push(where("selectedDate", ">=", fromDate));
+                    }
+                    if (toDate) {
+                        constraints2.push(where("selectedDate", "<=", toDate));
+                    }
+                    if (queryLimit) {
+                        constraints2.push(limit(queryLimit));
+                    }
+                    queries.push(query(colRef, ...constraints2));
+
+                    const snapshots = await Promise.all(queries.map(q => getDocs(q).catch(() => ({ docs: [] }))));
+                    const docMap = new Map();
+
+                    snapshots.forEach(snapshot => {
+                        if (snapshot && snapshot.docs) {
+                            snapshot.docs.forEach(doc => {
+                                docMap.set(doc.id, {
+                                    id: doc.id,
+                                    ...doc.data()
+                                });
+                            });
+                        }
+                    });
+
+                    // Sort merged results by updatedAt desc in memory
+                    const mergedData = Array.from(docMap.values()).sort((a, b) => {
+                        const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+                        const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+                        return timeB - timeA;
+                    });
+
+                    rawData = serialize(mergedData);
+                } else {
+                    let q = query(colRef, orderBy("updatedAt", "desc"));
+                    if (queryLimit) {
+                        q = query(colRef, orderBy("updatedAt", "desc"), limit(queryLimit));
+                    }
+                    const querySnapshot = await getDocs(q);
+                    rawData = serialize(querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data()
+                    })));
+                }
                 allBookingsRef.current = rawData;
             }
 

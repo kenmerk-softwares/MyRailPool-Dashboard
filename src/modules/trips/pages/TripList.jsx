@@ -29,7 +29,8 @@ export const TripList = () => {
   const [fromDate, setFromDate] = React.useState('');
   const [toDate, setToDate] = React.useState('');
   useEffect(() => {
-    fetchTrips({ searchQuery, activeFilter, fromDate, toDate });
+    const queryLimit = (!fromDate && !toDate && !searchQuery) ? 200 : null;
+    fetchTrips({ searchQuery, activeFilter, fromDate, toDate, limit: queryLimit });
   }, [searchQuery, activeFilter, fromDate, toDate, fetchTrips]);
 
   const handleClear = () => {
@@ -70,7 +71,7 @@ export const TripList = () => {
       }
 
       showToast(response?.message || 'Trip cancelled successfully', 'success');
-      fetchTrips({ searchQuery, activeFilter });
+      fetchTrips({ searchQuery, activeFilter, fromDate, toDate });
     } catch (error) {
       console.error('Error cancelling trip:', error);
       const errorMessage = error?.response?.data?.error || error?.message || 'Unknown error occurred';
@@ -302,7 +303,10 @@ export const TripList = () => {
         {hasMore && (
           <div className="mt-8 flex justify-center">
             <button
-              onClick={() => fetchTrips({ searchQuery, activeFilter, isLoadMore: true })}
+              onClick={() => {
+                const queryLimit = (!fromDate && !toDate && !searchQuery) ? 200 : null;
+                fetchTrips({ searchQuery, activeFilter, fromDate, toDate, isLoadMore: true, limit: queryLimit });
+              }}
               disabled={loading}
               className="px-10 py-3 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm active:scale-95 disabled:opacity-50 flex items-center gap-3"
             >

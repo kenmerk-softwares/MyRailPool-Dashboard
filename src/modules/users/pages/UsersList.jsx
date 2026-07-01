@@ -12,6 +12,8 @@ export default function UsersList() {
   const { showToast } = useToast();
   const [activeFilter, setActiveFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   // Modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,6 +24,8 @@ export default function UsersList() {
   const handleClear = () => {
     setActiveFilter('');
     setSearchQuery('');
+    setFromDate('');
+    setToDate('');
   };
 
   const handleOpenEdit = (user) => {
@@ -54,8 +58,8 @@ export default function UsersList() {
   };
 
   useEffect(() => {
-    fetchUsers({ searchQuery, activeFilter });
-  }, [searchQuery, activeFilter, fetchUsers]);
+    fetchUsers({ searchQuery, activeFilter, fromDate, toDate });
+  }, [searchQuery, activeFilter, fromDate, toDate, fetchUsers]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -78,10 +82,21 @@ export default function UsersList() {
             { label: 'Active', value: 'Active' },
             { label: 'Inactive', value: 'Inactive' },
           ]}
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
           renderRow={(user, idx) => {
             let joinDate = "N/A";
             if (user.createdAt) {
-              joinDate = new Date(user.createdAt).toLocaleDateString();
+              if (user.createdAt.seconds !== undefined) {
+                joinDate = new Date(user.createdAt.seconds * 1000).toLocaleDateString();
+              } else {
+                const parsedDate = new Date(user.createdAt);
+                if (!isNaN(parsedDate.getTime())) {
+                  joinDate = parsedDate.toLocaleDateString();
+                }
+              }
             }
 
             return (
@@ -120,7 +135,7 @@ export default function UsersList() {
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-slate-300" />
-                    <span className="text-[13px] font-black text-slate-500">{new Date(user.createdAt.seconds * 1000).toLocaleDateString()}</span>
+                    <span className="text-[13px] font-black text-slate-500">{joinDate}</span>
                   </div>
                 </td>
               </>
@@ -151,7 +166,7 @@ export default function UsersList() {
         {hasMore && (
           <div className="mt-10 flex justify-center">
             <button
-              onClick={() => fetchUsers({ searchQuery, activeFilter, isLoadMore: true })}
+              onClick={() => fetchUsers({ searchQuery, activeFilter, fromDate, toDate, isLoadMore: true })}
               disabled={loading}
               className="group relative px-10 py-3.5 bg-white border border-slate-200 text-slate-500 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:border-indigo-300 hover:text-indigo-600 transition-all duration-300 shadow-sm active:scale-95 disabled:opacity-50 overflow-hidden"
             >

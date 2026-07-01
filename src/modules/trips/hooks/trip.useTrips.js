@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where, limit } from "firebase/firestore";
 import { db } from "../../../shared/services/firebase";
 import { setTrips, setLoading } from "../trip.slice";
 import { serialize } from "../../../shared/utils/serialize";
@@ -13,20 +13,105 @@ export const useTrips = () => {
 
 	const allTripsRef = useRef([]);
 	const visibleCountRef = useRef(10);
+	const prevParamsRef = useRef({ searchQuery: "", activeFilter: "", fromDate: "", toDate: "" });
 
-	const fetchTrips = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false } = {}) => {
+	const fetchTrips = useCallback(async ({ searchQuery = "", activeFilter = "", fromDate = "", toDate = "", isLoadMore = false, limit: queryLimit = null } = {}) => {
 		dispatch(setLoading(true));
 		try {
-			let rawData = allTripsRef.current;
+			const paramsChanged = 
+				searchQuery !== prevParamsRef.current.searchQuery ||
+				activeFilter !== prevParamsRef.current.activeFilter ||
+				fromDate !== prevParamsRef.current.fromDate ||
+				toDate !== prevParamsRef.current.toDate;
 
-			if (!isLoadMore || rawData.length === 0) {
+			prevParamsRef.current = { searchQuery, activeFilter, fromDate, toDate };
+
+			let rawData = allTripsRef.current;
+			const isSearchActive = searchQuery && searchQuery.trim() !== "";
+
+			if (paramsChanged || !isLoadMore || rawData.length === 0) {
 				const tripsCollection = collection(db, "trips");
-				const q = query(tripsCollection, orderBy("createdAt", "desc"));
-				const querySnapshot = await getDocs(q);
-				rawData = serialize(querySnapshot.docs.map((doc) => ({
-					id: doc.id,
-					...doc.data()
-				})));
+
+				if (isSearchActive) {
+					const searchVal = searchQuery.trim();
+					const queries = [];
+
+					// 1. Exact match variations (driver_name, route_name, vehicle_reg, tripId)
+					const variations = Array.from(new Set([
+						searchVal,
+						searchVal.toLowerCase(),
+						searchVal.toUpperCase(),
+						searchVal.replace(/\b\w/g, c => c.toUpperCase()),
+						searchVal.charAt(0).toUpperCase() + searchVal.slice(1).toLowerCase()
+					]));
+
+					queries.push(query(tripsCollection, where("driver_name", "in", variations)));
+					queries.push(query(tripsCollection, where("route_name", "in", variations)));
+					queries.push(query(tripsCollection, where("vehicle_reg", "in", variations)));
+					queries.push(query(tripsCollection, where("tripId", "in", variations)));
+
+					// 2. Prefix search on driver_name, route_name
+					const titleCased = searchVal.replace(/\b\w/g, c => c.toUpperCase());
+					queries.push(query(tripsCollection, where("driver_name", ">=", titleCased), where("driver_name", "<=", titleCased + "\uf8ff")));
+					queries.push(query(tripsCollection, where("route_name", ">=", titleCased), where("route_name", "<=", titleCased + "\uf8ff")));
+
+					const lowerCased = searchVal.toLowerCase();
+					queries.push(query(tripsCollection, where("driver_name", ">=", lowerCased), where("driver_name", "<=", lowerCased + "\uf8ff")));
+					queries.push(query(tripsCollection, where("route_name", ">=", lowerCased), where("route_name", "<=", lowerCased + "\uf8ff")));
+
+					// 3. Date string matching (if they search for exact date)
+					const dateReg = /^\d{4}-\d{2}-\d{2}$/;
+					if (dateReg.test(searchVal)) {
+						queries.push(query(tripsCollection, where("selectedDates", "array-contains", searchVal)));
+					}
+
+					const snapshots = await Promise.all(queries.map(q => getDocs(q).catch(() => ({ docs: [] }))));
+					const docMap = new Map();
+
+					snapshots.forEach(snapshot => {
+						if (snapshot && snapshot.docs) {
+							snapshot.docs.forEach(doc => {
+								docMap.set(doc.id, {
+									id: doc.id,
+									...doc.data()
+								});
+							});
+						}
+					});
+
+					rawData = serialize(Array.from(docMap.values()));
+				} else if (fromDate || toDate) {
+					// Query by createdAt range in Firestore
+					const constraints = [];
+					if (fromDate) {
+						const start = new Date(fromDate + "T00:00:00");
+						constraints.push(where("createdAt", ">=", start));
+					}
+					if (toDate) {
+						const end = new Date(toDate + "T23:59:59");
+						constraints.push(where("createdAt", "<=", end));
+					}
+					constraints.push(orderBy("createdAt", "desc"));
+					if (queryLimit) {
+						constraints.push(limit(queryLimit));
+					}
+					const q = query(tripsCollection, ...constraints);
+					const querySnapshot = await getDocs(q);
+					rawData = serialize(querySnapshot.docs.map((doc) => ({
+						id: doc.id,
+						...doc.data()
+					})));
+				} else {
+					let q = query(tripsCollection, orderBy("createdAt", "desc"));
+					if (queryLimit) {
+						q = query(tripsCollection, orderBy("createdAt", "desc"), limit(queryLimit));
+					}
+					const querySnapshot = await getDocs(q);
+					rawData = serialize(querySnapshot.docs.map((doc) => ({
+						id: doc.id,
+						...doc.data()
+					})));
+				}
 				allTripsRef.current = rawData;
 			}
 
