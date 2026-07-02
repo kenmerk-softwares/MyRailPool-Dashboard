@@ -103,5 +103,35 @@ const updateTripDriverAppValidator = (req, data) => {
   };
 };
 
-module.exports = {addDriverValidator, updatePaymentDriverValidator, updateTripDriverAppValidator};
+const updateUserBoardingStatusDriverValidator = (req, data) => {
+  const schema = Joi.object({
+    bookingId: Joi.string().required(),
+    userId: Joi.string().required(),
+    status: Joi.string().valid("boarded", "reachedDestination").required(),
+  });
+
+  const {error, value} = schema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: error.details.map((err) => err.message),
+    };
+  }
+
+  return {
+    success: true,
+    data: value,
+  };
+};
+
+module.exports = {
+  addDriverValidator,
+  updatePaymentDriverValidator,
+  updateTripDriverAppValidator,
+  updateUserBoardingStatusDriverValidator,
+};
 

@@ -65,8 +65,9 @@ const {tripReminderScheduler} = require("./modules/whatsapp/whatsapp.scheduled")
 exports.tripReminderScheduler = tripReminderScheduler;
 
 // ================== PAYMENT DRIVER ==================== //
-const {updatePaymentDriver, updateTripDriverApp} = require("./modules/driver/driver.callable");
+const {updatePaymentDriver, updateTripDriverApp, updateUserBoardingStatus} = require("./modules/driver/driver.callable");
 exports.updatePaymentDriver = updatePaymentDriver;
 exports.updateTripDriverApp = updateTripDriverApp;
+exports.updateUserBoardingStatus = updateUserBoardingStatus;
 
 

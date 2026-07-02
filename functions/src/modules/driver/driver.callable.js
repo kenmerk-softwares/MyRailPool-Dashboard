@@ -1,6 +1,6 @@
 const {callableWrapper} = require("../../shared/utils/callable.wrapper");
-const {addDriverService, updatePaymentDriverService, updateTripDriverAppService} = require("./driver.service");
-const {addDriverValidator, updatePaymentDriverValidator, updateTripDriverAppValidator} = require("./driver.validation");
+const {addDriverService, updatePaymentDriverService, updateTripDriverAppService, updateUserBoardingStatusDriverService} = require("./driver.service");
+const {addDriverValidator, updatePaymentDriverValidator, updateTripDriverAppValidator, updateUserBoardingStatusDriverValidator} = require("./driver.validation");
 
 // ==================== ADD DRIVER ==================== //
 const addDriver = callableWrapper(async (req) => {
@@ -29,5 +29,19 @@ const updateTripDriverApp = callableWrapper(async (req) => {
   return await updateTripDriverAppService(req.data || {}, req);
 });
 
-module.exports = {addDriver, updatePaymentDriver, updateTripDriverApp};
+// ================== UPDATE USER BOARDING STATUS ==================== //
+const updateUserBoardingStatus = callableWrapper(async (req) => {
+  const validateData = updateUserBoardingStatusDriverValidator(req, req.data);
+  if (!validateData.success) {
+    return validateData;
+  }
+  return await updateUserBoardingStatusDriverService(req.data || {}, req);
+});
+
+module.exports = {
+  addDriver,
+  updatePaymentDriver,
+  updateTripDriverApp,
+  updateUserBoardingStatus,
+};
 

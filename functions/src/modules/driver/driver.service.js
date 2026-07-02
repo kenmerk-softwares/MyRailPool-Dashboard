@@ -161,4 +161,86 @@ const updateTripDriverAppService = async (data, req) => {
   return { success: true, message: "Trip status updated successfully" };
 };
 
-module.exports = { addDriverService, updatePaymentDriverService, updateTripDriverAppService };
+const updateUserBoardingStatusDriverService = async (data, req) => {
+  const { bookingId, userId, status } = data;
+
+  const bookingRef = db.collection("bookings").doc(bookingId);
+  const bookingDoc = await bookingRef.get();
+  if (!bookingDoc.exists) {
+    return { success: false, error: "Booking not found" };
+  }
+
+  const bookingData = bookingDoc.data();
+  const usersArray = bookingData.users || [];
+
+  let userFound = false;
+  let matchedBookingNo = null;
+
+  const updatedUsersArray = usersArray.map((user) => {
+    if (user.userId === userId) {
+      userFound = true;
+      matchedBookingNo = user.bookingNo;
+      if (status === "boarded") {
+        return {
+          ...user,
+          boarded: true,
+          boardedTime: new Date(),
+          updatedAt: new Date(),
+        };
+      } else if (status === "reachedDestination") {
+        return {
+          ...user,
+          reachedDestination: true,
+          reachedDestinationTime: new Date(),
+          updatedAt: new Date(),
+        };
+      }
+    }
+    return user;
+  });
+
+  if (!userFound) {
+    return { success: false, error: "User not found in this booking" };
+  }
+
+  const batch = db.batch();
+
+  // 1. Update the booking document in bookings collection
+  batch.update(bookingRef, {
+    users: updatedUsersArray,
+    updatedAt: new Date(),
+  });
+
+  // 2. Update the user's booking subcollection if bookingNo exists
+  if (matchedBookingNo) {
+    const bookingNoSafe = matchedBookingNo.replace(/\//g, "-");
+    const userBookingRef = db.collection("users").doc(userId).collection("bookings").doc(bookingNoSafe);
+
+    const userBookingUpdate = {
+      updatedAt: new Date(),
+    };
+    if (status === "boarded") {
+      userBookingUpdate.boarded = true;
+      userBookingUpdate.boardedTime = new Date();
+    } else if (status === "reachedDestination") {
+      userBookingUpdate.reachedDestination = true;
+      userBookingUpdate.reachedDestinationTime = new Date();
+    }
+
+    batch.update(userBookingRef, userBookingUpdate);
+  }
+
+  await batch.commit();
+
+  return {
+    success: true,
+    message: `User status updated to ${status} successfully`,
+  };
+};
+
+module.exports = {
+  addDriverService,
+  updatePaymentDriverService,
+  updateTripDriverAppService,
+  updateUserBoardingStatusDriverService,
+};
